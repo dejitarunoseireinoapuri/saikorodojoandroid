@@ -20,6 +20,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -56,7 +61,11 @@ fun MenuScreen(
                 actions = {
                     IconButton(onClick = { }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                            imageVector = if (isDarkTheme) {
+                                Icons.Default.LightMode
+                            } else {
+                                Icons.Default.DarkMode
+                            },
                             contentDescription = if (isDarkTheme) {
                                 stringResource(R.string.cd_light_mode)
                             } else {
@@ -67,7 +76,11 @@ fun MenuScreen(
                     }
                     IconButton(onClick = { }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                            imageVector = if (isSoundMuted) {
+                                Icons.AutoMirrored.Filled.VolumeOff
+                            } else {
+                                Icons.AutoMirrored.Filled.VolumeUp
+                            },
                             contentDescription = if (isSoundMuted) {
                                 stringResource(R.string.cd_sound_off)
                             } else {
@@ -78,7 +91,7 @@ fun MenuScreen(
                     }
                     IconButton(onClick = { }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                            imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(R.string.cd_settings),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
