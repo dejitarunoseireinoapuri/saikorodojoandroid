@@ -67,7 +67,7 @@ fun MenuScreen(
                     }
                     IconButton(onClick = { }) {
                         Icon(
-                            painter = painterResource(id = R.mipmap.ic_launcher_round),
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
                             contentDescription = if (isSoundMuted) {
                                 stringResource(R.string.cd_sound_off)
                             } else {
@@ -78,7 +78,7 @@ fun MenuScreen(
                     }
                     IconButton(onClick = { }) {
                         Icon(
-                            painter = painterResource(id = R.mipmap.ic_launcher),
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
                             contentDescription = stringResource(R.string.cd_settings),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
