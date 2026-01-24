@@ -1,0 +1,84 @@
+# ---------------------------------------------
+# Android / Gradle / Kotlin
+# ---------------------------------------------
+.gradle/
+build/
+**/build/
+
+# Local config (SDK path, etc.)
+local.properties
+
+# Gradle (wrappers are committed, caches are not)
+.gradle-cache/
+gradle-app.setting
+
+# Do not commit gradle.properties (requested)
+gradle.properties
+**/gradle.properties
+
+# Kotlin / Kapt
+**/kapt/
+**/ksp/
+.kotlin/
+kotlin-js-store/
+
+# ---------------------------------------------
+# Android Studio / IntelliJ
+# ---------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Android Studio generated
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Logs
+*.log
+
+# ---------------------------------------------
+# OS files
+# ---------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------
+# NDK / CMake
+# ---------------------------------------------
+obj/
+*.so
+*.o
+*.a
+*.dll
+*.dylib
+
+# ---------------------------------------------
+# Firebase / Secrets (common)
+# ---------------------------------------------
+google-services.json
+**/google-services.json
+
+# Keystores / signing
+*.jks
+*.keystore
+**/keystore.properties
+key.properties
+
+# ---------------------------------------------
+# Misc / temp
+# ---------------------------------------------
+tmp/
+.temp/
+*.swp
+*.swo
+
+# ---------------------------------------------
+# (Optional) If you generate these locally
+# ---------------------------------------------
+# *.apk
+# *.aab
