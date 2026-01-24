@@ -18,6 +18,8 @@ class MenuScreenTest {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 MenuScreen(
+                    isDarkTheme = false,
+                    onToggleTheme = {},
                     onPlayClick = {},
                     onRulesClick = {}
                 )

@@ -43,10 +43,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 @Composable
 fun MenuScreen(
     modifier: Modifier = Modifier,
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit,
     onPlayClick: () -> Unit,
     onRulesClick: () -> Unit
 ) {
-    var isDarkTheme by remember { mutableStateOf(false) }
     var isSoundMuted by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -59,7 +60,7 @@ fun MenuScreen(
                 ),
                 title = { },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = onToggleTheme) {
                         Icon(
                             imageVector = if (isDarkTheme) {
                                 Icons.Default.LightMode
