@@ -34,10 +34,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dejitarunoseireinoapuri.saikorodojo.R
+
+internal const val MenuFontFamilyName = "sourcecodepro_variablefont_wght"
+internal val MenuFontFamilyKey = SemanticsPropertyKey<String>("MenuFontFamily")
+internal var SemanticsPropertyReceiver.menuFontFamily by MenuFontFamilyKey
+
+private val MenuFontFamily = FontFamily(Font(R.font.sourcecodepro_variablefont_wght))
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,10 +120,12 @@ fun MenuScreen(
         ) {
             Text(
                 text = stringResource(R.string.game_title),
-                fontFamily = FontFamily.Monospace,
+                fontFamily = MenuFontFamily,
                 fontSize = 28.sp,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.align(Alignment.TopCenter)
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .semantics { menuFontFamily = MenuFontFamilyName }
             )
 
             Column(
@@ -135,9 +147,10 @@ fun MenuScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.play),
-                        fontFamily = FontFamily.Monospace,
+                        fontFamily = MenuFontFamily,
                         fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.semantics { menuFontFamily = MenuFontFamilyName }
                     )
                 }
                 OutlinedButton(
@@ -153,9 +166,10 @@ fun MenuScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.rules),
-                        fontFamily = FontFamily.Monospace,
+                        fontFamily = MenuFontFamily,
                         fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.semantics { menuFontFamily = MenuFontFamilyName }
                     )
                 }
             }
