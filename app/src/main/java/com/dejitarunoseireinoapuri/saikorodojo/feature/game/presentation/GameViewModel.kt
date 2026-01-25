@@ -22,7 +22,8 @@ data class GameUiState(
     val diceCount: Int = DEFAULT_DICE_COUNT,
     val layoutSeed: Long = 0L,
     val isRolling: Boolean = false,
-    val selectedDice: Set<Int> = emptySet()
+    val selectedDice: Set<Int> = emptySet(),
+    val selectedDiceSum: Int = 0
 )
 
 sealed interface GameUiEvent {
@@ -64,7 +65,12 @@ class GameViewModel(
 
             repeat(steps) {
                 val values = rollDiceUseCase.execute(_uiState.value.diceCount)
-                _uiState.update { it.copy(diceValues = values) }
+                _uiState.update {
+                    it.copy(
+                        diceValues = values,
+                        selectedDiceSum = calculateSelectedDiceSum(values, it.selectedDice)
+                    )
+                }
                 delay(tickMs)
             }
 
@@ -82,8 +88,18 @@ class GameViewModel(
                 } else {
                     state.selectedDice + index
                 }
-                state.copy(selectedDice = updatedSelection)
+                state.copy(
+                    selectedDice = updatedSelection,
+                    selectedDiceSum = calculateSelectedDiceSum(state.diceValues, updatedSelection)
+                )
             }
         }
     }
+}
+
+private fun calculateSelectedDiceSum(
+    diceValues: List<Int>,
+    selectedDice: Set<Int>
+): Int {
+    return selectedDice.sumOf { index -> diceValues.getOrNull(index) ?: 0 }
 }
