@@ -71,8 +71,7 @@ fun GameScreen(
                     availableWidth = maxWidth - 40.dp,
                     availableHeight = 300.dp,
                     diceSize = diceSize,
-                    minSpacing = 4.dp,
-                    columns = diceCount.coerceAtMost(2)
+                    minSpacing = 4.dp
                 )
             }
             val diceFaces = remember(uiState.layoutSeed, diceCount) {
@@ -148,14 +147,13 @@ internal fun calculateRandomDicePositions(
     availableWidth: Dp,
     availableHeight: Dp,
     diceSize: Dp,
-    minSpacing: Dp,
-    columns: Int
+    minSpacing: Dp
 ): List<DicePosition> {
     if (diceCount <= 0) return emptyList()
     val maxX = (availableWidth - diceSize).coerceAtLeast(0.dp)
     val maxY = (availableHeight - diceSize).coerceAtLeast(0.dp)
-    val maxAttempts = 12
-    val maxPlacementTries = 80
+    val maxAttempts = 48
+    val maxPlacementTries = 200
     repeat(maxAttempts) { attempt ->
         val random = Random(seed + attempt)
         val positions = mutableListOf<DicePosition>()
@@ -182,34 +180,7 @@ internal fun calculateRandomDicePositions(
             return positions
         }
     }
-    return calculateGridPositions(
-        diceCount = diceCount,
-        columns = columns,
-        diceSize = diceSize,
-        minSpacing = minSpacing,
-        availableWidth = availableWidth,
-        availableHeight = availableHeight
-    )
-}
-
-internal fun calculateGridPositions(
-    diceCount: Int,
-    columns: Int,
-    diceSize: Dp,
-    minSpacing: Dp,
-    availableWidth: Dp,
-    availableHeight: Dp
-): List<DicePosition> {
-    if (diceCount <= 0) return emptyList()
-    val safeColumns = columns.coerceAtLeast(1)
-    val cellSize = diceSize + minSpacing
-    return List(diceCount) { index ->
-        val row = index / safeColumns
-        val column = index % safeColumns
-        val x = (cellSize * column).coerceAtMost(availableWidth - diceSize)
-        val y = (cellSize * row).coerceAtMost(availableHeight - diceSize)
-        DicePosition(x, y)
-    }
+    return emptyList()
 }
 
 private fun overlaps(
