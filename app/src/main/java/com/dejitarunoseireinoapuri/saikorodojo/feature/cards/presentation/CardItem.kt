@@ -1,0 +1,164 @@
+package com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.ExposurePlus1
+import androidx.compose.material.icons.filled.Flip
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+
+data class CardUiModel(
+    val title: String,
+    val description: String,
+    val icon: ImageVector,
+    val actionLabel: String = "Aplicar"
+)
+
+@Composable
+fun CardItem(
+    modifier: Modifier = Modifier,
+    card: CardUiModel,
+    onApplyClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(8.dp)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface, shape)
+            .border(width = 2.dp, color = Color.Black, shape = shape)
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Icon(
+                imageVector = card.icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(28.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = card.title,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = card.description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+        Spacer(modifier = Modifier.weight(1f, fill = false))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            OutlinedButton(
+                onClick = onApplyClick,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+                shape = RoundedCornerShape(2.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                modifier = Modifier.defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+            ) {
+                Text(
+                    text = card.actionLabel,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+internal fun defaultCardUiModels(): List<CardUiModel> {
+    return listOf(
+        CardUiModel(
+            title = "Ajustar ±1",
+            description = "Aumenta o reduce en 1 el valor de un dado, sin salir del rango del dado",
+            icon = Icons.Default.ExposurePlus1
+        ),
+        CardUiModel(
+            title = "Voltear cara",
+            description = "Invierte el valor del dado",
+            icon = Icons.Default.Flip
+        ),
+        CardUiModel(
+            title = "Relanzar un dado",
+            description = "Elige un dado y vuélvelo a tirar",
+            icon = Icons.Default.Casino
+        ),
+        CardUiModel(
+            title = "Relanzar todos menos uno",
+            description = "Elige un dado para conservar. Vuelve a tirar todos los demás",
+            icon = Icons.Default.RestartAlt
+        ),
+        CardUiModel(
+            title = "Fijar valor",
+            description = "Elige el valor final de un dado dentro de su rango",
+            icon = Icons.Default.PushPin
+        ),
+        CardUiModel(
+            title = "Repetir última carta",
+            description = "Repite el efecto de la última carta usada, eligiendo cualquier objetivo",
+            icon = Icons.Default.Replay
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CardItemPreview() {
+    SaikoroDojoTheme {
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            defaultCardUiModels().forEach { card ->
+                CardItem(card = card, onApplyClick = {})
+            }
+        }
+    }
+}
