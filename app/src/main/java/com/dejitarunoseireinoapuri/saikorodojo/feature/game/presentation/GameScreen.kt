@@ -63,7 +63,7 @@ fun GameScreen(
                 diceCount = diceCount,
                 spacing = 4.dp,
                 columns = diceCount.coerceAtMost(2)
-            )
+            ) * 0.67f
             val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
                 calculateRandomDicePositions(
                     seed = uiState.layoutSeed,
@@ -71,7 +71,7 @@ fun GameScreen(
                     availableWidth = maxWidth - 16.dp,
                     availableHeight = 400.dp,
                     diceSize = diceSize,
-                    minSpacing = 4.dp
+                    minSpacing = 2.dp
                 )
             }
             Box(
@@ -141,7 +141,7 @@ private fun calculateRandomDicePositions(
     val positions = mutableListOf<DicePosition>()
     repeat(diceCount) { index ->
         var placed = false
-        repeat(40) {
+        repeat(60) {
             val candidate = DicePosition(
                 x = (maxX.value * random.nextFloat()).dp,
                 y = (maxY.value * random.nextFloat()).dp
@@ -153,12 +153,35 @@ private fun calculateRandomDicePositions(
             }
         }
         if (!placed) {
-            val fallbackX = (maxX.value * index / diceCount.coerceAtLeast(1)).dp
-            val fallbackY = (maxY.value * ((index + 1) % 3) / 2f).dp
-            positions.add(DicePosition(fallbackX, fallbackY))
+            val fallback = fallbackGridPosition(
+                index = index,
+                diceSize = diceSize,
+                minSpacing = minSpacing,
+                availableWidth = availableWidth,
+                availableHeight = availableHeight
+            )
+            positions.add(fallback)
         }
     }
     return positions
+}
+
+private fun fallbackGridPosition(
+    index: Int,
+    diceSize: Dp,
+    minSpacing: Dp,
+    availableWidth: Dp,
+    availableHeight: Dp
+): DicePosition {
+    val cellSize = diceSize + minSpacing
+    val columns = ((availableWidth + minSpacing) / cellSize).toInt().coerceAtLeast(1)
+    val rows = ((availableHeight + minSpacing) / cellSize).toInt().coerceAtLeast(1)
+    val safeIndex = index % (columns * rows)
+    val row = safeIndex / columns
+    val column = safeIndex % columns
+    val x = (cellSize * column).coerceAtMost(availableWidth - diceSize)
+    val y = (cellSize * row).coerceAtMost(availableHeight - diceSize)
+    return DicePosition(x, y)
 }
 
 private fun overlaps(
