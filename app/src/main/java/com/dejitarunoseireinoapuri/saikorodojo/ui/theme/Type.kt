@@ -8,9 +8,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 
-val SourceCodeProFontFamily = FontFamily(Font(R.font.sourcecodepro_variablefont_wght))
+val SourceCodeProFontFamily = FontFamily(
+    Font(R.font.sourcecodepro_variablefont_wght, FontWeight.Normal),
+    Font(R.font.sourcecodepro_bold, FontWeight.Bold)
+)
 
 val Typography = Typography(
+    titleLarge = TextStyle(
+        fontFamily = SourceCodeProFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp,
+        lineHeight = 34.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = SourceCodeProFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.5.sp
+    ),
     bodyLarge = TextStyle(
         fontFamily = SourceCodeProFontFamily,
         fontWeight = FontWeight.Normal,
