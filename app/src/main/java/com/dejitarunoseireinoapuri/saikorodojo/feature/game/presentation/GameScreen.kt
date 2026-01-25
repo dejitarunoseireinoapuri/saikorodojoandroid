@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
-import kotlin.random.Random
 
 @Composable
 fun GameRoute(
@@ -64,15 +63,14 @@ fun GameScreen(
                 spacing = 4.dp,
                 columns = diceCount.coerceAtMost(2)
             ) * 0.89f
-            val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
-                calculateRandomDicePositions(
-                    seed = uiState.layoutSeed,
+            val positions = remember(maxWidth, diceCount) {
+                calculateGridPositions(
                     diceCount = diceCount,
-                    availableWidth = maxWidth - 40.dp,
-                    availableHeight = 300.dp,
+                    columns = diceCount.coerceAtMost(2),
                     diceSize = diceSize,
                     minSpacing = 4.dp,
-                    columns = diceCount.coerceAtMost(2)
+                    availableWidth = maxWidth - 40.dp,
+                    availableHeight = 300.dp
                 )
             }
             val diceFaces = remember(uiState.layoutSeed, diceCount) {
@@ -142,49 +140,6 @@ private fun calculateDiceSize(
 
 internal data class DicePosition(val x: Dp, val y: Dp)
 
-private fun calculateRandomDicePositions(
-    seed: Long,
-    diceCount: Int,
-    availableWidth: Dp,
-    availableHeight: Dp,
-    diceSize: Dp,
-    minSpacing: Dp,
-    columns: Int
-): List<DicePosition> {
-    if (diceCount <= 0) return emptyList()
-    val random = Random(seed)
-    val maxX = (availableWidth - diceSize).coerceAtLeast(0.dp)
-    val maxY = (availableHeight - diceSize).coerceAtLeast(0.dp)
-    val positions = mutableListOf<DicePosition>()
-    val fallbackPositions = calculateGridPositions(
-        diceCount = diceCount,
-        columns = columns,
-        diceSize = diceSize,
-        minSpacing = minSpacing,
-        availableWidth = availableWidth,
-        availableHeight = availableHeight
-    )
-    repeat(diceCount) { index ->
-        var placed = false
-        repeat(60) {
-            val candidate = DicePosition(
-                x = (maxX.value * random.nextFloat()).dp,
-                y = (maxY.value * random.nextFloat()).dp
-            )
-            if (positions.none { overlaps(candidate, it, diceSize, minSpacing) }) {
-                positions.add(candidate)
-                placed = true
-                return@repeat
-            }
-        }
-        if (!placed) {
-            val fallback = fallbackPositions.getOrElse(index) { DicePosition(0.dp, 0.dp) }
-            positions.add(fallback)
-        }
-    }
-    return positions
-}
-
 internal fun calculateGridPositions(
     diceCount: Int,
     columns: Int,
@@ -203,22 +158,6 @@ internal fun calculateGridPositions(
         val y = (cellSize * row).coerceAtMost(availableHeight - diceSize)
         DicePosition(x, y)
     }
-}
-
-private fun overlaps(
-    first: DicePosition,
-    second: DicePosition,
-    diceSize: Dp,
-    minSpacing: Dp
-): Boolean {
-    val sizeWithSpacing = diceSize + minSpacing
-    val firstRight = first.x + sizeWithSpacing
-    val firstBottom = first.y + sizeWithSpacing
-    val secondRight = second.x + sizeWithSpacing
-    val secondBottom = second.y + sizeWithSpacing
-    val overlapsHorizontally = first.x < secondRight && firstRight > second.x
-    val overlapsVertically = first.y < secondBottom && firstBottom > second.y
-    return overlapsHorizontally && overlapsVertically
 }
 
 internal fun selectDiceFaceDrawables(
