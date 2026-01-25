@@ -2,6 +2,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,14 +41,16 @@ fun GameRoute(
 
     GameScreen(
         modifier = modifier,
-        uiState = uiState
+        uiState = uiState,
+        onDiceClick = { index -> viewModel.onEvent(GameUiEvent.ToggleDiceSelection(index)) }
     )
 }
 
 @Composable
 fun GameScreen(
     modifier: Modifier = Modifier,
-    uiState: GameUiState
+    uiState: GameUiState,
+    onDiceClick: (Int) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -90,8 +93,18 @@ fun GameScreen(
                 uiState.diceValues.forEachIndexed { index, value ->
                     val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
                     val faceDrawable = diceFaces.getOrElse(index) { DiceFaceDrawables.first() }
-                    Box(modifier = Modifier.offset(x = position.x, y = position.y)) {
-                        DiceFace(number = value, size = diceSize, faceDrawable = faceDrawable)
+                    val isSelected = uiState.selectedDice.contains(index)
+                    Box(
+                        modifier = Modifier
+                            .offset(x = position.x, y = position.y)
+                            .clickable { onDiceClick(index) }
+                    ) {
+                        DiceFace(
+                            number = value,
+                            size = diceSize,
+                            faceDrawable = faceDrawable,
+                            isSelected = isSelected
+                        )
                     }
                 }
             }
@@ -106,13 +119,13 @@ private val DiceFaceDrawables = listOf(
 )
 
 @Composable
-private fun DiceFace(number: Int, size: Dp, faceDrawable: Int) {
+private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boolean) {
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = faceDrawable),
+            painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected)),
             contentDescription = stringResource(R.string.cd_dice_face, number)
         )
         Text(
@@ -188,5 +201,15 @@ internal fun diceNumberYOffset(faceDrawable: Int): Dp {
         6.dp
     } else {
         0.dp
+    }
+}
+
+internal fun diceFaceDrawable(faceDrawable: Int, isSelected: Boolean): Int {
+    if (!isSelected) return faceDrawable
+    return when (faceDrawable) {
+        R.drawable.six_sides -> R.drawable.six_sides_selected
+        R.drawable.eigth_sides -> R.drawable.eigth_sides_selected
+        R.drawable.ten_sides -> R.drawable.ten_sides_selected
+        else -> faceDrawable
     }
 }

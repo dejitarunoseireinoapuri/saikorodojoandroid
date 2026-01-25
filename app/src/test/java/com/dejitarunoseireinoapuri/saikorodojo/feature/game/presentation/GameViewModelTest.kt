@@ -72,6 +72,32 @@ class GameViewModelTest {
         assertFalse(viewModel.uiState.value.isRolling)
         assertEquals(expected, viewModel.uiState.value.diceValues)
     }
+
+    @Test
+    fun `toggle dice selection adds and removes index`() = runTest(mainDispatcherRule.dispatcher) {
+        val viewModel = GameViewModel(
+            dispatcher = mainDispatcherRule.dispatcher,
+            diceCount = 3
+        )
+
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(1))
+        assertEquals(setOf(1), viewModel.uiState.value.selectedDice)
+
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(1))
+        assertEquals(emptySet<Int>(), viewModel.uiState.value.selectedDice)
+    }
+
+    @Test
+    fun `toggle dice selection ignores invalid index`() = runTest(mainDispatcherRule.dispatcher) {
+        val viewModel = GameViewModel(
+            dispatcher = mainDispatcherRule.dispatcher,
+            diceCount = 2
+        )
+
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(5))
+
+        assertEquals(emptySet<Int>(), viewModel.uiState.value.selectedDice)
+    }
 }
 
 private class SequenceRandomProvider(

@@ -32,6 +32,20 @@ class GameScreenTest {
     }
 
     @Test
+    fun `dice face drawable uses selected asset when selected`() {
+        val result = diceFaceDrawable(R.drawable.six_sides, true)
+
+        assertEquals(R.drawable.six_sides_selected, result)
+    }
+
+    @Test
+    fun `dice face drawable keeps original asset when not selected`() {
+        val result = diceFaceDrawable(R.drawable.ten_sides, false)
+
+        assertEquals(R.drawable.ten_sides, result)
+    }
+
+    @Test
     fun `grid positions keep minimum spacing`() {
         val diceSize = 50.dp
         val minSpacing = 4.dp
