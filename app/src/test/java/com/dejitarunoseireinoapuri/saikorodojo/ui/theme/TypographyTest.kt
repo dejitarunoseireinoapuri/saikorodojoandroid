@@ -11,7 +11,7 @@ class TypographyTest {
         val appTypography = Typography
 
         assertEquals(SourceCodeProFontFamily, appTypography.titleLarge.fontFamily)
-        assertEquals(FontWeight.Bold, appTypography.titleLarge.fontWeight)
+        assertEquals(FontWeight.Medium, appTypography.titleLarge.fontWeight)
         assertEquals(28.sp, appTypography.titleLarge.fontSize)
 
         assertEquals(SourceCodeProFontFamily, appTypography.labelLarge.fontFamily)
