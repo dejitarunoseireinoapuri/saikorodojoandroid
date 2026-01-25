@@ -58,17 +58,17 @@ fun GameScreen(
         BoxWithConstraints {
             val diceCount = uiState.diceValues.size
             val diceSize = calculateDiceSize(
-                availableWidth = maxWidth - 16.dp,
+                availableWidth = maxWidth - 40.dp,
                 availableHeight = 300.dp,
                 diceCount = diceCount,
                 spacing = 4.dp,
                 columns = diceCount.coerceAtMost(2)
-            ) * 0.67f
+            ) * 0.89f
             val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
                 calculateRandomDicePositions(
                     seed = uiState.layoutSeed,
                     diceCount = diceCount,
-                    availableWidth = maxWidth - 16.dp,
+                    availableWidth = maxWidth - 40.dp,
                     availableHeight = 300.dp,
                     diceSize = diceSize,
                     minSpacing = 2.dp
@@ -76,7 +76,7 @@ fun GameScreen(
             }
             Box(
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 20.dp)
                     .height(300.dp)
                     .fillMaxWidth()
             ) {
