@@ -31,11 +31,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.annotation.StringRes
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
@@ -72,11 +78,18 @@ fun CardItem(
         ) {
             Text(
                 text = stringResource(card.titleRes),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = rememberFittingTitleSize(
+                        text = stringResource(card.titleRes),
+                        style = MaterialTheme.typography.titleMedium,
+                        maxWidthDp = DefaultCardSize.width - 24.dp
+                    )
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                overflow = TextOverflow.Ellipsis
             )
             Icon(
                 imageVector = card.icon,
@@ -112,6 +125,30 @@ fun CardItem(
             )
         }
     }
+}
+
+@Composable
+private fun rememberFittingTitleSize(
+    text: String,
+    style: TextStyle,
+    maxWidthDp: androidx.compose.ui.unit.Dp
+): TextUnit {
+    val textMeasurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val maxWidthPx = with(density) { maxWidthDp.roundToPx() }
+    val candidateSizes = titleFontSizes()
+    return candidateSizes.firstOrNull { fontSize ->
+        val measured = textMeasurer.measure(
+            text = text,
+            style = style.copy(fontSize = fontSize),
+            maxLines = 1
+        )
+        measured.size.width <= maxWidthPx
+    } ?: candidateSizes.last()
+}
+
+internal fun titleFontSizes(): List<TextUnit> {
+    return listOf(18.sp, 17.sp, 16.sp, 15.sp, 14.sp, 13.sp, 12.sp)
 }
 
 internal fun defaultCardUiModels(): List<CardUiModel> {
