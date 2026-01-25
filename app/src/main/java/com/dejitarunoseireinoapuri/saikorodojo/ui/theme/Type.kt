@@ -13,6 +13,7 @@ val SourceCodeProFontFamily = FontFamily(Font(R.font.sourcecodepro_variablefont_
 val Typography = Typography(
     defaultFontFamily = SourceCodeProFontFamily,
     bodyLarge = TextStyle(
+        fontFamily = SourceCodeProFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
