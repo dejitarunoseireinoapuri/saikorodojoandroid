@@ -59,7 +59,7 @@ fun GameScreen(
             val diceCount = uiState.diceValues.size
             val diceSize = calculateDiceSize(
                 availableWidth = maxWidth - 16.dp,
-                availableHeight = 400.dp,
+                availableHeight = 60.dp,
                 diceCount = diceCount,
                 spacing = 4.dp,
                 columns = diceCount.coerceAtMost(2)
@@ -69,7 +69,7 @@ fun GameScreen(
                     seed = uiState.layoutSeed,
                     diceCount = diceCount,
                     availableWidth = maxWidth - 16.dp,
-                    availableHeight = 400.dp,
+                    availableHeight = 60.dp,
                     diceSize = diceSize,
                     minSpacing = 2.dp
                 )
@@ -77,7 +77,7 @@ fun GameScreen(
             Box(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .height(400.dp)
+                    .height(60.dp)
                     .fillMaxWidth()
             ) {
                 uiState.diceValues.forEachIndexed { index, value ->
