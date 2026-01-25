@@ -3,6 +3,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -97,7 +98,10 @@ fun GameScreen(
                     Box(
                         modifier = Modifier
                             .offset(x = position.x, y = position.y)
-                            .clickable { onDiceClick(index) }
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { onDiceClick(index) }
                     ) {
                         DiceFace(
                             number = value,
