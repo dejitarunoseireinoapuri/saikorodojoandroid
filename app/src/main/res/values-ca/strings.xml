@@ -9,4 +9,18 @@
     <string name="cd_sound_off">So desactivat</string>
     <string name="cd_settings">Configuració</string>
     <string name="cd_dice_face">Cara del dau %1$d</string>
+    <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
+    <string name="apply">Aplicar</string>
+    <string name="card_adjust_plus_minus_one_title">Ajustar ±1</string>
+    <string name="card_adjust_plus_minus_one_description">Augmenta o redueix en 1 el valor d’un dau, sense sortir del rang del dau</string>
+    <string name="card_flip_face_title">Girar dau</string>
+    <string name="card_flip_face_description">Inverteix el valor del dau</string>
+    <string name="card_reroll_single_title">Tornar a tirar un dau</string>
+    <string name="card_reroll_single_description">Tria un dau i torna’l a tirar</string>
+    <string name="card_reroll_all_except_one_title">Tornar a tirar tots menys un</string>
+    <string name="card_reroll_all_except_one_description">Tria un dau per conservar. Torna a tirar tots els altres</string>
+    <string name="card_set_value_title">Fixar valor</string>
+    <string name="card_set_value_description">Tria el valor final d’un dau dins del seu rang</string>
+    <string name="card_repeat_last_title">Repetir l’última carta</string>
+    <string name="card_repeat_last_description">Repeteix l’efecte de l’última carta usada, triant qualsevol objectiu</string>
 </resources>
