@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -33,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.annotation.StringRes
@@ -46,7 +49,7 @@ data class CardUiModel(
     @StringRes val actionLabelRes: Int = R.string.apply
 )
 
-internal val DefaultCardSize = DpSize(width = 220.dp, height = 260.dp)
+internal val DefaultCardSize = DpSize(width = 180.dp, height = 260.dp)
 
 @Composable
 fun CardItem(
@@ -68,7 +71,9 @@ fun CardItem(
             text = stringResource(card.titleRes),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
         Icon(
             imageVector = card.icon,
@@ -143,14 +148,15 @@ internal fun defaultCardUiModels(): List<CardUiModel> {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 360, heightDp = 1800)
 @Composable
 private fun CardItemPreview() {
     SaikoroDojoTheme {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             defaultCardUiModels().forEach { card ->
