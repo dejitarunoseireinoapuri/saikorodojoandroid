@@ -74,6 +74,13 @@ fun GameScreen(
                     minSpacing = 2.dp
                 )
             }
+            val diceFaces = remember(uiState.layoutSeed, diceCount) {
+                selectDiceFaceDrawables(
+                    seed = uiState.layoutSeed,
+                    diceCount = diceCount,
+                    faces = DiceFaceDrawables
+                )
+            }
             Box(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
@@ -82,8 +89,9 @@ fun GameScreen(
             ) {
                 uiState.diceValues.forEachIndexed { index, value ->
                     val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
+                    val faceDrawable = diceFaces.getOrElse(index) { DiceFaceDrawables.first() }
                     Box(modifier = Modifier.offset(x = position.x, y = position.y)) {
-                        DiceFace(number = value, size = diceSize)
+                        DiceFace(number = value, size = diceSize, faceDrawable = faceDrawable)
                     }
                 }
             }
@@ -91,14 +99,20 @@ fun GameScreen(
     }
 }
 
+private val DiceFaceDrawables = listOf(
+    R.drawable.six_sides,
+    R.drawable.eigth_sides,
+    R.drawable.ten_sides
+)
+
 @Composable
-private fun DiceFace(number: Int, size: Dp) {
+private fun DiceFace(number: Int, size: Dp, faceDrawable: Int) {
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.six_sides),
+            painter = painterResource(id = faceDrawable),
             contentDescription = stringResource(R.string.cd_dice_face, number)
         )
         Text(
@@ -198,4 +212,14 @@ private fun overlaps(
     val overlapsHorizontally = first.x < secondRight && firstRight > second.x
     val overlapsVertically = first.y < secondBottom && firstBottom > second.y
     return overlapsHorizontally && overlapsVertically
+}
+
+internal fun selectDiceFaceDrawables(
+    seed: Long,
+    diceCount: Int,
+    faces: List<Int>
+): List<Int> {
+    if (diceCount <= 0 || faces.isEmpty()) return emptyList()
+    val random = Random(seed)
+    return List(diceCount) { faces[random.nextInt(faces.size)] }
 }
