@@ -8,6 +8,34 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 
 class GameScreenTest {
     @Test
+    fun `calculate dice size returns zero when dice count is zero`() {
+        val result = calculateDiceSize(
+            availableWidth = 100.dp,
+            availableHeight = 100.dp,
+            diceCount = 0,
+            spacing = 4.dp,
+            columns = 2
+        )
+
+        assertEquals(0.dp, result)
+    }
+
+    @Test
+    fun `calculate dice size uses the smallest dimension`() {
+        val result = calculateDiceSize(
+            availableWidth = 120.dp,
+            availableHeight = 60.dp,
+            diceCount = 4,
+            spacing = 4.dp,
+            columns = 2
+        )
+
+        val expected = (60.dp - 4.dp) / 2
+
+        assertEquals(expected, result)
+    }
+
+    @Test
     fun `select dice face drawables is deterministic for the same seed`() {
         val faces = listOf(10, 20, 30)
 
@@ -27,8 +55,20 @@ class GameScreenTest {
     }
 
     @Test
+    fun `select dice face drawables returns empty when faces list is empty`() {
+        val result = selectDiceFaceDrawables(seed = 42L, diceCount = 3, faces = emptyList())
+
+        assertEquals(emptyList<Int>(), result)
+    }
+
+    @Test
     fun `dice number y offset is applied for eight sides`() {
         assertEquals(6.dp, diceNumberYOffset(R.drawable.eigth_sides))
+    }
+
+    @Test
+    fun `dice number y offset is zero for other faces`() {
+        assertEquals(0.dp, diceNumberYOffset(R.drawable.six_sides))
     }
 
     @Test
@@ -43,6 +83,27 @@ class GameScreenTest {
         val result = diceFaceDrawable(R.drawable.ten_sides, false)
 
         assertEquals(R.drawable.ten_sides, result)
+    }
+
+    @Test
+    fun `dice face drawable keeps original asset for unknown faces`() {
+        val result = diceFaceDrawable(faceDrawable = 9999, isSelected = true)
+
+        assertEquals(9999, result)
+    }
+
+    @Test
+    fun `grid positions returns empty when dice count is zero`() {
+        val positions = calculateRandomDicePositions(
+            seed = 42L,
+            diceCount = 0,
+            availableWidth = 200.dp,
+            availableHeight = 200.dp,
+            diceSize = 50.dp,
+            minSpacing = 4.dp
+        )
+
+        assertEquals(emptyList<DicePosition>(), positions)
     }
 
     @Test

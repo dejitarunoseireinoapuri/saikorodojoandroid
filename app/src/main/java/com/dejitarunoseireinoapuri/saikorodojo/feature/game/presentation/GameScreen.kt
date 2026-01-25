@@ -149,7 +149,7 @@ private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boole
     }
 }
 
-private fun calculateDiceSize(
+internal fun calculateDiceSize(
     availableWidth: Dp,
     availableHeight: Dp,
     diceCount: Int,
