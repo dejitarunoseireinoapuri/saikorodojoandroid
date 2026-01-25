@@ -173,22 +173,6 @@ internal fun calculateRandomDicePositions(
     }
 }
 
-private fun overlaps(
-    first: DicePosition,
-    second: DicePosition,
-    diceSize: Dp,
-    minSpacing: Dp
-): Boolean {
-    val sizeWithSpacing = diceSize + minSpacing
-    val firstRight = first.x + sizeWithSpacing
-    val firstBottom = first.y + sizeWithSpacing
-    val secondRight = second.x + sizeWithSpacing
-    val secondBottom = second.y + sizeWithSpacing
-    val overlapsHorizontally = first.x < secondRight && firstRight > second.x
-    val overlapsVertically = first.y < secondBottom && firstBottom > second.y
-    return overlapsHorizontally && overlapsVertically
-}
-
 internal fun selectDiceFaceDrawables(
     seed: Long,
     diceCount: Int,
