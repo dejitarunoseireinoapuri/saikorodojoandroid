@@ -41,10 +41,10 @@ class GameScreenTest {
             availableWidth = 200.dp,
             availableHeight = 200.dp,
             diceSize = diceSize,
-            minSpacing = minSpacing,
-            columns = 2
+            minSpacing = minSpacing
         )
 
+        assertEquals(4, positions.size)
         assertTrue(positions.all { position ->
             positions.filterNot { it == position }.all {
                 !overlaps(position, it, diceSize, minSpacing)
