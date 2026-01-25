@@ -71,7 +71,8 @@ fun GameScreen(
                     availableWidth = maxWidth - 40.dp,
                     availableHeight = 300.dp,
                     diceSize = diceSize,
-                    minSpacing = 2.dp
+                    minSpacing = 2.dp,
+                    columns = diceCount.coerceAtMost(2)
                 )
             }
             val diceFaces = remember(uiState.layoutSeed, diceCount) {
@@ -139,7 +140,7 @@ private fun calculateDiceSize(
     return minOf(widthBasedSize, heightBasedSize)
 }
 
-private data class DicePosition(val x: Dp, val y: Dp)
+internal data class DicePosition(val x: Dp, val y: Dp)
 
 private fun calculateRandomDicePositions(
     seed: Long,
@@ -147,13 +148,22 @@ private fun calculateRandomDicePositions(
     availableWidth: Dp,
     availableHeight: Dp,
     diceSize: Dp,
-    minSpacing: Dp
+    minSpacing: Dp,
+    columns: Int
 ): List<DicePosition> {
     if (diceCount <= 0) return emptyList()
     val random = Random(seed)
     val maxX = (availableWidth - diceSize).coerceAtLeast(0.dp)
     val maxY = (availableHeight - diceSize).coerceAtLeast(0.dp)
     val positions = mutableListOf<DicePosition>()
+    val fallbackPositions = calculateGridPositions(
+        diceCount = diceCount,
+        columns = columns,
+        diceSize = diceSize,
+        minSpacing = minSpacing,
+        availableWidth = availableWidth,
+        availableHeight = availableHeight
+    )
     repeat(diceCount) { index ->
         var placed = false
         repeat(60) {
@@ -168,35 +178,31 @@ private fun calculateRandomDicePositions(
             }
         }
         if (!placed) {
-            val fallback = fallbackGridPosition(
-                index = index,
-                diceSize = diceSize,
-                minSpacing = minSpacing,
-                availableWidth = availableWidth,
-                availableHeight = availableHeight
-            )
+            val fallback = fallbackPositions.getOrElse(index) { DicePosition(0.dp, 0.dp) }
             positions.add(fallback)
         }
     }
     return positions
 }
 
-private fun fallbackGridPosition(
-    index: Int,
+internal fun calculateGridPositions(
+    diceCount: Int,
+    columns: Int,
     diceSize: Dp,
     minSpacing: Dp,
     availableWidth: Dp,
     availableHeight: Dp
-): DicePosition {
+): List<DicePosition> {
+    if (diceCount <= 0) return emptyList()
+    val safeColumns = columns.coerceAtLeast(1)
     val cellSize = diceSize + minSpacing
-    val columns = ((availableWidth + minSpacing) / cellSize).toInt().coerceAtLeast(1)
-    val rows = ((availableHeight + minSpacing) / cellSize).toInt().coerceAtLeast(1)
-    val safeIndex = index % (columns * rows)
-    val row = safeIndex / columns
-    val column = safeIndex % columns
-    val x = (cellSize * column).coerceAtMost(availableWidth - diceSize)
-    val y = (cellSize * row).coerceAtMost(availableHeight - diceSize)
-    return DicePosition(x, y)
+    return List(diceCount) { index ->
+        val row = index / safeColumns
+        val column = index % safeColumns
+        val x = (cellSize * column).coerceAtMost(availableWidth - diceSize)
+        val y = (cellSize * row).coerceAtMost(availableHeight - diceSize)
+        DicePosition(x, y)
+    }
 }
 
 private fun overlaps(

@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -29,4 +30,40 @@ class GameScreenTest {
     fun `dice number y offset is applied for eight sides`() {
         assertEquals(6.dp, diceNumberYOffset(R.drawable.eigth_sides))
     }
+
+    @Test
+    fun `grid positions keep minimum spacing`() {
+        val diceSize = 50.dp
+        val minSpacing = 2.dp
+        val positions = calculateGridPositions(
+            diceCount = 4,
+            columns = 2,
+            diceSize = diceSize,
+            minSpacing = minSpacing,
+            availableWidth = 200.dp,
+            availableHeight = 200.dp
+        )
+
+        assertTrue(positions.all { position ->
+            positions.filterNot { it == position }.all {
+                !overlaps(position, it, diceSize, minSpacing)
+            }
+        })
+    }
+}
+
+private fun overlaps(
+    first: DicePosition,
+    second: DicePosition,
+    diceSize: androidx.compose.ui.unit.Dp,
+    minSpacing: androidx.compose.ui.unit.Dp
+): Boolean {
+    val sizeWithSpacing = diceSize + minSpacing
+    val firstRight = first.x + sizeWithSpacing
+    val firstBottom = first.y + sizeWithSpacing
+    val secondRight = second.x + sizeWithSpacing
+    val secondBottom = second.y + sizeWithSpacing
+    val overlapsHorizontally = first.x < secondRight && firstRight > second.x
+    val overlapsVertically = first.y < secondBottom && firstBottom > second.y
+    return overlapsHorizontally && overlapsVertically
 }
