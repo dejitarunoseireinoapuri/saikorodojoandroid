@@ -21,11 +21,13 @@ data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
     val layoutSeed: Long = 0L,
-    val isRolling: Boolean = false
+    val isRolling: Boolean = false,
+    val selectedDice: Set<Int> = emptySet()
 )
 
 sealed interface GameUiEvent {
     data object StartRoll : GameUiEvent
+    data class ToggleDiceSelection(val index: Int) : GameUiEvent
 }
 
 class GameViewModel(
@@ -49,6 +51,7 @@ class GameViewModel(
     fun onEvent(event: GameUiEvent) {
         when (event) {
             GameUiEvent.StartRoll -> startRolling()
+            is GameUiEvent.ToggleDiceSelection -> toggleDiceSelection(event.index)
         }
     }
 
@@ -66,6 +69,21 @@ class GameViewModel(
             }
 
             _uiState.update { it.copy(isRolling = false) }
+        }
+    }
+
+    private fun toggleDiceSelection(index: Int) {
+        _uiState.update { state ->
+            if (index !in state.diceValues.indices) {
+                state
+            } else {
+                val updatedSelection = if (state.selectedDice.contains(index)) {
+                    state.selectedDice - index
+                } else {
+                    state.selectedDice + index
+                }
+                state.copy(selectedDice = updatedSelection)
+            }
         }
     }
 }
