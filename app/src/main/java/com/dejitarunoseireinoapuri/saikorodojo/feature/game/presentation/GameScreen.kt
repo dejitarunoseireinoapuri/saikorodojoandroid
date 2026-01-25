@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -109,7 +110,9 @@ private val DiceFaceDrawables = listOf(
 @Composable
 private fun DiceFace(number: Int, size: Dp, faceDrawable: Int) {
     Box(
-        modifier = Modifier.size(size),
+        modifier = Modifier
+            .size(size)
+            .shadow(diceShadowElevation(), clip = false),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -238,3 +241,5 @@ internal fun diceNumberYOffset(faceDrawable: Int): Dp {
         0.dp
     }
 }
+
+internal fun diceShadowElevation(): Dp = 4.dp
