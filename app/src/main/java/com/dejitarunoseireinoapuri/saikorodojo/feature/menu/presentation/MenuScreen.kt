@@ -34,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -110,8 +109,7 @@ fun MenuScreen(
         ) {
             Text(
                 text = stringResource(R.string.game_title),
-                fontFamily = FontFamily.Monospace,
-                fontSize = 28.sp,
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 28.sp),
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
@@ -135,8 +133,7 @@ fun MenuScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.play),
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -153,8 +150,7 @@ fun MenuScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.rules),
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
