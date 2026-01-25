@@ -2,6 +2,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.R
 
 class GameScreenTest {
     @Test
@@ -21,5 +23,10 @@ class GameScreenTest {
         val result = selectDiceFaceDrawables(seed = 42L, diceCount = 0, faces = faces)
 
         assertEquals(emptyList<Int>(), result)
+    }
+
+    @Test
+    fun `dice number y offset is applied for eight sides`() {
+        assertEquals(6.dp, diceNumberYOffset(R.drawable.eigth_sides))
     }
 }
