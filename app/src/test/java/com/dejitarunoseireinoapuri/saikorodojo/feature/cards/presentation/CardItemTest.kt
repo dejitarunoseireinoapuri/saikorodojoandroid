@@ -5,6 +5,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 class CardItemTest {
     @Test
@@ -38,5 +39,12 @@ class CardItemTest {
         assertEquals(200.dp, DefaultCardSize.width)
         assertEquals(280.dp, DefaultCardSize.height)
         assertTrue(DefaultCardSize.height > DefaultCardSize.width)
+    }
+
+    @Test
+    fun `title font sizes are ordered from largest to smallest`() {
+        val sizes = titleFontSizes()
+
+        assertEquals(listOf(18.sp, 17.sp, 16.sp, 15.sp, 14.sp, 13.sp, 12.sp), sizes)
     }
 }
