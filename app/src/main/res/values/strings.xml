@@ -23,4 +23,6 @@
     <string name="card_set_value_description">Choose the final value of a die within its range</string>
     <string name="card_repeat_last_title">Repeat last card</string>
     <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target</string>
+    <string name="card_retry_title">Reintento</string>
+    <string name="card_retry_description">Reinicia el nivel</string>
 </resources>
