@@ -19,19 +19,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Casino
-import androidx.compose.material.icons.filled.ExposurePlus1
-import androidx.compose.material.icons.filled.Flip
-import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -42,6 +35,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
@@ -49,7 +43,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 data class CardUiModel(
     @StringRes val titleRes: Int,
     @StringRes val descriptionRes: Int,
-    val icon: ImageVector,
+    @DrawableRes val iconRes: Int,
     @StringRes val actionLabelRes: Int = R.string.apply
 )
 
@@ -92,7 +86,7 @@ fun CardItem(
                 overflow = TextOverflow.Ellipsis
             )
             Icon(
-                imageVector = card.icon,
+                painter = painterResource(card.iconRes),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
@@ -156,32 +150,32 @@ internal fun defaultCardUiModels(): List<CardUiModel> {
         CardUiModel(
             titleRes = R.string.card_adjust_plus_minus_one_title,
             descriptionRes = R.string.card_adjust_plus_minus_one_description,
-            icon = Icons.Default.ExposurePlus1
+            iconRes = R.drawable.ic_card_adjust
         ),
         CardUiModel(
             titleRes = R.string.card_flip_face_title,
             descriptionRes = R.string.card_flip_face_description,
-            icon = Icons.Default.Flip
+            iconRes = R.drawable.ic_card_flip
         ),
         CardUiModel(
             titleRes = R.string.card_reroll_single_title,
             descriptionRes = R.string.card_reroll_single_description,
-            icon = Icons.Default.Casino
+            iconRes = R.drawable.ic_card_reroll_single
         ),
         CardUiModel(
             titleRes = R.string.card_reroll_all_except_one_title,
             descriptionRes = R.string.card_reroll_all_except_one_description,
-            icon = Icons.Default.RestartAlt
+            iconRes = R.drawable.ic_card_reroll_all_except_one
         ),
         CardUiModel(
             titleRes = R.string.card_set_value_title,
             descriptionRes = R.string.card_set_value_description,
-            icon = Icons.Default.PushPin
+            iconRes = R.drawable.ic_card_set_value
         ),
         CardUiModel(
             titleRes = R.string.card_repeat_last_title,
             descriptionRes = R.string.card_repeat_last_description,
-            icon = Icons.Default.Replay
+            iconRes = R.drawable.ic_card_repeat_last
         )
     )
 }
