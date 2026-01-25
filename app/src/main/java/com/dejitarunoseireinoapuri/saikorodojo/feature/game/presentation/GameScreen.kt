@@ -150,54 +150,6 @@ internal fun calculateRandomDicePositions(
     minSpacing: Dp
 ): List<DicePosition> {
     if (diceCount <= 0) return emptyList()
-    val maxX = (availableWidth - diceSize).coerceAtLeast(0.dp)
-    val maxY = (availableHeight - diceSize).coerceAtLeast(0.dp)
-    val maxAttempts = 200
-    val maxPlacementTries = 500
-    repeat(maxAttempts) { attempt ->
-        val random = Random(seed + attempt)
-        val positions = mutableListOf<DicePosition>()
-        var success = true
-        repeat(diceCount) {
-            var placed = false
-            repeat(maxPlacementTries) {
-                val candidate = DicePosition(
-                    x = (maxX.value * random.nextFloat()).dp,
-                    y = (maxY.value * random.nextFloat()).dp
-                )
-                if (positions.none { overlaps(candidate, it, diceSize, minSpacing) }) {
-                    positions.add(candidate)
-                    placed = true
-                    return@repeat
-                }
-            }
-            if (!placed) {
-                success = false
-                return@repeat
-            }
-        }
-        if (success && positions.size == diceCount) {
-            return positions
-        }
-    }
-    return calculateJitteredGridPositions(
-        seed = seed,
-        diceCount = diceCount,
-        diceSize = diceSize,
-        minSpacing = minSpacing,
-        availableWidth = availableWidth,
-        availableHeight = availableHeight
-    )
-}
-
-private fun calculateJitteredGridPositions(
-    seed: Long,
-    diceCount: Int,
-    diceSize: Dp,
-    minSpacing: Dp,
-    availableWidth: Dp,
-    availableHeight: Dp
-): List<DicePosition> {
     val cellSize = diceSize + minSpacing
     val columns = ((availableWidth + minSpacing) / cellSize).toInt().coerceAtLeast(1)
     val rows = ((availableHeight + minSpacing) / cellSize).toInt().coerceAtLeast(1)
@@ -206,8 +158,8 @@ private fun calculateJitteredGridPositions(
     val indices = List(totalCells) { it }.shuffled(random)
     val jitterXLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
     val jitterYLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
-    return List(diceCount) { index ->
-        val cellIndex = indices.getOrElse(index) { index % totalCells }
+    return List(minOf(diceCount, totalCells)) { index ->
+        val cellIndex = indices[index]
         val row = cellIndex / columns
         val column = cellIndex % columns
         val baseX = (cellSize * column).coerceAtMost(availableWidth - diceSize)
