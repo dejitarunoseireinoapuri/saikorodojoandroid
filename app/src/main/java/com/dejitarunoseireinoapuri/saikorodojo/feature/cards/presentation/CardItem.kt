@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.DpSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.annotation.StringRes
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -46,7 +46,7 @@ data class CardUiModel(
     @StringRes val actionLabelRes: Int = R.string.apply
 )
 
-internal val DefaultCardSize = DpSize(width = 180.dp, height = 260.dp)
+internal val DefaultCardSize = DpSize(width = 220.dp, height = 260.dp)
 
 @Composable
 fun CardItem(
@@ -66,8 +66,9 @@ fun CardItem(
     ) {
         Text(
             text = stringResource(card.titleRes),
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onSurface
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1
         )
         Icon(
             imageVector = card.icon,
@@ -79,7 +80,7 @@ fun CardItem(
         )
         Text(
             text = stringResource(card.descriptionRes),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.weight(1f, fill = false))

@@ -35,7 +35,7 @@ class CardItemTest {
 
     @Test
     fun `default card size is taller than wide`() {
-        assertEquals(180.dp, DefaultCardSize.width)
+        assertEquals(220.dp, DefaultCardSize.width)
         assertEquals(260.dp, DefaultCardSize.height)
         assertTrue(DefaultCardSize.height > DefaultCardSize.width)
     }
