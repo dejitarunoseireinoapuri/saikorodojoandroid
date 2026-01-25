@@ -45,6 +45,40 @@ class GameViewModelTest {
         assertFalse(viewModel.uiState.value.isRolling)
         assertEquals(expected, viewModel.uiState.value.diceValues)
     }
+
+    @Test
+    fun `toggle dice selection updates selection when not rolling`() = runTest(mainDispatcherRule.dispatcher) {
+        val viewModel = GameViewModel(
+            dispatcher = mainDispatcherRule.dispatcher
+        )
+
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(2))
+        assertEquals(setOf(2), viewModel.uiState.value.selectedDiceIndices)
+
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(2))
+        assertEquals(emptySet<Int>(), viewModel.uiState.value.selectedDiceIndices)
+    }
+
+    @Test
+    fun `toggle dice selection is ignored while rolling`() = runTest(mainDispatcherRule.dispatcher) {
+        val viewModel = GameViewModel(
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollDurationMs = 1_500L,
+            tickMs = 150L
+        )
+
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        advanceTimeBy(1L)
+
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(1))
+        assertEquals(emptySet<Int>(), viewModel.uiState.value.selectedDiceIndices)
+
+        advanceTimeBy(1_500L)
+        advanceUntilIdle()
+
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(1))
+        assertEquals(setOf(1), viewModel.uiState.value.selectedDiceIndices)
+    }
 }
 
 private class SequenceRandomProvider(

@@ -2,6 +2,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,14 +41,16 @@ fun GameRoute(
 
     GameScreen(
         modifier = modifier,
-        uiState = uiState
+        uiState = uiState,
+        onEvent = viewModel::onEvent
     )
 }
 
 @Composable
 fun GameScreen(
     modifier: Modifier = Modifier,
-    uiState: GameUiState
+    uiState: GameUiState,
+    onEvent: (GameUiEvent) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -82,8 +85,20 @@ fun GameScreen(
             ) {
                 uiState.diceValues.forEachIndexed { index, value ->
                     val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
-                    Box(modifier = Modifier.offset(x = position.x, y = position.y)) {
-                        DiceFace(number = value, size = diceSize)
+                    Box(
+                        modifier = Modifier
+                            .offset(x = position.x, y = position.y)
+                            .clickable(
+                                enabled = !uiState.isRolling
+                            ) {
+                                onEvent(GameUiEvent.ToggleDiceSelection(index))
+                            }
+                    ) {
+                        DiceFace(
+                            number = value,
+                            size = diceSize,
+                            isSelected = uiState.selectedDiceIndices.contains(index)
+                        )
                     }
                 }
             }
@@ -92,9 +107,16 @@ fun GameScreen(
 }
 
 @Composable
-private fun DiceFace(number: Int, size: Dp) {
+private fun DiceFace(number: Int, size: Dp, isSelected: Boolean) {
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.surfaceVariant
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
     Box(
-        modifier = Modifier.size(size),
+        modifier = Modifier
+            .size(size)
+            .background(backgroundColor),
         contentAlignment = Alignment.Center
     ) {
         Image(

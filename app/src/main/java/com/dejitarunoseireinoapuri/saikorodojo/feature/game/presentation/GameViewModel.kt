@@ -14,18 +14,20 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val DEFAULT_DICE_COUNT = 5
-private const val DEFAULT_ROLL_DURATION_MS = 3_000L
+private const val DEFAULT_ROLL_DURATION_MS = 1_500L
 private const val DEFAULT_TICK_MS = 150L
 
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
     val layoutSeed: Long = 0L,
-    val isRolling: Boolean = false
+    val isRolling: Boolean = false,
+    val selectedDiceIndices: Set<Int> = emptySet()
 )
 
 sealed interface GameUiEvent {
     data object StartRoll : GameUiEvent
+    data class ToggleDiceSelection(val index: Int) : GameUiEvent
 }
 
 class GameViewModel(
@@ -49,6 +51,7 @@ class GameViewModel(
     fun onEvent(event: GameUiEvent) {
         when (event) {
             GameUiEvent.StartRoll -> startRolling()
+            is GameUiEvent.ToggleDiceSelection -> toggleDiceSelection(event.index)
         }
     }
 
@@ -57,7 +60,13 @@ class GameViewModel(
 
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
-            _uiState.update { it.copy(isRolling = true, layoutSeed = layoutSeedProvider()) }
+            _uiState.update {
+                it.copy(
+                    isRolling = true,
+                    layoutSeed = layoutSeedProvider(),
+                    selectedDiceIndices = emptySet()
+                )
+            }
 
             repeat(steps) {
                 val values = rollDiceUseCase.execute(_uiState.value.diceCount)
@@ -66,6 +75,22 @@ class GameViewModel(
             }
 
             _uiState.update { it.copy(isRolling = false) }
+        }
+    }
+
+    private fun toggleDiceSelection(index: Int) {
+        _uiState.update { current ->
+            if (current.isRolling) {
+                current
+            } else {
+                val newSelection = current.selectedDiceIndices.toMutableSet()
+                if (newSelection.contains(index)) {
+                    newSelection.remove(index)
+                } else {
+                    newSelection.add(index)
+                }
+                current.copy(selectedDiceIndices = newSelection)
+            }
         }
     }
 }
