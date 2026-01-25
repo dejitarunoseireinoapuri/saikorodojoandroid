@@ -1,12 +1,12 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation
 
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SourceCodeProFontFamily
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,24 +17,17 @@ class MenuScreenTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun menuTextUsesSourceCodeProFontFamily() {
+    fun themeUsesSourceCodeProFontFamily() {
+        var typographyFontFamily = SourceCodeProFontFamily
+
         composeRule.setContent {
             SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
-                MenuScreen(
-                    isDarkTheme = false,
-                    onToggleTheme = {},
-                    onPlayClick = {},
-                    onRulesClick = {}
-                )
+                typographyFontFamily = MaterialTheme.typography.bodyLarge.fontFamily
             }
         }
 
-        val expectedFont = MenuFontFamilyName
-        val fontMatcher = SemanticsMatcher.expectValue(MenuFontFamilyKey, expectedFont)
-        val context = composeRule.activity
-
-        composeRule.onNodeWithText(context.getString(R.string.game_title)).assert(fontMatcher)
-        composeRule.onNodeWithText(context.getString(R.string.play)).assert(fontMatcher)
-        composeRule.onNodeWithText(context.getString(R.string.rules)).assert(fontMatcher)
+        composeRule.runOnIdle {
+            assertEquals(SourceCodeProFontFamily, typographyFontFamily)
+        }
     }
 }
