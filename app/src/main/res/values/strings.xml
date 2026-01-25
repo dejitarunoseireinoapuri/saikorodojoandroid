@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Saikoro Dojo</string>
+    <string name="game_title">Saikoro Dojo</string>
+    <string name="play">Play</string>
+    <string name="rules">Rules</string>
+    <string name="cd_light_mode">Light mode</string>
+    <string name="cd_dark_mode">Dark mode</string>
+    <string name="cd_sound_on">Sound on</string>
+    <string name="cd_sound_off">Sound off</string>
+    <string name="cd_settings">Settings</string>
 </resources>
