@@ -152,8 +152,8 @@ internal fun calculateRandomDicePositions(
     if (diceCount <= 0) return emptyList()
     val maxX = (availableWidth - diceSize).coerceAtLeast(0.dp)
     val maxY = (availableHeight - diceSize).coerceAtLeast(0.dp)
-    val maxAttempts = 48
-    val maxPlacementTries = 200
+    val maxAttempts = 200
+    val maxPlacementTries = 500
     repeat(maxAttempts) { attempt ->
         val random = Random(seed + attempt)
         val positions = mutableListOf<DicePosition>()
@@ -180,7 +180,45 @@ internal fun calculateRandomDicePositions(
             return positions
         }
     }
-    return emptyList()
+    return calculateJitteredGridPositions(
+        seed = seed,
+        diceCount = diceCount,
+        diceSize = diceSize,
+        minSpacing = minSpacing,
+        availableWidth = availableWidth,
+        availableHeight = availableHeight
+    )
+}
+
+private fun calculateJitteredGridPositions(
+    seed: Long,
+    diceCount: Int,
+    diceSize: Dp,
+    minSpacing: Dp,
+    availableWidth: Dp,
+    availableHeight: Dp
+): List<DicePosition> {
+    val cellSize = diceSize + minSpacing
+    val columns = ((availableWidth + minSpacing) / cellSize).toInt().coerceAtLeast(1)
+    val rows = ((availableHeight + minSpacing) / cellSize).toInt().coerceAtLeast(1)
+    val totalCells = columns * rows
+    val random = Random(seed)
+    val indices = List(totalCells) { it }.shuffled(random)
+    val jitterXLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
+    val jitterYLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
+    return List(diceCount) { index ->
+        val cellIndex = indices.getOrElse(index) { index % totalCells }
+        val row = cellIndex / columns
+        val column = cellIndex % columns
+        val baseX = (cellSize * column).coerceAtMost(availableWidth - diceSize)
+        val baseY = (cellSize * row).coerceAtMost(availableHeight - diceSize)
+        val jitterX = ((random.nextFloat() - 0.5f) * 2f * jitterXLimit.value).dp
+        val jitterY = ((random.nextFloat() - 0.5f) * 2f * jitterYLimit.value).dp
+        DicePosition(
+            x = (baseX + jitterX).coerceIn(0.dp, availableWidth - diceSize),
+            y = (baseY + jitterY).coerceIn(0.dp, availableHeight - diceSize)
+        )
+    }
 }
 
 private fun overlaps(
