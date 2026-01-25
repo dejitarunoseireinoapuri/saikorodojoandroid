@@ -123,9 +123,13 @@ private fun DiceFace(number: Int, size: Dp, isSelected: Boolean) {
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.six_sides),
+            painter = painterResource(id = R.drawable.six_sides_fill),
             contentDescription = stringResource(R.string.cd_dice_face, number),
             colorFilter = colorFilter
+        )
+        Image(
+            painter = painterResource(id = R.drawable.six_sides_outline),
+            contentDescription = null
         )
         Text(
             text = number.toString(),
