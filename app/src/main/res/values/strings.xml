@@ -10,4 +10,17 @@
     <string name="cd_settings">Settings</string>
     <string name="cd_dice_face">Dice face %1$d</string>
     <string name="selected_dice_sum">Selected sum: %1$d</string>
+    <string name="apply">Apply</string>
+    <string name="card_adjust_plus_minus_one_title">Adjust ±1</string>
+    <string name="card_adjust_plus_minus_one_description">Increase or decrease a die value by 1 without leaving its range</string>
+    <string name="card_flip_face_title">Flip die</string>
+    <string name="card_flip_face_description">Invert the die value</string>
+    <string name="card_reroll_single_title">Reroll one die</string>
+    <string name="card_reroll_single_description">Choose a die and roll it again</string>
+    <string name="card_reroll_all_except_one_title">Reroll all but one</string>
+    <string name="card_reroll_all_except_one_description">Choose one die to keep. Reroll all the others</string>
+    <string name="card_set_value_title">Set value</string>
+    <string name="card_set_value_description">Choose the final value of a die within its range</string>
+    <string name="card_repeat_last_title">Repeat last card</string>
+    <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target</string>
 </resources>
