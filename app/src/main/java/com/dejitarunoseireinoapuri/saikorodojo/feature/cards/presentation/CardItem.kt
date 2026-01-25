@@ -176,6 +176,11 @@ internal fun defaultCardUiModels(): List<CardUiModel> {
             titleRes = R.string.card_repeat_last_title,
             descriptionRes = R.string.card_repeat_last_description,
             iconRes = R.drawable.ic_card_repeat_last
+        ),
+        CardUiModel(
+            titleRes = R.string.card_retry_title,
+            descriptionRes = R.string.card_retry_description,
+            iconRes = R.drawable.ic_card_retry
         )
     )
 }
