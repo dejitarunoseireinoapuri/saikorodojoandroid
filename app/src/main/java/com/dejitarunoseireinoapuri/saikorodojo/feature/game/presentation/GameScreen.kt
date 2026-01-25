@@ -117,6 +117,7 @@ private fun DiceFace(number: Int, size: Dp, faceDrawable: Int) {
         )
         Text(
             text = number.toString(),
+            modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
             style = MaterialTheme.typography.displaySmall,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -222,4 +223,12 @@ internal fun selectDiceFaceDrawables(
     if (diceCount <= 0 || faces.isEmpty()) return emptyList()
     val random = Random(seed)
     return List(diceCount) { faces[random.nextInt(faces.size)] }
+}
+
+internal fun diceNumberYOffset(faceDrawable: Int): Dp {
+    return if (faceDrawable == R.drawable.eigth_sides) {
+        6.dp
+    } else {
+        0.dp
+    }
 }
