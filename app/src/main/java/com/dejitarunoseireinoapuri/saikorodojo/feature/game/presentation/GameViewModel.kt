@@ -18,6 +18,7 @@ private const val DEFAULT_TICK_MS = 150L
 
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
+    val diceCount: Int = DEFAULT_DICE_COUNT,
     val isRolling: Boolean = false
 )
 
@@ -29,9 +30,15 @@ class GameViewModel(
     private val rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
-    private val tickMs: Long = DEFAULT_TICK_MS
+    private val tickMs: Long = DEFAULT_TICK_MS,
+    private val diceCount: Int = DEFAULT_DICE_COUNT
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(GameUiState())
+    private val _uiState = MutableStateFlow(
+        GameUiState(
+            diceValues = List(diceCount) { 1 },
+            diceCount = diceCount
+        )
+    )
     val uiState: StateFlow<GameUiState> = _uiState
 
     private var rollJob: Job? = null
@@ -50,7 +57,7 @@ class GameViewModel(
             _uiState.update { it.copy(isRolling = true) }
 
             repeat(steps) {
-                val values = rollDiceUseCase.execute(DEFAULT_DICE_COUNT)
+                val values = rollDiceUseCase.execute(_uiState.value.diceCount)
                 _uiState.update { it.copy(diceValues = values) }
                 delay(tickMs)
             }

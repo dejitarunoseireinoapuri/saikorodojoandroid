@@ -20,13 +20,15 @@ class GameViewModelTest {
     @Test
     fun `start roll updates dice values and stops rolling`() = runTest(mainDispatcherRule.dispatcher) {
         val sequence = listOf(1, 2, 3, 4, 5, 6)
+        val diceCount = 6
         val randomProvider = SequenceRandomProvider(sequence)
         val useCase = RollDiceUseCase(randomProvider)
         val viewModel = GameViewModel(
             rollDiceUseCase = useCase,
             dispatcher = mainDispatcherRule.dispatcher,
             rollDurationMs = 3_000L,
-            tickMs = 150L
+            tickMs = 150L,
+            diceCount = diceCount
         )
 
         viewModel.onEvent(GameUiEvent.StartRoll)
@@ -36,7 +38,7 @@ class GameViewModelTest {
         val expected = expectedFinalValues(
             sequence = sequence,
             rolls = (3_000L / 150L).toInt(),
-            diceCount = 5
+            diceCount = diceCount
         )
 
         assertFalse(viewModel.uiState.value.isRolling)
