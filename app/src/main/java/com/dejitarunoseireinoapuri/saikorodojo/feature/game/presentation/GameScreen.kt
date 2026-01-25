@@ -59,24 +59,25 @@ fun GameScreen(
             val diceCount = uiState.diceValues.size
             val diceSize = calculateDiceSize(
                 availableWidth = maxWidth - 16.dp,
-                availableHeight = 100.dp,
+                availableHeight = 400.dp,
                 diceCount = diceCount,
-                spacing = 2.dp
+                spacing = 4.dp,
+                columns = diceCount.coerceAtMost(2)
             )
             val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
                 calculateRandomDicePositions(
                     seed = uiState.layoutSeed,
                     diceCount = diceCount,
                     availableWidth = maxWidth - 16.dp,
-                    availableHeight = 100.dp,
+                    availableHeight = 400.dp,
                     diceSize = diceSize,
-                    minSpacing = 2.dp
+                    minSpacing = 4.dp
                 )
             }
             Box(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .height(100.dp)
+                    .height(400.dp)
                     .fillMaxWidth()
             ) {
                 uiState.diceValues.forEachIndexed { index, value ->
@@ -112,12 +113,15 @@ private fun calculateDiceSize(
     availableWidth: Dp,
     availableHeight: Dp,
     diceCount: Int,
-    spacing: Dp
+    spacing: Dp,
+    columns: Int
 ): Dp {
     if (diceCount <= 0) return 0.dp
-    val totalSpacing = spacing * (diceCount - 1)
-    val widthBasedSize = (availableWidth - totalSpacing) / diceCount
-    return minOf(widthBasedSize, availableHeight)
+    val safeColumns = columns.coerceAtLeast(1)
+    val rows = ((diceCount + safeColumns - 1) / safeColumns).coerceAtLeast(1)
+    val widthBasedSize = (availableWidth - spacing * (safeColumns - 1)) / safeColumns
+    val heightBasedSize = (availableHeight - spacing * (rows - 1)) / rows
+    return minOf(widthBasedSize, heightBasedSize)
 }
 
 private data class DicePosition(val x: Dp, val y: Dp)
