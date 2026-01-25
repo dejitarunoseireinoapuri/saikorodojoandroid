@@ -1,7 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -19,10 +18,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -89,7 +91,9 @@ fun GameScreen(
                         modifier = Modifier
                             .offset(x = position.x, y = position.y)
                             .clickable(
-                                enabled = !uiState.isRolling
+                                enabled = !uiState.isRolling,
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
                             ) {
                                 onEvent(GameUiEvent.ToggleDiceSelection(index))
                             }
@@ -108,20 +112,19 @@ fun GameScreen(
 
 @Composable
 private fun DiceFace(number: Int, size: Dp, isSelected: Boolean) {
-    val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.surfaceVariant
+    val colorFilter = if (isSelected) {
+        ColorFilter.tint(MaterialTheme.colorScheme.surfaceVariant, BlendMode.Multiply)
     } else {
-        MaterialTheme.colorScheme.surface
+        null
     }
     Box(
-        modifier = Modifier
-            .size(size)
-            .background(backgroundColor),
+        modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(id = R.drawable.six_sides),
-            contentDescription = stringResource(R.string.cd_dice_face, number)
+            contentDescription = stringResource(R.string.cd_dice_face, number),
+            colorFilter = colorFilter
         )
         Text(
             text = number.toString(),
