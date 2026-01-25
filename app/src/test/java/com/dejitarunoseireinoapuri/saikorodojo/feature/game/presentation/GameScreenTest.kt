@@ -35,13 +35,14 @@ class GameScreenTest {
     fun `grid positions keep minimum spacing`() {
         val diceSize = 50.dp
         val minSpacing = 4.dp
-        val positions = calculateGridPositions(
+        val positions = calculateRandomDicePositions(
+            seed = 99L,
             diceCount = 4,
-            columns = 2,
+            availableWidth = 200.dp,
+            availableHeight = 200.dp,
             diceSize = diceSize,
             minSpacing = minSpacing,
-            availableWidth = 200.dp,
-            availableHeight = 200.dp
+            columns = 2
         )
 
         assertTrue(positions.all { position ->
