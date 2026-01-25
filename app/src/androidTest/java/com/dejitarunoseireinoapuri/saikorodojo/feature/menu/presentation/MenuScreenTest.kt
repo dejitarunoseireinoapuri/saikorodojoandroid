@@ -8,6 +8,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SourceCodeProFontFamily
 import org.junit.Assert.assertEquals
 import org.junit.Rule
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -22,11 +23,12 @@ class MenuScreenTest {
 
         composeRule.setContent {
             SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
-                typographyFontFamily = MaterialTheme.typography.bodyLarge.fontFamily
+                typographyFontFamily = requireNotNull(MaterialTheme.typography.bodyLarge.fontFamily)
             }
         }
 
         composeRule.runOnIdle {
+            assertNotNull(typographyFontFamily)
             assertEquals(SourceCodeProFontFamily, typographyFontFamily)
         }
     }

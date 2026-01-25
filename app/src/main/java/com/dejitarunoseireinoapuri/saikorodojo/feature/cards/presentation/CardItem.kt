@@ -30,16 +30,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.annotation.StringRes
+import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
 data class CardUiModel(
-    val title: String,
-    val description: String,
+    @StringRes val titleRes: Int,
+    @StringRes val descriptionRes: Int,
     val icon: ImageVector,
-    val actionLabel: String = "Aplicar"
+    @StringRes val actionLabelRes: Int = R.string.apply
 )
 
 @Composable
@@ -75,12 +78,12 @@ fun CardItem(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = card.title,
+                    text = stringResource(card.titleRes),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = card.description,
+                    text = stringResource(card.descriptionRes),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -102,7 +105,7 @@ fun CardItem(
                 modifier = Modifier.defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
             ) {
                 Text(
-                    text = card.actionLabel,
+                    text = stringResource(card.actionLabelRes),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -114,33 +117,33 @@ fun CardItem(
 internal fun defaultCardUiModels(): List<CardUiModel> {
     return listOf(
         CardUiModel(
-            title = "Ajustar ±1",
-            description = "Aumenta o reduce en 1 el valor de un dado, sin salir del rango del dado",
+            titleRes = R.string.card_adjust_plus_minus_one_title,
+            descriptionRes = R.string.card_adjust_plus_minus_one_description,
             icon = Icons.Default.ExposurePlus1
         ),
         CardUiModel(
-            title = "Voltear cara",
-            description = "Invierte el valor del dado",
+            titleRes = R.string.card_flip_face_title,
+            descriptionRes = R.string.card_flip_face_description,
             icon = Icons.Default.Flip
         ),
         CardUiModel(
-            title = "Relanzar un dado",
-            description = "Elige un dado y vuélvelo a tirar",
+            titleRes = R.string.card_reroll_single_title,
+            descriptionRes = R.string.card_reroll_single_description,
             icon = Icons.Default.Casino
         ),
         CardUiModel(
-            title = "Relanzar todos menos uno",
-            description = "Elige un dado para conservar. Vuelve a tirar todos los demás",
+            titleRes = R.string.card_reroll_all_except_one_title,
+            descriptionRes = R.string.card_reroll_all_except_one_description,
             icon = Icons.Default.RestartAlt
         ),
         CardUiModel(
-            title = "Fijar valor",
-            description = "Elige el valor final de un dado dentro de su rango",
+            titleRes = R.string.card_set_value_title,
+            descriptionRes = R.string.card_set_value_description,
             icon = Icons.Default.PushPin
         ),
         CardUiModel(
-            title = "Repetir última carta",
-            description = "Repite el efecto de la última carta usada, eligiendo cualquier objetivo",
+            titleRes = R.string.card_repeat_last_title,
+            descriptionRes = R.string.card_repeat_last_description,
             icon = Icons.Default.Replay
         )
     )

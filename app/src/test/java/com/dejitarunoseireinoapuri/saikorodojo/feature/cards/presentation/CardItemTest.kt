@@ -3,31 +3,32 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.dejitarunoseireinoapuri.saikorodojo.R
 
 class CardItemTest {
     @Test
     fun `default card models contains all card titles`() {
         val models = defaultCardUiModels()
 
-        val titles = models.map { it.title }
+        val titles = models.map { it.titleRes }
 
         assertEquals(6, models.size)
-        assertTrue(titles.contains("Ajustar ±1"))
-        assertTrue(titles.contains("Voltear cara"))
-        assertTrue(titles.contains("Relanzar un dado"))
-        assertTrue(titles.contains("Relanzar todos menos uno"))
-        assertTrue(titles.contains("Fijar valor"))
-        assertTrue(titles.contains("Repetir última carta"))
+        assertTrue(titles.contains(R.string.card_adjust_plus_minus_one_title))
+        assertTrue(titles.contains(R.string.card_flip_face_title))
+        assertTrue(titles.contains(R.string.card_reroll_single_title))
+        assertTrue(titles.contains(R.string.card_reroll_all_except_one_title))
+        assertTrue(titles.contains(R.string.card_set_value_title))
+        assertTrue(titles.contains(R.string.card_repeat_last_title))
     }
 
     @Test
     fun `card ui model uses apply as default action label`() {
         val model = CardUiModel(
-            title = "Ajustar ±1",
-            description = "Aumenta o reduce en 1 el valor de un dado, sin salir del rango del dado",
+            titleRes = R.string.card_adjust_plus_minus_one_title,
+            descriptionRes = R.string.card_adjust_plus_minus_one_description,
             icon = defaultCardUiModels().first().icon
         )
 
-        assertEquals("Aplicar", model.actionLabel)
+        assertEquals(R.string.apply, model.actionLabelRes)
     }
 }
