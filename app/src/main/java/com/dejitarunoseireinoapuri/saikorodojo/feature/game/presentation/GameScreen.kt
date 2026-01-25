@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import kotlin.random.Random
 
 @Composable
 fun GameRoute(
@@ -59,15 +61,18 @@ fun GameScreen(
                 availableWidth = maxWidth - 16.dp,
                 availableHeight = 100.dp,
                 diceCount = diceCount,
-                spacing = 4.dp
+                spacing = 2.dp
             )
-            val positions = calculateDicePositions(
-                diceCount = diceCount,
-                availableWidth = maxWidth - 16.dp,
-                availableHeight = 100.dp,
-                diceSize = diceSize,
-                spacing = 4.dp
-            )
+            val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
+                calculateRandomDicePositions(
+                    seed = uiState.layoutSeed,
+                    diceCount = diceCount,
+                    availableWidth = maxWidth - 16.dp,
+                    availableHeight = 100.dp,
+                    diceSize = diceSize,
+                    minSpacing = 2.dp
+                )
+            }
             Box(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
@@ -117,22 +122,53 @@ private fun calculateDiceSize(
 
 private data class DicePosition(val x: Dp, val y: Dp)
 
-private fun calculateDicePositions(
+private fun calculateRandomDicePositions(
+    seed: Long,
     diceCount: Int,
     availableWidth: Dp,
     availableHeight: Dp,
     diceSize: Dp,
-    spacing: Dp
+    minSpacing: Dp
 ): List<DicePosition> {
     if (diceCount <= 0) return emptyList()
-    val totalWidth = diceSize * diceCount + spacing * (diceCount - 1)
-    val startX = ((availableWidth - totalWidth) / 2).coerceAtLeast(0.dp)
-    val verticalSpread = (availableHeight - diceSize).coerceAtLeast(0.dp)
-    val yOffsets = listOf(0.dp, verticalSpread / 2, verticalSpread)
-    return List(diceCount) { index ->
-        DicePosition(
-            x = startX + (diceSize + spacing) * index,
-            y = yOffsets[index % yOffsets.size]
-        )
+    val random = Random(seed)
+    val maxX = (availableWidth - diceSize).coerceAtLeast(0.dp)
+    val maxY = (availableHeight - diceSize).coerceAtLeast(0.dp)
+    val positions = mutableListOf<DicePosition>()
+    repeat(diceCount) { index ->
+        var placed = false
+        repeat(40) {
+            val candidate = DicePosition(
+                x = (maxX.value * random.nextFloat()).dp,
+                y = (maxY.value * random.nextFloat()).dp
+            )
+            if (positions.none { overlaps(candidate, it, diceSize, minSpacing) }) {
+                positions.add(candidate)
+                placed = true
+                return@repeat
+            }
+        }
+        if (!placed) {
+            val fallbackX = (maxX.value * index / diceCount.coerceAtLeast(1)).dp
+            val fallbackY = (maxY.value * ((index + 1) % 3) / 2f).dp
+            positions.add(DicePosition(fallbackX, fallbackY))
+        }
     }
+    return positions
+}
+
+private fun overlaps(
+    first: DicePosition,
+    second: DicePosition,
+    diceSize: Dp,
+    minSpacing: Dp
+): Boolean {
+    val sizeWithSpacing = diceSize + minSpacing
+    val firstRight = first.x + sizeWithSpacing
+    val firstBottom = first.y + sizeWithSpacing
+    val secondRight = second.x + sizeWithSpacing
+    val secondBottom = second.y + sizeWithSpacing
+    val overlapsHorizontally = first.x < secondRight && firstRight > second.x
+    val overlapsVertically = first.y < secondBottom && firstBottom > second.y
+    return overlapsHorizontally && overlapsVertically
 }
