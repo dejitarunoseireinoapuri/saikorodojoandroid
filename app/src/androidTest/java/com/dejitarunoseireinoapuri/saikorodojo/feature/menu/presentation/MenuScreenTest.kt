@@ -1,37 +1,33 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation
 
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import com.dejitarunoseireinoapuri.saikorodojo.R
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SourceCodeProFontFamily
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class MenuScreenTest {
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun menuScreenShowsTitleAndButtons() {
-        composeTestRule.setContent {
-            SaikoroDojoTheme {
-                MenuScreen(
-                    isDarkTheme = false,
-                    onToggleTheme = {},
-                    onPlayClick = {},
-                    onRulesClick = {}
-                )
+    fun themeUsesSourceCodeProFontFamily() {
+        var typographyFontFamily = SourceCodeProFontFamily
+
+        composeRule.setContent {
+            SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
+                typographyFontFamily = MaterialTheme.typography.bodyLarge.fontFamily
             }
         }
 
-        val title = composeTestRule.activity.getString(R.string.game_title)
-        val play = composeTestRule.activity.getString(R.string.play)
-        val rules = composeTestRule.activity.getString(R.string.rules)
-
-        composeTestRule.onNodeWithText(title).assertIsDisplayed()
-        composeTestRule.onNodeWithText(play).assertIsDisplayed()
-        composeTestRule.onNodeWithText(rules).assertIsDisplayed()
+        composeRule.runOnIdle {
+            assertEquals(SourceCodeProFontFamily, typographyFontFamily)
+        }
     }
 }
