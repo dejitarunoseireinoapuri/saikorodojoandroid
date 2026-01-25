@@ -71,7 +71,14 @@ fun GameScreen(
                     availableWidth = maxWidth - 40.dp,
                     availableHeight = 300.dp,
                     diceSize = diceSize,
-                    minSpacing = 2.dp
+                    minSpacing = 4.dp
+                )
+            }
+            val diceFaces = remember(uiState.layoutSeed, diceCount) {
+                selectDiceFaceDrawables(
+                    seed = uiState.layoutSeed,
+                    diceCount = diceCount,
+                    faces = DiceFaceDrawables
                 )
             }
             Box(
@@ -82,8 +89,9 @@ fun GameScreen(
             ) {
                 uiState.diceValues.forEachIndexed { index, value ->
                     val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
+                    val faceDrawable = diceFaces.getOrElse(index) { DiceFaceDrawables.first() }
                     Box(modifier = Modifier.offset(x = position.x, y = position.y)) {
-                        DiceFace(number = value, size = diceSize)
+                        DiceFace(number = value, size = diceSize, faceDrawable = faceDrawable)
                     }
                 }
             }
@@ -91,18 +99,25 @@ fun GameScreen(
     }
 }
 
+private val DiceFaceDrawables = listOf(
+    R.drawable.six_sides,
+    R.drawable.eigth_sides,
+    R.drawable.ten_sides
+)
+
 @Composable
-private fun DiceFace(number: Int, size: Dp) {
+private fun DiceFace(number: Int, size: Dp, faceDrawable: Int) {
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.six_sides),
+            painter = painterResource(id = faceDrawable),
             contentDescription = stringResource(R.string.cd_dice_face, number)
         )
         Text(
             text = number.toString(),
+            modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
             style = MaterialTheme.typography.displaySmall,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -124,9 +139,9 @@ private fun calculateDiceSize(
     return minOf(widthBasedSize, heightBasedSize)
 }
 
-private data class DicePosition(val x: Dp, val y: Dp)
+internal data class DicePosition(val x: Dp, val y: Dp)
 
-private fun calculateRandomDicePositions(
+internal fun calculateRandomDicePositions(
     seed: Long,
     diceCount: Int,
     availableWidth: Dp,
@@ -135,53 +150,27 @@ private fun calculateRandomDicePositions(
     minSpacing: Dp
 ): List<DicePosition> {
     if (diceCount <= 0) return emptyList()
-    val random = Random(seed)
-    val maxX = (availableWidth - diceSize).coerceAtLeast(0.dp)
-    val maxY = (availableHeight - diceSize).coerceAtLeast(0.dp)
-    val positions = mutableListOf<DicePosition>()
-    repeat(diceCount) { index ->
-        var placed = false
-        repeat(60) {
-            val candidate = DicePosition(
-                x = (maxX.value * random.nextFloat()).dp,
-                y = (maxY.value * random.nextFloat()).dp
-            )
-            if (positions.none { overlaps(candidate, it, diceSize, minSpacing) }) {
-                positions.add(candidate)
-                placed = true
-                return@repeat
-            }
-        }
-        if (!placed) {
-            val fallback = fallbackGridPosition(
-                index = index,
-                diceSize = diceSize,
-                minSpacing = minSpacing,
-                availableWidth = availableWidth,
-                availableHeight = availableHeight
-            )
-            positions.add(fallback)
-        }
-    }
-    return positions
-}
-
-private fun fallbackGridPosition(
-    index: Int,
-    diceSize: Dp,
-    minSpacing: Dp,
-    availableWidth: Dp,
-    availableHeight: Dp
-): DicePosition {
     val cellSize = diceSize + minSpacing
     val columns = ((availableWidth + minSpacing) / cellSize).toInt().coerceAtLeast(1)
     val rows = ((availableHeight + minSpacing) / cellSize).toInt().coerceAtLeast(1)
-    val safeIndex = index % (columns * rows)
-    val row = safeIndex / columns
-    val column = safeIndex % columns
-    val x = (cellSize * column).coerceAtMost(availableWidth - diceSize)
-    val y = (cellSize * row).coerceAtMost(availableHeight - diceSize)
-    return DicePosition(x, y)
+    val totalCells = columns * rows
+    val random = Random(seed)
+    val indices = List(totalCells) { it }.shuffled(random)
+    val jitterXLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
+    val jitterYLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
+    return List(minOf(diceCount, totalCells)) { index ->
+        val cellIndex = indices[index]
+        val row = cellIndex / columns
+        val column = cellIndex % columns
+        val baseX = (cellSize * column).coerceAtMost(availableWidth - diceSize)
+        val baseY = (cellSize * row).coerceAtMost(availableHeight - diceSize)
+        val jitterX = ((random.nextFloat() - 0.5f) * 2f * jitterXLimit.value).dp
+        val jitterY = ((random.nextFloat() - 0.5f) * 2f * jitterYLimit.value).dp
+        DicePosition(
+            x = (baseX + jitterX).coerceIn(0.dp, availableWidth - diceSize),
+            y = (baseY + jitterY).coerceIn(0.dp, availableHeight - diceSize)
+        )
+    }
 }
 
 private fun overlaps(
@@ -198,4 +187,22 @@ private fun overlaps(
     val overlapsHorizontally = first.x < secondRight && firstRight > second.x
     val overlapsVertically = first.y < secondBottom && firstBottom > second.y
     return overlapsHorizontally && overlapsVertically
+}
+
+internal fun selectDiceFaceDrawables(
+    seed: Long,
+    diceCount: Int,
+    faces: List<Int>
+): List<Int> {
+    if (diceCount <= 0 || faces.isEmpty()) return emptyList()
+    val random = Random(seed)
+    return List(diceCount) { faces[random.nextInt(faces.size)] }
+}
+
+internal fun diceNumberYOffset(faceDrawable: Int): Dp {
+    return if (faceDrawable == R.drawable.eigth_sides) {
+        6.dp
+    } else {
+        0.dp
+    }
 }
