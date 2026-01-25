@@ -16,7 +16,7 @@ val SourceCodeProFontFamily = FontFamily(
 val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = SourceCodeProFontFamily,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Medium,
         fontSize = 28.sp,
         lineHeight = 34.sp
     ),
