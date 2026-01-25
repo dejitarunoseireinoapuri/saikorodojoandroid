@@ -82,9 +82,11 @@ class GameViewModelTest {
 
         viewModel.onEvent(GameUiEvent.ToggleDiceSelection(1))
         assertEquals(setOf(1), viewModel.uiState.value.selectedDice)
+        assertEquals(1, viewModel.uiState.value.selectedDiceSum)
 
         viewModel.onEvent(GameUiEvent.ToggleDiceSelection(1))
         assertEquals(emptySet<Int>(), viewModel.uiState.value.selectedDice)
+        assertEquals(0, viewModel.uiState.value.selectedDiceSum)
     }
 
     @Test
@@ -97,6 +99,40 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.ToggleDiceSelection(5))
 
         assertEquals(emptySet<Int>(), viewModel.uiState.value.selectedDice)
+        assertEquals(0, viewModel.uiState.value.selectedDiceSum)
+    }
+
+    @Test
+    fun `selected dice sum updates when dice values change`() = runTest(mainDispatcherRule.dispatcher) {
+        val sequence = listOf(2, 4, 6)
+        val diceCount = 3
+        val randomProvider = SequenceRandomProvider(sequence)
+        val useCase = RollDiceUseCase(randomProvider)
+        val viewModel = GameViewModel(
+            rollDiceUseCase = useCase,
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollDurationMs = 300L,
+            tickMs = 150L,
+            diceCount = diceCount,
+            layoutSeedProvider = { 123L }
+        )
+
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(0))
+        viewModel.onEvent(GameUiEvent.ToggleDiceSelection(2))
+
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        advanceTimeBy(300L)
+        advanceUntilIdle()
+
+        val expectedValues = expectedFinalValues(
+            sequence = sequence,
+            rolls = (300L / 150L).toInt(),
+            diceCount = diceCount
+        )
+        val expectedSum = expectedValues[0] + expectedValues[2]
+
+        assertEquals(expectedValues, viewModel.uiState.value.diceValues)
+        assertEquals(expectedSum, viewModel.uiState.value.selectedDiceSum)
     }
 }
 
