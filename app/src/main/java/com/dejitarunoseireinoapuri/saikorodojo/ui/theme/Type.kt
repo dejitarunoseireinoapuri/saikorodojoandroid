@@ -11,6 +11,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 val SourceCodeProFontFamily = FontFamily(Font(R.font.sourcecodepro_variablefont_wght))
 
 val Typography = Typography(
+    defaultFontFamily = SourceCodeProFontFamily,
     bodyLarge = TextStyle(
         fontFamily = SourceCodeProFontFamily,
         fontWeight = FontWeight.Normal,
