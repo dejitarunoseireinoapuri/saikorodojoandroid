@@ -28,7 +28,8 @@ class GameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollDurationMs = 3_000L,
             tickMs = 150L,
-            diceCount = diceCount
+            diceCount = diceCount,
+            layoutSeedProvider = { 123L }
         )
 
         viewModel.onEvent(GameUiEvent.StartRoll)
