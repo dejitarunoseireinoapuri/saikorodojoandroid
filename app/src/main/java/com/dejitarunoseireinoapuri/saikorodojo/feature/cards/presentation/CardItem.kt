@@ -47,7 +47,7 @@ data class CardUiModel(
     @StringRes val actionLabelRes: Int = R.string.apply
 )
 
-internal val DefaultCardSize = DpSize(width = 180.dp, height = 260.dp)
+internal val DefaultCardSize = DpSize(width = 200.dp, height = 280.dp)
 
 @Composable
 fun CardItem(
