@@ -71,7 +71,7 @@ fun GameScreen(
                     availableWidth = maxWidth - 40.dp,
                     availableHeight = 300.dp,
                     diceSize = diceSize,
-                    minSpacing = 2.dp,
+                    minSpacing = 4.dp,
                     columns = diceCount.coerceAtMost(2)
                 )
             }
