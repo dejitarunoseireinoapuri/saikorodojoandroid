@@ -134,6 +134,16 @@ class GameViewModelTest {
         assertEquals(expectedValues, viewModel.uiState.value.diceValues)
         assertEquals(expectedSum, viewModel.uiState.value.selectedDiceSum)
     }
+
+    @Test
+    fun `calculate selected dice sum ignores out of range indices`() {
+        val result = calculateSelectedDiceSum(
+            diceValues = listOf(2, 4),
+            selectedDice = setOf(0, 3)
+        )
+
+        assertEquals(2, result)
+    }
 }
 
 private class SequenceRandomProvider(

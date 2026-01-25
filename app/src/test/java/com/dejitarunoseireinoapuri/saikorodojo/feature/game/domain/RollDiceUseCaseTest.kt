@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RollDiceUseCaseTest {
@@ -11,6 +12,15 @@ class RollDiceUseCaseTest {
         val result = useCase.execute(5)
 
         assertEquals(List(5) { 4 }, result)
+    }
+
+    @Test
+    fun `default random provider returns values within bounds`() {
+        val provider = DefaultDiceRandomProvider()
+
+        val value = provider.nextInt(from = 1, until = 7)
+
+        assertTrue(value in 1 until 7)
     }
 }
 
