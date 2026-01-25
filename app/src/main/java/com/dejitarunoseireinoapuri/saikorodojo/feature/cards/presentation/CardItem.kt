@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.DpSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +46,8 @@ data class CardUiModel(
     @StringRes val actionLabelRes: Int = R.string.apply
 )
 
+internal val DefaultCardSize = DpSize(width = 180.dp, height = 260.dp)
+
 @Composable
 fun CardItem(
     modifier: Modifier = Modifier,
@@ -54,41 +57,31 @@ fun CardItem(
     val shape = RoundedCornerShape(8.dp)
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .size(DefaultCardSize)
             .background(MaterialTheme.colorScheme.surface, shape)
             .border(width = 2.dp, color = Color.Black, shape = shape)
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top
-        ) {
-            Icon(
-                imageVector = card.icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(28.dp)
-            )
-            Column(
-                modifier = Modifier
-                    .padding(start = 12.dp)
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = stringResource(card.titleRes),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(card.descriptionRes),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
+        Text(
+            text = stringResource(card.titleRes),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Icon(
+            imageVector = card.icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .size(32.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+        Text(
+            text = stringResource(card.descriptionRes),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
         Spacer(modifier = Modifier.weight(1f, fill = false))
         Row(
             modifier = Modifier.fillMaxWidth(),

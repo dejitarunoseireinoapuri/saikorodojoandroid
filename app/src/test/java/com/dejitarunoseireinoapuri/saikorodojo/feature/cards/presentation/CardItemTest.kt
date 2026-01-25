@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import androidx.compose.ui.unit.dp
 
 class CardItemTest {
     @Test
@@ -30,5 +31,12 @@ class CardItemTest {
         )
 
         assertEquals(R.string.apply, model.actionLabelRes)
+    }
+
+    @Test
+    fun `default card size is taller than wide`() {
+        assertEquals(180.dp, DefaultCardSize.width)
+        assertEquals(260.dp, DefaultCardSize.height)
+        assertTrue(DefaultCardSize.height > DefaultCardSize.width)
     }
 }
