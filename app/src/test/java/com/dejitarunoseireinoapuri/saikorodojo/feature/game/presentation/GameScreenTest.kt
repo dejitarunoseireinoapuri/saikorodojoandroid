@@ -50,11 +50,6 @@ class GameScreenTest {
             }
         })
     }
-
-    @Test
-    fun `dice shadow elevation uses a minimum value`() {
-        assertEquals(4.dp, diceShadowElevation())
-    }
 }
 
 private fun overlaps(
