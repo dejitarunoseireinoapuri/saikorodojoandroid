@@ -59,6 +59,14 @@ fun GameScreen(
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
+        Text(
+            text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 24.dp),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
         BoxWithConstraints {
             val diceCount = uiState.diceValues.size
             val diceSize = calculateDiceSize(
