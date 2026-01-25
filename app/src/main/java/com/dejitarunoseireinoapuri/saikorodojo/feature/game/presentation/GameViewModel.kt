@@ -97,7 +97,7 @@ class GameViewModel(
     }
 }
 
-private fun calculateSelectedDiceSum(
+internal fun calculateSelectedDiceSum(
     diceValues: List<Int>,
     selectedDice: Set<Int>
 ): Int {
