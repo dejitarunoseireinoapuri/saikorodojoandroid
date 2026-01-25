@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val DEFAULT_DICE_COUNT = 5
-private const val DEFAULT_ROLL_DURATION_MS = 3_000L
+private const val DEFAULT_ROLL_DURATION_MS = 1_500L
 private const val DEFAULT_TICK_MS = 150L
 
 data class GameUiState(

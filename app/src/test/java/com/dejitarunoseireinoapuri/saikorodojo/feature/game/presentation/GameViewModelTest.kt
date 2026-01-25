@@ -45,6 +45,33 @@ class GameViewModelTest {
         assertFalse(viewModel.uiState.value.isRolling)
         assertEquals(expected, viewModel.uiState.value.diceValues)
     }
+
+    @Test
+    fun `default roll duration completes after one and a half seconds`() = runTest(mainDispatcherRule.dispatcher) {
+        val sequence = listOf(1, 2, 3, 4, 5, 6)
+        val diceCount = 2
+        val randomProvider = SequenceRandomProvider(sequence)
+        val useCase = RollDiceUseCase(randomProvider)
+        val viewModel = GameViewModel(
+            rollDiceUseCase = useCase,
+            dispatcher = mainDispatcherRule.dispatcher,
+            diceCount = diceCount,
+            layoutSeedProvider = { 123L }
+        )
+
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        advanceTimeBy(1_500L)
+        advanceUntilIdle()
+
+        val expected = expectedFinalValues(
+            sequence = sequence,
+            rolls = (1_500L / 150L).toInt(),
+            diceCount = diceCount
+        )
+
+        assertFalse(viewModel.uiState.value.isRolling)
+        assertEquals(expected, viewModel.uiState.value.diceValues)
+    }
 }
 
 private class SequenceRandomProvider(
