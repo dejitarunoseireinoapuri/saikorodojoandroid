@@ -4,10 +4,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -58,57 +56,60 @@ fun CardItem(
     onApplyClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(8.dp)
-    Column(
+    Box(
         modifier = modifier
             .size(DefaultCardSize)
             .background(MaterialTheme.colorScheme.surface, shape)
             .border(width = 2.dp, color = Color.Black, shape = shape)
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.Start
+            .padding(12.dp)
     ) {
-        Text(
-            text = stringResource(card.titleRes),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Icon(
-            imageVector = card.icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface,
+        Column(
             modifier = Modifier
-                .size(32.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-        Text(
-            text = stringResource(card.descriptionRes),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(modifier = Modifier.weight(1f, fill = false))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+                .fillMaxWidth()
+                .padding(bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.Start
         ) {
-            OutlinedButton(
-                onClick = onApplyClick,
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
-                shape = RoundedCornerShape(2.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-                modifier = Modifier.defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
-            ) {
-                Text(
-                    text = stringResource(card.actionLabelRes),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            Text(
+                text = stringResource(card.titleRes),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Icon(
+                imageVector = card.icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Text(
+                text = stringResource(card.descriptionRes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        OutlinedButton(
+            onClick = onApplyClick,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+            shape = RoundedCornerShape(2.dp),
+            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 4.dp, end = 4.dp)
+                .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+        ) {
+            Text(
+                text = stringResource(card.actionLabelRes),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
