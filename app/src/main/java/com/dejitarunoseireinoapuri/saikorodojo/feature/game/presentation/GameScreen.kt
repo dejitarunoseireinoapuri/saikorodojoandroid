@@ -2,12 +2,15 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,22 +53,32 @@ fun GameScreen(
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            uiState.diceValues.forEach { value ->
-                DiceFace(number = value)
+        BoxWithConstraints {
+            val diceSize = calculateDiceSize(
+                availableWidth = maxWidth - 8.dp,
+                diceCount = uiState.diceValues.size,
+                sidePadding = 4.dp,
+                spacing = 4.dp
+            )
+            Row(
+                modifier = Modifier.padding(horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                uiState.diceValues.forEachIndexed { index, value ->
+                    DiceFace(number = value, size = diceSize)
+                    if (index != uiState.diceValues.lastIndex) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun DiceFace(number: Int) {
+private fun DiceFace(number: Int, size: Dp) {
     Box(
-        modifier = Modifier.size(64.dp),
+        modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -78,4 +91,15 @@ private fun DiceFace(number: Int) {
             color = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+private fun calculateDiceSize(
+    availableWidth: Dp,
+    diceCount: Int,
+    sidePadding: Dp,
+    spacing: Dp
+): Dp {
+    val totalSpacing = spacing * (diceCount - 1)
+    val totalPadding = sidePadding * 2
+    return (availableWidth - totalSpacing - totalPadding) / diceCount
 }
