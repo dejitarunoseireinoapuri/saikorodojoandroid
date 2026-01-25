@@ -47,7 +47,7 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `default roll duration completes after one and a half seconds`() = runTest(mainDispatcherRule.dispatcher) {
+    fun `default roll duration completes after one second`() = runTest(mainDispatcherRule.dispatcher) {
         val sequence = listOf(1, 2, 3, 4, 5, 6)
         val diceCount = 2
         val randomProvider = SequenceRandomProvider(sequence)
@@ -60,12 +60,12 @@ class GameViewModelTest {
         )
 
         viewModel.onEvent(GameUiEvent.StartRoll)
-        advanceTimeBy(1_500L)
+        advanceTimeBy(1_000L)
         advanceUntilIdle()
 
         val expected = expectedFinalValues(
             sequence = sequence,
-            rolls = (1_500L / 150L).toInt(),
+            rolls = (1_000L / 150L).toInt(),
             diceCount = diceCount
         )
 
