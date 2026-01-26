@@ -164,7 +164,7 @@ private fun GameCardStack(
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
-    val stackSpacing = 44.dp
+    val stackSpacing = 40.dp
     val rightEdgeX = maxWidth - cardSize.width + 8.dp
     val startX = (rightEdgeX - stackSpacing * (cards.size - 1).toFloat()).coerceAtLeast(0.dp)
     val stackRise = 8.dp
@@ -173,7 +173,7 @@ private fun GameCardStack(
         val baseX = startX + stackSpacing * index.toFloat()
         val baseY = bottomY - stackRise * index.toFloat()
         val isSelected = selectedCardIndex == index
-        val isSecondaryExpanded = selectedCardIndex != null && index == selectedCardIndex + 1
+        val isSecondaryExpanded = selectedCardIndex != null && index == selectedCardIndex - 1
         val targetX = if (isSelected) centerX else baseX
         val targetY = if (isSelected) centerY else baseY
         val animatedX by animateDpAsState(
