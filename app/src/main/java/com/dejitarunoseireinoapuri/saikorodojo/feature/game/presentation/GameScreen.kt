@@ -9,14 +9,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,18 +63,23 @@ fun GameRoute(
 @Composable
 fun GameScreen(
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = WindowInsets.systemBars.asPaddingValues(),
+    contentPadding: PaddingValues = PaddingValues(),
+    applySystemBarsPadding: Boolean = true,
     uiState: GameUiState,
     onDiceClick: (Int) -> Unit,
     onCardSelect: (Int) -> Unit,
     onCardDismiss: () -> Unit,
     onCardApply: (Int) -> Unit
 ) {
+    var containerModifier = modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.surface)
+    if (applySystemBarsPadding) {
+        containerModifier = containerModifier.systemBarsPadding()
+    }
+    containerModifier = containerModifier.padding(contentPadding)
     BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(contentPadding),
+        modifier = containerModifier,
         contentAlignment = Alignment.Center
     ) {
         val constraintsWidth = maxWidth

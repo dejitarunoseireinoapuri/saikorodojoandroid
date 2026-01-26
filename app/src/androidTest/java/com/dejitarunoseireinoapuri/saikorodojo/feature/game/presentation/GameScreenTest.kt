@@ -41,6 +41,7 @@ class GameScreenTest {
             SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
                 GameScreen(
                     contentPadding = PaddingValues(top = topPadding),
+                    applySystemBarsPadding = false,
                     uiState = uiState,
                     onDiceClick = {},
                     onCardSelect = {},
