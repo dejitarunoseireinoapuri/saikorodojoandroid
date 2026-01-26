@@ -13,7 +13,7 @@ class CardItemTest {
         assertEquals(R.drawable.ic_card_adjust, cards[0].iconRes)
         assertEquals(R.drawable.ic_card_flip, cards[1].iconRes)
         assertEquals(R.drawable.ic_card_reroll_single, cards[2].iconRes)
-        assertEquals(R.drawable.ic_card_reroll_all_except_one, cards[3].iconRes)
+        assertEquals(R.drawable.ic_card_reroll_all, cards[3].iconRes)
         assertEquals(R.drawable.ic_card_set_value, cards[4].iconRes)
         assertEquals(R.drawable.ic_card_repeat_last, cards[5].iconRes)
         assertEquals(R.drawable.ic_card_retry, cards[6].iconRes)

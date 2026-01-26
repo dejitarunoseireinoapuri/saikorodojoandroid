@@ -168,7 +168,7 @@ private fun ColumnScope.CompactCount(
         )
         Text(
             text = count.toString(),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
@@ -219,7 +219,7 @@ internal fun defaultCardUiModels(): List<CardUiModel> {
         CardUiModel(
             titleRes = R.string.card_reroll_all_except_one_title,
             descriptionRes = R.string.card_reroll_all_except_one_description,
-            iconRes = R.drawable.ic_card_reroll_all_except_one
+            iconRes = R.drawable.ic_card_reroll_all
         ),
         CardUiModel(
             titleRes = R.string.card_set_value_title,
