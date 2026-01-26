@@ -240,7 +240,9 @@ class GameViewModel(
                     state.copy(
                         cardUiModels = updatedCards,
                         selectedCardIndex = null,
-                        isAwaitingRerollSingle = false
+                        isAwaitingRerollSingle = false,
+                        selectedDice = emptySet(),
+                        selectedDiceSum = 0
                     )
                 }
             }
