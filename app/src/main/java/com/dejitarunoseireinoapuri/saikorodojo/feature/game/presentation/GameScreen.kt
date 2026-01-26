@@ -1,5 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,10 +25,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import kotlin.random.Random
 
 @Composable
@@ -43,7 +49,9 @@ fun GameRoute(
     GameScreen(
         modifier = modifier,
         uiState = uiState,
-        onDiceClick = { index -> viewModel.onEvent(GameUiEvent.ToggleDiceSelection(index)) }
+        onDiceClick = { index -> viewModel.onEvent(GameUiEvent.ToggleDiceSelection(index)) },
+        onCardSelect = { index -> viewModel.onEvent(GameUiEvent.SelectCard(index)) },
+        onCardDismiss = { viewModel.onEvent(GameUiEvent.DismissSelectedCard) }
     )
 }
 
@@ -51,14 +59,18 @@ fun GameRoute(
 fun GameScreen(
     modifier: Modifier = Modifier,
     uiState: GameUiState,
-    onDiceClick: (Int) -> Unit
+    onDiceClick: (Int) -> Unit,
+    onCardSelect: (Int) -> Unit,
+    onCardDismiss: () -> Unit
 ) {
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
+        val constraintsWidth = maxWidth
+        val constraintsHeight = maxHeight
         Text(
             text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
             modifier = Modifier
@@ -67,59 +79,143 @@ fun GameScreen(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        BoxWithConstraints {
-            val diceCount = uiState.diceValues.size
-            val diceSize = calculateDiceSize(
+        val diceCount = uiState.diceValues.size
+        val diceSize = calculateDiceSize(
+            availableWidth = maxWidth - 40.dp,
+            availableHeight = 300.dp,
+            diceCount = diceCount,
+            spacing = 4.dp,
+            columns = diceCount.coerceAtMost(2)
+        ) * 0.89f
+        val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
+            calculateRandomDicePositions(
+                seed = uiState.layoutSeed,
+                diceCount = diceCount,
                 availableWidth = maxWidth - 40.dp,
                 availableHeight = 300.dp,
+                diceSize = diceSize,
+                minSpacing = 4.dp
+            )
+        }
+        val diceFaces = remember(uiState.layoutSeed, diceCount) {
+            selectDiceFaceDrawables(
+                seed = uiState.layoutSeed,
                 diceCount = diceCount,
-                spacing = 4.dp,
-                columns = diceCount.coerceAtMost(2)
-            ) * 0.89f
-            val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
-                calculateRandomDicePositions(
-                    seed = uiState.layoutSeed,
-                    diceCount = diceCount,
-                    availableWidth = maxWidth - 40.dp,
-                    availableHeight = 300.dp,
-                    diceSize = diceSize,
-                    minSpacing = 4.dp
-                )
-            }
-            val diceFaces = remember(uiState.layoutSeed, diceCount) {
-                selectDiceFaceDrawables(
-                    seed = uiState.layoutSeed,
-                    diceCount = diceCount,
-                    faces = DiceFaceDrawables
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .height(300.dp)
-                    .fillMaxWidth()
-            ) {
-                uiState.diceValues.forEachIndexed { index, value ->
-                    val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
-                    val faceDrawable = diceFaces.getOrElse(index) { DiceFaceDrawables.first() }
-                    val isSelected = uiState.selectedDice.contains(index)
-                    Box(
-                        modifier = Modifier
-                            .offset(x = position.x, y = position.y)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) { onDiceClick(index) }
-                    ) {
-                        DiceFace(
-                            number = value,
-                            size = diceSize,
-                            faceDrawable = faceDrawable,
-                            isSelected = isSelected
-                        )
-                    }
+                faces = DiceFaceDrawables
+            )
+        }
+        Box(
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .height(300.dp)
+                .fillMaxWidth()
+                .zIndex(0f)
+        ) {
+            uiState.diceValues.forEachIndexed { index, value ->
+                val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
+                val faceDrawable = diceFaces.getOrElse(index) { DiceFaceDrawables.first() }
+                val isSelected = uiState.selectedDice.contains(index)
+                Box(
+                    modifier = Modifier
+                        .offset(x = position.x, y = position.y)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { onDiceClick(index) }
+                ) {
+                    DiceFace(
+                        number = value,
+                        size = diceSize,
+                        faceDrawable = faceDrawable,
+                        isSelected = isSelected
+                    )
                 }
             }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(1f)
+        ) {
+            GameCardStack(
+                cards = uiState.cardUiModels,
+                selectedCardIndex = uiState.selectedCardIndex,
+                maxWidth = constraintsWidth,
+                maxHeight = constraintsHeight,
+                onCardSelect = onCardSelect,
+                onCardDismiss = onCardDismiss
+            )
+        }
+    }
+}
+
+@Composable
+private fun GameCardStack(
+    cards: List<CardUiModel>,
+    selectedCardIndex: Int?,
+    maxWidth: Dp,
+    maxHeight: Dp,
+    onCardSelect: (Int) -> Unit,
+    onCardDismiss: () -> Unit
+) {
+    if (cards.isEmpty()) return
+    val cardSize = DpSize(width = 180.dp, height = 240.dp)
+    val peekHeight = 120.dp
+    val centerX = (maxWidth - cardSize.width) / 2f
+    val centerY = (maxHeight - cardSize.height) / 2f
+    val bottomY = maxHeight - peekHeight
+    val stackSpacing = 40.dp
+    val rightEdgeX = maxWidth - cardSize.width + 8.dp
+    val startX = (rightEdgeX - stackSpacing * (cards.size - 1).toFloat()).coerceAtLeast(0.dp)
+    val stackRise = 8.dp
+
+    cards.forEachIndexed { index, card ->
+        val baseX = startX + stackSpacing * index.toFloat()
+        val baseY = bottomY - stackRise * index.toFloat()
+        val isSelected = selectedCardIndex == index
+        val isSecondaryExpanded = selectedCardIndex != null && index == selectedCardIndex - 1
+        val isRightmostExpanded = index == cards.lastIndex && !isSelected
+        val targetX = if (isSelected) centerX else baseX
+        val targetY = if (isSelected) centerY else baseY
+        val animatedX by animateDpAsState(
+            targetValue = targetX,
+            animationSpec = tween(durationMillis = 220),
+            label = "cardX"
+        )
+        val animatedY by animateDpAsState(
+            targetValue = targetY,
+            animationSpec = tween(durationMillis = 220),
+            label = "cardY"
+        )
+        Box(
+            modifier = Modifier
+                .offset(x = animatedX, y = animatedY)
+                .zIndex(if (isSelected) 2f else 1f + index * 0.01f)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    if (isSelected) {
+                        onCardDismiss()
+                    } else {
+                        onCardSelect(index)
+                    }
+                }
+        ) {
+            CardItem(
+                card = card,
+                cardSize = cardSize,
+                showDescription = isSelected || isSecondaryExpanded || isRightmostExpanded,
+                showActionButton = isSelected || isSecondaryExpanded || isRightmostExpanded,
+                showTitle = isSelected || isSecondaryExpanded || isRightmostExpanded,
+                showCount = !(isSelected || isSecondaryExpanded || isRightmostExpanded),
+                iconAlignment = if (isSelected || isSecondaryExpanded || isRightmostExpanded) {
+                    Alignment.CenterHorizontally
+                } else {
+                    Alignment.Start
+                },
+                onApplyClick = {}
+            )
         }
     }
 }
