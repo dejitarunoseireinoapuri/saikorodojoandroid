@@ -46,8 +46,6 @@ class MenuScreenTest {
                 MenuScreen(
                     contentPadding = PaddingValues(top = topPadding),
                     applySystemBarsPadding = false,
-                    isDarkTheme = false,
-                    onToggleTheme = {},
                     onPlayClick = {},
                     onRulesClick = {}
                 )
