@@ -2,7 +2,6 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,15 +17,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,18 +66,24 @@ fun CardItem(
     showCount: Boolean = false,
     iconAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
-    val shape = RoundedCornerShape(8.dp)
+    val shape = RoundedCornerShape(20.dp)
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
     val countLayout = resolveCountLayout(
         showTitle = showTitle,
         showDescription = showDescription,
         showActionButton = showActionButton
     )
+    val cardBrush = Brush.linearGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.surface,
+            MaterialTheme.colorScheme.surfaceVariant
+        )
+    )
     Box(
         modifier = modifier
             .size(cardSize)
-            .background(MaterialTheme.colorScheme.surface, shape)
-            .border(width = 2.dp, color = Color.Black, shape = shape)
+            .background(cardBrush, shape)
+            .border(width = 1.dp, color = MaterialTheme.colorScheme.outline, shape = shape)
             .padding(12.dp)
     ) {
         Column(
@@ -126,18 +131,18 @@ fun CardItem(
                 Text(
                     text = stringResource(card.descriptionRes),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
         if (showActionButton) {
-            OutlinedButton(
+            Button(
                 onClick = onApplyClick,
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
-                shape = RoundedCornerShape(2.dp),
+                shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -147,7 +152,7 @@ fun CardItem(
                 Text(
                     text = stringResource(card.actionLabelRes),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
