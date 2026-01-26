@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -117,9 +118,10 @@ fun GameScreen(
                 Text(
                     text = stringResource(R.string.select_die_to_reroll),
                     modifier = Modifier
-                        .align(Alignment.Center)
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp)
                         .zIndex(1f),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
