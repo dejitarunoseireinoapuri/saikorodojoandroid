@@ -38,13 +38,4 @@
         android:strokeLineJoin="round"
         android:pathData="M6,17.2v-2.8h2.8" />
 
-    <!-- “-1” dentro (más centrado y legible) -->
-    <path
-        android:fillColor="#000000"
-        android:pathData="M9.7,12.2h2.2v0.9h-2.2z" />
-
-    <path
-        android:fillColor="#000000"
-        android:pathData="M13.0,10.6h0.9v5.2h-0.9v-3.9l-0.7,0.5v-1l0.7,-0.8z" />
-
 </vector>
