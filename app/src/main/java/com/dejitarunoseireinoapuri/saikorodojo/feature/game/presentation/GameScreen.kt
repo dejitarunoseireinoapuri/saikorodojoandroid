@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -78,8 +82,15 @@ fun GameScreen(
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
     }
-    containerModifier = containerModifier.padding(contentPadding)
-        .background(MaterialTheme.colorScheme.surface)
+    val backgroundBrush = Brush.verticalGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.background,
+            MaterialTheme.colorScheme.surfaceVariant
+        )
+    )
+    containerModifier = containerModifier
+        .padding(contentPadding)
+        .background(backgroundBrush)
     BoxWithConstraints(
         modifier = containerModifier,
         contentAlignment = Alignment.Center
@@ -87,12 +98,12 @@ fun GameScreen(
         val constraintsWidth = maxWidth
         val constraintsHeight = maxHeight
         Text(
-            text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
+            text = stringResource(R.string.game_title),
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 24.dp),
+                .padding(top = 20.dp),
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onBackground
         )
         val diceCount = uiState.diceValues.size
         val diceSize = calculateDiceSize(
@@ -124,7 +135,7 @@ fun GameScreen(
                     .align(Alignment.Center)
                     .offset(y = -(150.dp + 8.dp)),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
         Box(
@@ -132,6 +143,16 @@ fun GameScreen(
                 .padding(start = 20.dp, end = 20.dp)
                 .height(300.dp)
                 .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(24.dp)
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(24.dp)
+                )
+                .padding(16.dp)
                 .zIndex(0f)
         ) {
             uiState.diceValues.forEachIndexed { index, value ->
@@ -287,7 +308,11 @@ private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boole
             text = number.toString(),
             modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
             style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = if (isSelected) {
+                MaterialTheme.colorScheme.onSecondary
+            } else {
+                Color.White
+            }
         )
     }
 }
