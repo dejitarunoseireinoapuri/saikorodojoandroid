@@ -107,7 +107,7 @@ class GameViewModelTest {
         assertEquals(1, afterApply.cardUiModels.single().count)
 
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
-        advanceUntilIdle()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         val afterRoll = viewModel.uiState.value
         assertEquals(6, afterRoll.diceValues[1])
