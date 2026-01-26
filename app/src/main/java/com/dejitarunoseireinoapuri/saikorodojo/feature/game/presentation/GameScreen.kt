@@ -76,24 +76,27 @@ fun GameScreen(
     onCardDismiss: () -> Unit,
     onCardApply: (Int) -> Unit
 ) {
+    val view = LocalView.current
+    val density = LocalDensity.current
+    var navigationBarPadding by remember { mutableStateOf(0.dp) }
+    var statusBarPadding by remember { mutableStateOf(0.dp) }
+    SideEffect {
+        val insets = ViewCompat.getRootWindowInsets(view)
+            ?.getInsets(WindowInsetsCompat.Type.systemBars())
+        val bottomInset = insets?.bottom ?: 0
+        val topInset = insets?.top ?: 0
+        navigationBarPadding = with(density) { bottomInset.toDp() }
+        statusBarPadding = with(density) { topInset.toDp() }
+    }
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(GameBackground),
+            .background(GameBackground)
+            .padding(top = statusBarPadding, bottom = navigationBarPadding),
         contentAlignment = Alignment.Center
     ) {
         val constraintsWidth = maxWidth
         val constraintsHeight = maxHeight
-        val view = LocalView.current
-        val density = LocalDensity.current
-        var navigationBarPadding by remember { mutableStateOf(0.dp) }
-        SideEffect {
-            val bottomInset = ViewCompat.getRootWindowInsets(view)
-                ?.getInsets(WindowInsetsCompat.Type.systemBars())
-                ?.bottom
-                ?: 0
-            navigationBarPadding = with(density) { bottomInset.toDp() }
-        }
         Text(
             text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
             modifier = Modifier
@@ -173,7 +176,7 @@ fun GameScreen(
                 selectedCardIndex = uiState.selectedCardIndex,
                 maxWidth = constraintsWidth,
                 maxHeight = constraintsHeight,
-                bottomInset = navigationBarPadding,
+                bottomInset = 0.dp,
                 onCardSelect = onCardSelect,
                 onCardDismiss = onCardDismiss,
                 onCardApply = onCardApply
