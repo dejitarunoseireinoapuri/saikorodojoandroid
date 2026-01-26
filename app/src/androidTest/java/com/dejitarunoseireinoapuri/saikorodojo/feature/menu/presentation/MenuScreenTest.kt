@@ -45,6 +45,7 @@ class MenuScreenTest {
             SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
                 MenuScreen(
                     contentPadding = PaddingValues(top = topPadding),
+                    applySystemBarsPadding = false,
                     isDarkTheme = false,
                     onToggleTheme = {},
                     onPlayClick = {},
