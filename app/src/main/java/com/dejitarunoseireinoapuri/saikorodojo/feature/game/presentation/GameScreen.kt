@@ -108,6 +108,7 @@ fun GameScreen(
                 .padding(horizontal = 20.dp)
                 .height(300.dp)
                 .fillMaxWidth()
+                .zIndex(0f)
         ) {
             uiState.diceValues.forEachIndexed { index, value ->
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
@@ -130,14 +131,20 @@ fun GameScreen(
                 }
             }
         }
-        GameCardStack(
-            cards = uiState.cardUiModels,
-            selectedCardIndex = uiState.selectedCardIndex,
-            maxWidth = maxWidth,
-            maxHeight = maxHeight,
-            onCardSelect = onCardSelect,
-            onCardDismiss = onCardDismiss
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(1f)
+        ) {
+            GameCardStack(
+                cards = uiState.cardUiModels,
+                selectedCardIndex = uiState.selectedCardIndex,
+                maxWidth = maxWidth,
+                maxHeight = maxHeight,
+                onCardSelect = onCardSelect,
+                onCardDismiss = onCardDismiss
+            )
+        }
     }
 }
 
@@ -154,7 +161,7 @@ private fun GameCardStack(
     val cardSize = DpSize(width = 180.dp, height = 240.dp)
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
-    val bottomY = maxHeight - cardSize.height - 20.dp
+    val bottomY = maxHeight - cardSize.height - 12.dp
     val centerIndex = cards.size / 2
     val stackSpacing = 70.dp
 
