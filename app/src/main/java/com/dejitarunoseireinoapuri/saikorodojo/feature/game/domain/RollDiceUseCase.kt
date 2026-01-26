@@ -3,7 +3,15 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain
 import kotlin.random.Random
 
 private const val DICE_MIN = 1
-private const val DICE_MAX_EXCLUSIVE = 7
+
+enum class DiceType(val sides: Int) {
+    D6(6),
+    D8(8),
+    D10(10);
+
+    val maxExclusive: Int
+        get() = sides + 1
+}
 
 fun interface DiceRandomProvider {
     fun nextInt(from: Int, until: Int): Int
@@ -18,7 +26,7 @@ class DefaultDiceRandomProvider : DiceRandomProvider {
 class RollDiceUseCase(
     private val randomProvider: DiceRandomProvider = DefaultDiceRandomProvider()
 ) {
-    fun execute(count: Int): List<Int> {
-        return List(count) { randomProvider.nextInt(DICE_MIN, DICE_MAX_EXCLUSIVE) }
+    fun execute(count: Int, diceType: DiceType = DiceType.D6): List<Int> {
+        return List(count) { randomProvider.nextInt(DICE_MIN, diceType.maxExclusive) }
     }
 }
