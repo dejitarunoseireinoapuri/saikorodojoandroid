@@ -58,11 +58,14 @@ fun MenuScreen(
     scaffoldModifier = scaffoldModifier.padding(contentPadding)
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
-            MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f),
-            MaterialTheme.colorScheme.background
+            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.65f),
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f)
         )
     )
+    scaffoldModifier = scaffoldModifier
+        .fillMaxSize()
+        .background(backgroundBrush)
 
     Scaffold(
         modifier = scaffoldModifier,
@@ -107,7 +110,6 @@ fun MenuScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(top = 96.dp, start = 16.dp, end = 16.dp, bottom = 64.dp)
-                .background(backgroundBrush)
         ) {
             Text(
                 text = stringResource(R.string.game_title),
