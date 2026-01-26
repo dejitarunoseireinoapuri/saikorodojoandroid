@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.DpSize
 import com.dejitarunoseireinoapuri.saikorodojo.R
 
 class GameScreenTest {
@@ -125,6 +126,34 @@ class GameScreenTest {
                 !overlaps(position, it, diceSize, minSpacing)
             }
         })
+    }
+
+    @Test
+    fun `card stack start x centers when there are fewer card types`() {
+        val startX = calculateCardStackStartX(
+            cardsCount = 3,
+            maxCardTypes = 7,
+            maxWidth = 360.dp,
+            cardSize = DpSize(180.dp, 240.dp),
+            stackSpacing = 40.dp,
+            rightPadding = 8.dp
+        )
+
+        assertEquals(50.dp, startX)
+    }
+
+    @Test
+    fun `card stack start x uses right alignment when card types are complete`() {
+        val startX = calculateCardStackStartX(
+            cardsCount = 7,
+            maxCardTypes = 7,
+            maxWidth = 500.dp,
+            cardSize = DpSize(180.dp, 240.dp),
+            stackSpacing = 20.dp,
+            rightPadding = 8.dp
+        )
+
+        assertEquals(208.dp, startX)
     }
 }
 

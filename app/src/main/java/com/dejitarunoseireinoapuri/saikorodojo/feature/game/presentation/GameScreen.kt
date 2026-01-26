@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import kotlin.random.Random
 
 @Composable
@@ -165,8 +166,16 @@ private fun GameCardStack(
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
     val stackSpacing = 40.dp
-    val rightEdgeX = maxWidth - cardSize.width + 8.dp
-    val startX = (rightEdgeX - stackSpacing * (cards.size - 1).toFloat()).coerceAtLeast(0.dp)
+    val rightPadding = 8.dp
+    val maxCardTypes = remember { defaultCardUiModels().size }
+    val startX = calculateCardStackStartX(
+        cardsCount = cards.size,
+        maxCardTypes = maxCardTypes,
+        maxWidth = maxWidth,
+        cardSize = cardSize,
+        stackSpacing = stackSpacing,
+        rightPadding = rightPadding
+    )
     val stackRise = 8.dp
 
     cards.forEachIndexed { index, card ->
@@ -218,6 +227,24 @@ private fun GameCardStack(
             )
         }
     }
+}
+
+internal fun calculateCardStackStartX(
+    cardsCount: Int,
+    maxCardTypes: Int,
+    maxWidth: Dp,
+    cardSize: DpSize,
+    stackSpacing: Dp,
+    rightPadding: Dp
+): Dp {
+    if (cardsCount <= 0) return 0.dp
+    val stackedCards = (cardsCount - 1).coerceAtLeast(0)
+    val stackWidth = cardSize.width + stackSpacing * stackedCards.toFloat()
+    val centeredStartX = ((maxWidth - stackWidth) / 2f).coerceAtLeast(0.dp)
+    val rightEdgeX = maxWidth - cardSize.width + rightPadding
+    val rightAlignedStartX =
+        (rightEdgeX - stackSpacing * stackedCards.toFloat()).coerceAtLeast(0.dp)
+    return if (cardsCount >= maxCardTypes) rightAlignedStartX else centeredStartX
 }
 
 private val DiceFaceDrawables = listOf(
