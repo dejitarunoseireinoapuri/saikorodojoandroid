@@ -174,6 +174,7 @@ private fun GameCardStack(
         val baseY = bottomY - stackRise * index.toFloat()
         val isSelected = selectedCardIndex == index
         val isSecondaryExpanded = selectedCardIndex != null && index == selectedCardIndex - 1
+        val isRightmostExpanded = index == cards.lastIndex && !isSelected
         val targetX = if (isSelected) centerX else baseX
         val targetY = if (isSelected) centerY else baseY
         val animatedX by animateDpAsState(
@@ -204,11 +205,15 @@ private fun GameCardStack(
             CardItem(
                 card = card,
                 cardSize = cardSize,
-                showDescription = isSelected || isSecondaryExpanded,
-                showActionButton = isSelected || isSecondaryExpanded,
-                showTitle = isSelected || isSecondaryExpanded,
-                showCount = !(isSelected || isSecondaryExpanded),
-                iconAlignment = if (isSelected || isSecondaryExpanded) Alignment.CenterHorizontally else Alignment.Start,
+                showDescription = isSelected || isSecondaryExpanded || isRightmostExpanded,
+                showActionButton = isSelected || isSecondaryExpanded || isRightmostExpanded,
+                showTitle = isSelected || isSecondaryExpanded || isRightmostExpanded,
+                showCount = !(isSelected || isSecondaryExpanded || isRightmostExpanded),
+                iconAlignment = if (isSelected || isSecondaryExpanded || isRightmostExpanded) {
+                    Alignment.CenterHorizontally
+                } else {
+                    Alignment.Start
+                },
                 onApplyClick = {}
             )
         }
