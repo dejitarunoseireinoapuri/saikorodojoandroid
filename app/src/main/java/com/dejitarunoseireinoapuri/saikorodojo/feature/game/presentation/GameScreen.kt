@@ -83,15 +83,15 @@ fun GameScreen(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        val promptPaddingTop = 56.dp
         val diceAreaTopPadding = 88.dp
+        val promptPaddingTop = diceAreaTopPadding - 28.dp
         if (uiState.isAwaitingRerollSingle) {
             Text(
                 text = stringResource(R.string.select_die_to_reroll),
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = promptPaddingTop),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
