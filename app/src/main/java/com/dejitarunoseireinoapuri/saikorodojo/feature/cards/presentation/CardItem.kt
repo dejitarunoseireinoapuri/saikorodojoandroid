@@ -159,9 +159,7 @@ private fun ColumnScope.CountWithIcon(
     iconAlignment: Alignment.Horizontal,
     layout: CountLayout
 ) {
-    val alignment = if (layout == CountLayout.Vertical) {
-        Alignment.CenterHorizontally
-    } else if (iconAlignment == Alignment.Start) {
+    val anchorAlignment = if (iconAlignment == Alignment.Start) {
         Alignment.Start
     } else {
         Alignment.CenterHorizontally
@@ -169,7 +167,7 @@ private fun ColumnScope.CountWithIcon(
     val textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
     if (layout == CountLayout.Horizontal) {
         Row(
-            modifier = Modifier.align(alignment),
+            modifier = Modifier.align(anchorAlignment),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -194,10 +192,10 @@ private fun ColumnScope.CountWithIcon(
         }
     } else {
         Column(
-            horizontalAlignment = alignment,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier
-                .align(alignment)
+                .align(anchorAlignment)
                 .padding(top = 2.dp)
         ) {
             Text(
