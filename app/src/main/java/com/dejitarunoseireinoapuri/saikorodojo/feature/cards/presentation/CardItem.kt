@@ -279,8 +279,8 @@ internal fun defaultCardUiModels(): List<CardUiModel> {
             iconRes = R.drawable.ic_card_reroll_single
         ),
         CardUiModel(
-            titleRes = R.string.card_reroll_all_except_one_title,
-            descriptionRes = R.string.card_reroll_all_except_one_description,
+            titleRes = R.string.card_reroll_all_title,
+            descriptionRes = R.string.card_reroll_all_description,
             iconRes = R.drawable.ic_card_reroll_all
         ),
         CardUiModel(

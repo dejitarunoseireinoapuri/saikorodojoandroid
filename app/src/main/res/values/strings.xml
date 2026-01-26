@@ -17,12 +17,12 @@
     <string name="card_flip_face_description">Invert the die value</string>
     <string name="card_reroll_single_title">Reroll one die</string>
     <string name="card_reroll_single_description">Choose a die and roll it again</string>
-    <string name="card_reroll_all_except_one_title">Reroll all but one</string>
-    <string name="card_reroll_all_except_one_description">Choose one die to keep. Reroll all the others</string>
+    <string name="card_reroll_all_title">Reroll all</string>
+    <string name="card_reroll_all_description">Reroll all the dice</string>
     <string name="card_set_value_title">Set value</string>
     <string name="card_set_value_description">Choose the final value of a die within its range</string>
     <string name="card_repeat_last_title">Repeat last card</string>
     <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target</string>
-    <string name="card_retry_title">Reintento</string>
-    <string name="card_retry_description">Reinicia el nivel</string>
+    <string name="card_retry_title">Retry</string>
+    <string name="card_retry_description">	Restart the level</string>
 </resources>
