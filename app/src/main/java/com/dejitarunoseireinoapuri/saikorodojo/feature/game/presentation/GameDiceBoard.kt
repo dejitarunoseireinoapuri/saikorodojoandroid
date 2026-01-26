@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
@@ -36,9 +37,19 @@ internal fun DiceBoard(
     onDiceClick: (Int) -> Unit
 ) {
     val diceCount = uiState.diceValues.size
+    val boardHeight = 300.dp
+    val horizontalMargin = 20.dp
+    val contentPadding = 16.dp
+    val boardWidth = maxWidth - horizontalMargin * 2
+    val contentSize = calculateBoardContentSize(
+        containerWidth = boardWidth,
+        containerHeight = boardHeight,
+        horizontalPadding = contentPadding,
+        verticalPadding = contentPadding
+    )
     val diceSize = calculateDiceSize(
-        availableWidth = maxWidth - 40.dp,
-        availableHeight = 300.dp,
+        availableWidth = contentSize.width,
+        availableHeight = contentSize.height,
         diceCount = diceCount,
         spacing = 4.dp,
         columns = diceCount.coerceAtMost(2)
@@ -47,8 +58,8 @@ internal fun DiceBoard(
         calculateRandomDicePositions(
             seed = uiState.layoutSeed,
             diceCount = diceCount,
-            availableWidth = maxWidth - 40.dp,
-            availableHeight = 300.dp,
+            availableWidth = contentSize.width,
+            availableHeight = contentSize.height,
             diceSize = diceSize,
             minSpacing = 4.dp
         )
@@ -72,8 +83,8 @@ internal fun DiceBoard(
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
-                .padding(start = 20.dp, end = 20.dp)
-                .height(300.dp)
+                .padding(start = horizontalMargin, end = horizontalMargin)
+                .height(boardHeight)
                 .fillMaxWidth()
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
@@ -84,7 +95,7 @@ internal fun DiceBoard(
                     color = MaterialTheme.colorScheme.outline,
                     shape = RoundedCornerShape(24.dp)
                 )
-                .padding(16.dp),
+                .padding(contentPadding),
             contentAlignment = Alignment.Center
         ) {
             uiState.diceValues.forEachIndexed { index, value ->
@@ -143,6 +154,17 @@ internal fun calculateDiceSize(
     val widthBasedSize = (availableWidth - spacing * (safeColumns - 1)) / safeColumns
     val heightBasedSize = (availableHeight - spacing * (rows - 1)) / rows
     return minOf(widthBasedSize, heightBasedSize)
+}
+
+internal fun calculateBoardContentSize(
+    containerWidth: Dp,
+    containerHeight: Dp,
+    horizontalPadding: Dp,
+    verticalPadding: Dp
+): DpSize {
+    val width = (containerWidth - horizontalPadding * 2).coerceAtLeast(0.dp)
+    val height = (containerHeight - verticalPadding * 2).coerceAtLeast(0.dp)
+    return DpSize(width, height)
 }
 
 internal data class DicePosition(val x: Dp, val y: Dp)
