@@ -2,6 +2,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +18,7 @@ import kotlin.random.Random
 private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
+private const val DEFAULT_CARD_COUNT = 3
 
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
@@ -23,12 +26,16 @@ data class GameUiState(
     val layoutSeed: Long = 0L,
     val isRolling: Boolean = false,
     val selectedDice: Set<Int> = emptySet(),
-    val selectedDiceSum: Int = 0
+    val selectedDiceSum: Int = 0,
+    val cardUiModels: List<CardUiModel> = emptyList(),
+    val selectedCardIndex: Int? = null
 )
 
 sealed interface GameUiEvent {
     data object StartRoll : GameUiEvent
     data class ToggleDiceSelection(val index: Int) : GameUiEvent
+    data class SelectCard(val index: Int) : GameUiEvent
+    data object DismissSelectedCard : GameUiEvent
 }
 
 class GameViewModel(
@@ -37,12 +44,19 @@ class GameViewModel(
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
     private val diceCount: Int = DEFAULT_DICE_COUNT,
-    private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() }
+    private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() },
+    private val cardSeedProvider: () -> Long = { Random.Default.nextLong() },
+    private val cardCount: Int = DEFAULT_CARD_COUNT
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         GameUiState(
             diceValues = List(diceCount) { 1 },
-            diceCount = diceCount
+            diceCount = diceCount,
+            cardUiModels = selectRandomCards(
+                cards = defaultCardUiModels(),
+                count = cardCount,
+                seed = cardSeedProvider()
+            )
         )
     )
     val uiState: StateFlow<GameUiState> = _uiState
@@ -53,6 +67,8 @@ class GameViewModel(
         when (event) {
             GameUiEvent.StartRoll -> startRolling()
             is GameUiEvent.ToggleDiceSelection -> toggleDiceSelection(event.index)
+            is GameUiEvent.SelectCard -> selectCard(event.index)
+            GameUiEvent.DismissSelectedCard -> dismissSelectedCard()
         }
     }
 
@@ -95,6 +111,20 @@ class GameViewModel(
             }
         }
     }
+
+    private fun selectCard(index: Int) {
+        _uiState.update { state ->
+            if (index !in state.cardUiModels.indices) {
+                state
+            } else {
+                state.copy(selectedCardIndex = index)
+            }
+        }
+    }
+
+    private fun dismissSelectedCard() {
+        _uiState.update { it.copy(selectedCardIndex = null) }
+    }
 }
 
 internal fun calculateSelectedDiceSum(
@@ -102,4 +132,14 @@ internal fun calculateSelectedDiceSum(
     selectedDice: Set<Int>
 ): Int {
     return selectedDice.sumOf { index -> diceValues.getOrNull(index) ?: 0 }
+}
+
+internal fun selectRandomCards(
+    cards: List<CardUiModel>,
+    count: Int,
+    seed: Long
+): List<CardUiModel> {
+    if (cards.isEmpty() || count <= 0) return emptyList()
+    val random = Random(seed)
+    return cards.shuffled(random).take(count.coerceAtMost(cards.size))
 }
