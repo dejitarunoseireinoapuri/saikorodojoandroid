@@ -6,6 +6,7 @@ import org.junit.Test
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.DpSize
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 
 class GameScreenTest {
     @Test
@@ -37,29 +38,10 @@ class GameScreenTest {
     }
 
     @Test
-    fun `select dice face drawables is deterministic for the same seed`() {
-        val faces = listOf(10, 20, 30)
-
-        val first = selectDiceFaceDrawables(seed = 42L, diceCount = 5, faces = faces)
-        val second = selectDiceFaceDrawables(seed = 42L, diceCount = 5, faces = faces)
-
-        assertEquals(first, second)
-    }
-
-    @Test
-    fun `select dice face drawables returns empty when count is zero`() {
-        val faces = listOf(10, 20, 30)
-
-        val result = selectDiceFaceDrawables(seed = 42L, diceCount = 0, faces = faces)
-
-        assertEquals(emptyList<Int>(), result)
-    }
-
-    @Test
-    fun `select dice face drawables returns empty when faces list is empty`() {
-        val result = selectDiceFaceDrawables(seed = 42L, diceCount = 3, faces = emptyList())
-
-        assertEquals(emptyList<Int>(), result)
+    fun `dice type drawable maps each dice type to its asset`() {
+        assertEquals(R.drawable.six_sides, diceTypeDrawable(DiceType.D6))
+        assertEquals(R.drawable.eigth_sides, diceTypeDrawable(DiceType.D8))
+        assertEquals(R.drawable.ten_sides, diceTypeDrawable(DiceType.D10))
     }
 
     @Test
@@ -105,6 +87,31 @@ class GameScreenTest {
         )
 
         assertEquals(emptyList<DicePosition>(), positions)
+    }
+
+    @Test
+    fun `grid positions are deterministic for the same seed`() {
+        val diceSize = 40.dp
+        val minSpacing = 4.dp
+
+        val first = calculateRandomDicePositions(
+            seed = 123L,
+            diceCount = 4,
+            availableWidth = 200.dp,
+            availableHeight = 200.dp,
+            diceSize = diceSize,
+            minSpacing = minSpacing
+        )
+        val second = calculateRandomDicePositions(
+            seed = 123L,
+            diceCount = 4,
+            availableWidth = 200.dp,
+            availableHeight = 200.dp,
+            diceSize = diceSize,
+            minSpacing = minSpacing
+        )
+
+        assertEquals(first, second)
     }
 
     @Test
