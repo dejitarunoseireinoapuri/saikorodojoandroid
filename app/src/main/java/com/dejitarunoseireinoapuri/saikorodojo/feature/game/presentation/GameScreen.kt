@@ -301,11 +301,7 @@ private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boole
             text = number.toString(),
             modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
             style = MaterialTheme.typography.displaySmall,
-            color = if (isSelected) {
-                MaterialTheme.colorScheme.onSecondary
-            } else {
-                Color.White
-            }
+            color = Color.White
         )
     }
 }

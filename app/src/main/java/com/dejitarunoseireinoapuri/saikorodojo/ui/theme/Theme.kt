@@ -28,20 +28,21 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = NeonIndigoLight,
-    onPrimary = Color.White,
-    secondary = NeonCyanLight,
-    onSecondary = Color(0xFF00212B),
-    tertiary = NeonPinkLight,
-    onTertiary = Color(0xFF3B0C27),
-    background = LightBackground,
-    onBackground = LightOnBackground,
-    surface = LightSurface,
-    onSurface = LightOnSurface,
-    surfaceVariant = LightSurfaceVariant,
-    onSurfaceVariant = LightOnSurfaceVariant,
-    outline = LightOutline
+    primary = Color(0xFF008F4A),
+    onPrimary = Color(0xFF07130C),
+    secondary = Color(0xFF00E676),
+    onSecondary = Color(0xFF001A0D),
+    tertiary = Color(0xFF00FFD1),
+    onTertiary = Color(0xFF002018),
+    background = Color(0xFFF3FFF7),
+    onBackground = Color(0xFF0B1510),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF0B1510),
+    surfaceVariant = Color(0xFFDFF7EA),
+    onSurfaceVariant = Color(0xFF1C3A2B),
+    outline = Color(0xFF1E7D4B)
 )
+
 
 @Composable
 fun SaikoroDojoTheme(
