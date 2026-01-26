@@ -8,8 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -85,7 +83,6 @@ fun GameScreen(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        val diceAreaTopPadding = 64.dp
         val diceCount = uiState.diceValues.size
         val diceSize = calculateDiceSize(
             availableWidth = maxWidth - 40.dp,
@@ -109,47 +106,41 @@ fun GameScreen(
                 diceTypeDrawable(uiState.diceTypes.getOrElse(index) { DiceType.D6 })
             }
         }
-        Column(
+        if (uiState.isAwaitingRerollSingle) {
+            Text(
+                text = stringResource(R.string.select_die_to_reroll),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = -(150.dp + 8.dp)),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = diceAreaTopPadding)
+                .padding(start = 20.dp, end = 20.dp)
+                .height(300.dp)
                 .fillMaxWidth()
                 .zIndex(0f)
         ) {
-            if (uiState.isAwaitingRerollSingle) {
-                Text(
-                    text = stringResource(R.string.select_die_to_reroll),
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-            }
-            Box(
-                modifier = Modifier
-                    .padding(start = 20.dp, end = 20.dp)
-                    .height(300.dp)
-                    .fillMaxWidth()
-            ) {
-                uiState.diceValues.forEachIndexed { index, value ->
-                    val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
-                    val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
-                    val isSelected = uiState.selectedDice.contains(index)
-                    Box(
-                        modifier = Modifier
-                            .offset(x = position.x, y = position.y)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) { onDiceClick(index) }
-                    ) {
-                        DiceFace(
-                            number = value,
-                            size = diceSize,
-                            faceDrawable = faceDrawable,
-                            isSelected = isSelected
-                        )
-                    }
+            uiState.diceValues.forEachIndexed { index, value ->
+                val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
+                val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
+                val isSelected = uiState.selectedDice.contains(index)
+                Box(
+                    modifier = Modifier
+                        .offset(x = position.x, y = position.y)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { onDiceClick(index) }
+                ) {
+                    DiceFace(
+                        number = value,
+                        size = diceSize,
+                        faceDrawable = faceDrawable,
+                        isSelected = isSelected
+                    )
                 }
             }
         }
