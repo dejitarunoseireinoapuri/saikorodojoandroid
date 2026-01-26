@@ -9,6 +9,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -142,6 +143,65 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
 
         assertEquals(listOf(otherCard), viewModel.uiState.value.cardUiModels)
+    }
+
+    @Test
+    fun applyRerollSingleCardEnablesSelectionPrompt() {
+        val rerollSingleCard = CardUiModel(
+            id = CardId.REROLL_SINGLE,
+            titleRes = R.string.card_reroll_single_title,
+            descriptionRes = R.string.card_reroll_single_description,
+            iconRes = R.drawable.ic_card_reroll_single,
+            count = 1
+        )
+        val otherCard = CardUiModel(
+            id = CardId.ADJUST_PLUS_MINUS_ONE,
+            titleRes = R.string.card_adjust_plus_minus_one_title,
+            descriptionRes = R.string.card_adjust_plus_minus_one_description,
+            iconRes = R.drawable.ic_card_adjust,
+            count = 1
+        )
+        val viewModel = GameViewModel(
+            dispatcher = mainDispatcherRule.dispatcher,
+            cardUiModels = listOf(rerollSingleCard, otherCard)
+        )
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+
+        assertEquals(listOf(otherCard), viewModel.uiState.value.cardUiModels)
+        assertTrue(viewModel.uiState.value.isAwaitingRerollSingle)
+    }
+
+    @Test
+    fun diceClickRerollsSingleDieAndClearsPrompt() = runTest(mainDispatcherRule.dispatcher) {
+        val rerollSingleCard = CardUiModel(
+            id = CardId.REROLL_SINGLE,
+            titleRes = R.string.card_reroll_single_title,
+            descriptionRes = R.string.card_reroll_single_description,
+            iconRes = R.drawable.ic_card_reroll_single,
+            count = 1
+        )
+        val diceTypes = listOf(DiceType.D6, DiceType.D10)
+        val viewModel = GameViewModel(
+            rollDiceUseCase = RollDiceUseCase(MaxValueRandomProvider()),
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollDurationMs = 1L,
+            tickMs = 1L,
+            diceCount = diceTypes.size,
+            diceTypeProvider = { _, _ -> diceTypes },
+            cardUiModels = listOf(rerollSingleCard)
+        )
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        assertTrue(viewModel.uiState.value.isAwaitingRerollSingle)
+
+        viewModel.onEvent(GameUiEvent.DiceClicked(1))
+        advanceUntilIdle()
+
+        val values = viewModel.uiState.value.diceValues
+        assertEquals(1, values[0])
+        assertEquals(10, values[1])
+        assertFalse(viewModel.uiState.value.isAwaitingRerollSingle)
     }
 
     @Test

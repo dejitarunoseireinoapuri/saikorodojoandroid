@@ -51,7 +51,7 @@ fun GameRoute(
     GameScreen(
         modifier = modifier,
         uiState = uiState,
-        onDiceClick = { index -> viewModel.onEvent(GameUiEvent.ToggleDiceSelection(index)) },
+        onDiceClick = { index -> viewModel.onEvent(GameUiEvent.DiceClicked(index)) },
         onCardSelect = { index -> viewModel.onEvent(GameUiEvent.SelectCard(index)) },
         onCardDismiss = { viewModel.onEvent(GameUiEvent.DismissSelectedCard) },
         onCardApply = { index -> viewModel.onEvent(GameUiEvent.ApplyCard(index)) }
@@ -113,6 +113,16 @@ fun GameScreen(
                 .fillMaxWidth()
                 .zIndex(0f)
         ) {
+            if (uiState.isAwaitingRerollSingle) {
+                Text(
+                    text = stringResource(R.string.select_die_to_reroll),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .zIndex(1f),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             uiState.diceValues.forEachIndexed { index, value ->
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
                 val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
