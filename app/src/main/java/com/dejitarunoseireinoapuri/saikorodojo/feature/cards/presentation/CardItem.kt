@@ -77,7 +77,7 @@ fun CardItem(
     Box(
         modifier = modifier
             .size(cardSize)
-            .background(MaterialTheme.colorScheme.surface, shape)
+            .background(Color.White, shape)
             .border(width = 2.dp, color = Color.Black, shape = shape)
             .padding(12.dp)
     ) {
@@ -98,7 +98,7 @@ fun CardItem(
                             maxWidthDp = cardSize.width - 24.dp
                         )
                     ),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.Black,
                     maxLines = 1,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -116,7 +116,7 @@ fun CardItem(
                 Icon(
                     painter = painterResource(card.iconRes),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = Color.Black,
                     modifier = Modifier
                         .size(32.dp)
                         .align(iconAlignment)
@@ -126,7 +126,7 @@ fun CardItem(
                 Text(
                     text = stringResource(card.descriptionRes),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.Black
                 )
             }
         }
@@ -134,9 +134,9 @@ fun CardItem(
             OutlinedButton(
                 onClick = onApplyClick,
                 colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.White
                 ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+                border = BorderStroke(1.dp, Color.Black),
                 shape = RoundedCornerShape(2.dp),
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                 modifier = Modifier
@@ -147,7 +147,7 @@ fun CardItem(
                 Text(
                     text = stringResource(card.actionLabelRes),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.Black
                 )
             }
         }
@@ -176,19 +176,19 @@ private fun ColumnScope.CountWithIcon(
             Text(
                 text = count.toString(),
                 style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.Black,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "x",
                 style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.Black,
                 textAlign = TextAlign.Center
             )
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = Color.Black,
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -203,19 +203,19 @@ private fun ColumnScope.CountWithIcon(
             Text(
                 text = count.toString(),
                 style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.Black,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "x",
                 style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.Black,
                 textAlign = TextAlign.Center
             )
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = Color.Black,
                 modifier = Modifier.size(32.dp)
             )
         }

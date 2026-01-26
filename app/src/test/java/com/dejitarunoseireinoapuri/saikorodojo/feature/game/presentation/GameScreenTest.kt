@@ -155,6 +155,28 @@ class GameScreenTest {
 
         assertEquals(208.dp, startX)
     }
+
+    @Test
+    fun `card stack bottom y accounts for navigation bar inset`() {
+        val bottomY = calculateCardStackBottomY(
+            maxHeight = 800.dp,
+            peekHeight = 120.dp,
+            bottomInset = 24.dp
+        )
+
+        assertEquals(656.dp, bottomY)
+    }
+
+    @Test
+    fun `card stack bottom y never drops below zero`() {
+        val bottomY = calculateCardStackBottomY(
+            maxHeight = 100.dp,
+            peekHeight = 120.dp,
+            bottomInset = 24.dp
+        )
+
+        assertEquals(0.dp, bottomY)
+    }
 }
 
 private fun overlaps(

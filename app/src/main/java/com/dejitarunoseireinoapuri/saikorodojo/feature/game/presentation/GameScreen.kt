@@ -8,6 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateBottomPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -70,18 +74,21 @@ fun GameScreen(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
+            .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
         val constraintsWidth = maxWidth
         val constraintsHeight = maxHeight
+        val navigationBarPadding = WindowInsets.navigationBars
+            .asPaddingValues()
+            .calculateBottomPadding()
         Text(
             text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 24.dp),
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface
+            color = Color.Black
         )
         val diceCount = uiState.diceValues.size
         val diceSize = calculateDiceSize(
@@ -113,7 +120,7 @@ fun GameScreen(
                     .align(Alignment.Center)
                     .offset(y = -(150.dp + 8.dp)),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = Color.Black
             )
         }
         Box(
@@ -154,6 +161,7 @@ fun GameScreen(
                 selectedCardIndex = uiState.selectedCardIndex,
                 maxWidth = constraintsWidth,
                 maxHeight = constraintsHeight,
+                bottomInset = navigationBarPadding,
                 onCardSelect = onCardSelect,
                 onCardDismiss = onCardDismiss,
                 onCardApply = onCardApply
@@ -168,6 +176,7 @@ private fun GameCardStack(
     selectedCardIndex: Int?,
     maxWidth: Dp,
     maxHeight: Dp,
+    bottomInset: Dp,
     onCardSelect: (Int) -> Unit,
     onCardDismiss: () -> Unit,
     onCardApply: (Int) -> Unit
@@ -177,7 +186,11 @@ private fun GameCardStack(
     val peekHeight = 120.dp
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
-    val bottomY = maxHeight - peekHeight
+    val bottomY = calculateCardStackBottomY(
+        maxHeight = maxHeight,
+        peekHeight = peekHeight,
+        bottomInset = bottomInset
+    )
     val stackSpacing = 40.dp
     val rightPadding = 8.dp
     val maxCardTypes = remember { defaultCardUiModels().size }
@@ -274,9 +287,17 @@ private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boole
             text = number.toString(),
             modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
             style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = Color.Black
         )
     }
+}
+
+internal fun calculateCardStackBottomY(
+    maxHeight: Dp,
+    peekHeight: Dp,
+    bottomInset: Dp
+): Dp {
+    return (maxHeight - peekHeight - bottomInset).coerceAtLeast(0.dp)
 }
 
 internal fun calculateDiceSize(
