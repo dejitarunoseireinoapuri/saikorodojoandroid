@@ -4,6 +4,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceRandomProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -137,5 +142,32 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
 
         assertEquals(listOf(otherCard), viewModel.uiState.value.cardUiModels)
+    }
+
+    @Test
+    fun startRollUsesDiceTypesForValues() = runTest(mainDispatcherRule.dispatcher) {
+        val diceTypes = listOf(DiceType.D8, DiceType.D10)
+        val useCase = RollDiceUseCase(MaxValueRandomProvider())
+        val viewModel = GameViewModel(
+            rollDiceUseCase = useCase,
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollDurationMs = 1L,
+            tickMs = 1L,
+            diceCount = diceTypes.size,
+            diceTypeProvider = { _, _ -> diceTypes },
+            layoutSeedProvider = { 42L }
+        )
+
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        advanceUntilIdle()
+
+        assertEquals(diceTypes, viewModel.uiState.value.diceTypes)
+        assertEquals(listOf(8, 10), viewModel.uiState.value.diceValues)
+    }
+}
+
+private class MaxValueRandomProvider : DiceRandomProvider {
+    override fun nextInt(from: Int, until: Int): Int {
+        return until - 1
     }
 }

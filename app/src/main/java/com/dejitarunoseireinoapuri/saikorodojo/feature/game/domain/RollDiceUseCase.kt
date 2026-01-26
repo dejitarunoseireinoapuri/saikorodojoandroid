@@ -26,6 +26,12 @@ class DefaultDiceRandomProvider : DiceRandomProvider {
 class RollDiceUseCase(
     private val randomProvider: DiceRandomProvider = DefaultDiceRandomProvider()
 ) {
+    fun execute(diceTypes: List<DiceType>): List<Int> {
+        return diceTypes.map { diceType ->
+            randomProvider.nextInt(DICE_MIN, diceType.maxExclusive)
+        }
+    }
+
     fun execute(count: Int, diceType: DiceType = DiceType.D6): List<Int> {
         return List(count) { randomProvider.nextInt(DICE_MIN, diceType.maxExclusive) }
     }
