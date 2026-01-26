@@ -120,7 +120,7 @@ fun GameScreen(
         }
         Box(
             modifier = Modifier
-                .padding(horizontal = 20.dp, top = diceAreaTopPadding)
+                .padding(start = 20.dp, end = 20.dp, top = diceAreaTopPadding)
                 .height(300.dp)
                 .fillMaxWidth()
                 .zIndex(0f)
