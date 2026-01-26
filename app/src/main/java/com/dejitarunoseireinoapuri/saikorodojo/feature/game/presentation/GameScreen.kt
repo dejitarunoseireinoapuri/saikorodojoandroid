@@ -8,6 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -61,6 +64,7 @@ fun GameRoute(
 @Composable
 fun GameScreen(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = WindowInsets.safeDrawing.asPaddingValues(),
     uiState: GameUiState,
     onDiceClick: (Int) -> Unit,
     onCardSelect: (Int) -> Unit,
@@ -70,7 +74,8 @@ fun GameScreen(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(contentPadding),
         contentAlignment = Alignment.Center
     ) {
         val constraintsWidth = maxWidth
