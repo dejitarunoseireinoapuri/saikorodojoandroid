@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -157,6 +158,7 @@ fun GameScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .navigationBarsPadding()
                 .clipToBounds()
                 .zIndex(1f)
         ) {
@@ -185,10 +187,10 @@ private fun GameCardStack(
 ) {
     if (cards.isEmpty()) return
     val cardSize = DpSize(width = 180.dp, height = 240.dp)
-    val bottomMargin = 16.dp
+    val peekHeight = 120.dp
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
-    val bottomY = (maxHeight - cardSize.height - bottomMargin).coerceAtLeast(0.dp)
+    val bottomY = maxHeight - peekHeight
     val stackSpacing = 40.dp
     val rightPadding = 8.dp
     val maxCardTypes = remember { defaultCardUiModels().size }
