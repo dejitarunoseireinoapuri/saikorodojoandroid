@@ -96,7 +96,7 @@ internal fun DiceBoard(
                     shape = RoundedCornerShape(24.dp)
                 )
                 .padding(contentPadding),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.TopStart
         ) {
             uiState.diceValues.forEachIndexed { index, value ->
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
@@ -104,6 +104,7 @@ internal fun DiceBoard(
                 val isSelected = uiState.selectedDice.contains(index)
                 Box(
                     modifier = Modifier
+                        .align(Alignment.TopStart)
                         .offset(x = position.x, y = position.y)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
