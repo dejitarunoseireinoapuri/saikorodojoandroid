@@ -34,6 +34,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import kotlin.random.Random
 
 @Composable
@@ -100,12 +101,10 @@ fun GameScreen(
                 minSpacing = 4.dp
             )
         }
-        val diceFaces = remember(uiState.layoutSeed, diceCount) {
-            selectDiceFaceDrawables(
-                seed = uiState.layoutSeed,
-                diceCount = diceCount,
-                faces = DiceFaceDrawables
-            )
+        val diceFaces = remember(uiState.diceTypes, diceCount) {
+            List(diceCount) { index ->
+                diceTypeDrawable(uiState.diceTypes.getOrElse(index) { DiceType.D6 })
+            }
         }
         Box(
             modifier = Modifier
@@ -116,7 +115,7 @@ fun GameScreen(
         ) {
             uiState.diceValues.forEachIndexed { index, value ->
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
-                val faceDrawable = diceFaces.getOrElse(index) { DiceFaceDrawables.first() }
+                val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
                 val isSelected = uiState.selectedDice.contains(index)
                 Box(
                     modifier = Modifier
@@ -251,12 +250,6 @@ internal fun calculateCardStackStartX(
     return if (cardsCount >= maxCardTypes) rightAlignedStartX else centeredStartX
 }
 
-private val DiceFaceDrawables = listOf(
-    R.drawable.six_sides,
-    R.drawable.eigth_sides,
-    R.drawable.ten_sides
-)
-
 @Composable
 private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boolean) {
     Box(
@@ -325,21 +318,19 @@ internal fun calculateRandomDicePositions(
     }
 }
 
-internal fun selectDiceFaceDrawables(
-    seed: Long,
-    diceCount: Int,
-    faces: List<Int>
-): List<Int> {
-    if (diceCount <= 0 || faces.isEmpty()) return emptyList()
-    val random = Random(seed)
-    return List(diceCount) { faces[random.nextInt(faces.size)] }
-}
-
 internal fun diceNumberYOffset(faceDrawable: Int): Dp {
     return if (faceDrawable == R.drawable.eigth_sides) {
         6.dp
     } else {
         0.dp
+    }
+}
+
+internal fun diceTypeDrawable(diceType: DiceType): Int {
+    return when (diceType) {
+        DiceType.D6 -> R.drawable.six_sides
+        DiceType.D8 -> R.drawable.eigth_sides
+        DiceType.D10 -> R.drawable.ten_sides
     }
 }
 
