@@ -164,9 +164,9 @@ private fun GameCardStack(
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
-    val stackSpacing = 48.dp
-    val rightEdgeX = maxWidth - cardSize.width + 12.dp
-    val startX = rightEdgeX - stackSpacing * (cards.size - 1).toFloat()
+    val stackSpacing = 56.dp
+    val rightEdgeX = maxWidth - cardSize.width + 8.dp
+    val startX = (rightEdgeX - stackSpacing * (cards.size - 1).toFloat()).coerceAtLeast(0.dp)
     val stackRise = 8.dp
 
     cards.forEachIndexed { index, card ->
