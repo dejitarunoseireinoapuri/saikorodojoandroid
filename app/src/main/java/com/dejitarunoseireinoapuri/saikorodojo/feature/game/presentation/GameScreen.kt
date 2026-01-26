@@ -64,7 +64,7 @@ fun GameRoute(
 @Composable
 fun GameScreen(
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = WindowInsets.safeDrawing.asPaddingValues(),
+    contentPadding: PaddingValues = WindowInsets.systemBars.asPaddingValues(),
     uiState: GameUiState,
     onDiceClick: (Int) -> Unit,
     onCardSelect: (Int) -> Unit,
