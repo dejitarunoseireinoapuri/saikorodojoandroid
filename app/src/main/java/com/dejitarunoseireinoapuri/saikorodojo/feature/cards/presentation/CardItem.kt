@@ -1,5 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,17 +30,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
@@ -105,30 +106,9 @@ fun CardItem(
                     .align(iconAlignment)
             )
             if (showCount) {
-                val countAlignment = if (iconAlignment == Alignment.Start) {
-                    Alignment.Start
-                } else {
-                    Alignment.CenterHorizontally
-                }
-                Column(
-                    horizontalAlignment = countAlignment,
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                    modifier = Modifier
-                        .align(countAlignment)
-                        .padding(top = 2.dp)
-                ) {
-                    Text(
-                        text = "x",
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = card.count.toString(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    )
+                CompactCount(
+                    count = card.count,
+                    iconAlignment = iconAlignment
                 )
             }
             if (showDescription) {
@@ -160,6 +140,38 @@ fun CardItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.CompactCount(
+    count: Int,
+    iconAlignment: Alignment.Horizontal
+) {
+    val countAlignment = if (iconAlignment == Alignment.Start) {
+        Alignment.Start
+    } else {
+        Alignment.CenterHorizontally
+    }
+    Column(
+        horizontalAlignment = countAlignment,
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier
+            .align(countAlignment)
+            .padding(top = 2.dp)
+    ) {
+        Text(
+            text = "x",
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = count.toString(),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
