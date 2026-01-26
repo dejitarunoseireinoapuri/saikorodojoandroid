@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -84,6 +83,18 @@ fun GameScreen(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
+        val promptPaddingTop = 56.dp
+        val diceAreaTopPadding = 88.dp
+        if (uiState.isAwaitingRerollSingle) {
+            Text(
+                text = stringResource(R.string.select_die_to_reroll),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = promptPaddingTop),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
         val diceCount = uiState.diceValues.size
         val diceSize = calculateDiceSize(
             availableWidth = maxWidth - 40.dp,
@@ -109,22 +120,11 @@ fun GameScreen(
         }
         Box(
             modifier = Modifier
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 20.dp, top = diceAreaTopPadding)
                 .height(300.dp)
                 .fillMaxWidth()
                 .zIndex(0f)
         ) {
-            if (uiState.isAwaitingRerollSingle) {
-                Text(
-                    text = stringResource(R.string.select_die_to_reroll),
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 8.dp)
-                        .zIndex(1f),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
             uiState.diceValues.forEachIndexed { index, value ->
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
                 val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
