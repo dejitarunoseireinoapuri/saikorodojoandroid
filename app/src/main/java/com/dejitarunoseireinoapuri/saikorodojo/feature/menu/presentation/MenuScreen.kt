@@ -47,7 +47,7 @@ internal const val MENU_TOP_APP_BAR_TAG = "menu_top_app_bar"
 @Composable
 fun MenuScreen(
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = WindowInsets.safeDrawing.asPaddingValues(),
+    contentPadding: PaddingValues = WindowInsets.systemBars.asPaddingValues(),
     isDarkTheme: Boolean,
     onToggleTheme: () -> Unit,
     onPlayClick: () -> Unit,

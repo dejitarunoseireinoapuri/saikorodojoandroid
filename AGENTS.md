@@ -112,7 +112,7 @@ Because this is a game, **animations must be present but as lightweight as possi
 - Prefer stable state holders: `@Immutable` / `@Stable` where appropriate.
 - Use `remember` and `derivedStateOf` to avoid recomputation.
 - Collect flows with `collectAsStateWithLifecycle()`.
-- Every screen must respect safe drawing insets (status/navigation bars) via `WindowInsets.safeDrawing`.
+- Every screen must respect system bar insets (status/navigation bars) via `WindowInsets.systemBars`.
 
 ### Data & background work
 - Prefer local caching when appropriate.
