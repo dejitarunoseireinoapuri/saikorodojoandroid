@@ -15,6 +15,28 @@ class RollDiceUseCaseTest {
     }
 
     @Test
+    fun `execute uses dice type max exclusive for d8`() {
+        val provider = RecordingRandomProvider()
+        val useCase = RollDiceUseCase(provider)
+
+        useCase.execute(2, DiceType.D8)
+
+        assertEquals(listOf(1, 1), provider.fromValues)
+        assertEquals(listOf(9, 9), provider.untilValues)
+    }
+
+    @Test
+    fun `execute uses dice type max exclusive for d10`() {
+        val provider = RecordingRandomProvider()
+        val useCase = RollDiceUseCase(provider)
+
+        useCase.execute(3, DiceType.D10)
+
+        assertEquals(listOf(1, 1, 1), provider.fromValues)
+        assertEquals(listOf(11, 11, 11), provider.untilValues)
+    }
+
+    @Test
     fun `default random provider returns values within bounds`() {
         val provider = DefaultDiceRandomProvider()
 
@@ -27,5 +49,16 @@ class RollDiceUseCaseTest {
 private class FixedRandomProvider(private val value: Int) : DiceRandomProvider {
     override fun nextInt(from: Int, until: Int): Int {
         return value
+    }
+}
+
+private class RecordingRandomProvider : DiceRandomProvider {
+    val fromValues = mutableListOf<Int>()
+    val untilValues = mutableListOf<Int>()
+
+    override fun nextInt(from: Int, until: Int): Int {
+        fromValues.add(from)
+        untilValues.add(until)
+        return from
     }
 }
