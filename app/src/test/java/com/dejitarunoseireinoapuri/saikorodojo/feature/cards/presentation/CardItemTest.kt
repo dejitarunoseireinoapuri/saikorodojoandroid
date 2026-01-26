@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -11,12 +12,19 @@ class CardItemTest {
 
         assertEquals(7, cards.size)
         assertEquals(R.drawable.ic_card_adjust, cards[0].iconRes)
+        assertEquals(CardId.ADJUST_PLUS_MINUS_ONE, cards[0].id)
         assertEquals(R.drawable.ic_card_flip, cards[1].iconRes)
+        assertEquals(CardId.FLIP_FACE, cards[1].id)
         assertEquals(R.drawable.ic_card_reroll_single, cards[2].iconRes)
+        assertEquals(CardId.REROLL_SINGLE, cards[2].id)
         assertEquals(R.drawable.ic_card_reroll_all, cards[3].iconRes)
+        assertEquals(CardId.REROLL_ALL, cards[3].id)
         assertEquals(R.drawable.ic_card_set_value, cards[4].iconRes)
+        assertEquals(CardId.SET_VALUE, cards[4].id)
         assertEquals(R.drawable.ic_card_repeat_last, cards[5].iconRes)
+        assertEquals(CardId.REPEAT_LAST, cards[5].id)
         assertEquals(R.drawable.ic_card_retry, cards[6].iconRes)
+        assertEquals(CardId.RETRY, cards[6].id)
     }
 
     @Test

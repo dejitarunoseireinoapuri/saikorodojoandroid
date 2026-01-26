@@ -41,9 +41,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
 data class CardUiModel(
+    val id: CardId,
     @StringRes val titleRes: Int,
     @StringRes val descriptionRes: Int,
     @DrawableRes val iconRes: Int,
@@ -264,36 +266,43 @@ internal fun titleFontSizes(): List<TextUnit> {
 internal fun defaultCardUiModels(): List<CardUiModel> {
     return listOf(
         CardUiModel(
+            id = CardId.ADJUST_PLUS_MINUS_ONE,
             titleRes = R.string.card_adjust_plus_minus_one_title,
             descriptionRes = R.string.card_adjust_plus_minus_one_description,
             iconRes = R.drawable.ic_card_adjust
         ),
         CardUiModel(
+            id = CardId.FLIP_FACE,
             titleRes = R.string.card_flip_face_title,
             descriptionRes = R.string.card_flip_face_description,
             iconRes = R.drawable.ic_card_flip
         ),
         CardUiModel(
+            id = CardId.REROLL_SINGLE,
             titleRes = R.string.card_reroll_single_title,
             descriptionRes = R.string.card_reroll_single_description,
             iconRes = R.drawable.ic_card_reroll_single
         ),
         CardUiModel(
+            id = CardId.REROLL_ALL,
             titleRes = R.string.card_reroll_all_title,
             descriptionRes = R.string.card_reroll_all_description,
             iconRes = R.drawable.ic_card_reroll_all
         ),
         CardUiModel(
+            id = CardId.SET_VALUE,
             titleRes = R.string.card_set_value_title,
             descriptionRes = R.string.card_set_value_description,
             iconRes = R.drawable.ic_card_set_value
         ),
         CardUiModel(
+            id = CardId.REPEAT_LAST,
             titleRes = R.string.card_repeat_last_title,
             descriptionRes = R.string.card_repeat_last_description,
             iconRes = R.drawable.ic_card_repeat_last
         ),
         CardUiModel(
+            id = CardId.RETRY,
             titleRes = R.string.card_retry_title,
             descriptionRes = R.string.card_retry_description,
             iconRes = R.drawable.ic_card_retry
