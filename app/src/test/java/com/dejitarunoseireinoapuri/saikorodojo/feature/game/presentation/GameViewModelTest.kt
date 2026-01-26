@@ -114,6 +114,62 @@ class GameViewModelTest {
         assertTrue(!afterRoll.isAwaitingRerollSingle)
     }
 
+    @Test
+    fun `reroll single keeps card order while decrementing count`() = runTest {
+        val viewModel = buildViewModel(
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.REROLL_SINGLE,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0,
+                    count = 2
+                ),
+                CardUiModel(
+                    id = CardId.REROLL_ALL,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+
+        val updatedCards = viewModel.uiState.value.cardUiModels
+        assertEquals(CardId.REROLL_SINGLE, updatedCards[0].id)
+        assertEquals(1, updatedCards[0].count)
+        assertEquals(CardId.REROLL_ALL, updatedCards[1].id)
+    }
+
+    @Test
+    fun `reroll all keeps card order while decrementing count`() = runTest {
+        val viewModel = buildViewModel(
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.REROLL_ALL,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0,
+                    count = 2
+                ),
+                CardUiModel(
+                    id = CardId.REROLL_SINGLE,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+
+        val updatedCards = viewModel.uiState.value.cardUiModels
+        assertEquals(CardId.REROLL_ALL, updatedCards[0].id)
+        assertEquals(1, updatedCards[0].count)
+        assertEquals(CardId.REROLL_SINGLE, updatedCards[1].id)
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(

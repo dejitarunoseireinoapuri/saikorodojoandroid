@@ -175,9 +175,10 @@ class GameViewModel(
                 } else {
                     applied = true
                     val updatedCards = cards.toMutableList().apply {
-                        removeAt(index)
                         if (card.count > 1) {
-                            add(card.copy(count = card.count - 1))
+                            this[index] = card.copy(count = card.count - 1)
+                        } else {
+                            removeAt(index)
                         }
                     }
                     state.copy(
@@ -232,9 +233,10 @@ class GameViewModel(
                 } else {
                     applied = true
                     val updatedCards = cards.toMutableList().apply {
-                        removeAt(index)
                         if (card.count > 1) {
-                            add(card.copy(count = card.count - 1))
+                            this[index] = card.copy(count = card.count - 1)
+                        } else {
+                            removeAt(index)
                         }
                     }
                     state.copy(
