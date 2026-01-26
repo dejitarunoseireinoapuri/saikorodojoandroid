@@ -3,6 +3,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -20,6 +21,7 @@ class GameViewModelTest {
 
         assertEquals(7, cards.size)
         assertEquals(7, cards.distinct().size)
+        assertTrue(cards.all { it.count == 1 })
         assertNull(viewModel.uiState.value.selectedCardIndex)
     }
 

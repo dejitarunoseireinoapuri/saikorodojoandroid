@@ -44,7 +44,8 @@ data class CardUiModel(
     @StringRes val titleRes: Int,
     @StringRes val descriptionRes: Int,
     @DrawableRes val iconRes: Int,
-    @StringRes val actionLabelRes: Int = R.string.apply
+    @StringRes val actionLabelRes: Int = R.string.apply,
+    val count: Int = 1
 )
 
 internal val DefaultCardSize = DpSize(width = 200.dp, height = 280.dp)
@@ -56,7 +57,10 @@ fun CardItem(
     onApplyClick: () -> Unit,
     cardSize: DpSize = DefaultCardSize,
     showDescription: Boolean = true,
-    showActionButton: Boolean = true
+    showActionButton: Boolean = true,
+    showTitle: Boolean = true,
+    showCount: Boolean = false,
+    iconAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
     val shape = RoundedCornerShape(8.dp)
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
@@ -74,29 +78,40 @@ fun CardItem(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = stringResource(card.titleRes),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = rememberFittingTitleSize(
-                        text = stringResource(card.titleRes),
-                        style = MaterialTheme.typography.titleMedium,
-                        maxWidthDp = cardSize.width - 24.dp
-                    )
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-                overflow = TextOverflow.Ellipsis
-            )
+            if (showTitle) {
+                Text(
+                    text = stringResource(card.titleRes),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = rememberFittingTitleSize(
+                            text = stringResource(card.titleRes),
+                            style = MaterialTheme.typography.titleMedium,
+                            maxWidthDp = cardSize.width - 24.dp
+                        )
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
             Icon(
                 painter = painterResource(card.iconRes),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .size(32.dp)
-                    .align(Alignment.CenterHorizontally)
+                    .align(iconAlignment)
             )
+            if (showCount) {
+                Text(
+                    text = "x\n${card.count}",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(iconAlignment)
+                )
+            }
             if (showDescription) {
                 Text(
                     text = stringResource(card.descriptionRes),

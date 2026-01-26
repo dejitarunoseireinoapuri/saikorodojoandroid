@@ -166,11 +166,13 @@ private fun GameCardStack(
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
     val centerIndex = cards.size / 2
-    val stackSpacing = 42.dp
+    val stackSpacing = 34.dp
+    val rightEdgeX = maxWidth - cardSize.width + 24.dp
+    val startX = rightEdgeX - stackSpacing * (cards.size - 1).toFloat()
 
     cards.forEachIndexed { index, card ->
         val offsetIndex = index - centerIndex
-        val baseX = centerX + stackSpacing * offsetIndex.toFloat()
+        val baseX = startX + stackSpacing * index.toFloat()
         val baseY = bottomY + (abs(offsetIndex) * 6).dp
         val isSelected = selectedCardIndex == index
         val targetX = if (isSelected) centerX else baseX
@@ -188,7 +190,7 @@ private fun GameCardStack(
         Box(
             modifier = Modifier
                 .offset(x = animatedX, y = animatedY)
-                .zIndex(if (isSelected) 2f else 1f)
+                .zIndex(if (isSelected) 2f else 1f + index * 0.01f)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
@@ -205,6 +207,9 @@ private fun GameCardStack(
                 cardSize = cardSize,
                 showDescription = isSelected,
                 showActionButton = isSelected,
+                showTitle = isSelected,
+                showCount = !isSelected,
+                iconAlignment = if (isSelected) Alignment.CenterHorizontally else Alignment.Start,
                 onApplyClick = {}
             )
         }
