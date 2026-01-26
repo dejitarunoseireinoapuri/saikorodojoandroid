@@ -27,6 +27,7 @@ data class GameUiState(
     val diceTypes: List<DiceType> = List(DEFAULT_DICE_COUNT) { DiceType.D6 },
     val layoutSeed: Long = 0L,
     val isRolling: Boolean = false,
+    val isAwaitingRerollSingle: Boolean = false,
     val selectedDice: Set<Int> = emptySet(),
     val selectedDiceSum: Int = 0,
     val cardUiModels: List<CardUiModel> = emptyList(),
@@ -35,7 +36,7 @@ data class GameUiState(
 
 sealed interface GameUiEvent {
     data object StartRoll : GameUiEvent
-    data class ToggleDiceSelection(val index: Int) : GameUiEvent
+    data class DiceClicked(val index: Int) : GameUiEvent
     data class SelectCard(val index: Int) : GameUiEvent
     data class ApplyCard(val index: Int) : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
@@ -68,7 +69,7 @@ class GameViewModel(
     fun onEvent(event: GameUiEvent) {
         when (event) {
             GameUiEvent.StartRoll -> startRolling()
-            is GameUiEvent.ToggleDiceSelection -> toggleDiceSelection(event.index)
+            is GameUiEvent.DiceClicked -> handleDiceClick(event.index)
             is GameUiEvent.SelectCard -> selectCard(event.index)
             is GameUiEvent.ApplyCard -> applyCard(event.index)
             GameUiEvent.DismissSelectedCard -> dismissSelectedCard()
@@ -86,7 +87,8 @@ class GameViewModel(
                 it.copy(
                     isRolling = true,
                     layoutSeed = seed,
-                    diceTypes = diceTypes
+                    diceTypes = diceTypes,
+                    isAwaitingRerollSingle = false
                 )
             }
 
@@ -102,6 +104,15 @@ class GameViewModel(
             }
 
             _uiState.update { it.copy(isRolling = false) }
+        }
+    }
+
+    private fun handleDiceClick(index: Int) {
+        val state = _uiState.value
+        if (state.isAwaitingRerollSingle) {
+            startSingleDieRoll(index)
+        } else {
+            toggleDiceSelection(index)
         }
     }
 
@@ -141,6 +152,65 @@ class GameViewModel(
         val applied = applyRerollAllCard(index)
         if (applied) {
             startRolling()
+            return
+        }
+        applyRerollSingleCard(index)
+    }
+
+    private fun applyRerollSingleCard(index: Int): Boolean {
+        var applied = false
+        _uiState.update { state ->
+            val cards = state.cardUiModels
+            if (index !in cards.indices) {
+                state
+            } else {
+                val card = cards[index]
+                if (card.id != CardId.REROLL_SINGLE) {
+                    state
+                } else {
+                    applied = true
+                    val updatedCards = cards.toMutableList().apply {
+                        removeAt(index)
+                        if (card.count > 1) {
+                            add(card.copy(count = card.count - 1))
+                        }
+                    }
+                    state.copy(
+                        cardUiModels = updatedCards,
+                        selectedCardIndex = null,
+                        isAwaitingRerollSingle = true
+                    )
+                }
+            }
+        }
+        return applied
+    }
+
+    private fun startSingleDieRoll(index: Int) {
+        if (rollJob?.isActive == true) return
+        if (index !in _uiState.value.diceValues.indices) return
+        val diceType = _uiState.value.diceTypes.getOrElse(index) { diceType }
+        rollJob = viewModelScope.launch(dispatcher) {
+            val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
+            _uiState.update { it.copy(isRolling = true, isAwaitingRerollSingle = false) }
+            repeat(steps) {
+                val value = rollDiceUseCase.execute(listOf(diceType)).first()
+                _uiState.update { state ->
+                    if (index !in state.diceValues.indices) {
+                        state
+                    } else {
+                        val updatedValues = state.diceValues.toMutableList().apply {
+                            this[index] = value
+                        }
+                        state.copy(
+                            diceValues = updatedValues,
+                            selectedDiceSum = calculateSelectedDiceSum(updatedValues, state.selectedDice)
+                        )
+                    }
+                }
+                delay(tickMs)
+            }
+            _uiState.update { it.copy(isRolling = false) }
         }
     }
 
@@ -164,7 +234,8 @@ class GameViewModel(
                     }
                     state.copy(
                         cardUiModels = updatedCards,
-                        selectedCardIndex = null
+                        selectedCardIndex = null,
+                        isAwaitingRerollSingle = false
                     )
                 }
             }

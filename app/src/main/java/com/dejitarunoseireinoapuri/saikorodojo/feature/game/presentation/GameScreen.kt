@@ -51,7 +51,7 @@ fun GameRoute(
     GameScreen(
         modifier = modifier,
         uiState = uiState,
-        onDiceClick = { index -> viewModel.onEvent(GameUiEvent.ToggleDiceSelection(index)) },
+        onDiceClick = { index -> viewModel.onEvent(GameUiEvent.DiceClicked(index)) },
         onCardSelect = { index -> viewModel.onEvent(GameUiEvent.SelectCard(index)) },
         onCardDismiss = { viewModel.onEvent(GameUiEvent.DismissSelectedCard) },
         onCardApply = { index -> viewModel.onEvent(GameUiEvent.ApplyCard(index)) }
@@ -106,9 +106,19 @@ fun GameScreen(
                 diceTypeDrawable(uiState.diceTypes.getOrElse(index) { DiceType.D6 })
             }
         }
+        if (uiState.isAwaitingRerollSingle) {
+            Text(
+                text = stringResource(R.string.select_die_to_reroll),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = -(150.dp + 8.dp)),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
         Box(
             modifier = Modifier
-                .padding(horizontal = 20.dp)
+                .padding(start = 20.dp, end = 20.dp)
                 .height(300.dp)
                 .fillMaxWidth()
                 .zIndex(0f)
