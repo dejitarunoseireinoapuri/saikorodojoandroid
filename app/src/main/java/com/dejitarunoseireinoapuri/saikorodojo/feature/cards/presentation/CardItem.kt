@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -66,6 +67,11 @@ fun CardItem(
 ) {
     val shape = RoundedCornerShape(8.dp)
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
+    val countLayout = resolveCountLayout(
+        showTitle = showTitle,
+        showDescription = showDescription,
+        showActionButton = showActionButton
+    )
     Box(
         modifier = modifier
             .size(cardSize)
@@ -97,18 +103,21 @@ fun CardItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Icon(
-                painter = painterResource(card.iconRes),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .size(32.dp)
-                    .align(iconAlignment)
-            )
             if (showCount) {
-                CompactCount(
+                CountWithIcon(
                     count = card.count,
-                    iconAlignment = iconAlignment
+                    iconRes = card.iconRes,
+                    iconAlignment = iconAlignment,
+                    layout = countLayout
+                )
+            } else {
+                Icon(
+                    painter = painterResource(card.iconRes),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .align(iconAlignment)
                 )
             }
             if (showDescription) {
@@ -144,34 +153,87 @@ fun CardItem(
 }
 
 @Composable
-private fun ColumnScope.CompactCount(
+private fun ColumnScope.CountWithIcon(
     count: Int,
-    iconAlignment: Alignment.Horizontal
+    @DrawableRes iconRes: Int,
+    iconAlignment: Alignment.Horizontal,
+    layout: CountLayout
 ) {
-    val countAlignment = if (iconAlignment == Alignment.Start) {
+    val anchorAlignment = if (iconAlignment == Alignment.Start) {
         Alignment.Start
     } else {
         Alignment.CenterHorizontally
     }
-    Column(
-        horizontalAlignment = countAlignment,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = Modifier
-            .align(countAlignment)
-            .padding(top = 2.dp)
-    ) {
-        Text(
-            text = "x",
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            text = count.toString(),
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        )
+    val textStyle = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+    if (layout == CountLayout.Horizontal) {
+        Row(
+            modifier = Modifier.align(anchorAlignment),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = count.toString(),
+                style = textStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "x",
+                style = textStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+    } else {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier
+                .align(anchorAlignment)
+                .padding(top = 2.dp)
+        ) {
+            Text(
+                text = count.toString(),
+                style = textStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "x",
+                style = textStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+    }
+}
+
+internal enum class CountLayout {
+    Horizontal,
+    Vertical
+}
+
+internal fun resolveCountLayout(
+    showTitle: Boolean,
+    showDescription: Boolean,
+    showActionButton: Boolean
+): CountLayout {
+    return if (showTitle || showDescription || showActionButton) {
+        CountLayout.Horizontal
+    } else {
+        CountLayout.Vertical
     }
 }
 
