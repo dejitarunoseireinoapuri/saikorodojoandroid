@@ -24,8 +24,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,8 +47,6 @@ fun MenuScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     applySystemBarsPadding: Boolean = true,
-    isDarkTheme: Boolean,
-    onToggleTheme: () -> Unit,
     onPlayClick: () -> Unit,
     onRulesClick: () -> Unit
 ) {
@@ -62,8 +58,9 @@ fun MenuScreen(
     scaffoldModifier = scaffoldModifier.padding(contentPadding)
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.background,
-            MaterialTheme.colorScheme.surfaceVariant
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f),
+            MaterialTheme.colorScheme.background
         )
     )
 
@@ -79,21 +76,6 @@ fun MenuScreen(
                 ),
                 title = { },
                 actions = {
-                    IconButton(onClick = onToggleTheme) {
-                        Icon(
-                            imageVector = if (isDarkTheme) {
-                                Icons.Default.LightMode
-                            } else {
-                                Icons.Default.DarkMode
-                            },
-                            contentDescription = if (isDarkTheme) {
-                                stringResource(R.string.cd_light_mode)
-                            } else {
-                                stringResource(R.string.cd_dark_mode)
-                            },
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
                     IconButton(onClick = { }) {
                         Icon(
                             imageVector = if (isSoundMuted) {
