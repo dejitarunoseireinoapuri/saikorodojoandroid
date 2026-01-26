@@ -18,8 +18,6 @@ import kotlin.random.Random
 private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
-private const val DEFAULT_CARD_COUNT = 3
-
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
@@ -45,18 +43,13 @@ class GameViewModel(
     private val tickMs: Long = DEFAULT_TICK_MS,
     private val diceCount: Int = DEFAULT_DICE_COUNT,
     private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() },
-    private val cardSeedProvider: () -> Long = { Random.Default.nextLong() },
-    private val cardCount: Int = DEFAULT_CARD_COUNT
+    cardUiModels: List<CardUiModel> = defaultCardUiModels()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         GameUiState(
             diceValues = List(diceCount) { 1 },
             diceCount = diceCount,
-            cardUiModels = selectRandomCards(
-                cards = defaultCardUiModels(),
-                count = cardCount,
-                seed = cardSeedProvider()
-            )
+            cardUiModels = cardUiModels
         )
     )
     val uiState: StateFlow<GameUiState> = _uiState
@@ -132,14 +125,4 @@ internal fun calculateSelectedDiceSum(
     selectedDice: Set<Int>
 ): Int {
     return selectedDice.sumOf { index -> diceValues.getOrNull(index) ?: 0 }
-}
-
-internal fun selectRandomCards(
-    cards: List<CardUiModel>,
-    count: Int,
-    seed: Long
-): List<CardUiModel> {
-    if (cards.isEmpty() || count <= 0) return emptyList()
-    val random = Random(seed)
-    return cards.shuffled(random).take(count.coerceAtMost(cards.size))
 }

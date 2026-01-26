@@ -11,24 +11,22 @@ class GameViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun initialStateContainsThreeCards() {
+    fun initialStateContainsAllCards() {
         val viewModel = GameViewModel(
-            dispatcher = mainDispatcherRule.dispatcher,
-            cardSeedProvider = { 0L }
+            dispatcher = mainDispatcherRule.dispatcher
         )
 
         val cards = viewModel.uiState.value.cardUiModels
 
-        assertEquals(3, cards.size)
-        assertEquals(3, cards.distinct().size)
+        assertEquals(7, cards.size)
+        assertEquals(7, cards.distinct().size)
         assertNull(viewModel.uiState.value.selectedCardIndex)
     }
 
     @Test
     fun selectCardUpdatesSelectedCardIndex() {
         val viewModel = GameViewModel(
-            dispatcher = mainDispatcherRule.dispatcher,
-            cardSeedProvider = { 0L }
+            dispatcher = mainDispatcherRule.dispatcher
         )
 
         viewModel.onEvent(GameUiEvent.SelectCard(1))
@@ -39,8 +37,7 @@ class GameViewModelTest {
     @Test
     fun selectCardIgnoresInvalidIndex() {
         val viewModel = GameViewModel(
-            dispatcher = mainDispatcherRule.dispatcher,
-            cardSeedProvider = { 0L }
+            dispatcher = mainDispatcherRule.dispatcher
         )
 
         viewModel.onEvent(GameUiEvent.SelectCard(99))
@@ -51,8 +48,7 @@ class GameViewModelTest {
     @Test
     fun dismissSelectedCardClearsSelection() {
         val viewModel = GameViewModel(
-            dispatcher = mainDispatcherRule.dispatcher,
-            cardSeedProvider = { 0L }
+            dispatcher = mainDispatcherRule.dispatcher
         )
 
         viewModel.onEvent(GameUiEvent.SelectCard(0))
