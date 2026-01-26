@@ -9,8 +9,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.calculateBottomPadding
+import androidx.compose.foundation.layout.getBottom
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -80,9 +80,9 @@ fun GameScreen(
     ) {
         val constraintsWidth = maxWidth
         val constraintsHeight = maxHeight
-        val navigationBarPadding = WindowInsets.navigationBars
-            .asPaddingValues()
-            .calculateBottomPadding()
+        val navigationBarPadding = with(LocalDensity.current) {
+            WindowInsets.systemBars.getBottom(this).toDp()
+        }
         Text(
             text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
             modifier = Modifier
