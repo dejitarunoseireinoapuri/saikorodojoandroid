@@ -52,7 +52,7 @@ data class CardUiModel(
     val count: Int = 1
 )
 
-internal val DefaultCardSize = DpSize(width = 200.dp, height = 280.dp)
+internal val DefaultCardSize = DpSize(width = 208.dp, height = 278.dp)
 
 @Composable
 fun CardItem(
@@ -75,15 +75,15 @@ fun CardItem(
     )
     val cardBrush = Brush.linearGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.surfaceVariant
+            MaterialTheme.colorScheme.tertiary,
+            MaterialTheme.colorScheme.primary
         )
     )
     Box(
         modifier = modifier
             .size(cardSize)
             .background(cardBrush, shape)
-            .border(width = 1.dp, color = MaterialTheme.colorScheme.outline, shape = shape)
+            .border(width = 1.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.4f), shape = shape)
             .padding(12.dp)
     ) {
         Column(
@@ -103,7 +103,7 @@ fun CardItem(
                             maxWidthDp = cardSize.width - 24.dp
                         )
                     ),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 1,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -121,7 +121,7 @@ fun CardItem(
                 Icon(
                     painter = painterResource(card.iconRes),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier
                         .size(32.dp)
                         .align(iconAlignment)
@@ -131,7 +131,7 @@ fun CardItem(
                 Text(
                     text = stringResource(card.descriptionRes),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
                 )
             }
         }
