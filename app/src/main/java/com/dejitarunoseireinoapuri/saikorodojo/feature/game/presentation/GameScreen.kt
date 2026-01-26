@@ -160,11 +160,11 @@ private fun GameCardStack(
 ) {
     if (cards.isEmpty()) return
     val cardSize = DpSize(width = 180.dp, height = 240.dp)
-    val peekHeight = 140.dp
+    val peekHeight = 120.dp
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
-    val stackSpacing = 56.dp
+    val stackSpacing = 44.dp
     val rightEdgeX = maxWidth - cardSize.width + 8.dp
     val startX = (rightEdgeX - stackSpacing * (cards.size - 1).toFloat()).coerceAtLeast(0.dp)
     val stackRise = 8.dp
@@ -173,6 +173,7 @@ private fun GameCardStack(
         val baseX = startX + stackSpacing * index.toFloat()
         val baseY = bottomY - stackRise * index.toFloat()
         val isSelected = selectedCardIndex == index
+        val isSecondaryExpanded = selectedCardIndex != null && index == selectedCardIndex + 1
         val targetX = if (isSelected) centerX else baseX
         val targetY = if (isSelected) centerY else baseY
         val animatedX by animateDpAsState(
@@ -203,11 +204,11 @@ private fun GameCardStack(
             CardItem(
                 card = card,
                 cardSize = cardSize,
-                showDescription = isSelected,
-                showActionButton = isSelected,
-                showTitle = isSelected,
-                showCount = !isSelected,
-                iconAlignment = if (isSelected) Alignment.CenterHorizontally else Alignment.Start,
+                showDescription = isSelected || isSecondaryExpanded,
+                showActionButton = isSelected || isSecondaryExpanded,
+                showTitle = isSelected || isSecondaryExpanded,
+                showCount = !(isSelected || isSecondaryExpanded),
+                iconAlignment = if (isSelected || isSecondaryExpanded) Alignment.CenterHorizontally else Alignment.Start,
                 onApplyClick = {}
             )
         }
