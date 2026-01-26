@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -35,6 +36,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -53,12 +56,18 @@ internal val DefaultCardSize = DpSize(width = 200.dp, height = 280.dp)
 fun CardItem(
     modifier: Modifier = Modifier,
     card: CardUiModel,
-    onApplyClick: () -> Unit
+    onApplyClick: () -> Unit = {},
+    cardSize: DpSize = DefaultCardSize,
+    showDescription: Boolean = true,
+    showActionButton: Boolean = true,
+    showCloseButton: Boolean = false,
+    onCloseClick: (() -> Unit)? = null
 ) {
     val shape = RoundedCornerShape(8.dp)
+    val bottomPadding = if (showActionButton) 40.dp else 12.dp
     Box(
         modifier = modifier
-            .size(DefaultCardSize)
+            .size(cardSize)
             .background(MaterialTheme.colorScheme.surface, shape)
             .border(width = 2.dp, color = Color.Black, shape = shape)
             .padding(12.dp)
@@ -66,7 +75,7 @@ fun CardItem(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 40.dp),
+                .padding(bottom = bottomPadding),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
@@ -76,7 +85,7 @@ fun CardItem(
                     fontSize = rememberFittingTitleSize(
                         text = stringResource(card.titleRes),
                         style = MaterialTheme.typography.titleMedium,
-                        maxWidthDp = DefaultCardSize.width - 24.dp
+                        maxWidthDp = cardSize.width - 24.dp
                     )
                 ),
                 color = MaterialTheme.colorScheme.onSurface,
@@ -93,30 +102,48 @@ fun CardItem(
                     .size(32.dp)
                     .align(Alignment.CenterHorizontally)
             )
-            Text(
-                text = stringResource(card.descriptionRes),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (showDescription) {
+                Text(
+                    text = stringResource(card.descriptionRes),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
-        OutlinedButton(
-            onClick = onApplyClick,
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
-            shape = RoundedCornerShape(2.dp),
-            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 4.dp, end = 4.dp)
-                .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
-        ) {
-            Text(
-                text = stringResource(card.actionLabelRes),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+        if (showActionButton) {
+            OutlinedButton(
+                onClick = onApplyClick,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+                shape = RoundedCornerShape(2.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 4.dp, end = 4.dp)
+                    .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+            ) {
+                Text(
+                    text = stringResource(card.actionLabelRes),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+        if (showCloseButton && onCloseClick != null) {
+            IconButton(
+                onClick = onCloseClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.cd_close_card),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
