@@ -38,6 +38,30 @@ class GameScreenTest {
     }
 
     @Test
+    fun `board content size subtracts padding from container`() {
+        val result = calculateBoardContentSize(
+            containerWidth = 200.dp,
+            containerHeight = 120.dp,
+            horizontalPadding = 16.dp,
+            verticalPadding = 12.dp
+        )
+
+        assertEquals(DpSize(168.dp, 96.dp), result)
+    }
+
+    @Test
+    fun `board content size never returns negative values`() {
+        val result = calculateBoardContentSize(
+            containerWidth = 10.dp,
+            containerHeight = 8.dp,
+            horizontalPadding = 16.dp,
+            verticalPadding = 12.dp
+        )
+
+        assertEquals(DpSize(0.dp, 0.dp), result)
+    }
+
+    @Test
     fun `dice type drawable maps each dice type to its asset`() {
         assertEquals(R.drawable.six_sides, diceTypeDrawable(DiceType.D6))
         assertEquals(R.drawable.eigth_sides, diceTypeDrawable(DiceType.D8))
