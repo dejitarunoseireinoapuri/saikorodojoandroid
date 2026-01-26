@@ -81,14 +81,13 @@ fun GameScreen(
     var navigationBarPadding by remember { mutableStateOf(0.dp) }
     var statusBarPadding by remember { mutableStateOf(0.dp) }
     DisposableEffect(view, density) {
-        val listener = ViewCompat.OnApplyWindowInsetsListener { _, insets ->
-            val navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val statusInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            navigationBarPadding = with(density) { navInsets.bottom.toDp() }
-            statusBarPadding = with(density) { statusInsets.top.toDp() }
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+            val bottomInset = insets.systemWindowInsetBottom
+            val topInset = insets.systemWindowInsetTop
+            navigationBarPadding = with(density) { bottomInset.toDp() }
+            statusBarPadding = with(density) { topInset.toDp() }
             insets
         }
-        ViewCompat.setOnApplyWindowInsetsListener(view, listener)
         view.requestApplyInsets()
         onDispose {
             ViewCompat.setOnApplyWindowInsetsListener(view, null)
