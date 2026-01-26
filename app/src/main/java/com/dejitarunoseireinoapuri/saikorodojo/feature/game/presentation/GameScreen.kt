@@ -217,15 +217,10 @@ private fun GameCardStack(
         rightPadding = rightPadding
     )
     val stackRise = 8.dp
-    val maxHandRise = 22.dp
-    val maxDistance = (cards.lastIndex / 2f).coerceAtLeast(1f)
 
     cards.forEachIndexed { index, card ->
         val baseX = startX + stackSpacing * index.toFloat()
-        val distanceFromCenter = kotlin.math.abs(index - cards.lastIndex / 2f)
-        val handCurveFactor = 1f - (distanceFromCenter / maxDistance).coerceIn(0f, 1f)
-        val handCurveRise = maxHandRise * handCurveFactor
-        val baseY = bottomY - stackRise * index.toFloat() - handCurveRise
+        val baseY = bottomY - stackRise * index.toFloat()
         val isSelected = selectedCardIndex == index
         val isSecondaryExpanded = selectedCardIndex != null && index == selectedCardIndex - 1
         val isRightmostExpanded = index == cards.lastIndex && !isSelected
