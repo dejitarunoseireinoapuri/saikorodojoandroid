@@ -73,11 +73,11 @@ fun GameScreen(
 ) {
     var containerModifier = modifier
         .fillMaxSize()
-        .background(MaterialTheme.colorScheme.surface)
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
     }
     containerModifier = containerModifier.padding(contentPadding)
+        .background(MaterialTheme.colorScheme.surface)
     BoxWithConstraints(
         modifier = containerModifier,
         contentAlignment = Alignment.Center
