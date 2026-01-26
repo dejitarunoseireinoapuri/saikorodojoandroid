@@ -16,7 +16,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -36,8 +35,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -56,12 +53,10 @@ internal val DefaultCardSize = DpSize(width = 200.dp, height = 280.dp)
 fun CardItem(
     modifier: Modifier = Modifier,
     card: CardUiModel,
-    onApplyClick: () -> Unit = {},
+    onApplyClick: () -> Unit,
     cardSize: DpSize = DefaultCardSize,
     showDescription: Boolean = true,
-    showActionButton: Boolean = true,
-    showCloseButton: Boolean = false,
-    onCloseClick: (() -> Unit)? = null
+    showActionButton: Boolean = true
 ) {
     val shape = RoundedCornerShape(8.dp)
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
@@ -128,20 +123,6 @@ fun CardItem(
                     text = stringResource(card.actionLabelRes),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-        if (showCloseButton && onCloseClick != null) {
-            IconButton(
-                onClick = onCloseClick,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(24.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = stringResource(R.string.cd_close_card),
-                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -226,11 +207,6 @@ private fun CardItemPreview() {
             defaultCardUiModels().forEach { card ->
                 CardItem(card = card, onApplyClick = {})
             }
-            CardItem(
-                card = defaultCardUiModels().first(),
-                showCloseButton = true,
-                onCloseClick = {}
-            )
         }
     }
 }

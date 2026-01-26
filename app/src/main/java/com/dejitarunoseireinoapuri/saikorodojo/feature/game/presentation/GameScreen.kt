@@ -166,7 +166,7 @@ private fun GameCardStack(
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
     val centerIndex = cards.size / 2
-    val stackSpacing = 70.dp
+    val stackSpacing = 42.dp
 
     cards.forEachIndexed { index, card ->
         val offsetIndex = index - centerIndex
@@ -190,18 +190,22 @@ private fun GameCardStack(
                 .offset(x = animatedX, y = animatedY)
                 .zIndex(if (isSelected) 2f else 1f)
                 .clickable(
-                    enabled = !isSelected,
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
-                ) { onCardSelect(index) }
+                ) {
+                    if (isSelected) {
+                        onCardDismiss()
+                    } else {
+                        onCardSelect(index)
+                    }
+                }
         ) {
             CardItem(
                 card = card,
                 cardSize = cardSize,
                 showDescription = isSelected,
                 showActionButton = isSelected,
-                showCloseButton = isSelected,
-                onCloseClick = if (isSelected) onCardDismiss else null
+                onApplyClick = {}
             )
         }
     }
