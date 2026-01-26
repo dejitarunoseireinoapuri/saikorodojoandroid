@@ -226,6 +226,11 @@ private fun CardItemPreview() {
             defaultCardUiModels().forEach { card ->
                 CardItem(card = card, onApplyClick = {})
             }
+            CardItem(
+                card = defaultCardUiModels().first(),
+                showCloseButton = true,
+                onCloseClick = {}
+            )
         }
     }
 }
