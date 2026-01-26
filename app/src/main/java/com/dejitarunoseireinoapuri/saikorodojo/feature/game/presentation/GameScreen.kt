@@ -8,12 +8,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,16 +65,23 @@ fun GameRoute(
 @Composable
 fun GameScreen(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+    applySystemBarsPadding: Boolean = true,
     uiState: GameUiState,
     onDiceClick: (Int) -> Unit,
     onCardSelect: (Int) -> Unit,
     onCardDismiss: () -> Unit,
     onCardApply: (Int) -> Unit
 ) {
+    var containerModifier = modifier
+        .fillMaxSize()
+    if (applySystemBarsPadding) {
+        containerModifier = containerModifier.systemBarsPadding()
+    }
+    containerModifier = containerModifier.padding(contentPadding)
+        .background(MaterialTheme.colorScheme.surface)
     BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
+        modifier = containerModifier,
         contentAlignment = Alignment.Center
     ) {
         val constraintsWidth = maxWidth
@@ -147,6 +158,8 @@ fun GameScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .navigationBarsPadding()
+                .clipToBounds()
                 .zIndex(1f)
         ) {
             GameCardStack(
