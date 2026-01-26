@@ -217,7 +217,7 @@ private fun GameCardStack(
                 showDescription = isSelected || isSecondaryExpanded || isRightmostExpanded,
                 showActionButton = isSelected || isSecondaryExpanded || isRightmostExpanded,
                 showTitle = isSelected || isSecondaryExpanded || isRightmostExpanded,
-                showCount = !(isSelected || isSecondaryExpanded || isRightmostExpanded),
+                showCount = true,
                 iconAlignment = if (isSelected || isSecondaryExpanded || isRightmostExpanded) {
                     Alignment.CenterHorizontally
                 } else {
