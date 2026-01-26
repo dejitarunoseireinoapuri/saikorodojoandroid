@@ -183,10 +183,10 @@ private fun GameCardStack(
 ) {
     if (cards.isEmpty()) return
     val cardSize = DpSize(width = 180.dp, height = 240.dp)
-    val peekHeight = 120.dp
+    val bottomMargin = 16.dp
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
-    val bottomY = maxHeight - peekHeight
+    val bottomY = (maxHeight - cardSize.height - bottomMargin).coerceAtLeast(0.dp)
     val stackSpacing = 40.dp
     val rightPadding = 8.dp
     val maxCardTypes = remember { defaultCardUiModels().size }
