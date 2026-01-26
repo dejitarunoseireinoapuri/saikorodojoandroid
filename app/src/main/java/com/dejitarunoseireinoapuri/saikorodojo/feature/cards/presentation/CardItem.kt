@@ -105,11 +105,16 @@ fun CardItem(
                     .align(iconAlignment)
             )
             if (showCount) {
+                val countAlignment = if (iconAlignment == Alignment.Start) {
+                    Alignment.Start
+                } else {
+                    Alignment.CenterHorizontally
+                }
                 Column(
-                    horizontalAlignment = iconAlignment,
+                    horizontalAlignment = countAlignment,
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier
-                        .align(iconAlignment)
+                        .align(countAlignment)
                         .padding(top = 2.dp)
                 ) {
                     Text(
