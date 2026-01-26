@@ -18,4 +18,26 @@ class CardItemTest {
         assertEquals(R.drawable.ic_card_repeat_last, cards[5].iconRes)
         assertEquals(R.drawable.ic_card_retry, cards[6].iconRes)
     }
+
+    @Test
+    fun `resolveCountLayout uses vertical layout for collapsed cards`() {
+        val layout = resolveCountLayout(
+            showTitle = false,
+            showDescription = false,
+            showActionButton = false
+        )
+
+        assertEquals(CountLayout.Vertical, layout)
+    }
+
+    @Test
+    fun `resolveCountLayout uses horizontal layout for expanded cards`() {
+        val layout = resolveCountLayout(
+            showTitle = true,
+            showDescription = false,
+            showActionButton = false
+        )
+
+        assertEquals(CountLayout.Horizontal, layout)
+    }
 }
