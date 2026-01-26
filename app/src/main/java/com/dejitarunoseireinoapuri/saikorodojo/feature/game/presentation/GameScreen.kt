@@ -84,8 +84,9 @@ fun GameScreen(
     }
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.background,
-            MaterialTheme.colorScheme.surfaceVariant
+            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.65f),
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f)
         )
     )
     containerModifier = containerModifier
