@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +34,7 @@ sealed interface GameUiEvent {
     data object StartRoll : GameUiEvent
     data class ToggleDiceSelection(val index: Int) : GameUiEvent
     data class SelectCard(val index: Int) : GameUiEvent
+    data class ApplyCard(val index: Int) : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
 }
 
@@ -61,6 +63,7 @@ class GameViewModel(
             GameUiEvent.StartRoll -> startRolling()
             is GameUiEvent.ToggleDiceSelection -> toggleDiceSelection(event.index)
             is GameUiEvent.SelectCard -> selectCard(event.index)
+            is GameUiEvent.ApplyCard -> applyCard(event.index)
             GameUiEvent.DismissSelectedCard -> dismissSelectedCard()
         }
     }
@@ -117,6 +120,41 @@ class GameViewModel(
 
     private fun dismissSelectedCard() {
         _uiState.update { it.copy(selectedCardIndex = null) }
+    }
+
+    private fun applyCard(index: Int) {
+        val applied = applyRerollAllCard(index)
+        if (applied) {
+            startRolling()
+        }
+    }
+
+    private fun applyRerollAllCard(index: Int): Boolean {
+        var applied = false
+        _uiState.update { state ->
+            val cards = state.cardUiModels
+            if (index !in cards.indices) {
+                state
+            } else {
+                val card = cards[index]
+                if (card.id != CardId.REROLL_ALL) {
+                    state
+                } else {
+                    applied = true
+                    val updatedCards = cards.toMutableList().apply {
+                        removeAt(index)
+                        if (card.count > 1) {
+                            add(card.copy(count = card.count - 1))
+                        }
+                    }
+                    state.copy(
+                        cardUiModels = updatedCards,
+                        selectedCardIndex = null
+                    )
+                }
+            }
+        }
+        return applied
     }
 }
 

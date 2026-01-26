@@ -52,7 +52,8 @@ fun GameRoute(
         uiState = uiState,
         onDiceClick = { index -> viewModel.onEvent(GameUiEvent.ToggleDiceSelection(index)) },
         onCardSelect = { index -> viewModel.onEvent(GameUiEvent.SelectCard(index)) },
-        onCardDismiss = { viewModel.onEvent(GameUiEvent.DismissSelectedCard) }
+        onCardDismiss = { viewModel.onEvent(GameUiEvent.DismissSelectedCard) },
+        onCardApply = { index -> viewModel.onEvent(GameUiEvent.ApplyCard(index)) }
     )
 }
 
@@ -62,7 +63,8 @@ fun GameScreen(
     uiState: GameUiState,
     onDiceClick: (Int) -> Unit,
     onCardSelect: (Int) -> Unit,
-    onCardDismiss: () -> Unit
+    onCardDismiss: () -> Unit,
+    onCardApply: (Int) -> Unit
 ) {
     BoxWithConstraints(
         modifier = modifier
@@ -144,7 +146,8 @@ fun GameScreen(
                 maxWidth = constraintsWidth,
                 maxHeight = constraintsHeight,
                 onCardSelect = onCardSelect,
-                onCardDismiss = onCardDismiss
+                onCardDismiss = onCardDismiss,
+                onCardApply = onCardApply
             )
         }
     }
@@ -157,7 +160,8 @@ private fun GameCardStack(
     maxWidth: Dp,
     maxHeight: Dp,
     onCardSelect: (Int) -> Unit,
-    onCardDismiss: () -> Unit
+    onCardDismiss: () -> Unit,
+    onCardApply: (Int) -> Unit
 ) {
     if (cards.isEmpty()) return
     val cardSize = DpSize(width = 180.dp, height = 240.dp)
@@ -223,7 +227,7 @@ private fun GameCardStack(
                 } else {
                     Alignment.Start
                 },
-                onApplyClick = {}
+                onApplyClick = { onCardApply(index) }
             )
         }
     }
