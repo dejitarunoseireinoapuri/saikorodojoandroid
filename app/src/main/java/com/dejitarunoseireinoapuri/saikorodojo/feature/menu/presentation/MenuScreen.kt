@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -110,7 +111,7 @@ fun MenuScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(top = 96.dp, start = 16.dp, end = 16.dp, bottom = 64.dp)
+                .padding(top = 96.dp, start = 48.dp, end = 48.dp, bottom = 64.dp)
         ) {
             Text(
                 text = stringResource(R.string.game_title),
@@ -125,10 +126,10 @@ fun MenuScreen(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Button(
+                OutlinedButton(
                     onClick = onPlayClick,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     shape = RoundedCornerShape(20.dp),
@@ -142,11 +143,11 @@ fun MenuScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-                Button(
+                OutlinedButton(
                     onClick = onRulesClick,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier
