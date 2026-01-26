@@ -224,6 +224,46 @@ class GameViewModelTest {
         assertEquals(diceTypes, viewModel.uiState.value.diceTypes)
         assertEquals(listOf(8, 10), viewModel.uiState.value.diceValues)
     }
+
+    @Test
+    fun rerollAllKeepsDiceTypesAndLayout() = runTest(mainDispatcherRule.dispatcher) {
+        val rerollAllCard = CardUiModel(
+            id = CardId.REROLL_ALL,
+            titleRes = R.string.card_reroll_all_title,
+            descriptionRes = R.string.card_reroll_all_description,
+            iconRes = R.drawable.ic_card_reroll_all,
+            count = 1
+        )
+        val initialDiceTypes = listOf(DiceType.D6, DiceType.D10)
+        val alternateDiceTypes = listOf(DiceType.D8, DiceType.D8)
+        val seedValues = listOf(42L, 100L).iterator()
+        val viewModel = GameViewModel(
+            rollDiceUseCase = RollDiceUseCase(MaxValueRandomProvider()),
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollDurationMs = 1L,
+            tickMs = 1L,
+            diceCount = initialDiceTypes.size,
+            diceTypeProvider = { seed, _ ->
+                if (seed == 42L) initialDiceTypes else alternateDiceTypes
+            },
+            layoutSeedProvider = { seedValues.next() },
+            cardUiModels = listOf(rerollAllCard)
+        )
+
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        advanceUntilIdle()
+
+        assertEquals(42L, viewModel.uiState.value.layoutSeed)
+        assertEquals(initialDiceTypes, viewModel.uiState.value.diceTypes)
+        assertEquals(listOf(6, 10), viewModel.uiState.value.diceValues)
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        advanceUntilIdle()
+
+        assertEquals(42L, viewModel.uiState.value.layoutSeed)
+        assertEquals(initialDiceTypes, viewModel.uiState.value.diceTypes)
+        assertEquals(listOf(6, 10), viewModel.uiState.value.diceValues)
+    }
 }
 
 private class MaxValueRandomProvider : DiceRandomProvider {
