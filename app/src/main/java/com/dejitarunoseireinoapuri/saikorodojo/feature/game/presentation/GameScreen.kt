@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -39,6 +38,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardIt
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.GameBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.GameOnBackground
 import kotlin.random.Random
 
 @Composable
@@ -74,7 +75,7 @@ fun GameScreen(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(GameBackground),
         contentAlignment = Alignment.Center
     ) {
         val constraintsWidth = maxWidth
@@ -88,7 +89,7 @@ fun GameScreen(
                 .align(Alignment.TopCenter)
                 .padding(top = 24.dp),
             style = MaterialTheme.typography.titleLarge,
-            color = Color.Black
+            color = GameOnBackground
         )
         val diceCount = uiState.diceValues.size
         val diceSize = calculateDiceSize(
@@ -120,7 +121,7 @@ fun GameScreen(
                     .align(Alignment.Center)
                     .offset(y = -(150.dp + 8.dp)),
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.Black
+                color = GameOnBackground
             )
         }
         Box(
@@ -287,7 +288,7 @@ private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boole
             text = number.toString(),
             modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
             style = MaterialTheme.typography.displaySmall,
-            color = Color.Black
+            color = GameOnBackground
         )
     }
 }

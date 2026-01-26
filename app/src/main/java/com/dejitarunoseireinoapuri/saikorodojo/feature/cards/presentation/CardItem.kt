@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,6 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.CardBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.CardBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.GameOnBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
 data class CardUiModel(
@@ -77,8 +79,8 @@ fun CardItem(
     Box(
         modifier = modifier
             .size(cardSize)
-            .background(Color.White, shape)
-            .border(width = 2.dp, color = Color.Black, shape = shape)
+            .background(CardBackground, shape)
+            .border(width = 2.dp, color = CardBorder, shape = shape)
             .padding(12.dp)
     ) {
         Column(
@@ -98,7 +100,7 @@ fun CardItem(
                             maxWidthDp = cardSize.width - 24.dp
                         )
                     ),
-                    color = Color.Black,
+                    color = GameOnBackground,
                     maxLines = 1,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -116,7 +118,7 @@ fun CardItem(
                 Icon(
                     painter = painterResource(card.iconRes),
                     contentDescription = null,
-                    tint = Color.Black,
+                    tint = GameOnBackground,
                     modifier = Modifier
                         .size(32.dp)
                         .align(iconAlignment)
@@ -126,7 +128,7 @@ fun CardItem(
                 Text(
                     text = stringResource(card.descriptionRes),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Black
+                    color = GameOnBackground
                 )
             }
         }
@@ -134,9 +136,9 @@ fun CardItem(
             OutlinedButton(
                 onClick = onApplyClick,
                 colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color.White
+                    containerColor = CardBackground
                 ),
-                border = BorderStroke(1.dp, Color.Black),
+                border = BorderStroke(1.dp, CardBorder),
                 shape = RoundedCornerShape(2.dp),
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                 modifier = Modifier
@@ -147,7 +149,7 @@ fun CardItem(
                 Text(
                     text = stringResource(card.actionLabelRes),
                     style = MaterialTheme.typography.labelLarge,
-                    color = Color.Black
+                    color = GameOnBackground
                 )
             }
         }
@@ -176,19 +178,19 @@ private fun ColumnScope.CountWithIcon(
             Text(
                 text = count.toString(),
                 style = textStyle,
-                color = Color.Black,
+                color = GameOnBackground,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "x",
                 style = textStyle,
-                color = Color.Black,
+                color = GameOnBackground,
                 textAlign = TextAlign.Center
             )
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = Color.Black,
+                tint = GameOnBackground,
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -203,19 +205,19 @@ private fun ColumnScope.CountWithIcon(
             Text(
                 text = count.toString(),
                 style = textStyle,
-                color = Color.Black,
+                color = GameOnBackground,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "x",
                 style = textStyle,
-                color = Color.Black,
+                color = GameOnBackground,
                 textAlign = TextAlign.Center
             )
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = Color.Black,
+                tint = GameOnBackground,
                 modifier = Modifier.size(32.dp)
             )
         }
