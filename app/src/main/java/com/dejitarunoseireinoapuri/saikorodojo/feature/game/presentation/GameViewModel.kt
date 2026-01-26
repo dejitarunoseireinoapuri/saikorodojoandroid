@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ private const val DEFAULT_TICK_MS = 150L
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
+    val diceType: DiceType = DiceType.D6,
     val layoutSeed: Long = 0L,
     val isRolling: Boolean = false,
     val selectedDice: Set<Int> = emptySet(),
@@ -44,6 +46,7 @@ class GameViewModel(
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
     private val diceCount: Int = DEFAULT_DICE_COUNT,
+    private val diceType: DiceType = DiceType.D6,
     private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() },
     cardUiModels: List<CardUiModel> = defaultCardUiModels()
 ) : ViewModel() {
@@ -51,6 +54,7 @@ class GameViewModel(
         GameUiState(
             diceValues = List(diceCount) { 1 },
             diceCount = diceCount,
+            diceType = diceType,
             cardUiModels = cardUiModels
         )
     )
@@ -76,7 +80,10 @@ class GameViewModel(
             _uiState.update { it.copy(isRolling = true, layoutSeed = layoutSeedProvider()) }
 
             repeat(steps) {
-                val values = rollDiceUseCase.execute(_uiState.value.diceCount)
+                val values = rollDiceUseCase.execute(
+                    count = _uiState.value.diceCount,
+                    diceType = _uiState.value.diceType
+                )
                 _uiState.update {
                     it.copy(
                         diceValues = values,
