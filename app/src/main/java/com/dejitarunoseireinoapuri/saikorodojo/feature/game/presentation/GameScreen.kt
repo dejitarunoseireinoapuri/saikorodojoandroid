@@ -18,9 +18,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -80,13 +80,19 @@ fun GameScreen(
     val density = LocalDensity.current
     var navigationBarPadding by remember { mutableStateOf(0.dp) }
     var statusBarPadding by remember { mutableStateOf(0.dp) }
-    SideEffect {
-        val insets = ViewCompat.getRootWindowInsets(view)
-            ?.getInsets(WindowInsetsCompat.Type.systemBars())
-        val bottomInset = insets?.bottom ?: 0
-        val topInset = insets?.top ?: 0
-        navigationBarPadding = with(density) { bottomInset.toDp() }
-        statusBarPadding = with(density) { topInset.toDp() }
+    DisposableEffect(view, density) {
+        val listener = ViewCompat.OnApplyWindowInsetsListener { _, insets ->
+            val navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val statusInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            navigationBarPadding = with(density) { navInsets.bottom.toDp() }
+            statusBarPadding = with(density) { statusInsets.top.toDp() }
+            insets
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(view, listener)
+        view.requestApplyInsets()
+        onDispose {
+            ViewCompat.setOnApplyWindowInsetsListener(view, null)
+        }
     }
     BoxWithConstraints(
         modifier = modifier
