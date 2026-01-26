@@ -69,6 +69,7 @@ fun MenuScreen(
 
     Scaffold(
         modifier = scaffoldModifier,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 modifier = Modifier.testTag(MENU_TOP_APP_BAR_TAG),
