@@ -33,7 +33,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
-import kotlin.math.abs
 import kotlin.random.Random
 
 @Composable
@@ -161,19 +160,18 @@ private fun GameCardStack(
 ) {
     if (cards.isEmpty()) return
     val cardSize = DpSize(width = 180.dp, height = 240.dp)
-    val peekHeight = 96.dp
+    val peekHeight = 140.dp
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
-    val centerIndex = cards.size / 2
-    val stackSpacing = 34.dp
-    val rightEdgeX = maxWidth - cardSize.width + 24.dp
+    val stackSpacing = 48.dp
+    val rightEdgeX = maxWidth - cardSize.width + 12.dp
     val startX = rightEdgeX - stackSpacing * (cards.size - 1).toFloat()
+    val stackRise = 8.dp
 
     cards.forEachIndexed { index, card ->
-        val offsetIndex = index - centerIndex
         val baseX = startX + stackSpacing * index.toFloat()
-        val baseY = bottomY + (abs(offsetIndex) * 6).dp
+        val baseY = bottomY - stackRise * index.toFloat()
         val isSelected = selectedCardIndex == index
         val targetX = if (isSelected) centerX else baseX
         val targetY = if (isSelected) centerY else baseY
