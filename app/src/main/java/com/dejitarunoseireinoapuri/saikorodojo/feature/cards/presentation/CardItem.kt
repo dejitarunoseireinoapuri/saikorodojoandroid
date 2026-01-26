@@ -1,5 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,16 +30,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
@@ -44,7 +46,8 @@ data class CardUiModel(
     @StringRes val titleRes: Int,
     @StringRes val descriptionRes: Int,
     @DrawableRes val iconRes: Int,
-    @StringRes val actionLabelRes: Int = R.string.apply
+    @StringRes val actionLabelRes: Int = R.string.apply,
+    val count: Int = 1
 )
 
 internal val DefaultCardSize = DpSize(width = 200.dp, height = 280.dp)
@@ -53,12 +56,19 @@ internal val DefaultCardSize = DpSize(width = 200.dp, height = 280.dp)
 fun CardItem(
     modifier: Modifier = Modifier,
     card: CardUiModel,
-    onApplyClick: () -> Unit
+    onApplyClick: () -> Unit,
+    cardSize: DpSize = DefaultCardSize,
+    showDescription: Boolean = true,
+    showActionButton: Boolean = true,
+    showTitle: Boolean = true,
+    showCount: Boolean = false,
+    iconAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
     val shape = RoundedCornerShape(8.dp)
+    val bottomPadding = if (showActionButton) 40.dp else 12.dp
     Box(
         modifier = modifier
-            .size(DefaultCardSize)
+            .size(cardSize)
             .background(MaterialTheme.colorScheme.surface, shape)
             .border(width = 2.dp, color = Color.Black, shape = shape)
             .padding(12.dp)
@@ -66,58 +76,102 @@ fun CardItem(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 40.dp),
+                .padding(bottom = bottomPadding),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = stringResource(card.titleRes),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = rememberFittingTitleSize(
-                        text = stringResource(card.titleRes),
-                        style = MaterialTheme.typography.titleMedium,
-                        maxWidthDp = DefaultCardSize.width - 24.dp
-                    )
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-                overflow = TextOverflow.Ellipsis
-            )
+            if (showTitle) {
+                Text(
+                    text = stringResource(card.titleRes),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = rememberFittingTitleSize(
+                            text = stringResource(card.titleRes),
+                            style = MaterialTheme.typography.titleMedium,
+                            maxWidthDp = cardSize.width - 24.dp
+                        )
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
             Icon(
                 painter = painterResource(card.iconRes),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .size(32.dp)
-                    .align(Alignment.CenterHorizontally)
+                    .align(iconAlignment)
             )
-            Text(
-                text = stringResource(card.descriptionRes),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (showCount) {
+                CompactCount(
+                    count = card.count,
+                    iconAlignment = iconAlignment
+                )
+            }
+            if (showDescription) {
+                Text(
+                    text = stringResource(card.descriptionRes),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
-        OutlinedButton(
-            onClick = onApplyClick,
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
-            shape = RoundedCornerShape(2.dp),
-            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 4.dp, end = 4.dp)
-                .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
-        ) {
-            Text(
-                text = stringResource(card.actionLabelRes),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+        if (showActionButton) {
+            OutlinedButton(
+                onClick = onApplyClick,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+                shape = RoundedCornerShape(2.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 4.dp, end = 4.dp)
+                    .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+            ) {
+                Text(
+                    text = stringResource(card.actionLabelRes),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.CompactCount(
+    count: Int,
+    iconAlignment: Alignment.Horizontal
+) {
+    val countAlignment = if (iconAlignment == Alignment.Start) {
+        Alignment.Start
+    } else {
+        Alignment.CenterHorizontally
+    }
+    Column(
+        horizontalAlignment = countAlignment,
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier
+            .align(countAlignment)
+            .padding(top = 2.dp)
+    ) {
+        Text(
+            text = "x",
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = count.toString(),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
