@@ -24,6 +24,7 @@ data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
     val diceType: DiceType = DiceType.D6,
+    val diceTypes: List<DiceType> = List(DEFAULT_DICE_COUNT) { DiceType.D6 },
     val layoutSeed: Long = 0L,
     val isRolling: Boolean = false,
     val selectedDice: Set<Int> = emptySet(),
@@ -48,6 +49,7 @@ class GameViewModel(
     private val diceCount: Int = DEFAULT_DICE_COUNT,
     private val diceType: DiceType = DiceType.D6,
     private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() },
+    private val diceTypeProvider: (Long, Int) -> List<DiceType> = ::defaultDiceTypes,
     cardUiModels: List<CardUiModel> = defaultCardUiModels()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
@@ -55,6 +57,7 @@ class GameViewModel(
             diceValues = List(diceCount) { 1 },
             diceCount = diceCount,
             diceType = diceType,
+            diceTypes = diceTypeProvider(0L, diceCount),
             cardUiModels = cardUiModels
         )
     )
@@ -77,13 +80,18 @@ class GameViewModel(
 
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
-            _uiState.update { it.copy(isRolling = true, layoutSeed = layoutSeedProvider()) }
+            val seed = layoutSeedProvider()
+            val diceTypes = diceTypeProvider(seed, _uiState.value.diceCount)
+            _uiState.update {
+                it.copy(
+                    isRolling = true,
+                    layoutSeed = seed,
+                    diceTypes = diceTypes
+                )
+            }
 
             repeat(steps) {
-                val values = rollDiceUseCase.execute(
-                    count = _uiState.value.diceCount,
-                    diceType = _uiState.value.diceType
-                )
+                val values = rollDiceUseCase.execute(diceTypes)
                 _uiState.update {
                     it.copy(
                         diceValues = values,
@@ -170,4 +178,10 @@ internal fun calculateSelectedDiceSum(
     selectedDice: Set<Int>
 ): Int {
     return selectedDice.sumOf { index -> diceValues.getOrNull(index) ?: 0 }
+}
+
+private fun defaultDiceTypes(seed: Long, diceCount: Int): List<DiceType> {
+    val random = Random(seed)
+    val types = DiceType.entries
+    return List(diceCount) { types[random.nextInt(types.size)] }
 }

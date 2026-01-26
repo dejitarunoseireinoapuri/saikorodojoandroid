@@ -37,6 +37,17 @@ class RollDiceUseCaseTest {
     }
 
     @Test
+    fun `execute uses per dice type bounds`() {
+        val provider = RecordingRandomProvider()
+        val useCase = RollDiceUseCase(provider)
+
+        useCase.execute(listOf(DiceType.D6, DiceType.D8, DiceType.D10))
+
+        assertEquals(listOf(1, 1, 1), provider.fromValues)
+        assertEquals(listOf(7, 9, 11), provider.untilValues)
+    }
+
+    @Test
     fun `default random provider returns values within bounds`() {
         val provider = DefaultDiceRandomProvider()
 
