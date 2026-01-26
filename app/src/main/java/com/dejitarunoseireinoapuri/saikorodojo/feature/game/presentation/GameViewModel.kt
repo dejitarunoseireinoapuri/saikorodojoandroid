@@ -76,13 +76,18 @@ class GameViewModel(
         }
     }
 
-    private fun startRolling() {
+    private fun startRolling(keepLayout: Boolean = false) {
         if (rollJob?.isActive == true) return
 
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
-            val seed = layoutSeedProvider()
-            val diceTypes = diceTypeProvider(seed, _uiState.value.diceCount)
+            val currentState = _uiState.value
+            val seed = if (keepLayout) currentState.layoutSeed else layoutSeedProvider()
+            val diceTypes = if (keepLayout) {
+                currentState.diceTypes
+            } else {
+                diceTypeProvider(seed, currentState.diceCount)
+            }
             _uiState.update {
                 it.copy(
                     isRolling = true,
@@ -151,7 +156,7 @@ class GameViewModel(
     private fun applyCard(index: Int) {
         val applied = applyRerollAllCard(index)
         if (applied) {
-            startRolling()
+            startRolling(keepLayout = true)
             return
         }
         applyRerollSingleCard(index)
