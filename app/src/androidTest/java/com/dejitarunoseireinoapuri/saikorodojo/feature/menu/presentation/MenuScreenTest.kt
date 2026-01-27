@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SourceCodeProFontFamily
@@ -54,5 +55,25 @@ class MenuScreenTest {
 
         composeRule.onNodeWithTag(MENU_TOP_APP_BAR_TAG)
             .assertTopPositionInRootIsEqualTo(topPadding)
+    }
+
+    @Test
+    fun menuButtonsUseThickerHeight() {
+        val expectedHeight = 64.dp
+
+        composeRule.setContent {
+            SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
+                MenuScreen(
+                    applySystemBarsPadding = false,
+                    onPlayClick = {},
+                    onRulesClick = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag(MENU_PLAY_BUTTON_TAG)
+            .assertHeightIsEqualTo(expectedHeight)
+        composeRule.onNodeWithTag(MENU_RULES_BUTTON_TAG)
+            .assertHeightIsEqualTo(expectedHeight)
     }
 }
