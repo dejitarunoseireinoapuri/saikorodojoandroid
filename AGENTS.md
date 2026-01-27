@@ -122,11 +122,7 @@ Because this is a game, **animations must be present but as lightweight as possi
 ---
 
 ## Build, Test, and Development Commands
-Run from the repository root using the Gradle wrapper:
-- `./gradlew assembleDebug` (or `gradlew.bat assembleDebug` on Windows): build a debug APK.
-- `./gradlew test` (or `gradlew.bat test`): run local JVM unit tests.
-- `./gradlew connectedAndroidTest`: run instrumented tests on a device/emulator.
-- `./gradlew lint`: run Android lint.
+Don’t compile the app or run the tests yourself, as the user will run them.
 
 ---
 
