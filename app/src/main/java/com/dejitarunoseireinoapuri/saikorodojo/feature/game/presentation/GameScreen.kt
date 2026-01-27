@@ -28,6 +28,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -183,7 +184,8 @@ private fun GameCardStack(
         val isSelected = selectedCardIndex == index
         val isSecondaryExpanded = selectedCardIndex != null && index == selectedCardIndex - 1
         val isRightmostExpanded = index == cards.lastIndex && !isSelected
-        val repeatDescription = if (card.id == CardId.REPEAT_LAST) {
+        val isRepeatLast = card.id == CardId.REPEAT_LAST
+        val repeatDescription = if (isRepeatLast) {
             val lastCardTitleRes = lastAppliedCardId?.let { cardTitleResForId(it) }
             val lastCardName = lastCardTitleRes?.let { stringResource(it) }
                 ?: stringResource(R.string.card_repeat_last_none)
@@ -239,6 +241,7 @@ private fun GameCardStack(
                 },
                 isEnabled = isInteractionEnabled,
                 description = repeatDescription,
+                descriptionTextAlign = if (isRepeatLast) TextAlign.Center else TextAlign.Start,
                 onApplyClick = { onCardApply(index) }
             )
         }

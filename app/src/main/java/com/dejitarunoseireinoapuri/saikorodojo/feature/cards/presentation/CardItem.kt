@@ -69,7 +69,8 @@ fun CardItem(
     showCount: Boolean = false,
     iconAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     isEnabled: Boolean = true,
-    description: AnnotatedString? = null
+    description: AnnotatedString? = null,
+    descriptionTextAlign: TextAlign = TextAlign.Start
 ) {
     val shape = RoundedCornerShape(20.dp)
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
@@ -136,7 +137,9 @@ fun CardItem(
                 Text(
                     text = description ?: AnnotatedString(stringResource(card.descriptionRes)),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                    textAlign = descriptionTextAlign,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
