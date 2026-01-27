@@ -11,6 +11,7 @@
     <string name="cd_dice_face">Dice face %1$d</string>
     <string name="selected_dice_sum">Selected sum: %1$d</string>
     <string name="select_die_to_reroll">Select a die to reroll</string>
+    <string name="select_die_to_flip">Select a die to flip</string>
     <string name="select_die_to_modify">Select a die to modify</string>
     <string name="adjust_plus_one">+1</string>
     <string name="adjust_minus_one">-1</string>

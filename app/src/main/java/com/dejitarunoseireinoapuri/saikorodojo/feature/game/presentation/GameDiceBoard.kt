@@ -88,6 +88,16 @@ internal fun DiceBoard(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
+            uiState.isAwaitingFlipFace -> {
+                Text(
+                    text = stringResource(R.string.select_die_to_flip),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = promptOffset),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
             uiState.isAwaitingAdjustPlusMinus -> {
                 Text(
                     text = stringResource(R.string.select_die_to_modify),
