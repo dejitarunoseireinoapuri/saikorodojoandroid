@@ -143,6 +143,43 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `card interactions are ignored while awaiting single reroll`() = runTest {
+        val viewModel = buildViewModel(
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.REROLL_SINGLE,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0,
+                    count = 1
+                ),
+                CardUiModel(
+                    id = CardId.REROLL_ALL,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+
+        val awaitingState = viewModel.uiState.value
+        assertTrue(awaitingState.isAwaitingRerollSingle)
+        assertEquals(1, awaitingState.cardUiModels.size)
+        assertEquals(CardId.REROLL_ALL, awaitingState.cardUiModels.first().id)
+
+        viewModel.onEvent(GameUiEvent.SelectCard(0))
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        viewModel.onEvent(GameUiEvent.DismissSelectedCard)
+
+        val blockedState = viewModel.uiState.value
+        assertEquals(null, blockedState.selectedCardIndex)
+        assertEquals(1, blockedState.cardUiModels.size)
+        assertEquals(CardId.REROLL_ALL, blockedState.cardUiModels.first().id)
+    }
+
+    @Test
     fun `reroll all keeps card order while decrementing count`() = runTest {
         val viewModel = buildViewModel(
             cardUiModels = listOf(
