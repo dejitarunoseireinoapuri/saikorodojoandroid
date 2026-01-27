@@ -28,5 +28,5 @@
     <string name="card_repeat_last_title">Repeat card</string>
     <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target</string>
     <string name="card_retry_title">Retry</string>
-    <string name="card_retry_description">	Restart the level</string>
+    <string name="card_retry_description">Restart the level</string>
 </resources>
