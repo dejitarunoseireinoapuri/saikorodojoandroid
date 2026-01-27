@@ -11,6 +11,7 @@
     <string name="cd_dice_face">Cara del dau %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
     <string name="select_die_to_reroll">Selecciona un dau per tornar-lo a tirar</string>
+    <string name="select_die_to_flip">Selecciona un dau per girar-lo</string>
     <string name="select_die_to_modify">Selecciona un dau per modificar</string>
     <string name="adjust_plus_one">+1</string>
     <string name="adjust_minus_one">-1</string>
