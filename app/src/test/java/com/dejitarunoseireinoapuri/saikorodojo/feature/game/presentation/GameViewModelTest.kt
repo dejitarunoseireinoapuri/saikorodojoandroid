@@ -143,6 +143,49 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `retry resets dice to the initial roll state`() = runTest {
+        val viewModel = buildViewModel(
+            rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)),
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.SET_VALUE,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                ),
+                CardUiModel(
+                    id = CardId.RETRY,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        advanceUntilIdle()
+
+        val initialValues = viewModel.uiState.value.diceValues
+        assertEquals(listOf(6, 6, 6), initialValues)
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        viewModel.onEvent(GameUiEvent.SetSelectedDieValue(1))
+
+        assertEquals(1, viewModel.uiState.value.diceValues[0])
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+
+        val afterRetry = viewModel.uiState.value
+        assertEquals(initialValues, afterRetry.diceValues)
+        assertTrue(afterRetry.selectedDice.isEmpty())
+        assertEquals(0, afterRetry.selectedDiceSum)
+        assertEquals(CardId.RETRY, afterRetry.lastAppliedCardId)
+        assertTrue(!afterRetry.isAwaitingSetValue)
+        assertTrue(!afterRetry.isAwaitingRerollSingle)
+    }
+
+    @Test
     fun `card interactions are ignored while awaiting single reroll`() = runTest {
         val viewModel = buildViewModel(
             cardUiModels = listOf(
