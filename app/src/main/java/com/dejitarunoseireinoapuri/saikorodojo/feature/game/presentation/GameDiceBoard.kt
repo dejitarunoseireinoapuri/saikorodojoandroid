@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -97,21 +99,33 @@ internal fun DiceBoard(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 } else {
+                    val selectedIndex = uiState.selectedAdjustmentDieIndex
+                    val selectedValue = uiState.diceValues.getOrNull(selectedIndex) ?: 1
+                    val selectedType = uiState.diceTypes.getOrElse(selectedIndex) { DiceType.D6 }
+                    val availability = adjustActionAvailability(
+                        value = selectedValue,
+                        diceType = selectedType
+                    )
                     Row(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .offset(y = promptOffset),
-                        horizontalArrangement = Arrangement.spacedBy(36.dp),
+                            .offset(y = promptOffset)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(36.dp, Alignment.CenterHorizontally),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        AdjustValueAction(
-                            label = stringResource(R.string.adjust_minus_one),
-                            onClick = { onAdjustSelectedDie(-1) }
-                        )
-                        AdjustValueAction(
-                            label = stringResource(R.string.adjust_plus_one),
-                            onClick = { onAdjustSelectedDie(1) }
-                        )
+                        if (availability.canDecrease) {
+                            AdjustValueButton(
+                                label = stringResource(R.string.adjust_minus_one),
+                                onClick = { onAdjustSelectedDie(-1) }
+                            )
+                        }
+                        if (availability.canIncrease) {
+                            AdjustValueButton(
+                                label = stringResource(R.string.adjust_plus_one),
+                                onClick = { onAdjustSelectedDie(1) }
+                            )
+                        }
                     }
                 }
             }
@@ -199,15 +213,36 @@ private fun DiceFace(
 }
 
 @Composable
-private fun AdjustValueAction(label: String, onClick: () -> Unit) {
-    Text(
-        text = label,
-        modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { onClick() },
-        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-        color = MaterialTheme.colorScheme.onBackground
+private fun AdjustValueButton(label: String, onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        shape = RoundedCornerShape(14.dp),
+        border = ButtonDefaults.outlinedButtonBorder,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            horizontal = 22.dp,
+            vertical = 10.dp
+        )
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+        )
+    }
+}
+
+internal data class AdjustActionAvailability(
+    val canIncrease: Boolean,
+    val canDecrease: Boolean
+)
+
+internal fun adjustActionAvailability(value: Int, diceType: DiceType): AdjustActionAvailability {
+    return AdjustActionAvailability(
+        canIncrease = value < diceType.sides,
+        canDecrease = value > 1
     )
 }
 
