@@ -91,16 +91,15 @@ internal fun DiceBoard(
                 )
             }
             uiState.isAwaitingAdjustPlusMinus -> {
-                if (uiState.selectedAdjustmentDieIndex == null) {
-                    Text(
-                        text = stringResource(R.string.select_die_to_modify),
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .offset(y = promptOffset),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                } else {
+                Text(
+                    text = stringResource(R.string.select_die_to_modify),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = promptOffset),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                if (uiState.selectedAdjustmentDieIndex != null) {
                     val selectedIndex = uiState.selectedAdjustmentDieIndex
                     val selectedValue = uiState.diceValues.getOrNull(selectedIndex) ?: 1
                     val selectedType = uiState.diceTypes.getOrElse(selectedIndex) { DiceType.D6 }
@@ -111,7 +110,7 @@ internal fun DiceBoard(
                     Row(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .offset(y = promptOffset)
+                            .offset(y = boardHeight / 2 + 24.dp)
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(36.dp, Alignment.CenterHorizontally),
                         verticalAlignment = Alignment.CenterVertically
@@ -132,16 +131,15 @@ internal fun DiceBoard(
                 }
             }
             uiState.isAwaitingSetValue -> {
-                if (uiState.selectedSetValueDieIndex == null) {
-                    Text(
-                        text = stringResource(R.string.select_die_to_modify),
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .offset(y = promptOffset),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                } else {
+                Text(
+                    text = stringResource(R.string.select_die_to_modify),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = promptOffset),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                if (uiState.selectedSetValueDieIndex != null) {
                     val selectedIndex = uiState.selectedSetValueDieIndex
                     val selectedType = uiState.diceTypes.getOrElse(selectedIndex) { DiceType.D6 }
                     val optionCount = selectedType.sides
