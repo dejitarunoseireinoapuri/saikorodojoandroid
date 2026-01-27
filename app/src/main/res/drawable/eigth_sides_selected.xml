@@ -15,7 +15,7 @@
       android:pivotY="512">
     <path
         android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
-        android:fillColor="#33000000"/>
+            android:fillColor="#33000000"/>
   </group>
 
   <!-- Main shape -->
@@ -23,7 +23,6 @@
       android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
       android:strokeLineJoin="round"
       android:strokeWidth="8"
-      android:fillColor="#FF5AE5"
       android:strokeColor="#FF2BD6"
       android:strokeLineCap="round">
     <aapt:attr name="android:fillColor">
@@ -32,10 +31,9 @@
           android:startX="151.2"
           android:startY="151.2"
           android:endX="872.8"
-          android:endY="872.8">
-        <item android:color="#FF5AE5" android:offset="0"/>
-        <item android:color="#FF2BD6" android:offset="1"/>
-      </gradient>
+          android:endY="872.8"
+          android:startColor="#FF5AE5"
+          android:endColor="#FF2BD6"/>
     </aapt:attr>
   </path>
 </vector>
