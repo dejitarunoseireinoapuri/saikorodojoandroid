@@ -70,10 +70,26 @@ class GameViewModel(
         when (event) {
             GameUiEvent.StartRoll -> startRolling()
             is GameUiEvent.DiceClicked -> handleDiceClick(event.index)
-            is GameUiEvent.SelectCard -> selectCard(event.index)
-            is GameUiEvent.ApplyCard -> applyCard(event.index)
-            GameUiEvent.DismissSelectedCard -> dismissSelectedCard()
+            is GameUiEvent.SelectCard -> {
+                if (!isCardInteractionBlocked()) {
+                    selectCard(event.index)
+                }
+            }
+            is GameUiEvent.ApplyCard -> {
+                if (!isCardInteractionBlocked()) {
+                    applyCard(event.index)
+                }
+            }
+            GameUiEvent.DismissSelectedCard -> {
+                if (!isCardInteractionBlocked()) {
+                    dismissSelectedCard()
+                }
+            }
         }
+    }
+
+    private fun isCardInteractionBlocked(): Boolean {
+        return _uiState.value.isAwaitingRerollSingle
     }
 
     private fun startRolling(keepLayout: Boolean = false) {
