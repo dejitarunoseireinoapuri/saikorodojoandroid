@@ -27,8 +27,7 @@
     <string name="card_set_value_title">Set value</string>
     <string name="card_set_value_description">Choose the final value of a die within its range</string>
     <string name="card_repeat_last_title">Repeat card</string>
-    <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target</string>
-    <string name="card_repeat_last_label">Last card:</string>
+    <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target. Last card:</string>
     <string name="card_repeat_last_none">None</string>
     <string name="card_retry_title">Retry</string>
     <string name="card_retry_description">Restart the level</string>
