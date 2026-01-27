@@ -113,6 +113,18 @@ class GameScreenTest {
     }
 
     @Test
+    fun `set value row values leaves a slot for the current value`() {
+        val values = setValueRowValues(
+            optionCount = 6,
+            optionsPerRow = 3,
+            rowIndex = 0,
+            currentValue = 2
+        )
+
+        assertEquals(listOf(1, null, 3), values)
+    }
+
+    @Test
     fun `grid positions returns empty when dice count is zero`() {
         val positions = calculateRandomDicePositions(
             seed = 42L,
