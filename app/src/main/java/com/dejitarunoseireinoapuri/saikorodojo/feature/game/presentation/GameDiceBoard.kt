@@ -147,10 +147,12 @@ internal fun DiceBoard(
                     val optionCount = selectedType.sides
                     val optionsPerRow = (optionCount / 2).coerceAtLeast(1)
                     val optionSpacing = 6.dp
+                    val optionSize = diceSize * 0.5f
+                    val setValueOffset = -(boardHeight / 2 + optionSize + 24.dp)
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .offset(y = promptOffset)
+                            .offset(y = setValueOffset)
                             .fillMaxWidth()
                             .padding(horizontal = horizontalMargin),
                         verticalArrangement = Arrangement.spacedBy(optionSpacing),
@@ -170,7 +172,8 @@ internal fun DiceBoard(
                                     DiceOption(
                                         value = value,
                                         diceType = selectedType,
-                                        size = diceSize,
+                                        size = optionSize,
+                                        numberTextScale = 0.5f,
                                         onClick = { onSetSelectedDieValue(value) }
                                     )
                                 }
@@ -232,7 +235,8 @@ private fun DiceFace(
     size: Dp,
     faceDrawable: Int,
     isSelected: Boolean,
-    isAdjustmentSelected: Boolean
+    isAdjustmentSelected: Boolean,
+    numberTextScale: Float = 1f
 ) {
     Box(
         modifier = Modifier
@@ -257,7 +261,9 @@ private fun DiceFace(
         Text(
             text = number.toString(),
             modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.displaySmall.copy(
+                fontSize = MaterialTheme.typography.displaySmall.fontSize * numberTextScale
+            ),
             color = Color.White
         )
     }
@@ -268,6 +274,7 @@ private fun DiceOption(
     value: Int,
     diceType: DiceType,
     size: Dp,
+    numberTextScale: Float,
     onClick: () -> Unit
 ) {
     val faceDrawable = diceTypeDrawable(diceType)
@@ -282,7 +289,8 @@ private fun DiceOption(
             size = size,
             faceDrawable = faceDrawable,
             isSelected = false,
-            isAdjustmentSelected = false
+            isAdjustmentSelected = false,
+            numberTextScale = numberTextScale
         )
     }
 }
