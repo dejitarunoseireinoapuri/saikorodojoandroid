@@ -11,6 +11,9 @@
     <string name="cd_dice_face">Cara del dado %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
     <string name="select_die_to_reroll">Selecciona un dado para relanzar</string>
+    <string name="select_die_to_modify">Selecciona un dado para modificar</string>
+    <string name="adjust_plus_one">+1</string>
+    <string name="adjust_minus_one">-1</string>
     <string name="apply">Utilizar</string>
     <string name="card_adjust_plus_minus_one_title">Ajustar ±1</string>
     <string name="card_adjust_plus_minus_one_description">Aumenta o reduce en 1 el valor de un dado, sin salir del rango del dado</string>
