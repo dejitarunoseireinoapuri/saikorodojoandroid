@@ -6,10 +6,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +37,8 @@ internal fun DiceBoard(
     modifier: Modifier = Modifier,
     maxWidth: Dp,
     uiState: GameUiState,
-    onDiceClick: (Int) -> Unit
+    onDiceClick: (Int) -> Unit,
+    onAdjustSelectedDie: (Int) -> Unit
 ) {
     val diceCount = uiState.diceValues.size
     val boardHeight = 300.dp
@@ -71,15 +74,47 @@ internal fun DiceBoard(
         }
     }
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        if (uiState.isAwaitingRerollSingle) {
-            Text(
-                text = stringResource(R.string.select_die_to_reroll),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .offset(y = -(boardHeight / 2 + 32.dp)),
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground
-            )
+        val promptOffset = -(boardHeight / 2 + 32.dp)
+        when {
+            uiState.isAwaitingRerollSingle -> {
+                Text(
+                    text = stringResource(R.string.select_die_to_reroll),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = promptOffset),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+            uiState.isAwaitingAdjustPlusMinus -> {
+                if (uiState.selectedAdjustmentDieIndex == null) {
+                    Text(
+                        text = stringResource(R.string.select_die_to_modify),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(y = promptOffset),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(y = promptOffset),
+                        horizontalArrangement = Arrangement.spacedBy(36.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AdjustValueAction(
+                            label = stringResource(R.string.adjust_minus_one),
+                            onClick = { onAdjustSelectedDie(-1) }
+                        )
+                        AdjustValueAction(
+                            label = stringResource(R.string.adjust_plus_one),
+                            onClick = { onAdjustSelectedDie(1) }
+                        )
+                    }
+                }
+            }
         }
         Box(
             modifier = Modifier
@@ -103,6 +138,7 @@ internal fun DiceBoard(
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
                 val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
                 val isSelected = uiState.selectedDice.contains(index)
+                val isAdjustmentSelected = uiState.selectedAdjustmentDieIndex == index
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -116,7 +152,8 @@ internal fun DiceBoard(
                         number = value,
                         size = diceSize,
                         faceDrawable = faceDrawable,
-                        isSelected = isSelected
+                        isSelected = isSelected,
+                        isAdjustmentSelected = isAdjustmentSelected
                     )
                 }
             }
@@ -125,9 +162,27 @@ internal fun DiceBoard(
 }
 
 @Composable
-private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boolean) {
+private fun DiceFace(
+    number: Int,
+    size: Dp,
+    faceDrawable: Int,
+    isSelected: Boolean,
+    isAdjustmentSelected: Boolean
+) {
     Box(
-        modifier = Modifier.size(size),
+        modifier = Modifier
+            .size(size)
+            .then(
+                if (isAdjustmentSelected) {
+                    Modifier.border(
+                        width = 3.dp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                } else {
+                    Modifier
+                }
+            ),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -141,6 +196,19 @@ private fun DiceFace(number: Int, size: Dp, faceDrawable: Int, isSelected: Boole
             color = Color.White
         )
     }
+}
+
+@Composable
+private fun AdjustValueAction(label: String, onClick: () -> Unit) {
+    Text(
+        text = label,
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { onClick() },
+        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+        color = MaterialTheme.colorScheme.onBackground
+    )
 }
 
 internal fun calculateDiceSize(
