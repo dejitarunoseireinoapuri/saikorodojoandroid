@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
@@ -67,7 +68,8 @@ fun CardItem(
     showTitle: Boolean = true,
     showCount: Boolean = false,
     iconAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    isEnabled: Boolean = true
+    isEnabled: Boolean = true,
+    description: AnnotatedString? = null
 ) {
     val shape = RoundedCornerShape(20.dp)
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
@@ -132,7 +134,7 @@ fun CardItem(
             }
             if (showDescription) {
                 Text(
-                    text = stringResource(card.descriptionRes),
+                    text = description ?: AnnotatedString(stringResource(card.descriptionRes)),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
                 )

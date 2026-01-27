@@ -207,6 +207,79 @@ class GameViewModelTest {
         assertEquals(CardId.REROLL_SINGLE, updatedCards[1].id)
     }
 
+    @Test
+    fun `repeat last reapplies the previous card effect and consumes repeat card`() = runTest {
+        val viewModel = buildViewModel(
+            rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)),
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.REROLL_SINGLE,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                ),
+                CardUiModel(
+                    id = CardId.REPEAT_LAST,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        assertTrue(viewModel.uiState.value.isAwaitingRerollSingle)
+        assertEquals(CardId.REROLL_SINGLE, viewModel.uiState.value.lastAppliedCardId)
+
+        viewModel.onEvent(GameUiEvent.DiceClicked(1))
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+
+        val stateAfterRepeat = viewModel.uiState.value
+        assertTrue(stateAfterRepeat.isAwaitingRerollSingle)
+        assertEquals(CardId.REROLL_SINGLE, stateAfterRepeat.lastAppliedCardId)
+        assertTrue(stateAfterRepeat.cardUiModels.isEmpty())
+    }
+
+    @Test
+    fun `repeat last rerolls all when the last card was reroll all`() = runTest {
+        val viewModel = buildViewModel(
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.REROLL_ALL,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                ),
+                CardUiModel(
+                    id = CardId.REPEAT_LAST,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(1))
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        advanceUntilIdle()
+
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(1))
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+
+        val stateAfterRepeat = viewModel.uiState.value
+        assertTrue(stateAfterRepeat.selectedDice.isEmpty())
+        assertEquals(0, stateAfterRepeat.selectedDiceSum)
+        assertEquals(CardId.REROLL_ALL, stateAfterRepeat.lastAppliedCardId)
+        assertTrue(stateAfterRepeat.cardUiModels.isEmpty())
+
+        advanceUntilIdle()
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(
