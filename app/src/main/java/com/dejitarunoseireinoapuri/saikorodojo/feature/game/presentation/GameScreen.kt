@@ -23,12 +23,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
@@ -127,6 +134,7 @@ fun GameScreen(
             GameCardStack(
                 cards = uiState.cardUiModels,
                 selectedCardIndex = uiState.selectedCardIndex,
+                lastAppliedCardId = uiState.lastAppliedCardId,
                 maxWidth = constraintsWidth,
                 maxHeight = constraintsHeight,
                 isInteractionEnabled = !shouldHideCards,
@@ -142,6 +150,7 @@ fun GameScreen(
 private fun GameCardStack(
     cards: List<CardUiModel>,
     selectedCardIndex: Int?,
+    lastAppliedCardId: CardId?,
     maxWidth: Dp,
     maxHeight: Dp,
     isInteractionEnabled: Boolean,
@@ -174,6 +183,22 @@ private fun GameCardStack(
         val isSelected = selectedCardIndex == index
         val isSecondaryExpanded = selectedCardIndex != null && index == selectedCardIndex - 1
         val isRightmostExpanded = index == cards.lastIndex && !isSelected
+        val repeatDescription = if (card.id == CardId.REPEAT_LAST) {
+            val lastCardTitleRes = lastAppliedCardId?.let { cardTitleResForId(it) }
+            val lastCardName = lastCardTitleRes?.let { stringResource(it) }
+                ?: stringResource(R.string.card_repeat_last_none)
+            buildAnnotatedString {
+                append(stringResource(card.descriptionRes))
+                append("\n")
+                append(stringResource(R.string.card_repeat_last_label))
+                append(" ")
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(lastCardName)
+                }
+            }
+        } else {
+            null
+        }
         val targetX = if (isSelected) centerX else baseX
         val targetY = if (isSelected) centerY else baseY
         val animatedX by animateDpAsState(
@@ -215,6 +240,7 @@ private fun GameCardStack(
                     Alignment.Start
                 },
                 isEnabled = isInteractionEnabled,
+                description = repeatDescription,
                 onApplyClick = { onCardApply(index) }
             )
         }
@@ -237,4 +263,16 @@ internal fun calculateCardStackStartX(
     val rightAlignedStartX =
         (rightEdgeX - stackSpacing * stackedCards.toFloat()).coerceAtLeast(0.dp)
     return if (cardsCount >= maxCardTypes) rightAlignedStartX else centeredStartX
+}
+
+private fun cardTitleResForId(cardId: CardId): Int? {
+    return when (cardId) {
+        CardId.ADJUST_PLUS_MINUS_ONE -> R.string.card_adjust_plus_minus_one_title
+        CardId.FLIP_FACE -> R.string.card_flip_face_title
+        CardId.REROLL_SINGLE -> R.string.card_reroll_single_title
+        CardId.REROLL_ALL -> R.string.card_reroll_all_title
+        CardId.SET_VALUE -> R.string.card_set_value_title
+        CardId.REPEAT_LAST -> R.string.card_repeat_last_title
+        CardId.RETRY -> R.string.card_retry_title
+    }
 }
