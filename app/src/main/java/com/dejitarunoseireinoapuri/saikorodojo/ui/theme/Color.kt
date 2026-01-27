@@ -2,13 +2,6 @@ package com.dejitarunoseireinoapuri.saikorodojo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val NeonIndigoLight = Color(0xFF5B5EF3)
-val NeonIndigoDark = Color(0xFF7C84FF)
-val NeonCyanLight = Color(0xFF00C2FF)
-val NeonCyanDark = Color(0xFF4DD4FF)
-val NeonPinkLight = Color(0xFFFF7AC8)
-val NeonPinkDark = Color(0xFFFF9CD6)
-
 val LightMenuGameGradientTop = Color(0xFF5FA7FF)
 val LightMenuGameGradientMiddle = Color(0xFF8BC6FF)
 val LightMenuGameGradientBottom = Color(0xFFB7E1FF)
