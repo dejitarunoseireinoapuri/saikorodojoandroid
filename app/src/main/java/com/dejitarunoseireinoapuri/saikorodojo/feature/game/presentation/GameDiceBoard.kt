@@ -148,12 +148,12 @@ internal fun DiceBoard(
                     val optionsPerRow = (optionCount / 2).coerceAtLeast(1)
                     val optionSpacing = 6.dp
                     val availableWidth = (maxWidth - horizontalMargin * 2).coerceAtLeast(0.dp)
-                    val optionSize =
-                        calculateRowDiceSize(availableWidth, optionsPerRow, optionSpacing)
+                    val rowSize = calculateRowDiceSize(availableWidth, optionsPerRow, optionSpacing)
+                    val optionSize = maxOf(rowSize, diceSize)
                     val textScale = if (diceSize.value == 0f) 1f else {
                         (optionSize.value / diceSize.value).coerceAtMost(1f)
                     }
-                    val setValueOffset = -(boardHeight / 2 + optionSize + 24.dp)
+                    val setValueOffset = boardHeight / 2 + optionSize + 24.dp
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
