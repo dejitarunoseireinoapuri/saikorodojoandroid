@@ -147,7 +147,12 @@ internal fun DiceBoard(
                     val optionCount = selectedType.sides
                     val optionsPerRow = (optionCount / 2).coerceAtLeast(1)
                     val optionSpacing = 6.dp
-                    val optionSize = diceSize * 0.5f
+                    val availableWidth = (maxWidth - horizontalMargin * 2).coerceAtLeast(0.dp)
+                    val optionSize =
+                        calculateRowDiceSize(availableWidth, optionsPerRow, optionSpacing)
+                    val textScale = if (diceSize.value == 0f) 1f else {
+                        (optionSize.value / diceSize.value).coerceAtMost(1f)
+                    }
                     val setValueOffset = -(boardHeight / 2 + optionSize + 24.dp)
                     Column(
                         modifier = Modifier
@@ -173,7 +178,7 @@ internal fun DiceBoard(
                                         value = value,
                                         diceType = selectedType,
                                         size = optionSize,
-                                        numberTextScale = 0.5f,
+                                        numberTextScale = textScale,
                                         onClick = { onSetSelectedDieValue(value) }
                                     )
                                 }
@@ -342,6 +347,16 @@ internal fun calculateDiceSize(
     val widthBasedSize = (availableWidth - spacing * (safeColumns - 1)) / safeColumns
     val heightBasedSize = (availableHeight - spacing * (rows - 1)) / rows
     return minOf(widthBasedSize, heightBasedSize)
+}
+
+internal fun calculateRowDiceSize(
+    availableWidth: Dp,
+    diceCount: Int,
+    spacing: Dp
+): Dp {
+    if (diceCount <= 0) return 0.dp
+    val totalSpacing = spacing * (diceCount - 1).coerceAtLeast(0)
+    return ((availableWidth - totalSpacing) / diceCount).coerceAtLeast(0.dp)
 }
 
 internal fun calculateBoardContentSize(
