@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.ui.draw.graphicsLayer
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.alpha
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -101,8 +100,6 @@ fun GameScreen(
             animationSpec = tween(durationMillis = 180),
             label = "cardStackAlpha"
         )
-        val density = LocalDensity.current
-        val stackOffsetPx = with(density) { stackOffset.toPx() }
         DiceBoard(
             modifier = Modifier.zIndex(0f),
             maxWidth = maxWidth,
@@ -115,10 +112,8 @@ fun GameScreen(
                 .navigationBarsPadding()
                 .clipToBounds()
                 .zIndex(1f)
-                .graphicsLayer {
-                    translationY = stackOffsetPx
-                    alpha = stackAlpha
-                }
+                .offset(y = stackOffset)
+                .alpha(stackAlpha)
         ) {
             GameCardStack(
                 cards = uiState.cardUiModels,
