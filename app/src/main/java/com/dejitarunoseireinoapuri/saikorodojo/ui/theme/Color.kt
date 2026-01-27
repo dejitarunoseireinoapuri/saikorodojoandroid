@@ -12,9 +12,20 @@ val NeonPinkDark = Color(0xFFFF9CD6)
 val LightMenuGameGradientTop = Color(0xFF1E3FA8)
 val LightMenuGameGradientMiddle = Color(0xFF2F6EE5)
 val LightMenuGameGradientBottom = Color(0xFF6BB6FF)
-val DarkMenuGameGradientTop = Color(0xFF0A1C44)
-val DarkMenuGameGradientMiddle = Color(0xFF123A7A)
-val DarkMenuGameGradientBottom = Color(0xFF1F5CA8)
+
+val AppPrimary = NeonIndigoDark
+val AppOnPrimary = DarkBackground
+val AppSecondary = NeonCyanDark
+val AppOnSecondary = Color(0xFF001821)
+val AppTertiary = NeonPinkDark
+val AppOnTertiary = Color(0xFF2A0B1D)
+val AppBackground = DarkBackground
+val AppOnBackground = DarkOnBackground
+val AppSurface = DarkSurface
+val AppOnSurface = DarkOnSurface
+val AppSurfaceVariant = DarkSurfaceVariant
+val AppOnSurfaceVariant = DarkOnSurfaceVariant
+val AppOutline = DarkOutline
 
 val LightBackground = Color(0xFFF4F6FF)
 val LightSurface = Color(0xFFFFFFFF)
