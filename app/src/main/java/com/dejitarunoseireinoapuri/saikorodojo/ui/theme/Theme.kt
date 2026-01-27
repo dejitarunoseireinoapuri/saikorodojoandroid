@@ -8,8 +8,11 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.staticCompositionLocalOf
 
 private val DarkColorScheme = darkColorScheme(
     primary = NeonIndigoDark,
@@ -43,6 +46,35 @@ private val LightColorScheme = lightColorScheme(
     outline = Color(0xFF1E7D4B)
 )
 
+@Immutable
+data class SaikoroDojoGradientColors(
+    val menuGameTop: Color,
+    val menuGameMiddle: Color,
+    val menuGameBottom: Color
+)
+
+private val LightGradientColors = SaikoroDojoGradientColors(
+    menuGameTop = LightMenuGameGradientTop,
+    menuGameMiddle = LightMenuGameGradientMiddle,
+    menuGameBottom = LightMenuGameGradientBottom
+)
+
+private val DarkGradientColors = SaikoroDojoGradientColors(
+    menuGameTop = DarkMenuGameGradientTop,
+    menuGameMiddle = DarkMenuGameGradientMiddle,
+    menuGameBottom = DarkMenuGameGradientBottom
+)
+
+internal fun gradientColors(darkTheme: Boolean): SaikoroDojoGradientColors {
+    return if (darkTheme) DarkGradientColors else LightGradientColors
+}
+
+internal val LocalGradientColors = staticCompositionLocalOf { LightGradientColors }
+
+object SaikoroDojoThemeColors {
+    val gradientColors: SaikoroDojoGradientColors
+        @Composable get() = LocalGradientColors.current
+}
 
 @Composable
 fun SaikoroDojoTheme(
@@ -50,6 +82,7 @@ fun SaikoroDojoTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val gradientColors = gradientColors(darkTheme)
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -60,9 +93,11 @@ fun SaikoroDojoTheme(
         else -> LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalGradientColors provides gradientColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }

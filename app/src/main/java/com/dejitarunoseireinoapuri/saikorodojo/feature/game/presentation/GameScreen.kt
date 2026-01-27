@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoThemeColors
 
 @Composable
 fun GameRoute(
@@ -70,11 +71,12 @@ fun GameScreen(
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
     }
+    val gradientColors = SaikoroDojoThemeColors.gradientColors
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.65f),
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
-            MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f)
+            gradientColors.menuGameTop,
+            gradientColors.menuGameMiddle,
+            gradientColors.menuGameBottom
         )
     )
     containerModifier = containerModifier
