@@ -149,7 +149,7 @@ internal fun DiceBoard(
                     val optionSpacing = 6.dp
                     val availableWidth = (maxWidth - horizontalMargin * 2).coerceAtLeast(0.dp)
                     val rowSize = calculateRowDiceSize(availableWidth, optionsPerRow, optionSpacing)
-                    val optionSize = maxOf(rowSize, diceSize)
+                    val optionSize = minOf(rowSize, diceSize)
                     val textScale = if (diceSize.value == 0f) 1f else {
                         (optionSize.value / diceSize.value).coerceAtMost(1f)
                     }
