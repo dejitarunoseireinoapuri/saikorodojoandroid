@@ -189,8 +189,6 @@ private fun GameCardStack(
                 ?: stringResource(R.string.card_repeat_last_none)
             buildAnnotatedString {
                 append(stringResource(card.descriptionRes))
-                append("\n")
-                append(stringResource(R.string.card_repeat_last_label))
                 append(" ")
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append(lastCardName)
