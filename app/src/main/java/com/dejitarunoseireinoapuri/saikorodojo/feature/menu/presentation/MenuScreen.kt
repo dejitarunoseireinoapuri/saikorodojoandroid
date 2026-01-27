@@ -1,5 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,11 +38,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoThemeColors
 
 internal const val MENU_TOP_APP_BAR_TAG = "menu_top_app_bar"
+internal const val MENU_PLAY_BUTTON_TAG = "menu_play_button"
+internal const val MENU_RULES_BUTTON_TAG = "menu_rules_button"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -134,14 +138,16 @@ fun MenuScreen(
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimary),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(64.dp)
+                        .testTag(MENU_PLAY_BUTTON_TAG)
                 ) {
                     Text(
                         text = stringResource(R.string.play),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -151,14 +157,16 @@ fun MenuScreen(
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSecondary),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(64.dp)
+                        .testTag(MENU_RULES_BUTTON_TAG)
                 ) {
                     Text(
                         text = stringResource(R.string.rules),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSecondary
                     )
                 }
