@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            SaikoroDojoTheme(darkTheme = false) {
+            SaikoroDojoTheme {
                 NavHost(
                     navController = navController,
                     startDestination = "menu"
