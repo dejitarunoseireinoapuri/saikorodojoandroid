@@ -28,7 +28,9 @@ data class GameUiState(
     val layoutSeed: Long = 0L,
     val isRolling: Boolean = false,
     val isAwaitingRerollSingle: Boolean = false,
+    val isAwaitingAdjustPlusMinus: Boolean = false,
     val selectedDice: Set<Int> = emptySet(),
+    val selectedAdjustmentDieIndex: Int? = null,
     val selectedDiceSum: Int = 0,
     val cardUiModels: List<CardUiModel> = emptyList(),
     val selectedCardIndex: Int? = null
@@ -39,6 +41,7 @@ sealed interface GameUiEvent {
     data class DiceClicked(val index: Int) : GameUiEvent
     data class SelectCard(val index: Int) : GameUiEvent
     data class ApplyCard(val index: Int) : GameUiEvent
+    data class AdjustSelectedDie(val delta: Int) : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
 }
 
@@ -80,6 +83,7 @@ class GameViewModel(
                     applyCard(event.index)
                 }
             }
+            is GameUiEvent.AdjustSelectedDie -> adjustSelectedDie(event.delta)
             GameUiEvent.DismissSelectedCard -> {
                 if (!isCardInteractionBlocked()) {
                     dismissSelectedCard()
@@ -89,7 +93,7 @@ class GameViewModel(
     }
 
     private fun isCardInteractionBlocked(): Boolean {
-        return _uiState.value.isAwaitingRerollSingle
+        return _uiState.value.isAwaitingRerollSingle || _uiState.value.isAwaitingAdjustPlusMinus
     }
 
     private fun startRolling(keepLayout: Boolean = false) {
@@ -109,7 +113,9 @@ class GameViewModel(
                     isRolling = true,
                     layoutSeed = seed,
                     diceTypes = diceTypes,
-                    isAwaitingRerollSingle = false
+                    isAwaitingRerollSingle = false,
+                    isAwaitingAdjustPlusMinus = false,
+                    selectedAdjustmentDieIndex = null
                 )
             }
 
@@ -132,6 +138,8 @@ class GameViewModel(
         val state = _uiState.value
         if (state.isAwaitingRerollSingle) {
             startSingleDieRoll(index)
+        } else if (state.isAwaitingAdjustPlusMinus) {
+            selectAdjustmentDie(index)
         } else {
             toggleDiceSelection(index)
         }
@@ -175,7 +183,10 @@ class GameViewModel(
             startRolling(keepLayout = true)
             return
         }
-        applyRerollSingleCard(index)
+        if (applyRerollSingleCard(index)) {
+            return
+        }
+        applyAdjustPlusMinusCard(index)
     }
 
     private fun applyRerollSingleCard(index: Int): Boolean {
@@ -200,7 +211,41 @@ class GameViewModel(
                     state.copy(
                         cardUiModels = updatedCards,
                         selectedCardIndex = null,
-                        isAwaitingRerollSingle = true
+                        isAwaitingRerollSingle = true,
+                        isAwaitingAdjustPlusMinus = false,
+                        selectedAdjustmentDieIndex = null
+                    )
+                }
+            }
+        }
+        return applied
+    }
+
+    private fun applyAdjustPlusMinusCard(index: Int): Boolean {
+        var applied = false
+        _uiState.update { state ->
+            val cards = state.cardUiModels
+            if (index !in cards.indices) {
+                state
+            } else {
+                val card = cards[index]
+                if (card.id != CardId.ADJUST_PLUS_MINUS_ONE) {
+                    state
+                } else {
+                    applied = true
+                    val updatedCards = cards.toMutableList().apply {
+                        if (card.count > 1) {
+                            this[index] = card.copy(count = card.count - 1)
+                        } else {
+                            removeAt(index)
+                        }
+                    }
+                    state.copy(
+                        cardUiModels = updatedCards,
+                        selectedCardIndex = null,
+                        isAwaitingAdjustPlusMinus = true,
+                        isAwaitingRerollSingle = false,
+                        selectedAdjustmentDieIndex = null
                     )
                 }
             }
@@ -236,6 +281,43 @@ class GameViewModel(
         }
     }
 
+    private fun selectAdjustmentDie(index: Int) {
+        _uiState.update { state ->
+            if (index !in state.diceValues.indices) {
+                state
+            } else {
+                state.copy(selectedAdjustmentDieIndex = index)
+            }
+        }
+    }
+
+    private fun adjustSelectedDie(delta: Int) {
+        _uiState.update { state ->
+            val selectedIndex = state.selectedAdjustmentDieIndex
+            if (!state.isAwaitingAdjustPlusMinus || selectedIndex == null) {
+                state
+            } else if (selectedIndex !in state.diceValues.indices) {
+                state.copy(
+                    isAwaitingAdjustPlusMinus = false,
+                    selectedAdjustmentDieIndex = null
+                )
+            } else {
+                val diceType = state.diceTypes.getOrElse(selectedIndex) { state.diceType }
+                val currentValue = state.diceValues[selectedIndex]
+                val updatedValue = (currentValue + delta).coerceIn(1, diceType.sides)
+                val updatedValues = state.diceValues.toMutableList().apply {
+                    this[selectedIndex] = updatedValue
+                }
+                state.copy(
+                    diceValues = updatedValues,
+                    selectedDiceSum = calculateSelectedDiceSum(updatedValues, state.selectedDice),
+                    isAwaitingAdjustPlusMinus = false,
+                    selectedAdjustmentDieIndex = null
+                )
+            }
+        }
+    }
+
     private fun applyRerollAllCard(index: Int): Boolean {
         var applied = false
         _uiState.update { state ->
@@ -259,6 +341,8 @@ class GameViewModel(
                         cardUiModels = updatedCards,
                         selectedCardIndex = null,
                         isAwaitingRerollSingle = false,
+                        isAwaitingAdjustPlusMinus = false,
+                        selectedAdjustmentDieIndex = null,
                         selectedDice = emptySet(),
                         selectedDiceSum = 0
                     )
