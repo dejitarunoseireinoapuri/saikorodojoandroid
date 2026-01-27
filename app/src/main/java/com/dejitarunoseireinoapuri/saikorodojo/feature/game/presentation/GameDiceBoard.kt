@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -107,23 +105,30 @@ internal fun DiceBoard(
                         value = selectedValue,
                         diceType = selectedType
                     )
+                    val adjustOffset = boardHeight / 2 + diceSize + 24.dp
                     Row(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .offset(y = boardHeight / 2 + 24.dp)
+                            .offset(y = adjustOffset)
                             .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(36.dp, Alignment.CenterHorizontally),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (availability.canDecrease) {
-                            AdjustValueButton(
-                                label = stringResource(R.string.adjust_minus_one),
+                            DiceOption(
+                                value = (selectedValue - 1).coerceAtLeast(1),
+                                faceDrawable = diceTypeOptionDrawable(selectedType),
+                                size = diceSize,
+                                numberTextScale = 1f,
                                 onClick = { onAdjustSelectedDie(-1) }
                             )
                         }
                         if (availability.canIncrease) {
-                            AdjustValueButton(
-                                label = stringResource(R.string.adjust_plus_one),
+                            DiceOption(
+                                value = (selectedValue + 1).coerceAtMost(selectedType.sides),
+                                faceDrawable = diceTypeOptionDrawable(selectedType),
+                                size = diceSize,
+                                numberTextScale = 1f,
                                 onClick = { onAdjustSelectedDie(1) }
                             )
                         }
@@ -174,7 +179,7 @@ internal fun DiceBoard(
                                 for (value in startValue..endValue) {
                                     DiceOption(
                                         value = value,
-                                        diceType = selectedType,
+                                        faceDrawable = diceTypeOptionDrawable(selectedType),
                                         size = optionSize,
                                         numberTextScale = textScale,
                                         onClick = { onSetSelectedDieValue(value) }
@@ -275,12 +280,11 @@ private fun DiceFace(
 @Composable
 private fun DiceOption(
     value: Int,
-    diceType: DiceType,
+    faceDrawable: Int,
     size: Dp,
     numberTextScale: Float,
     onClick: () -> Unit
 ) {
-    val faceDrawable = diceTypeDrawable(diceType)
     Box(
         modifier = Modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
@@ -294,28 +298,6 @@ private fun DiceOption(
             isSelected = false,
             isAdjustmentSelected = false,
             numberTextScale = numberTextScale
-        )
-    }
-}
-
-@Composable
-private fun AdjustValueButton(label: String, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        shape = RoundedCornerShape(14.dp),
-        border = ButtonDefaults.outlinedButtonBorder,
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            horizontal = 22.dp,
-            vertical = 10.dp
-        )
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
         )
     }
 }
@@ -419,6 +401,14 @@ internal fun diceTypeDrawable(diceType: DiceType): Int {
         DiceType.D6 -> R.drawable.six_sides
         DiceType.D8 -> R.drawable.eigth_sides
         DiceType.D10 -> R.drawable.ten_sides
+    }
+}
+
+internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
+    return when (diceType) {
+        DiceType.D6 -> R.drawable.six_sides_green
+        DiceType.D8 -> R.drawable.eigth_sides_green
+        DiceType.D10 -> R.drawable.ten_sides_green
     }
 }
 
