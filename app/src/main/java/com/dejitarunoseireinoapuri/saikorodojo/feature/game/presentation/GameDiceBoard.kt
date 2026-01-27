@@ -184,6 +184,10 @@ internal fun calculateRandomDicePositions(
     val columns = ((availableWidth + minSpacing) / cellSize).toInt().coerceAtLeast(1)
     val rows = ((availableHeight + minSpacing) / cellSize).toInt().coerceAtLeast(1)
     val totalCells = columns * rows
+    val gridWidth = (diceSize * columns) + (minSpacing * (columns - 1).coerceAtLeast(0))
+    val gridHeight = (diceSize * rows) + (minSpacing * (rows - 1).coerceAtLeast(0))
+    val horizontalInset = ((availableWidth - gridWidth) / 2f).coerceAtLeast(0.dp)
+    val verticalInset = ((availableHeight - gridHeight) / 2f).coerceAtLeast(0.dp)
     val random = Random(seed)
     val indices = List(totalCells) { it }.shuffled(random)
     val jitterXLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
@@ -192,8 +196,8 @@ internal fun calculateRandomDicePositions(
         val cellIndex = indices[index]
         val row = cellIndex / columns
         val column = cellIndex % columns
-        val baseX = (cellSize * column).coerceAtMost(availableWidth - diceSize)
-        val baseY = (cellSize * row).coerceAtMost(availableHeight - diceSize)
+        val baseX = (horizontalInset + cellSize * column).coerceAtMost(availableWidth - diceSize)
+        val baseY = (verticalInset + cellSize * row).coerceAtMost(availableHeight - diceSize)
         val jitterX = ((random.nextFloat() - 0.5f) * 2f * jitterXLimit.value).dp
         val jitterY = ((random.nextFloat() - 0.5f) * 2f * jitterYLimit.value).dp
         DicePosition(
