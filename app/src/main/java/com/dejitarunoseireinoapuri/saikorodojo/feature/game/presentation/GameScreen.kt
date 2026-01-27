@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,8 +15,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.draw.graphicsLayer
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -88,6 +90,19 @@ fun GameScreen(
     ) {
         val constraintsWidth = maxWidth
         val constraintsHeight = maxHeight
+        val shouldHideCards = uiState.isAwaitingRerollSingle
+        val stackOffset by animateDpAsState(
+            targetValue = if (shouldHideCards) maxHeight else 0.dp,
+            animationSpec = tween(durationMillis = 220),
+            label = "cardStackOffset"
+        )
+        val stackAlpha by animateFloatAsState(
+            targetValue = if (shouldHideCards) 0f else 1f,
+            animationSpec = tween(durationMillis = 180),
+            label = "cardStackAlpha"
+        )
+        val density = LocalDensity.current
+        val stackOffsetPx = with(density) { stackOffset.toPx() }
         DiceBoard(
             modifier = Modifier.zIndex(0f),
             maxWidth = maxWidth,
@@ -100,12 +115,17 @@ fun GameScreen(
                 .navigationBarsPadding()
                 .clipToBounds()
                 .zIndex(1f)
+                .graphicsLayer {
+                    translationY = stackOffsetPx
+                    alpha = stackAlpha
+                }
         ) {
             GameCardStack(
                 cards = uiState.cardUiModels,
                 selectedCardIndex = uiState.selectedCardIndex,
                 maxWidth = constraintsWidth,
                 maxHeight = constraintsHeight,
+                isInteractionEnabled = !shouldHideCards,
                 onCardSelect = onCardSelect,
                 onCardDismiss = onCardDismiss,
                 onCardApply = onCardApply
@@ -120,6 +140,7 @@ private fun GameCardStack(
     selectedCardIndex: Int?,
     maxWidth: Dp,
     maxHeight: Dp,
+    isInteractionEnabled: Boolean,
     onCardSelect: (Int) -> Unit,
     onCardDismiss: () -> Unit,
     onCardApply: (Int) -> Unit
@@ -167,7 +188,8 @@ private fun GameCardStack(
                 .zIndex(if (isSelected) 2f else 1f + index * 0.01f)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null
+                    indication = null,
+                    enabled = isInteractionEnabled
                 ) {
                     if (isSelected) {
                         onCardDismiss()
@@ -188,6 +210,7 @@ private fun GameCardStack(
                 } else {
                     Alignment.Start
                 },
+                isEnabled = isInteractionEnabled,
                 onApplyClick = { onCardApply(index) }
             )
         }

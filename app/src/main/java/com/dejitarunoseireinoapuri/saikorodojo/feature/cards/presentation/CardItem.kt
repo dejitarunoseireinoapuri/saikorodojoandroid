@@ -66,7 +66,8 @@ fun CardItem(
     showActionButton: Boolean = true,
     showTitle: Boolean = true,
     showCount: Boolean = false,
-    iconAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
+    iconAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    isEnabled: Boolean = true
 ) {
     val shape = RoundedCornerShape(20.dp)
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
@@ -140,6 +141,7 @@ fun CardItem(
         if (showActionButton) {
             OutlinedButton(
                 onClick = onApplyClick,
+                enabled = isEnabled,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onPrimary

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -75,8 +76,8 @@ internal fun DiceBoard(
                 text = stringResource(R.string.select_die_to_reroll),
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .offset(y = -(150.dp + 8.dp)),
-                style = MaterialTheme.typography.bodyLarge,
+                    .offset(y = -(boardHeight / 2 + 32.dp)),
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
