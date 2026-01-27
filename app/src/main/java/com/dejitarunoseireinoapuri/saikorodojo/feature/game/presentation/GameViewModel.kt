@@ -29,8 +29,10 @@ data class GameUiState(
     val isRolling: Boolean = false,
     val isAwaitingRerollSingle: Boolean = false,
     val isAwaitingAdjustPlusMinus: Boolean = false,
+    val isAwaitingSetValue: Boolean = false,
     val selectedDice: Set<Int> = emptySet(),
     val selectedAdjustmentDieIndex: Int? = null,
+    val selectedSetValueDieIndex: Int? = null,
     val selectedDiceSum: Int = 0,
     val cardUiModels: List<CardUiModel> = emptyList(),
     val selectedCardIndex: Int? = null
@@ -42,6 +44,7 @@ sealed interface GameUiEvent {
     data class SelectCard(val index: Int) : GameUiEvent
     data class ApplyCard(val index: Int) : GameUiEvent
     data class AdjustSelectedDie(val delta: Int) : GameUiEvent
+    data class SetSelectedDieValue(val value: Int) : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
 }
 
@@ -84,6 +87,7 @@ class GameViewModel(
                 }
             }
             is GameUiEvent.AdjustSelectedDie -> adjustSelectedDie(event.delta)
+            is GameUiEvent.SetSelectedDieValue -> setSelectedDieValue(event.value)
             GameUiEvent.DismissSelectedCard -> {
                 if (!isCardInteractionBlocked()) {
                     dismissSelectedCard()
@@ -93,7 +97,9 @@ class GameViewModel(
     }
 
     private fun isCardInteractionBlocked(): Boolean {
-        return _uiState.value.isAwaitingRerollSingle || _uiState.value.isAwaitingAdjustPlusMinus
+        return _uiState.value.isAwaitingRerollSingle ||
+            _uiState.value.isAwaitingAdjustPlusMinus ||
+            _uiState.value.isAwaitingSetValue
     }
 
     private fun startRolling(keepLayout: Boolean = false) {
@@ -115,7 +121,9 @@ class GameViewModel(
                     diceTypes = diceTypes,
                     isAwaitingRerollSingle = false,
                     isAwaitingAdjustPlusMinus = false,
-                    selectedAdjustmentDieIndex = null
+                    isAwaitingSetValue = false,
+                    selectedAdjustmentDieIndex = null,
+                    selectedSetValueDieIndex = null
                 )
             }
 
@@ -140,6 +148,8 @@ class GameViewModel(
             startSingleDieRoll(index)
         } else if (state.isAwaitingAdjustPlusMinus) {
             selectAdjustmentDie(index)
+        } else if (state.isAwaitingSetValue) {
+            selectSetValueDie(index)
         } else {
             toggleDiceSelection(index)
         }
@@ -186,7 +196,10 @@ class GameViewModel(
         if (applyRerollSingleCard(index)) {
             return
         }
-        applyAdjustPlusMinusCard(index)
+        if (applyAdjustPlusMinusCard(index)) {
+            return
+        }
+        applySetValueCard(index)
     }
 
     private fun applyRerollSingleCard(index: Int): Boolean {
@@ -213,7 +226,9 @@ class GameViewModel(
                         selectedCardIndex = null,
                         isAwaitingRerollSingle = true,
                         isAwaitingAdjustPlusMinus = false,
-                        selectedAdjustmentDieIndex = null
+                        isAwaitingSetValue = false,
+                        selectedAdjustmentDieIndex = null,
+                        selectedSetValueDieIndex = null
                     )
                 }
             }
@@ -245,7 +260,43 @@ class GameViewModel(
                         selectedCardIndex = null,
                         isAwaitingAdjustPlusMinus = true,
                         isAwaitingRerollSingle = false,
-                        selectedAdjustmentDieIndex = null
+                        isAwaitingSetValue = false,
+                        selectedAdjustmentDieIndex = null,
+                        selectedSetValueDieIndex = null
+                    )
+                }
+            }
+        }
+        return applied
+    }
+
+    private fun applySetValueCard(index: Int): Boolean {
+        var applied = false
+        _uiState.update { state ->
+            val cards = state.cardUiModels
+            if (index !in cards.indices) {
+                state
+            } else {
+                val card = cards[index]
+                if (card.id != CardId.SET_VALUE) {
+                    state
+                } else {
+                    applied = true
+                    val updatedCards = cards.toMutableList().apply {
+                        if (card.count > 1) {
+                            this[index] = card.copy(count = card.count - 1)
+                        } else {
+                            removeAt(index)
+                        }
+                    }
+                    state.copy(
+                        cardUiModels = updatedCards,
+                        selectedCardIndex = null,
+                        isAwaitingSetValue = true,
+                        isAwaitingRerollSingle = false,
+                        isAwaitingAdjustPlusMinus = false,
+                        selectedAdjustmentDieIndex = null,
+                        selectedSetValueDieIndex = null
                     )
                 }
             }
@@ -291,6 +342,16 @@ class GameViewModel(
         }
     }
 
+    private fun selectSetValueDie(index: Int) {
+        _uiState.update { state ->
+            if (index !in state.diceValues.indices) {
+                state
+            } else {
+                state.copy(selectedSetValueDieIndex = index)
+            }
+        }
+    }
+
     private fun adjustSelectedDie(delta: Int) {
         _uiState.update { state ->
             val selectedIndex = state.selectedAdjustmentDieIndex
@@ -313,6 +374,32 @@ class GameViewModel(
                     selectedDiceSum = calculateSelectedDiceSum(updatedValues, state.selectedDice),
                     isAwaitingAdjustPlusMinus = false,
                     selectedAdjustmentDieIndex = null
+                )
+            }
+        }
+    }
+
+    private fun setSelectedDieValue(value: Int) {
+        _uiState.update { state ->
+            val selectedIndex = state.selectedSetValueDieIndex
+            if (!state.isAwaitingSetValue || selectedIndex == null) {
+                state
+            } else if (selectedIndex !in state.diceValues.indices) {
+                state.copy(
+                    isAwaitingSetValue = false,
+                    selectedSetValueDieIndex = null
+                )
+            } else {
+                val diceType = state.diceTypes.getOrElse(selectedIndex) { state.diceType }
+                val updatedValue = value.coerceIn(1, diceType.sides)
+                val updatedValues = state.diceValues.toMutableList().apply {
+                    this[selectedIndex] = updatedValue
+                }
+                state.copy(
+                    diceValues = updatedValues,
+                    selectedDiceSum = calculateSelectedDiceSum(updatedValues, state.selectedDice),
+                    isAwaitingSetValue = false,
+                    selectedSetValueDieIndex = null
                 )
             }
         }
@@ -342,7 +429,9 @@ class GameViewModel(
                         selectedCardIndex = null,
                         isAwaitingRerollSingle = false,
                         isAwaitingAdjustPlusMinus = false,
+                        isAwaitingSetValue = false,
                         selectedAdjustmentDieIndex = null,
+                        selectedSetValueDieIndex = null,
                         selectedDice = emptySet(),
                         selectedDiceSum = 0
                     )

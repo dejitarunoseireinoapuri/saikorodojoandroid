@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -14,9 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +39,8 @@ internal fun DiceBoard(
     maxWidth: Dp,
     uiState: GameUiState,
     onDiceClick: (Int) -> Unit,
-    onAdjustSelectedDie: (Int) -> Unit
+    onAdjustSelectedDie: (Int) -> Unit,
+    onSetSelectedDieValue: (Int) -> Unit
 ) {
     val diceCount = uiState.diceValues.size
     val boardHeight = 300.dp
@@ -89,16 +89,15 @@ internal fun DiceBoard(
                 )
             }
             uiState.isAwaitingAdjustPlusMinus -> {
-                if (uiState.selectedAdjustmentDieIndex == null) {
-                    Text(
-                        text = stringResource(R.string.select_die_to_modify),
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .offset(y = promptOffset),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                } else {
+                Text(
+                    text = stringResource(R.string.select_die_to_modify),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = promptOffset),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                if (uiState.selectedAdjustmentDieIndex != null) {
                     val selectedIndex = uiState.selectedAdjustmentDieIndex
                     val selectedValue = uiState.diceValues.getOrNull(selectedIndex) ?: 1
                     val selectedType = uiState.diceTypes.getOrElse(selectedIndex) { DiceType.D6 }
@@ -106,25 +105,96 @@ internal fun DiceBoard(
                         value = selectedValue,
                         diceType = selectedType
                     )
+                    val adjustOffset = boardHeight / 2 + diceSize + 24.dp
                     Row(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .offset(y = promptOffset)
+                            .offset(y = adjustOffset)
                             .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(36.dp, Alignment.CenterHorizontally),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (availability.canDecrease) {
-                            AdjustValueButton(
-                                label = stringResource(R.string.adjust_minus_one),
+                            DiceOption(
+                                value = (selectedValue - 1).coerceAtLeast(1),
+                                faceDrawable = diceTypeOptionDrawable(selectedType),
+                                size = diceSize,
+                                numberTextScale = 1f,
                                 onClick = { onAdjustSelectedDie(-1) }
                             )
                         }
                         if (availability.canIncrease) {
-                            AdjustValueButton(
-                                label = stringResource(R.string.adjust_plus_one),
+                            DiceOption(
+                                value = (selectedValue + 1).coerceAtMost(selectedType.sides),
+                                faceDrawable = diceTypeOptionDrawable(selectedType),
+                                size = diceSize,
+                                numberTextScale = 1f,
                                 onClick = { onAdjustSelectedDie(1) }
                             )
+                        }
+                    }
+                }
+            }
+            uiState.isAwaitingSetValue -> {
+                Text(
+                    text = stringResource(R.string.select_die_to_modify),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = promptOffset),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                if (uiState.selectedSetValueDieIndex != null) {
+                    val selectedIndex = uiState.selectedSetValueDieIndex
+                    val selectedType = uiState.diceTypes.getOrElse(selectedIndex) { DiceType.D6 }
+                    val currentValue = uiState.diceValues.getOrNull(selectedIndex) ?: 1
+                    val optionCount = selectedType.sides
+                    val optionsPerRow = (optionCount / 2).coerceAtLeast(1)
+                    val optionSpacing = 6.dp
+                    val availableWidth = (maxWidth - horizontalMargin * 2).coerceAtLeast(0.dp)
+                    val rowSize = calculateRowDiceSize(availableWidth, optionsPerRow, optionSpacing)
+                    val optionSize = minOf(rowSize, diceSize)
+                    val textScale = if (diceSize.value == 0f) 1f else {
+                        (optionSize.value / diceSize.value).coerceAtMost(1f)
+                    }
+                    val setValueOffset = boardHeight / 2 + optionSize + 24.dp
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(y = setValueOffset)
+                            .fillMaxWidth()
+                            .padding(horizontal = horizontalMargin),
+                        verticalArrangement = Arrangement.spacedBy(optionSpacing),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        repeat(2) { rowIndex ->
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    optionSpacing,
+                                    Alignment.CenterHorizontally
+                                ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val values = setValueRowValues(
+                                    optionCount = optionCount,
+                                    optionsPerRow = optionsPerRow,
+                                    rowIndex = rowIndex,
+                                    currentValue = currentValue
+                                )
+                                values.forEach { value ->
+                                    if (value == null) {
+                                        Box(modifier = Modifier.size(optionSize))
+                                    } else {
+                                        DiceOption(
+                                            value = value,
+                                            faceDrawable = diceTypeOptionDrawable(selectedType),
+                                            size = optionSize,
+                                            numberTextScale = textScale,
+                                            onClick = { onSetSelectedDieValue(value) }
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -153,6 +223,7 @@ internal fun DiceBoard(
                 val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
                 val isSelected = uiState.selectedDice.contains(index)
                 val isAdjustmentSelected = uiState.selectedAdjustmentDieIndex == index
+                val isSetValueSelected = uiState.selectedSetValueDieIndex == index
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -167,7 +238,7 @@ internal fun DiceBoard(
                         size = diceSize,
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
-                        isAdjustmentSelected = isAdjustmentSelected
+                        isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected
                     )
                 }
             }
@@ -181,7 +252,8 @@ private fun DiceFace(
     size: Dp,
     faceDrawable: Int,
     isSelected: Boolean,
-    isAdjustmentSelected: Boolean
+    isAdjustmentSelected: Boolean,
+    numberTextScale: Float = 1f
 ) {
     Box(
         modifier = Modifier
@@ -206,30 +278,35 @@ private fun DiceFace(
         Text(
             text = number.toString(),
             modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.displaySmall.copy(
+                fontSize = MaterialTheme.typography.displaySmall.fontSize * numberTextScale
+            ),
             color = Color.White
         )
     }
 }
 
 @Composable
-private fun AdjustValueButton(label: String, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        shape = RoundedCornerShape(14.dp),
-        border = ButtonDefaults.outlinedButtonBorder,
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            horizontal = 22.dp,
-            vertical = 10.dp
-        )
+private fun DiceOption(
+    value: Int,
+    faceDrawable: Int,
+    size: Dp,
+    numberTextScale: Float,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { onClick() }
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+        DiceFace(
+            number = value,
+            size = size,
+            faceDrawable = faceDrawable,
+            isSelected = false,
+            isAdjustmentSelected = false,
+            numberTextScale = numberTextScale
         )
     }
 }
@@ -259,6 +336,31 @@ internal fun calculateDiceSize(
     val widthBasedSize = (availableWidth - spacing * (safeColumns - 1)) / safeColumns
     val heightBasedSize = (availableHeight - spacing * (rows - 1)) / rows
     return minOf(widthBasedSize, heightBasedSize)
+}
+
+internal fun calculateRowDiceSize(
+    availableWidth: Dp,
+    diceCount: Int,
+    spacing: Dp
+): Dp {
+    if (diceCount <= 0) return 0.dp
+    val totalSpacing = spacing * (diceCount - 1).coerceAtLeast(0)
+    return ((availableWidth - totalSpacing) / diceCount).coerceAtLeast(0.dp)
+}
+
+internal fun setValueRowValues(
+    optionCount: Int,
+    optionsPerRow: Int,
+    rowIndex: Int,
+    currentValue: Int
+): List<Int?> {
+    if (optionCount <= 0 || optionsPerRow <= 0 || rowIndex < 0) return emptyList()
+    val startValue = rowIndex * optionsPerRow + 1
+    val endValue = minOf(startValue + optionsPerRow - 1, optionCount)
+    if (startValue > optionCount) return emptyList()
+    return (startValue..endValue).map { value ->
+        if (value == currentValue) null else value
+    }
 }
 
 internal fun calculateBoardContentSize(
@@ -323,6 +425,14 @@ internal fun diceTypeDrawable(diceType: DiceType): Int {
         DiceType.D6 -> R.drawable.six_sides
         DiceType.D8 -> R.drawable.eigth_sides
         DiceType.D10 -> R.drawable.ten_sides
+    }
+}
+
+internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
+    return when (diceType) {
+        DiceType.D6 -> R.drawable.six_sides_green
+        DiceType.D8 -> R.drawable.eigth_sides_green
+        DiceType.D10 -> R.drawable.ten_sides_green
     }
 }
 

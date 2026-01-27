@@ -52,7 +52,10 @@ fun GameRoute(
         onCardSelect = { index -> viewModel.onEvent(GameUiEvent.SelectCard(index)) },
         onCardDismiss = { viewModel.onEvent(GameUiEvent.DismissSelectedCard) },
         onCardApply = { index -> viewModel.onEvent(GameUiEvent.ApplyCard(index)) },
-        onAdjustSelectedDie = { delta -> viewModel.onEvent(GameUiEvent.AdjustSelectedDie(delta)) }
+        onAdjustSelectedDie = { delta -> viewModel.onEvent(GameUiEvent.AdjustSelectedDie(delta)) },
+        onSetSelectedDieValue = { value ->
+            viewModel.onEvent(GameUiEvent.SetSelectedDieValue(value))
+        }
     )
 }
 
@@ -66,7 +69,8 @@ fun GameScreen(
     onCardSelect: (Int) -> Unit,
     onCardDismiss: () -> Unit,
     onCardApply: (Int) -> Unit,
-    onAdjustSelectedDie: (Int) -> Unit
+    onAdjustSelectedDie: (Int) -> Unit,
+    onSetSelectedDieValue: (Int) -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -90,7 +94,9 @@ fun GameScreen(
     ) {
         val constraintsWidth = maxWidth
         val constraintsHeight = maxHeight
-        val shouldHideCards = uiState.isAwaitingRerollSingle || uiState.isAwaitingAdjustPlusMinus
+        val shouldHideCards = uiState.isAwaitingRerollSingle ||
+            uiState.isAwaitingAdjustPlusMinus ||
+            uiState.isAwaitingSetValue
         val stackOffset by animateDpAsState(
             targetValue = if (shouldHideCards) maxHeight else 0.dp,
             animationSpec = tween(durationMillis = 220),
@@ -106,7 +112,8 @@ fun GameScreen(
             maxWidth = maxWidth,
             uiState = uiState,
             onDiceClick = onDiceClick,
-            onAdjustSelectedDie = onAdjustSelectedDie
+            onAdjustSelectedDie = onAdjustSelectedDie,
+            onSetSelectedDieValue = onSetSelectedDieValue
         )
         Box(
             modifier = Modifier
