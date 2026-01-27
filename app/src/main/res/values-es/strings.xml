@@ -28,6 +28,8 @@
     <string name="card_set_value_description">Elige el valor final de un dado dentro de su rango</string>
     <string name="card_repeat_last_title">Repetir carta</string>
     <string name="card_repeat_last_description">Repite el efecto de la última carta usada, eligiendo cualquier objetivo</string>
+    <string name="card_repeat_last_label">Última carta:</string>
+    <string name="card_repeat_last_none">Ninguna</string>
     <string name="card_retry_title">Reintento</string>
     <string name="card_retry_description">Reinicia el nivel</string>
 </resources>
