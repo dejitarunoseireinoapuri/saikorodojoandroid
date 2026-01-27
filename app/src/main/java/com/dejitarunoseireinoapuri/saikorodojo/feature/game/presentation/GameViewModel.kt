@@ -28,6 +28,7 @@ data class GameUiState(
     val layoutSeed: Long = 0L,
     val isRolling: Boolean = false,
     val isAwaitingRerollSingle: Boolean = false,
+    val isAwaitingFlipFace: Boolean = false,
     val isAwaitingAdjustPlusMinus: Boolean = false,
     val isAwaitingSetValue: Boolean = false,
     val selectedDice: Set<Int> = emptySet(),
@@ -98,6 +99,7 @@ class GameViewModel(
 
     private fun isCardInteractionBlocked(): Boolean {
         return _uiState.value.isAwaitingRerollSingle ||
+            _uiState.value.isAwaitingFlipFace ||
             _uiState.value.isAwaitingAdjustPlusMinus ||
             _uiState.value.isAwaitingSetValue
     }
@@ -120,6 +122,7 @@ class GameViewModel(
                     layoutSeed = seed,
                     diceTypes = diceTypes,
                     isAwaitingRerollSingle = false,
+                    isAwaitingFlipFace = false,
                     isAwaitingAdjustPlusMinus = false,
                     isAwaitingSetValue = false,
                     selectedAdjustmentDieIndex = null,
@@ -146,6 +149,8 @@ class GameViewModel(
         val state = _uiState.value
         if (state.isAwaitingRerollSingle) {
             startSingleDieRoll(index)
+        } else if (state.isAwaitingFlipFace) {
+            flipSelectedDie(index)
         } else if (state.isAwaitingAdjustPlusMinus) {
             selectAdjustmentDie(index)
         } else if (state.isAwaitingSetValue) {
@@ -196,6 +201,9 @@ class GameViewModel(
         if (applyRerollSingleCard(index)) {
             return
         }
+        if (applyFlipFaceCard(index)) {
+            return
+        }
         if (applyAdjustPlusMinusCard(index)) {
             return
         }
@@ -225,6 +233,7 @@ class GameViewModel(
                         cardUiModels = updatedCards,
                         selectedCardIndex = null,
                         isAwaitingRerollSingle = true,
+                        isAwaitingFlipFace = false,
                         isAwaitingAdjustPlusMinus = false,
                         isAwaitingSetValue = false,
                         selectedAdjustmentDieIndex = null,
@@ -260,6 +269,7 @@ class GameViewModel(
                         selectedCardIndex = null,
                         isAwaitingAdjustPlusMinus = true,
                         isAwaitingRerollSingle = false,
+                        isAwaitingFlipFace = false,
                         isAwaitingSetValue = false,
                         selectedAdjustmentDieIndex = null,
                         selectedSetValueDieIndex = null
@@ -294,6 +304,7 @@ class GameViewModel(
                         selectedCardIndex = null,
                         isAwaitingSetValue = true,
                         isAwaitingRerollSingle = false,
+                        isAwaitingFlipFace = false,
                         isAwaitingAdjustPlusMinus = false,
                         selectedAdjustmentDieIndex = null,
                         selectedSetValueDieIndex = null
@@ -310,7 +321,13 @@ class GameViewModel(
         val diceType = _uiState.value.diceTypes.getOrElse(index) { diceType }
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
-            _uiState.update { it.copy(isRolling = true, isAwaitingRerollSingle = false) }
+            _uiState.update {
+                it.copy(
+                    isRolling = true,
+                    isAwaitingRerollSingle = false,
+                    isAwaitingFlipFace = false
+                )
+            }
             repeat(steps) {
                 val value = rollDiceUseCase.execute(listOf(diceType)).first()
                 _uiState.update { state ->
@@ -329,6 +346,26 @@ class GameViewModel(
                 delay(tickMs)
             }
             _uiState.update { it.copy(isRolling = false) }
+        }
+    }
+
+    private fun flipSelectedDie(index: Int) {
+        _uiState.update { state ->
+            if (index !in state.diceValues.indices) {
+                state
+            } else {
+                val currentValue = state.diceValues[index]
+                val diceType = state.diceTypes.getOrElse(index) { state.diceType }
+                val flippedValue = (diceType.sides + 1 - currentValue).coerceIn(1, diceType.sides)
+                val updatedValues = state.diceValues.toMutableList().apply {
+                    this[index] = flippedValue
+                }
+                state.copy(
+                    diceValues = updatedValues,
+                    selectedDiceSum = calculateSelectedDiceSum(updatedValues, state.selectedDice),
+                    isAwaitingFlipFace = false
+                )
+            }
         }
     }
 
@@ -428,12 +465,48 @@ class GameViewModel(
                         cardUiModels = updatedCards,
                         selectedCardIndex = null,
                         isAwaitingRerollSingle = false,
+                        isAwaitingFlipFace = false,
                         isAwaitingAdjustPlusMinus = false,
                         isAwaitingSetValue = false,
                         selectedAdjustmentDieIndex = null,
                         selectedSetValueDieIndex = null,
                         selectedDice = emptySet(),
                         selectedDiceSum = 0
+                    )
+                }
+            }
+        }
+        return applied
+    }
+
+    private fun applyFlipFaceCard(index: Int): Boolean {
+        var applied = false
+        _uiState.update { state ->
+            val cards = state.cardUiModels
+            if (index !in cards.indices) {
+                state
+            } else {
+                val card = cards[index]
+                if (card.id != CardId.FLIP_FACE) {
+                    state
+                } else {
+                    applied = true
+                    val updatedCards = cards.toMutableList().apply {
+                        if (card.count > 1) {
+                            this[index] = card.copy(count = card.count - 1)
+                        } else {
+                            removeAt(index)
+                        }
+                    }
+                    state.copy(
+                        cardUiModels = updatedCards,
+                        selectedCardIndex = null,
+                        isAwaitingFlipFace = true,
+                        isAwaitingRerollSingle = false,
+                        isAwaitingAdjustPlusMinus = false,
+                        isAwaitingSetValue = false,
+                        selectedAdjustmentDieIndex = null,
+                        selectedSetValueDieIndex = null
                     )
                 }
             }
