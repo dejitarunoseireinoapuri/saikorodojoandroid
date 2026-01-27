@@ -36,7 +36,8 @@ data class GameUiState(
     val selectedSetValueDieIndex: Int? = null,
     val selectedDiceSum: Int = 0,
     val cardUiModels: List<CardUiModel> = emptyList(),
-    val selectedCardIndex: Int? = null
+    val selectedCardIndex: Int? = null,
+    val lastAppliedCardId: CardId? = null
 )
 
 sealed interface GameUiEvent {
@@ -193,6 +194,13 @@ class GameViewModel(
     }
 
     private fun applyCard(index: Int) {
+        val repeatedCardId = applyRepeatLastCard(index)
+        if (repeatedCardId != null) {
+            if (repeatedCardId == CardId.REROLL_ALL) {
+                startRolling(keepLayout = true)
+            }
+            return
+        }
         val applied = applyRerollAllCard(index)
         if (applied) {
             startRolling(keepLayout = true)
@@ -210,6 +218,31 @@ class GameViewModel(
         applySetValueCard(index)
     }
 
+    private fun applyRepeatLastCard(index: Int): CardId? {
+        var repeatedCardId: CardId? = null
+        _uiState.update { state ->
+            val cards = state.cardUiModels
+            if (index !in cards.indices) {
+                state
+            } else {
+                val card = cards[index]
+                val lastCardId = state.lastAppliedCardId
+                if (card.id != CardId.REPEAT_LAST || lastCardId == null) {
+                    state
+                } else {
+                    repeatedCardId = lastCardId
+                    val updatedCards = consumeCard(cards, index)
+                    val updatedState = applyCardEffect(state, lastCardId)
+                    updatedState.copy(
+                        cardUiModels = updatedCards,
+                        lastAppliedCardId = lastCardId
+                    )
+                }
+            }
+        }
+        return repeatedCardId
+    }
+
     private fun applyRerollSingleCard(index: Int): Boolean {
         var applied = false
         _uiState.update { state ->
@@ -222,22 +255,11 @@ class GameViewModel(
                     state
                 } else {
                     applied = true
-                    val updatedCards = cards.toMutableList().apply {
-                        if (card.count > 1) {
-                            this[index] = card.copy(count = card.count - 1)
-                        } else {
-                            removeAt(index)
-                        }
-                    }
-                    state.copy(
+                    val updatedCards = consumeCard(cards, index)
+                    val updatedState = applyCardEffect(state, card.id)
+                    updatedState.copy(
                         cardUiModels = updatedCards,
-                        selectedCardIndex = null,
-                        isAwaitingRerollSingle = true,
-                        isAwaitingFlipFace = false,
-                        isAwaitingAdjustPlusMinus = false,
-                        isAwaitingSetValue = false,
-                        selectedAdjustmentDieIndex = null,
-                        selectedSetValueDieIndex = null
+                        lastAppliedCardId = card.id
                     )
                 }
             }
@@ -257,22 +279,11 @@ class GameViewModel(
                     state
                 } else {
                     applied = true
-                    val updatedCards = cards.toMutableList().apply {
-                        if (card.count > 1) {
-                            this[index] = card.copy(count = card.count - 1)
-                        } else {
-                            removeAt(index)
-                        }
-                    }
-                    state.copy(
+                    val updatedCards = consumeCard(cards, index)
+                    val updatedState = applyCardEffect(state, card.id)
+                    updatedState.copy(
                         cardUiModels = updatedCards,
-                        selectedCardIndex = null,
-                        isAwaitingAdjustPlusMinus = true,
-                        isAwaitingRerollSingle = false,
-                        isAwaitingFlipFace = false,
-                        isAwaitingSetValue = false,
-                        selectedAdjustmentDieIndex = null,
-                        selectedSetValueDieIndex = null
+                        lastAppliedCardId = card.id
                     )
                 }
             }
@@ -292,22 +303,11 @@ class GameViewModel(
                     state
                 } else {
                     applied = true
-                    val updatedCards = cards.toMutableList().apply {
-                        if (card.count > 1) {
-                            this[index] = card.copy(count = card.count - 1)
-                        } else {
-                            removeAt(index)
-                        }
-                    }
-                    state.copy(
+                    val updatedCards = consumeCard(cards, index)
+                    val updatedState = applyCardEffect(state, card.id)
+                    updatedState.copy(
                         cardUiModels = updatedCards,
-                        selectedCardIndex = null,
-                        isAwaitingSetValue = true,
-                        isAwaitingRerollSingle = false,
-                        isAwaitingFlipFace = false,
-                        isAwaitingAdjustPlusMinus = false,
-                        selectedAdjustmentDieIndex = null,
-                        selectedSetValueDieIndex = null
+                        lastAppliedCardId = card.id
                     )
                 }
             }
@@ -454,24 +454,11 @@ class GameViewModel(
                     state
                 } else {
                     applied = true
-                    val updatedCards = cards.toMutableList().apply {
-                        if (card.count > 1) {
-                            this[index] = card.copy(count = card.count - 1)
-                        } else {
-                            removeAt(index)
-                        }
-                    }
-                    state.copy(
+                    val updatedCards = consumeCard(cards, index)
+                    val updatedState = applyCardEffect(state, card.id)
+                    updatedState.copy(
                         cardUiModels = updatedCards,
-                        selectedCardIndex = null,
-                        isAwaitingRerollSingle = false,
-                        isAwaitingFlipFace = false,
-                        isAwaitingAdjustPlusMinus = false,
-                        isAwaitingSetValue = false,
-                        selectedAdjustmentDieIndex = null,
-                        selectedSetValueDieIndex = null,
-                        selectedDice = emptySet(),
-                        selectedDiceSum = 0
+                        lastAppliedCardId = card.id
                     )
                 }
             }
@@ -491,27 +478,81 @@ class GameViewModel(
                     state
                 } else {
                     applied = true
-                    val updatedCards = cards.toMutableList().apply {
-                        if (card.count > 1) {
-                            this[index] = card.copy(count = card.count - 1)
-                        } else {
-                            removeAt(index)
-                        }
-                    }
-                    state.copy(
+                    val updatedCards = consumeCard(cards, index)
+                    val updatedState = applyCardEffect(state, card.id)
+                    updatedState.copy(
                         cardUiModels = updatedCards,
-                        selectedCardIndex = null,
-                        isAwaitingFlipFace = true,
-                        isAwaitingRerollSingle = false,
-                        isAwaitingAdjustPlusMinus = false,
-                        isAwaitingSetValue = false,
-                        selectedAdjustmentDieIndex = null,
-                        selectedSetValueDieIndex = null
+                        lastAppliedCardId = card.id
                     )
                 }
             }
         }
         return applied
+    }
+
+    private fun applyCardEffect(state: GameUiState, cardId: CardId): GameUiState {
+        return when (cardId) {
+            CardId.REROLL_SINGLE -> state.copy(
+                selectedCardIndex = null,
+                isAwaitingRerollSingle = true,
+                isAwaitingFlipFace = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null
+            )
+            CardId.FLIP_FACE -> state.copy(
+                selectedCardIndex = null,
+                isAwaitingFlipFace = true,
+                isAwaitingRerollSingle = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null
+            )
+            CardId.ADJUST_PLUS_MINUS_ONE -> state.copy(
+                selectedCardIndex = null,
+                isAwaitingAdjustPlusMinus = true,
+                isAwaitingRerollSingle = false,
+                isAwaitingFlipFace = false,
+                isAwaitingSetValue = false,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null
+            )
+            CardId.SET_VALUE -> state.copy(
+                selectedCardIndex = null,
+                isAwaitingSetValue = true,
+                isAwaitingRerollSingle = false,
+                isAwaitingFlipFace = false,
+                isAwaitingAdjustPlusMinus = false,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null
+            )
+            CardId.REROLL_ALL -> state.copy(
+                selectedCardIndex = null,
+                isAwaitingRerollSingle = false,
+                isAwaitingFlipFace = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null,
+                selectedDice = emptySet(),
+                selectedDiceSum = 0
+            )
+            CardId.REPEAT_LAST,
+            CardId.RETRY -> state
+        }
+    }
+
+    private fun consumeCard(cards: List<CardUiModel>, index: Int): List<CardUiModel> {
+        val updatedCards = cards.toMutableList()
+        val card = updatedCards.getOrNull(index) ?: return cards
+        if (card.count > 1) {
+            updatedCards[index] = card.copy(count = card.count - 1)
+        } else {
+            updatedCards.removeAt(index)
+        }
+        return updatedCards
     }
 }
 
