@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoThemeColors
 
 internal const val MENU_TOP_APP_BAR_TAG = "menu_top_app_bar"
 
@@ -57,11 +58,12 @@ fun MenuScreen(
         scaffoldModifier = scaffoldModifier.systemBarsPadding()
     }
     scaffoldModifier = scaffoldModifier.padding(contentPadding)
+    val gradientColors = SaikoroDojoThemeColors.gradientColors
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.65f),
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
-            MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f)
+            gradientColors.menuGameTop,
+            gradientColors.menuGameMiddle,
+            gradientColors.menuGameBottom
         )
     )
     scaffoldModifier = scaffoldModifier
