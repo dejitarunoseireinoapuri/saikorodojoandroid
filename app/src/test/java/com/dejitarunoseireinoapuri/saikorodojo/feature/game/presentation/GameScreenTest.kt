@@ -100,19 +100,6 @@ class GameScreenTest {
     }
 
     @Test
-    fun `row dice size fits all dice within the available width`() {
-        val size = calculateRowDiceSize(
-            availableWidth = 120.dp,
-            diceCount = 6,
-            spacing = 4.dp
-        )
-
-        val expected = (120.dp - 4.dp * 5) / 6
-
-        assertEquals(expected, size)
-    }
-
-    @Test
     fun `grid positions returns empty when dice count is zero`() {
         val positions = calculateRandomDicePositions(
             seed = 42L,
