@@ -147,6 +147,7 @@ internal fun DiceBoard(
                 if (uiState.selectedSetValueDieIndex != null) {
                     val selectedIndex = uiState.selectedSetValueDieIndex
                     val selectedType = uiState.diceTypes.getOrElse(selectedIndex) { DiceType.D6 }
+                    val currentValue = uiState.diceValues.getOrNull(selectedIndex) ?: 1
                     val optionCount = selectedType.sides
                     val optionsPerRow = (optionCount / 2).coerceAtLeast(1)
                     val optionSpacing = 6.dp
@@ -174,16 +175,24 @@ internal fun DiceBoard(
                                 ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                val startValue = rowIndex * optionsPerRow + 1
-                                val endValue = minOf(startValue + optionsPerRow - 1, optionCount)
-                                for (value in startValue..endValue) {
-                                    DiceOption(
-                                        value = value,
-                                        faceDrawable = diceTypeOptionDrawable(selectedType),
-                                        size = optionSize,
-                                        numberTextScale = textScale,
-                                        onClick = { onSetSelectedDieValue(value) }
-                                    )
+                                val values = setValueRowValues(
+                                    optionCount = optionCount,
+                                    optionsPerRow = optionsPerRow,
+                                    rowIndex = rowIndex,
+                                    currentValue = currentValue
+                                )
+                                values.forEach { value ->
+                                    if (value == null) {
+                                        Box(modifier = Modifier.size(optionSize))
+                                    } else {
+                                        DiceOption(
+                                            value = value,
+                                            faceDrawable = diceTypeOptionDrawable(selectedType),
+                                            size = optionSize,
+                                            numberTextScale = textScale,
+                                            onClick = { onSetSelectedDieValue(value) }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -337,6 +346,21 @@ internal fun calculateRowDiceSize(
     if (diceCount <= 0) return 0.dp
     val totalSpacing = spacing * (diceCount - 1).coerceAtLeast(0)
     return ((availableWidth - totalSpacing) / diceCount).coerceAtLeast(0.dp)
+}
+
+internal fun setValueRowValues(
+    optionCount: Int,
+    optionsPerRow: Int,
+    rowIndex: Int,
+    currentValue: Int
+): List<Int?> {
+    if (optionCount <= 0 || optionsPerRow <= 0 || rowIndex < 0) return emptyList()
+    val startValue = rowIndex * optionsPerRow + 1
+    val endValue = minOf(startValue + optionsPerRow - 1, optionCount)
+    if (startValue > optionCount) return emptyList()
+    return (startValue..endValue).map { value ->
+        if (value == currentValue) null else value
+    }
 }
 
 internal fun calculateBoardContentSize(
