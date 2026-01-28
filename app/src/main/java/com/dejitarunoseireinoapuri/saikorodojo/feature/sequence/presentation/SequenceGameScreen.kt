@@ -138,12 +138,6 @@ fun SequenceGameScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
                     color = Color(0xFFFFF176)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.sequence_reward_subtitle),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = Color.White
-                )
             } else {
                 Text(
                     text = stringResource(R.string.sequence_subtitle),
@@ -152,7 +146,7 @@ fun SequenceGameScreen(
                     textAlign = TextAlign.Center
                 )
             }
-            if (uiState.isStarted) {
+            if (uiState.isStarted && !hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
                 val roundColor = if (uiState.isComplete &&
                     uiState.failureReason == SequenceFailureReason.ROUNDS
@@ -200,7 +194,7 @@ fun SequenceGameScreen(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(56.dp))
+                Spacer(modifier = Modifier.height(72.dp))
                 Box(
                     modifier = Modifier.height(56.dp),
                     contentAlignment = Alignment.Center
