@@ -1,11 +1,5 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -209,28 +203,19 @@ fun OddEvenGameScreen(
             }
         }
 
-        val shouldShowDice = uiState.diceValue != null && uiState.rewardCard == null
-        AnimatedVisibility(
-            visible = shouldShowDice,
-            enter = fadeIn(animationSpec = tween(durationMillis = 220)) +
-                scaleIn(initialScale = 0.88f, animationSpec = tween(durationMillis = 220)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 180)) +
-                scaleOut(targetScale = 0.92f, animationSpec = tween(durationMillis = 180)),
-            modifier = Modifier.align(Alignment.Center)
-        ) {
+        if (uiState.isStarted && uiState.rewardCard == null && !uiState.isComplete) {
             Column(
                 modifier = Modifier
+                    .align(Alignment.Center)
                     .offset(y = 120.dp)
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                uiState.diceValue?.let { value ->
-                    OddEvenDiceFace(
-                        value = value,
-                        size = ODD_EVEN_DICE_SIZE,
-                        modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
-                    )
-                }
+                OddEvenDiceFace(
+                    value = uiState.diceValue,
+                    size = ODD_EVEN_DICE_SIZE,
+                    modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
+                )
                 val resultTextRes = when {
                     uiState.showFireworks -> R.string.odd_even_correct
                     uiState.showFailure -> R.string.odd_even_wrong
@@ -332,7 +317,7 @@ private fun OddEvenChoiceButton(
 
 @Composable
 private fun OddEvenDiceFace(
-    value: Int,
+    value: Int?,
     size: Dp,
     modifier: Modifier = Modifier
 ) {
@@ -347,16 +332,18 @@ private fun OddEvenDiceFace(
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.six_sides),
-            contentDescription = stringResource(R.string.cd_dice_face, value),
-            modifier = Modifier.fillMaxSize()
-        )
-        Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.displaySmall,
-            color = Color.White,
-            modifier = Modifier.offset(y = 0.dp)
-        )
+        if (value != null) {
+            Image(
+                painter = painterResource(id = R.drawable.six_sides),
+                contentDescription = stringResource(R.string.cd_dice_face, value),
+                modifier = Modifier.fillMaxSize()
+            )
+            Text(
+                text = value.toString(),
+                style = MaterialTheme.typography.displaySmall,
+                color = Color.White,
+                modifier = Modifier.offset(y = 0.dp)
+            )
+        }
     }
 }
