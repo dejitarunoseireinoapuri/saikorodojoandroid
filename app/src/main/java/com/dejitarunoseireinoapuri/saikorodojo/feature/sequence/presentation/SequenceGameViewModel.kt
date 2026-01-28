@@ -20,6 +20,7 @@ private const val DEFAULT_TARGET_SEQUENCE = 3
 private const val DEFAULT_MAX_DISCARDS = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_TICK_MS = 120L
+private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_500L
 
 data class SequenceGameUiState(
     val isStarted: Boolean = false,
@@ -34,6 +35,7 @@ data class SequenceGameUiState(
     val diceValue: Int? = null,
     val isComplete: Boolean = false,
     val rewardCard: CardUiModel? = null,
+    val pendingRewardCard: CardUiModel? = null,
     val failureReason: SequenceFailureReason? = null,
     val failureDieValue: Int? = null
 )
@@ -57,6 +59,7 @@ class SequenceGameViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
+    private val rewardRevealDelayMs: Long = DEFAULT_REWARD_REVEAL_DELAY_MS,
     private val totalRolls: Int = DEFAULT_TOTAL_ROLLS,
     private val targetSequence: Int = DEFAULT_TARGET_SEQUENCE,
     private val maxDiscards: Int = DEFAULT_MAX_DISCARDS,
@@ -94,6 +97,7 @@ class SequenceGameViewModel(
                 diceValue = null,
                 isComplete = false,
                 rewardCard = null,
+                pendingRewardCard = null,
                 failureReason = null,
                 failureDieValue = null
             )
@@ -170,6 +174,7 @@ class SequenceGameViewModel(
                 isRolling = true,
                 isAwaitingDecision = false,
                 diceValue = null,
+                pendingRewardCard = null,
                 failureReason = null,
                 failureDieValue = null
             )
@@ -207,10 +212,20 @@ class SequenceGameViewModel(
                 isComplete = true,
                 isAwaitingDecision = false,
                 isRolling = false,
-                rewardCard = rewardCard,
+                rewardCard = null,
+                pendingRewardCard = rewardCard,
                 failureReason = null,
                 failureDieValue = null
             )
+        }
+        viewModelScope.launch(dispatcher) {
+            delay(rewardRevealDelayMs)
+            _uiState.update { current ->
+                current.copy(
+                    rewardCard = current.pendingRewardCard,
+                    pendingRewardCard = null
+                )
+            }
         }
     }
 
@@ -229,6 +244,7 @@ class SequenceGameViewModel(
                 isAwaitingDecision = false,
                 isRolling = false,
                 rewardCard = null,
+                pendingRewardCard = null,
                 failureReason = reason,
                 failureDieValue = failureDieValue
             )
