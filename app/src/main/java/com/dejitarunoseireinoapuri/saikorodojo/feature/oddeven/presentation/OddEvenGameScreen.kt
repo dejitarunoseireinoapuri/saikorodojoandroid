@@ -2,6 +2,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,9 +72,9 @@ fun OddEvenGameScreen(
     }
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFF8E24AA),
-            Color(0xFF1E88E5),
-            Color(0xFF43A047)
+            Color(0xFF1F2335),
+            Color(0xFF2E2A6B),
+            Color(0xFF2B5B8A)
         )
     )
     containerModifier = containerModifier
@@ -94,23 +95,31 @@ fun OddEvenGameScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp
                 ),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
             val hasReward = uiState.rewardCard != null
+            val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.odd_even_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = Color(0xFFFFF176)
+                )
+            } else if (hasLoss) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.odd_even_try_again),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                    color = Color(0xFFFFF176)
                 )
             } else {
                 Text(
                     text = stringResource(R.string.odd_even_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
+                    color = Color.White.copy(alpha = 0.9f),
                     textAlign = TextAlign.Center
                 )
                 if (uiState.isStarted) {
@@ -122,7 +131,7 @@ fun OddEvenGameScreen(
                             uiState.totalRounds
                         ),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = Color.White
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -132,7 +141,7 @@ fun OddEvenGameScreen(
                             uiState.targetCorrect
                         ),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f)
+                        color = Color.White.copy(alpha = 0.85f)
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     if (!uiState.isComplete) {
@@ -202,7 +211,7 @@ fun OddEvenGameScreen(
                         Text(
                             text = stringResource(resultTextRes),
                             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = Color.White
                         )
                     } else {
                         Text(
@@ -248,7 +257,7 @@ private fun OddEvenChoiceButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFFF1744),
             contentColor = Color.White,
-            disabledContentColor = Color(0xFFFFEBEE)
+            disabledContentColor = Color(0xFFFFF8E1)
         ),
         modifier = Modifier.height(56.dp)
     ) {
@@ -268,8 +277,15 @@ private fun OddEvenDiceFace(
     size: Dp,
     modifier: Modifier = Modifier
 ) {
+    val frameBrush = Brush.radialGradient(
+        colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
+    )
     Box(
-        modifier = modifier.size(size),
+        modifier = modifier
+            .size(size)
+            .background(frameBrush, RoundedCornerShape(18.dp))
+            .border(2.dp, Color(0xFFFFD54F), RoundedCornerShape(18.dp))
+            .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
         Image(
