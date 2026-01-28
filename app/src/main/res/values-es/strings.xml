@@ -1,15 +1,20 @@
 <resources>
+    <string name="app_name">Saikoro Dojo</string>
+    <string name="game_title">Saikoro Dojo</string>
     <string name="play">Jugar</string>
     <string name="rules">Reglas</string>
-    <string name="odd_even_title">Par o Impar</string>
-    <string name="odd_even_subtitle">Acierta al menos 3 veces de 5 tiradas si el resultado es par o impar</string>
-    <string name="odd_even_start">Empezar</string>
-    <string name="odd_even_round_status">Ronda %1$d de %2$d</string>
-    <string name="odd_even_hits_status">Aciertos: %1$d/%2$d</string>
-    <string name="odd_even_even">Par</string>
-    <string name="odd_even_odd">Impar</string>
-    <string name="odd_even_correct">¡Acertaste!</string>
-    <string name="odd_even_wrong">Fallaste</string>
+    <string name="cd_light_mode">Modo claro</string>
+    <string name="cd_dark_mode">Modo oscuro</string>
+    <string name="cd_sound_on">Sonido activado</string>
+    <string name="cd_sound_off">Sonido desactivado</string>
+    <string name="cd_settings">Ajustes</string>
+    <string name="cd_dice_face">Cara del dado %1$d</string>
+    <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
+    <string name="select_die_to_reroll">Selecciona un dado para volver a tirar</string>
+    <string name="select_die_to_flip">Selecciona un dado para voltear</string>
+    <string name="select_die_to_modify">Selecciona un dado para modificar</string>
+    <string name="adjust_plus_one">+1</string>
+    <string name="adjust_minus_one">-1</string>
     <string name="apply">Usar</string>
     <string name="card_adjust_plus_minus_one_title">Ajustar ±1</string>
     <string name="card_adjust_plus_minus_one_description">Aumenta o reduce el valor del dado en 1 sin salir de su rango</string>
@@ -26,4 +31,13 @@
     <string name="card_repeat_last_none">Ninguna</string>
     <string name="card_retry_title">Reintentar</string>
     <string name="card_retry_description">Reinicia el nivel</string>
+    <string name="odd_even_title">Par o Impar</string>
+    <string name="odd_even_subtitle">Acierta al menos 3 veces de 5 tiradas si el resultado es par o impar</string>
+    <string name="odd_even_start">Empezar</string>
+    <string name="odd_even_round_status">Ronda %1$d de %2$d</string>
+    <string name="odd_even_hits_status">Aciertos: %1$d/%2$d</string>
+    <string name="odd_even_even">Par</string>
+    <string name="odd_even_odd">Impar</string>
+    <string name="odd_even_correct">¡Acertaste!</string>
+    <string name="odd_even_wrong">Fallaste</string>
 </resources>
