@@ -41,5 +41,7 @@
     <string name="odd_even_correct">Has encertat!</string>
     <string name="odd_even_wrong">Has fallat</string>
     <string name="odd_even_congrats">Enhorabona!</string>
+    <string name="odd_even_reward_subtitle">Has guanyat una carta</string>
     <string name="odd_even_try_again">Ho aconseguiràs la propera vegada!</string>
+    <string name="odd_even_continue">Continuar</string>
 </resources>
