@@ -44,13 +44,15 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenCho
 
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
+internal const val ODD_EVEN_CONTINUE_BUTTON_TAG = "odd_even_continue_button"
 internal val ODD_EVEN_DICE_SIZE = 180.dp
 internal val ODD_EVEN_CHOICE_DICE_MIN_GAP = 24.dp
 
 @Composable
 fun OddEvenGameRoute(
     modifier: Modifier = Modifier,
-    viewModel: OddEvenGameViewModel = viewModel()
+    viewModel: OddEvenGameViewModel = viewModel(),
+    onContinueClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     OddEvenGameScreen(
@@ -59,7 +61,8 @@ fun OddEvenGameRoute(
         onStartClick = { viewModel.onEvent(OddEvenGameUiEvent.StartGame) },
         onChoiceSelect = { choice ->
             viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(choice))
-        }
+        },
+        onContinueClick = onContinueClick
     )
 }
 
@@ -70,7 +73,8 @@ fun OddEvenGameScreen(
     applySystemBarsPadding: Boolean = true,
     uiState: OddEvenGameUiState,
     onStartClick: () -> Unit,
-    onChoiceSelect: (OddEvenChoice) -> Unit
+    onChoiceSelect: (OddEvenChoice) -> Unit,
+    onContinueClick: () -> Unit
 ) {
     var containerModifier = modifier.fillMaxSize()
     if (applySystemBarsPadding) {
@@ -113,6 +117,12 @@ fun OddEvenGameScreen(
                     text = stringResource(R.string.odd_even_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
                     color = Color(0xFFFFF176)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.odd_even_reward_subtitle),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                    color = Color.White
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -194,42 +204,45 @@ fun OddEvenGameScreen(
         }
 
         if (uiState.diceValue != null) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .offset(y = 120.dp)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                uiState.diceValue?.let { value ->
-                    OddEvenDiceFace(
-                        value = value,
-                        size = ODD_EVEN_DICE_SIZE,
-                        modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
-                    )
-                }
-                val resultTextRes = when {
-                    uiState.showFireworks -> R.string.odd_even_correct
-                    uiState.showFailure -> R.string.odd_even_wrong
-                    else -> null
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    modifier = Modifier.height(24.dp),
-                    contentAlignment = Alignment.Center
+            val shouldShowDice = uiState.rewardCard == null
+            if (shouldShowDice) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = 120.dp)
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (resultTextRes != null) {
-                        Text(
-                            text = stringResource(resultTextRes),
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            color = Color.White
+                    uiState.diceValue?.let { value ->
+                        OddEvenDiceFace(
+                            value = value,
+                            size = ODD_EVEN_DICE_SIZE,
+                            modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
                         )
-                    } else {
-                        Text(
-                            text = "",
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            modifier = Modifier.alpha(0f)
-                        )
+                    }
+                    val resultTextRes = when {
+                        uiState.showFireworks -> R.string.odd_even_correct
+                        uiState.showFailure -> R.string.odd_even_wrong
+                        else -> null
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box(
+                        modifier = Modifier.height(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (resultTextRes != null) {
+                            Text(
+                                text = stringResource(resultTextRes),
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                                color = Color.White
+                            )
+                        } else {
+                            Text(
+                                text = "",
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                                modifier = Modifier.alpha(0f)
+                            )
+                        }
                     }
                 }
             }
@@ -247,6 +260,27 @@ fun OddEvenGameScreen(
                     onApplyClick = {},
                     showActionButton = false,
                     showCount = false
+                )
+            }
+        }
+
+        if (uiState.isComplete && uiState.isStarted) {
+            Button(
+                onClick = onContinueClick,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF1744),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp)
+                    .zIndex(4f)
+                    .testTag(ODD_EVEN_CONTINUE_BUTTON_TAG)
+            ) {
+                Text(
+                    text = stringResource(R.string.odd_even_continue),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
                 )
             }
         }
