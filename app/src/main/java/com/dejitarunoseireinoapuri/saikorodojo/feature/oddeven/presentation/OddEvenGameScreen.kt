@@ -71,9 +71,9 @@ fun OddEvenGameScreen(
     }
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFFFCDD2),
-            Color(0xFFE1BEE7),
-            Color(0xFFBBDEFB)
+            Color(0xFF8E24AA),
+            Color(0xFF1E88E5),
+            Color(0xFF43A047)
         )
     )
     containerModifier = containerModifier
@@ -98,51 +98,61 @@ fun OddEvenGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = stringResource(R.string.odd_even_subtitle),
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
-                textAlign = TextAlign.Center
-            )
-            if (uiState.isStarted) {
-                Spacer(modifier = Modifier.height(24.dp))
+            val hasReward = uiState.rewardCard != null
+            if (hasReward) {
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(
-                        R.string.odd_even_round_status,
-                        uiState.currentRound,
-                        uiState.totalRounds
-                    ),
+                    text = stringResource(R.string.odd_even_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+            } else {
                 Text(
-                    text = stringResource(
-                        R.string.odd_even_hits_status,
-                        uiState.correctCount,
-                        uiState.targetCorrect
-                    ),
+                    text = stringResource(R.string.odd_even_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f)
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
+                    textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-                if (!uiState.isComplete) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OddEvenChoiceButton(
-                            visible = uiState.selectedChoice != OddEvenChoice.ODD,
-                            label = stringResource(R.string.odd_even_even),
-                            isEnabled = uiState.selectedChoice == null,
-                            onClick = { onChoiceSelect(OddEvenChoice.EVEN) }
-                        )
-                        OddEvenChoiceButton(
-                            visible = uiState.selectedChoice != OddEvenChoice.EVEN,
-                            label = stringResource(R.string.odd_even_odd),
-                            isEnabled = uiState.selectedChoice == null,
-                            onClick = { onChoiceSelect(OddEvenChoice.ODD) }
-                        )
+                if (uiState.isStarted) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.odd_even_round_status,
+                            uiState.currentRound,
+                            uiState.totalRounds
+                        ),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.odd_even_hits_status,
+                            uiState.correctCount,
+                            uiState.targetCorrect
+                        ),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    if (!uiState.isComplete) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OddEvenChoiceButton(
+                                visible = uiState.selectedChoice != OddEvenChoice.ODD,
+                                label = stringResource(R.string.odd_even_even),
+                                isEnabled = uiState.selectedChoice == null,
+                                onClick = { onChoiceSelect(OddEvenChoice.EVEN) }
+                            )
+                            OddEvenChoiceButton(
+                                visible = uiState.selectedChoice != OddEvenChoice.EVEN,
+                                label = stringResource(R.string.odd_even_odd),
+                                isEnabled = uiState.selectedChoice == null,
+                                onClick = { onChoiceSelect(OddEvenChoice.ODD) }
+                            )
+                        }
                     }
                 }
             }

@@ -72,6 +72,25 @@ class OddEvenGameViewModelTest {
         assertEquals(CardId.ADJUST_PLUS_MINUS_ONE, state.rewardCard?.id)
     }
 
+    @Test
+    fun `three wrong guesses end the game`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 4, 6)
+        )
+
+        viewModel.onEvent(OddEvenGameUiEvent.StartGame)
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+        advanceUntilIdle()
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+        advanceUntilIdle()
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete)
+        assertNull(state.rewardCard)
+    }
+
     private fun buildViewModel(
         diceRolls: List<Int> = listOf(2),
         rewardIndex: Int = 0
