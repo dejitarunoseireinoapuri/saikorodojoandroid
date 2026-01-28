@@ -170,6 +170,7 @@ fun SequenceGameScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
                     color = roundColor
                 )
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
 
@@ -199,7 +200,7 @@ fun SequenceGameScreen(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(56.dp))
                 Box(
                     modifier = Modifier.height(56.dp),
                     contentAlignment = Alignment.Center
