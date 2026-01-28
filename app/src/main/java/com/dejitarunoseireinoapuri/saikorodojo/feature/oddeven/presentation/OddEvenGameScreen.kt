@@ -93,7 +93,7 @@ fun OddEvenGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(backgroundBrush)
-    BoxWithConstraints(
+    Box(
         modifier = containerModifier
     ) {
         Column(
