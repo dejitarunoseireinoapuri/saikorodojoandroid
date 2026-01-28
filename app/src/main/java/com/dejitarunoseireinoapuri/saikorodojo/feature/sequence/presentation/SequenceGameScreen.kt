@@ -184,32 +184,43 @@ fun SequenceGameScreen(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (uiState.isAwaitingDecision) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        SequenceChoiceButton(
-                            label = stringResource(R.string.sequence_save),
-                            testTag = SEQUENCE_SAVE_BUTTON_TAG,
-                            onClick = onSaveClick
-                        )
-                        SequenceChoiceButton(
-                            label = stringResource(R.string.sequence_discard),
-                            testTag = SEQUENCE_DISCARD_BUTTON_TAG,
-                            onClick = onDiscardClick
+                Spacer(modifier = Modifier.height(24.dp))
+                Box(
+                    modifier = Modifier.height(56.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (uiState.isAwaitingDecision) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(24.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            SequenceChoiceButton(
+                                label = stringResource(R.string.sequence_save),
+                                testTag = SEQUENCE_SAVE_BUTTON_TAG,
+                                onClick = onSaveClick
+                            )
+                            SequenceChoiceButton(
+                                label = stringResource(R.string.sequence_discard),
+                                testTag = SEQUENCE_DISCARD_BUTTON_TAG,
+                                onClick = onDiscardClick
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Box(
+                    modifier = Modifier.height(160.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (!uiState.isComplete) {
+                        SequenceDiceFace(
+                            value = uiState.diceValue,
+                            size = 140.dp,
+                            modifier = Modifier.testTag(SEQUENCE_DICE_TAG)
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                if (!uiState.isComplete) {
-                    SequenceDiceFace(
-                        value = uiState.diceValue,
-                        size = 140.dp,
-                        modifier = Modifier.testTag(SEQUENCE_DICE_TAG)
-                    )
-                }
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 SequenceMat(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -226,14 +237,14 @@ fun SequenceGameScreen(
                         uiState.savedValues.forEach { value ->
                             SequenceSavedDie(
                                 value = value,
-                                size = 72.dp,
+                                size = 84.dp,
                                 isFailure = false
                             )
                         }
                         uiState.failureDieValue?.let { value ->
                             SequenceSavedDie(
                                 value = value,
-                                size = 72.dp,
+                                size = 84.dp,
                                 isFailure = uiState.failureReason == SequenceFailureReason.ORDER
                             )
                         }
@@ -385,8 +396,9 @@ private fun SequenceSavedDie(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
-            color = Color.White
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 26.sp),
+            color = Color.White,
+            modifier = Modifier.padding(top = 6.dp)
         )
     }
 }

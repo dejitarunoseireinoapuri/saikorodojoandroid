@@ -74,8 +74,11 @@ class SequenceGameViewModelTest {
     }
 
     @Test
-    fun `discarding three dice ends the game`() = runTest {
-        val viewModel = buildViewModel(diceRolls = listOf(2, 4, 6))
+    fun `discarding until the final round ends the game`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 4, 6),
+            totalRolls = 3
+        )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
         dispatcher.scheduler.advanceUntilIdle()
@@ -89,6 +92,7 @@ class SequenceGameViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
         assertEquals(3, state.discardCount)
+        assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
         assertNull(state.rewardCard)
     }
 
@@ -111,6 +115,7 @@ class SequenceGameViewModelTest {
         assertTrue(state.isComplete)
         assertEquals(2, state.currentRoll)
         assertEquals(2, state.discardCount)
+        assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
         assertNull(state.rewardCard)
     }
 
