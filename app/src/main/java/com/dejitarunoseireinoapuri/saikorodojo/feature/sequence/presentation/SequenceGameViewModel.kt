@@ -33,8 +33,16 @@ data class SequenceGameUiState(
     val savedValues: List<Int> = emptyList(),
     val diceValue: Int? = null,
     val isComplete: Boolean = false,
-    val rewardCard: CardUiModel? = null
+    val rewardCard: CardUiModel? = null,
+    val failureReason: SequenceFailureReason? = null,
+    val failureDieValue: Int? = null
 )
+
+enum class SequenceFailureReason {
+    ORDER,
+    ROUNDS,
+    DISCARDS
+}
 
 sealed interface SequenceGameUiEvent {
     data object StartGame : SequenceGameUiEvent
@@ -85,7 +93,9 @@ class SequenceGameViewModel(
                 savedValues = emptyList(),
                 diceValue = null,
                 isComplete = false,
-                rewardCard = null
+                rewardCard = null,
+                failureReason = null,
+                failureDieValue = null
             )
         }
         startRoll(nextRoll = 1, savedValues = emptyList(), discardCount = 0)
@@ -99,7 +109,12 @@ class SequenceGameViewModel(
         val value = state.diceValue ?: return
         val lastSaved = state.savedValues.lastOrNull()
         if (lastSaved != null && value <= lastSaved) {
-            completeFailure(state.savedValues, state.discardCount)
+            completeFailure(
+                savedValues = state.savedValues,
+                discardCount = state.discardCount,
+                reason = SequenceFailureReason.ORDER,
+                failureDieValue = value
+            )
             return
         }
         val updatedSaved = state.savedValues + value
@@ -121,7 +136,12 @@ class SequenceGameViewModel(
         }
         val updatedDiscard = state.discardCount + 1
         if (updatedDiscard >= state.maxDiscards) {
-            completeFailure(state.savedValues, updatedDiscard)
+            completeFailure(
+                savedValues = state.savedValues,
+                discardCount = updatedDiscard,
+                reason = SequenceFailureReason.DISCARDS,
+                failureDieValue = null
+            )
             return
         }
         advanceOrComplete(
@@ -138,7 +158,12 @@ class SequenceGameViewModel(
     ) {
         val state = _uiState.value
         if (state.currentRoll >= state.totalRolls) {
-            completeFailure(savedValues, discardCount)
+            completeFailure(
+                savedValues = savedValues,
+                discardCount = discardCount,
+                reason = SequenceFailureReason.ROUNDS,
+                failureDieValue = null
+            )
             return
         }
         startRoll(nextRoll = nextRoll, savedValues = savedValues, discardCount = discardCount)
@@ -153,7 +178,9 @@ class SequenceGameViewModel(
                 discardCount = discardCount,
                 isRolling = true,
                 isAwaitingDecision = false,
-                diceValue = null
+                diceValue = null,
+                failureReason = null,
+                failureDieValue = null
             )
         }
         rollJob = viewModelScope.launch(dispatcher) {
@@ -189,12 +216,19 @@ class SequenceGameViewModel(
                 isComplete = true,
                 isAwaitingDecision = false,
                 isRolling = false,
-                rewardCard = rewardCard
+                rewardCard = rewardCard,
+                failureReason = null,
+                failureDieValue = null
             )
         }
     }
 
-    private fun completeFailure(savedValues: List<Int>, discardCount: Int) {
+    private fun completeFailure(
+        savedValues: List<Int>,
+        discardCount: Int,
+        reason: SequenceFailureReason,
+        failureDieValue: Int?
+    ) {
         rollJob?.cancel()
         _uiState.update {
             it.copy(
@@ -203,7 +237,9 @@ class SequenceGameViewModel(
                 isComplete = true,
                 isAwaitingDecision = false,
                 isRolling = false,
-                rewardCard = null
+                rewardCard = null,
+                failureReason = reason,
+                failureDieValue = failureDieValue
             )
         }
     }

@@ -137,6 +137,25 @@ fun SequenceGameScreen(
                     textAlign = TextAlign.Center
                 )
             }
+            if (uiState.isStarted) {
+                Spacer(modifier = Modifier.height(16.dp))
+                val roundColor = if (uiState.isComplete &&
+                    uiState.failureReason == SequenceFailureReason.ROUNDS
+                ) {
+                    Color(0xFFFF1744)
+                } else {
+                    Color.White
+                }
+                Text(
+                    text = stringResource(
+                        R.string.odd_even_round_status,
+                        uiState.currentRoll,
+                        uiState.totalRolls
+                    ),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                    color = roundColor
+                )
+            }
         }
 
         if (!uiState.isStarted) {
@@ -159,7 +178,6 @@ fun SequenceGameScreen(
         }
 
         if (uiState.isStarted) {
-            val hasFailure = uiState.isComplete && uiState.rewardCard == null
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -184,12 +202,13 @@ fun SequenceGameScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                SequenceDiceFace(
-                    value = uiState.diceValue,
-                    size = 140.dp,
-                    isFailure = hasFailure,
-                    modifier = Modifier.testTag(SEQUENCE_DICE_TAG)
-                )
+                if (!uiState.isComplete) {
+                    SequenceDiceFace(
+                        value = uiState.diceValue,
+                        size = 140.dp,
+                        modifier = Modifier.testTag(SEQUENCE_DICE_TAG)
+                    )
+                }
                 Spacer(modifier = Modifier.height(20.dp))
                 SequenceMat(
                     modifier = Modifier
@@ -205,9 +224,17 @@ fun SequenceGameScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         uiState.savedValues.forEach { value ->
-                            SequenceDiceFace(
+                            SequenceSavedDie(
                                 value = value,
-                                size = 72.dp
+                                size = 72.dp,
+                                isFailure = false
+                            )
+                        }
+                        uiState.failureDieValue?.let { value ->
+                            SequenceSavedDie(
+                                value = value,
+                                size = 72.dp,
+                                isFailure = uiState.failureReason == SequenceFailureReason.ORDER
                             )
                         }
                     }
@@ -308,23 +335,16 @@ private fun SequenceMat(
 private fun SequenceDiceFace(
     value: Int?,
     size: Dp,
-    isFailure: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val frameBrush = if (isFailure) {
-        Brush.radialGradient(
-            colors = listOf(Color(0xFFFF5252), Color(0xFFD50000))
-        )
-    } else {
-        Brush.radialGradient(
-            colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
-        )
-    }
+    val frameBrush = Brush.radialGradient(
+        colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
+    )
     Box(
         modifier = modifier
             .size(size)
             .background(frameBrush, RoundedCornerShape(18.dp))
-            .border(2.dp, if (isFailure) Color(0xFFFF1744) else Color(0xFFFFD54F), RoundedCornerShape(18.dp))
+            .border(2.dp, Color(0xFFFFD54F), RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -340,5 +360,33 @@ private fun SequenceDiceFace(
                 color = Color.White
             )
         }
+    }
+}
+
+@Composable
+private fun SequenceSavedDie(
+    value: Int,
+    size: Dp,
+    isFailure: Boolean
+) {
+    val diceRes = if (isFailure) {
+        R.drawable.eigth_sides_red
+    } else {
+        R.drawable.eigth_sides
+    }
+    Box(
+        modifier = Modifier.size(size),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = diceRes),
+            contentDescription = stringResource(R.string.cd_dice_face, value),
+            modifier = Modifier.fillMaxSize()
+        )
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
+            color = Color.White
+        )
     }
 }
