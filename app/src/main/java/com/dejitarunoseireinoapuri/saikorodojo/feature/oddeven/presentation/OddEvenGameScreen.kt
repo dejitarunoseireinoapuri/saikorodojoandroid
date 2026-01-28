@@ -47,7 +47,6 @@ internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
 internal const val ODD_EVEN_CONTINUE_BUTTON_TAG = "odd_even_continue_button"
 internal val ODD_EVEN_DICE_SIZE = 150.dp
-internal val ODD_EVEN_CHOICE_DICE_MIN_GAP = 24.dp
 
 @Composable
 fun OddEvenGameRoute(
@@ -161,25 +160,23 @@ fun OddEvenGameScreen(
                         color = Color.White.copy(alpha = 0.85f)
                     )
                     Spacer(modifier = Modifier.height(24.dp))
-                    if (!uiState.isComplete) {
-                        Row(
-                            modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
-                            horizontalArrangement = Arrangement.spacedBy(20.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            OddEvenChoiceButton(
-                                visible = uiState.selectedChoice != OddEvenChoice.ODD,
-                                label = stringResource(R.string.odd_even_even),
-                                isEnabled = uiState.selectedChoice == null,
-                                onClick = { onChoiceSelect(OddEvenChoice.EVEN) }
-                            )
-                            OddEvenChoiceButton(
-                                visible = uiState.selectedChoice != OddEvenChoice.EVEN,
-                                label = stringResource(R.string.odd_even_odd),
-                                isEnabled = uiState.selectedChoice == null,
-                                onClick = { onChoiceSelect(OddEvenChoice.ODD) }
-                            )
-                        }
+                    Row(
+                        modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OddEvenChoiceButton(
+                            visible = uiState.selectedChoice != OddEvenChoice.ODD,
+                            label = stringResource(R.string.odd_even_even),
+                            isEnabled = uiState.selectedChoice == null,
+                            onClick = { onChoiceSelect(OddEvenChoice.EVEN) }
+                        )
+                        OddEvenChoiceButton(
+                            visible = uiState.selectedChoice != OddEvenChoice.EVEN,
+                            label = stringResource(R.string.odd_even_odd),
+                            isEnabled = uiState.selectedChoice == null,
+                            onClick = { onChoiceSelect(OddEvenChoice.ODD) }
+                        )
                     }
                 }
             }
