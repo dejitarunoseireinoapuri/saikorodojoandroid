@@ -44,4 +44,11 @@
     <string name="odd_even_reward_subtitle">Has ganado una carta</string>
     <string name="odd_even_try_again">¡Otra vez lo conseguirás!</string>
     <string name="odd_even_continue">Continuar</string>
+    <string name="sequence_title">Secuencia</string>
+    <string name="sequence_subtitle">Quédate con el resultado del dado o descártalo, pero al final de la quinta tirada deberás tener una secuencia ascendente de 3 dados</string>
+    <string name="sequence_start">Empezar</string>
+    <string name="sequence_save">Guardar</string>
+    <string name="sequence_discard">Descartar</string>
+    <string name="sequence_congrats">¡Enhorabuena!</string>
+    <string name="sequence_reward_subtitle">Has ganado una carta</string>
 </resources>
