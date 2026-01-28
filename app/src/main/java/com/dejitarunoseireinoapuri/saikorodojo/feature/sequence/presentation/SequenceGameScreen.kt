@@ -158,25 +158,38 @@ fun SequenceGameScreen(
             }
         }
 
-        if (uiState.isStarted && uiState.rewardCard == null && !uiState.isComplete) {
+        if (uiState.isStarted) {
+            val hasFailure = uiState.isComplete && uiState.rewardCard == null
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                SequenceMat(
-                    modifier = Modifier
-                        .size(width = 260.dp, height = 170.dp),
-                    backgroundColor = Color(0xFF3949AB),
-                    borderColor = Color(0xFF9FA8DA)
-                ) {
-                    SequenceDiceFace(
-                        value = uiState.diceValue,
-                        size = 140.dp,
-                        modifier = Modifier.testTag(SEQUENCE_DICE_TAG)
-                    )
+                if (uiState.isAwaitingDecision) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SequenceChoiceButton(
+                            label = stringResource(R.string.sequence_save),
+                            testTag = SEQUENCE_SAVE_BUTTON_TAG,
+                            onClick = onSaveClick
+                        )
+                        SequenceChoiceButton(
+                            label = stringResource(R.string.sequence_discard),
+                            testTag = SEQUENCE_DISCARD_BUTTON_TAG,
+                            onClick = onDiscardClick
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
+                SequenceDiceFace(
+                    value = uiState.diceValue,
+                    size = 140.dp,
+                    isFailure = hasFailure,
+                    modifier = Modifier.testTag(SEQUENCE_DICE_TAG)
+                )
                 Spacer(modifier = Modifier.height(20.dp))
                 SequenceMat(
                     modifier = Modifier
@@ -197,24 +210,6 @@ fun SequenceGameScreen(
                                 size = 72.dp
                             )
                         }
-                    }
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-                if (uiState.isAwaitingDecision) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        SequenceChoiceButton(
-                            label = stringResource(R.string.sequence_save),
-                            testTag = SEQUENCE_SAVE_BUTTON_TAG,
-                            onClick = onSaveClick
-                        )
-                        SequenceChoiceButton(
-                            label = stringResource(R.string.sequence_discard),
-                            testTag = SEQUENCE_DISCARD_BUTTON_TAG,
-                            onClick = onDiscardClick
-                        )
                     }
                 }
             }
@@ -313,16 +308,23 @@ private fun SequenceMat(
 private fun SequenceDiceFace(
     value: Int?,
     size: Dp,
+    isFailure: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val frameBrush = Brush.radialGradient(
-        colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
-    )
+    val frameBrush = if (isFailure) {
+        Brush.radialGradient(
+            colors = listOf(Color(0xFFFF5252), Color(0xFFD50000))
+        )
+    } else {
+        Brush.radialGradient(
+            colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
+        )
+    }
     Box(
         modifier = modifier
             .size(size)
             .background(frameBrush, RoundedCornerShape(18.dp))
-            .border(2.dp, Color(0xFFFFD54F), RoundedCornerShape(18.dp))
+            .border(2.dp, if (isFailure) Color(0xFFFF1744) else Color(0xFFFFD54F), RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
