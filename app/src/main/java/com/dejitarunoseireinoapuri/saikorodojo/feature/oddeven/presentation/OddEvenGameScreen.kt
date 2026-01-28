@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -231,26 +230,25 @@ private fun OddEvenChoiceButton(
     isEnabled: Boolean,
     onClick: () -> Unit
 ) {
-    AnimatedVisibility(visible = visible) {
-        Button(
-            onClick = onClick,
-            enabled = isEnabled,
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF1744),
-                contentColor = Color.White,
-                disabledContentColor = Color(0xFFFFEBEE)
-            ),
-            modifier = Modifier.height(56.dp)
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
+    if (!visible) return
+    Button(
+        onClick = onClick,
+        enabled = isEnabled,
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFFF1744),
+            contentColor = Color.White,
+            disabledContentColor = Color(0xFFFFEBEE)
+        ),
+        modifier = Modifier.height(56.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
             )
-        }
+        )
     }
 }
 
