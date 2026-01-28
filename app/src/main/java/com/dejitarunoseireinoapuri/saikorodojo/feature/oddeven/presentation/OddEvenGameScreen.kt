@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -178,13 +179,24 @@ fun OddEvenGameScreen(
                     uiState.showFailure -> R.string.odd_even_wrong
                     else -> null
                 }
-                if (resultTextRes != null) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(resultTextRes),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                Spacer(modifier = Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier.height(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (resultTextRes != null) {
+                        Text(
+                            text = stringResource(resultTextRes),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    } else {
+                        Text(
+                            text = "",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.alpha(0f)
+                        )
+                    }
                 }
             }
         }
