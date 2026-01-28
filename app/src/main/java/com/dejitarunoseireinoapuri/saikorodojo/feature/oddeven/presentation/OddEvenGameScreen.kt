@@ -1,6 +1,5 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -73,9 +72,9 @@ fun OddEvenGameScreen(
     }
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFB00020),
-            Color(0xFF4A148C),
-            Color(0xFF0D47A1)
+            Color(0xFFFFCDD2),
+            Color(0xFFE1BEE7),
+            Color(0xFFBBDEFB)
         )
     )
     containerModifier = containerModifier
@@ -158,7 +157,9 @@ fun OddEvenGameScreen(
                     containerColor = Color(0xFFFF1744),
                     contentColor = Color.White
                 ),
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .height(64.dp)
             ) {
                 Text(
                     text = stringResource(R.string.odd_even_start),
@@ -167,11 +168,9 @@ fun OddEvenGameScreen(
             }
         }
 
-        AnimatedVisibility(
-            visible = uiState.diceValue != null,
-            modifier = Modifier.align(Alignment.Center)
-        ) {
+        if (uiState.diceValue != null) {
             Column(
+                modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 uiState.diceValue?.let { value ->
@@ -239,7 +238,8 @@ private fun OddEvenChoiceButton(
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFF1744),
-                contentColor = Color.White
+                contentColor = Color.White,
+                disabledContentColor = Color(0xFFFFEBEE)
             ),
             modifier = Modifier.height(56.dp)
         ) {
