@@ -74,7 +74,6 @@ class OddEvenGameViewModel(
 
     private fun startGame() {
         roundJob?.cancel()
-        val initialRoll = rollOddEvenUseCase.execute()
         _uiState.update {
             it.copy(
                 isStarted = true,
@@ -82,7 +81,7 @@ class OddEvenGameViewModel(
                 correctCount = 0,
                 wrongCount = 0,
                 selectedChoice = null,
-                diceValue = initialRoll.value,
+                diceValue = null,
                 isRolling = false,
                 showFireworks = false,
                 showFailure = false,
