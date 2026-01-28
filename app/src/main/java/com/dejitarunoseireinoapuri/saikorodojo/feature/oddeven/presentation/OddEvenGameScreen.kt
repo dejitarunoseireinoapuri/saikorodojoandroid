@@ -188,7 +188,19 @@ fun OddEvenGameScreen(
 
         if (uiState.diceValue != null) {
             Column(
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 24.dp, vertical = 36.dp)
+                    .background(
+                        color = Color(0xFF121826).copy(alpha = 0.9f),
+                        shape = RoundedCornerShape(28.dp)
+                    )
+                    .border(
+                        width = 2.dp,
+                        color = Color(0xFF7C4DFF),
+                        shape = RoundedCornerShape(28.dp)
+                    )
+                    .padding(horizontal = 40.dp, vertical = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 uiState.diceValue?.let { value ->
