@@ -8,5 +8,6 @@
     <string name="odd_even_hits_status">Aciertos: %1$d/%2$d</string>
     <string name="odd_even_even">Par</string>
     <string name="odd_even_odd">Impar</string>
-    <string name="odd_even_fail">Fallo</string>
+    <string name="odd_even_correct">¡Acertaste!</string>
+    <string name="odd_even_wrong">Fallaste</string>
 </resources>

@@ -1,14 +1,10 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,23 +16,15 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -176,48 +164,29 @@ fun OddEvenGameScreen(
             visible = uiState.diceValue != null,
             modifier = Modifier.align(Alignment.Center)
         ) {
-            val rotation = remember { Animatable(0f) }
-            val scale = remember { Animatable(0.85f) }
-            val isRolling by rememberUpdatedState(uiState.isRolling)
-            LaunchedEffect(uiState.diceValue, uiState.isRolling) {
-                if (isRolling) {
-                    rotation.snapTo(0f)
-                    scale.snapTo(0.85f)
-                    rotation.animateTo(
-                        targetValue = 360f,
-                        animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                uiState.diceValue?.let { value ->
+                    OddEvenDiceFace(
+                        value = value,
+                        size = 140.dp
                     )
-                    scale.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(durationMillis = 450, easing = FastOutSlowInEasing)
+                }
+                val resultTextRes = when {
+                    uiState.showFireworks -> R.string.odd_even_correct
+                    uiState.showFailure -> R.string.odd_even_wrong
+                    else -> null
+                }
+                if (resultTextRes != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(resultTextRes),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
-            uiState.diceValue?.let { value ->
-                OddEvenDiceFace(
-                    value = value,
-                    size = 140.dp,
-                    modifier = Modifier
-                        .rotate(rotation.value)
-                        .scale(scale.value)
-                )
-            }
-        }
-
-        if (uiState.showFireworks) {
-            FireworksEffect(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(2f)
-            )
-        }
-
-        if (uiState.showFailure) {
-            FailureEffect(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(2f)
-            )
         }
 
         uiState.rewardCard?.let { reward ->
@@ -286,81 +255,4 @@ private fun OddEvenDiceFace(
             modifier = Modifier.offset(y = 0.dp)
         )
     }
-}
-
-@Composable
-private fun FireworksEffect(
-    modifier: Modifier = Modifier
-) {
-    val progress = remember { Animatable(0f) }
-    LaunchedEffect(Unit) {
-        progress.snapTo(0f)
-        progress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 1_500, easing = FastOutSlowInEasing)
-        )
-    }
-    val bursts = remember {
-        listOf(
-            FireworkBurst(0.2f, 0.25f, Color(0xFFFFC107)),
-            FireworkBurst(0.75f, 0.3f, Color(0xFFFF4081)),
-            FireworkBurst(0.35f, 0.6f, Color(0xFF4CAF50)),
-            FireworkBurst(0.7f, 0.7f, Color(0xFF40C4FF))
-        )
-    }
-    BoxWithConstraints(modifier = modifier) {
-        bursts.forEach { burst ->
-            val size = lerpDp(24.dp, 72.dp, progress.value)
-            val alpha = (1f - progress.value).coerceIn(0f, 1f)
-            Box(
-                modifier = Modifier
-                    .offset(
-                        x = maxWidth * burst.xFraction - size / 2,
-                        y = maxHeight * burst.yFraction - size / 2
-                    )
-                    .size(size)
-                    .clip(CircleShape)
-                    .background(burst.color.copy(alpha = alpha))
-            )
-        }
-    }
-}
-
-@Composable
-private fun FailureEffect(
-    modifier: Modifier = Modifier
-) {
-    val progress = remember { Animatable(0f) }
-    LaunchedEffect(Unit) {
-        progress.snapTo(0f)
-        progress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 1_500, easing = FastOutSlowInEasing)
-        )
-    }
-    val alpha = (1f - progress.value).coerceIn(0f, 1f)
-    val scale = 0.9f + (0.3f * (1f - progress.value))
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = stringResource(R.string.odd_even_fail),
-            style = MaterialTheme.typography.displayMedium,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier
-                .scale(scale)
-                .alpha(alpha)
-        )
-    }
-}
-
-private data class FireworkBurst(
-    val xFraction: Float,
-    val yFraction: Float,
-    val color: Color
-)
-
-private fun lerpDp(start: Dp, stop: Dp, fraction: Float): Dp {
-    return start + (stop - start) * fraction
 }

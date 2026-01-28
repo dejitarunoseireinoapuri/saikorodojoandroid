@@ -38,5 +38,6 @@
     <string name="odd_even_hits_status">Hits: %1$d/%2$d</string>
     <string name="odd_even_even">Even</string>
     <string name="odd_even_odd">Odd</string>
-    <string name="odd_even_fail">Miss</string>
+    <string name="odd_even_correct">You got it!</string>
+    <string name="odd_even_wrong">You missed</string>
 </resources>
