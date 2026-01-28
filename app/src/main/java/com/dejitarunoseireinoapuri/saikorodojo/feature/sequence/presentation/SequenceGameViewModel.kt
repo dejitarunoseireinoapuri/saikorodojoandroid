@@ -135,15 +135,6 @@ class SequenceGameViewModel(
             return
         }
         val updatedDiscard = state.discardCount + 1
-        if (updatedDiscard >= state.maxDiscards) {
-            completeFailure(
-                savedValues = state.savedValues,
-                discardCount = updatedDiscard,
-                reason = SequenceFailureReason.DISCARDS,
-                failureDieValue = null
-            )
-            return
-        }
         advanceOrComplete(
             nextRoll = state.currentRoll + 1,
             savedValues = state.savedValues,
