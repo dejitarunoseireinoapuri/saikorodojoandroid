@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -45,7 +46,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenCho
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
 internal const val ODD_EVEN_CONTINUE_BUTTON_TAG = "odd_even_continue_button"
-internal val ODD_EVEN_DICE_SIZE = 180.dp
+internal val ODD_EVEN_DICE_SIZE = 150.dp
 internal val ODD_EVEN_CHOICE_DICE_MIN_GAP = 24.dp
 
 @Composable
@@ -327,6 +328,11 @@ private fun OddEvenDiceFace(
     Box(
         modifier = modifier
             .size(size)
+            .graphicsLayer {
+                shadowElevation = 12.dp.toPx()
+                ambientShadowColor = Color(0xFF4E2A00)
+                spotShadowColor = Color(0xFF4E2A00)
+            }
             .background(frameBrush, RoundedCornerShape(18.dp))
             .border(2.dp, Color(0xFFFFD54F), RoundedCornerShape(18.dp))
             .padding(6.dp),
