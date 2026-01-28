@@ -31,6 +31,7 @@ class OddEvenGameViewModelTest {
         assertTrue(state.isStarted)
         assertEquals(1, state.currentRound)
         assertEquals(0, state.correctCount)
+        assertNull(state.diceValue)
     }
 
     @Test
