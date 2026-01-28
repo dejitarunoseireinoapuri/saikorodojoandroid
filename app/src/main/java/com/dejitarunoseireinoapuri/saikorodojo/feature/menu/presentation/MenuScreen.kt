@@ -82,8 +82,8 @@ fun MenuScreen(
                 modifier = Modifier.testTag(MENU_TOP_APP_BAR_TAG),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                    titleContentColor = Color.White,
+                    actionIconContentColor = Color.White
                 ),
                 title = { },
                 actions = {
@@ -99,14 +99,14 @@ fun MenuScreen(
                             } else {
                                 stringResource(R.string.cd_sound_on)
                             },
-                            tint = MaterialTheme.colorScheme.onSurface
+                            tint = Color.White
                         )
                     }
                     IconButton(onClick = { }) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(R.string.cd_settings),
-                            tint = MaterialTheme.colorScheme.onSurface
+                            tint = Color.White
                         )
                     }
                 }
@@ -122,7 +122,7 @@ fun MenuScreen(
             Text(
                 text = stringResource(R.string.game_title),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
 
@@ -136,9 +136,9 @@ fun MenuScreen(
                     onClick = onPlayClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        contentColor = Color.White
                     ),
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimary),
+                    border = BorderStroke(2.dp, Color.White),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -148,16 +148,16 @@ fun MenuScreen(
                     Text(
                         text = stringResource(R.string.play),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = Color.White
                     )
                 }
                 OutlinedButton(
                     onClick = onRulesClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        contentColor = Color.White
                     ),
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSecondary),
+                    border = BorderStroke(2.dp, Color.White),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -167,7 +167,7 @@ fun MenuScreen(
                     Text(
                         text = stringResource(R.string.rules),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = Color.White
                     )
                 }
             }

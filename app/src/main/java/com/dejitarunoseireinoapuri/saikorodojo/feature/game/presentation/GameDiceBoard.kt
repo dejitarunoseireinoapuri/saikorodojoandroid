@@ -87,7 +87,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = Color.White
                 )
             }
             uiState.isAwaitingFlipFace -> {
@@ -97,7 +97,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = Color.White
                 )
             }
             uiState.isAwaitingAdjustPlusMinus -> {
@@ -107,7 +107,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = Color.White
                 )
                 if (uiState.selectedAdjustmentDieIndex != null) {
                     val selectedIndex = uiState.selectedAdjustmentDieIndex
@@ -154,7 +154,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = Color.White
                 )
                 if (uiState.selectedSetValueDieIndex != null) {
                     val selectedIndex = uiState.selectedSetValueDieIndex
@@ -425,10 +425,10 @@ internal fun calculateRandomDicePositions(
 }
 
 internal fun diceNumberYOffset(faceDrawable: Int): Dp {
-    return if (faceDrawable == R.drawable.eigth_sides) {
-        6.dp
-    } else {
-        0.dp
+    return when (faceDrawable) {
+        R.drawable.eigth_sides,
+        R.drawable.eigth_sides_green -> 6.dp
+        else -> 0.dp
     }
 }
 
