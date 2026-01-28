@@ -10,7 +10,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.SelectOddE
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.oddEvenRewardCardIds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -42,7 +41,7 @@ class OddEvenGameViewModelTest {
 
         viewModel.onEvent(OddEvenGameUiEvent.StartGame)
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.EVEN))
-        advanceUntilIdle()
+        dispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals(2, state.currentRound)
@@ -60,11 +59,11 @@ class OddEvenGameViewModelTest {
 
         viewModel.onEvent(OddEvenGameUiEvent.StartGame)
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.EVEN))
-        advanceUntilIdle()
+        dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.EVEN))
-        advanceUntilIdle()
+        dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.EVEN))
-        advanceUntilIdle()
+        dispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
@@ -80,11 +79,11 @@ class OddEvenGameViewModelTest {
 
         viewModel.onEvent(OddEvenGameUiEvent.StartGame)
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
-        advanceUntilIdle()
+        dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
-        advanceUntilIdle()
+        dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
-        advanceUntilIdle()
+        dispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
