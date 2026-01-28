@@ -123,7 +123,8 @@ class SequenceGameViewModelTest {
         diceRolls: List<Int>,
         rewardIndex: Int = 0,
         totalRolls: Int = 5,
-        maxDiscards: Int = 3
+        maxDiscards: Int = 3,
+        rewardRevealDelayMs: Long = 0L
     ): SequenceGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
@@ -136,6 +137,7 @@ class SequenceGameViewModelTest {
             dispatcher = dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
+            rewardRevealDelayMs = rewardRevealDelayMs,
             totalRolls = totalRolls,
             maxDiscards = maxDiscards,
             cardUiModels = testCardUiModels()

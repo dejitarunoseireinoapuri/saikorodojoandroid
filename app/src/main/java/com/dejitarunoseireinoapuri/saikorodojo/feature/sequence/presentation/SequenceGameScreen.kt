@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -107,6 +108,7 @@ fun SequenceGameScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
             val hasReward = uiState.rewardCard != null
+            val hasPendingReward = uiState.isComplete && uiState.pendingRewardCard != null
             val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -128,6 +130,19 @@ fun SequenceGameScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
                     color = Color(0xFFFFF176),
                     textAlign = TextAlign.Center
+                )
+            } else if (hasPendingReward) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.sequence_congrats),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                    color = Color(0xFFFFF176)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.sequence_reward_subtitle),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                    color = Color.White
                 )
             } else {
                 Text(
@@ -184,7 +199,7 @@ fun SequenceGameScreen(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(40.dp))
                 Box(
                     modifier = Modifier.height(56.dp),
                     contentAlignment = Alignment.Center
@@ -207,7 +222,7 @@ fun SequenceGameScreen(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 Box(
                     modifier = Modifier.height(160.dp),
                     contentAlignment = Alignment.Center
@@ -220,33 +235,43 @@ fun SequenceGameScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                SequenceMat(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(140.dp),
-                    backgroundColor = Color(0xFF00695C),
-                    borderColor = Color(0xFF80CBC4),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                Spacer(modifier = Modifier.height(32.dp))
+                if (uiState.rewardCard == null) {
+                    SequenceMat(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp),
+                        backgroundColor = Color(0xFF00695C),
+                        borderColor = Color(0xFF80CBC4),
+                        contentAlignment = Alignment.CenterStart
                     ) {
-                        uiState.savedValues.forEach { value ->
-                            SequenceSavedDie(
-                                value = value,
-                                size = 84.dp,
-                                isFailure = false
-                            )
-                        }
-                        uiState.failureDieValue?.let { value ->
-                            SequenceSavedDie(
-                                value = value,
-                                size = 84.dp,
-                                isFailure = uiState.failureReason == SequenceFailureReason.ORDER
-                            )
+                        BoxWithConstraints(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            val horizontalPadding = 20.dp
+                            val spacing = 12.dp
+                            val availableWidth = maxWidth - horizontalPadding * 2 - spacing * 2
+                            val dieSize = (availableWidth / 3f).coerceAtMost(96.dp)
+                            Row(
+                                modifier = Modifier.padding(horizontal = horizontalPadding),
+                                horizontalArrangement = Arrangement.spacedBy(spacing),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                uiState.savedValues.forEach { value ->
+                                    SequenceSavedDie(
+                                        value = value,
+                                        size = dieSize,
+                                        isFailure = false
+                                    )
+                                }
+                                uiState.failureDieValue?.let { value ->
+                                    SequenceSavedDie(
+                                        value = value,
+                                        size = dieSize,
+                                        isFailure = uiState.failureReason == SequenceFailureReason.ORDER
+                                    )
+                                }
+                            }
                         }
                     }
                 }
