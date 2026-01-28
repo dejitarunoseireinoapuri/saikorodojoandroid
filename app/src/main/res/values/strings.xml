@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Saikoro Dojo</string>
     <string name="game_title">Saikoro Dojo</string>
-    <string name="play">Jugar</string>
-    <string name="rules">Reglas</string>
+    <string name="play">Play</string>
+    <string name="rules">Rules</string>
     <string name="cd_light_mode">Light mode</string>
     <string name="cd_dark_mode">Dark mode</string>
     <string name="cd_sound_on">Sound on</string>
@@ -31,12 +31,12 @@
     <string name="card_repeat_last_none">None</string>
     <string name="card_retry_title">Retry</string>
     <string name="card_retry_description">Restart the level</string>
-    <string name="odd_even_title">Par o Impar</string>
-    <string name="odd_even_subtitle">Acierta al menos 3 veces de 5 tiradas si el resultado es par o impar</string>
-    <string name="odd_even_start">Empezar</string>
-    <string name="odd_even_round_status">Ronda %1$d de %2$d</string>
-    <string name="odd_even_hits_status">Aciertos: %1$d/%2$d</string>
-    <string name="odd_even_even">Par</string>
-    <string name="odd_even_odd">Impar</string>
-    <string name="odd_even_fail">Fallo</string>
+    <string name="odd_even_title">Odd or Even</string>
+    <string name="odd_even_subtitle">Guess at least 3 out of 5 rolls if the result is even or odd</string>
+    <string name="odd_even_start">Start</string>
+    <string name="odd_even_round_status">Round %1$d of %2$d</string>
+    <string name="odd_even_hits_status">Hits: %1$d/%2$d</string>
+    <string name="odd_even_even">Even</string>
+    <string name="odd_even_odd">Odd</string>
+    <string name="odd_even_fail">Miss</string>
 </resources>

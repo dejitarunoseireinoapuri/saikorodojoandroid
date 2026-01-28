@@ -35,7 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.graphicsLayer
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -196,11 +197,9 @@ fun OddEvenGameScreen(
                 OddEvenDiceFace(
                     value = value,
                     size = 140.dp,
-                    modifier = Modifier.graphicsLayer(
-                        rotationZ = rotation.value,
-                        scaleX = scale.value,
-                        scaleY = scale.value
-                    )
+                    modifier = Modifier
+                        .rotate(rotation.value)
+                        .scale(scale.value)
                 )
             }
         }
@@ -350,7 +349,7 @@ private fun FailureEffect(
             style = MaterialTheme.typography.displayMedium,
             color = MaterialTheme.colorScheme.error,
             modifier = Modifier
-                .graphicsLayer(scaleX = scale, scaleY = scale)
+                .scale(scale)
                 .alpha(alpha)
         )
     }
