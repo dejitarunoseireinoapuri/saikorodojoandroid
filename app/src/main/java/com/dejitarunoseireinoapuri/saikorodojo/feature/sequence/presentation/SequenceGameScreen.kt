@@ -40,6 +40,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
 internal const val SEQUENCE_DICE_TAG = "sequence_dice"
 internal const val SEQUENCE_SAVE_BUTTON_TAG = "sequence_save_button"
@@ -236,8 +238,8 @@ fun SequenceGameScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(140.dp),
-                        backgroundColor = Color(0xFF00695C),
-                        borderColor = Color(0xFF80CBC4),
+                        backgroundColor = SequenceSaveMatBackground,
+                        borderColor = SequenceSaveMatBorder,
                         contentAlignment = Alignment.CenterStart
                     ) {
                         BoxWithConstraints(
