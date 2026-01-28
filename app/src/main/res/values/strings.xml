@@ -40,4 +40,5 @@
     <string name="odd_even_odd">Odd</string>
     <string name="odd_even_correct">You got it!</string>
     <string name="odd_even_wrong">You missed</string>
+    <string name="odd_even_congrats">Congratulations</string>
 </resources>

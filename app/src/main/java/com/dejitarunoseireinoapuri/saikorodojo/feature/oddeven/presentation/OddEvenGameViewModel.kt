@@ -27,6 +27,7 @@ data class OddEvenGameUiState(
     val currentRound: Int = 0,
     val totalRounds: Int = DEFAULT_TOTAL_ROUNDS,
     val correctCount: Int = 0,
+    val wrongCount: Int = 0,
     val targetCorrect: Int = DEFAULT_TARGET_CORRECT,
     val selectedChoice: OddEvenChoice? = null,
     val diceValue: Int? = null,
@@ -79,6 +80,7 @@ class OddEvenGameViewModel(
                 isStarted = true,
                 currentRound = 1,
                 correctCount = 0,
+                wrongCount = 0,
                 selectedChoice = null,
                 diceValue = initialRoll.value,
                 isRolling = false,
@@ -119,9 +121,11 @@ class OddEvenGameViewModel(
             }
             val isCorrect = finalRoll.isEven == (choice == OddEvenChoice.EVEN)
             val updatedCorrect = if (isCorrect) state.correctCount + 1 else state.correctCount
+            val updatedWrong = if (isCorrect) state.wrongCount else state.wrongCount + 1
             _uiState.update {
                 it.copy(
                     correctCount = updatedCorrect,
+                    wrongCount = updatedWrong,
                     isRolling = false,
                     showFireworks = isCorrect,
                     showFailure = !isCorrect
@@ -130,7 +134,8 @@ class OddEvenGameViewModel(
             delay(resultAnimationMs)
             val nextRound = state.currentRound + 1
             val hasWon = updatedCorrect >= targetCorrect
-            val isComplete = hasWon || nextRound > totalRounds
+            val hasLost = updatedWrong >= targetCorrect
+            val isComplete = hasWon || hasLost || nextRound > totalRounds
             val rewardCard = if (hasWon) {
                 resolveRewardCard()
             } else {
