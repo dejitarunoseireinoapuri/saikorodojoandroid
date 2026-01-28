@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +41,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
+
+internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
+internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
+internal val ODD_EVEN_DICE_SIZE = 180.dp
+internal val ODD_EVEN_CHOICE_DICE_MIN_GAP = 24.dp
 
 @Composable
 fun OddEvenGameRoute(
@@ -146,6 +152,7 @@ fun OddEvenGameScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     if (!uiState.isComplete) {
                         Row(
+                            modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
                             horizontalArrangement = Arrangement.spacedBy(20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -190,23 +197,15 @@ fun OddEvenGameScreen(
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(horizontal = 24.dp, vertical = 36.dp)
-                    .background(
-                        color = Color(0xFF121826).copy(alpha = 0.9f),
-                        shape = RoundedCornerShape(28.dp)
-                    )
-                    .border(
-                        width = 2.dp,
-                        color = Color(0xFF7C4DFF),
-                        shape = RoundedCornerShape(28.dp)
-                    )
-                    .padding(horizontal = 40.dp, vertical = 32.dp),
+                    .offset(y = 120.dp)
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 uiState.diceValue?.let { value ->
                     OddEvenDiceFace(
                         value = value,
-                        size = 140.dp
+                        size = ODD_EVEN_DICE_SIZE,
+                        modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
                     )
                 }
                 val resultTextRes = when {
