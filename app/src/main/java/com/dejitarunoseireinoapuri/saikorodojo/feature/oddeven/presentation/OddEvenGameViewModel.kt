@@ -21,6 +21,7 @@ private const val DEFAULT_TARGET_CORRECT = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_RESULT_ANIMATION_MS = 1_500L
 private const val DEFAULT_TICK_MS = 120L
+private const val DEFAULT_LOSS_MESSAGE_DELAY_MS = 2_000L
 
 data class OddEvenGameUiState(
     val isStarted: Boolean = false,
@@ -51,6 +52,7 @@ class OddEvenGameViewModel(
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val resultAnimationMs: Long = DEFAULT_RESULT_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
+    private val lossMessageDelayMs: Long = DEFAULT_LOSS_MESSAGE_DELAY_MS,
     private val totalRounds: Int = DEFAULT_TOTAL_ROUNDS,
     private val targetCorrect: Int = DEFAULT_TARGET_CORRECT,
     private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
@@ -134,7 +136,11 @@ class OddEvenGameViewModel(
             val nextRound = state.currentRound + 1
             val hasWon = updatedCorrect >= targetCorrect
             val hasLost = updatedWrong >= targetCorrect
-            val isComplete = hasWon || hasLost || nextRound > totalRounds
+            val hasLossOutcome = hasLost || (!hasWon && nextRound > totalRounds)
+            if (hasLossOutcome && lossMessageDelayMs > 0L) {
+                delay(lossMessageDelayMs)
+            }
+            val isComplete = hasWon || hasLossOutcome
             val rewardCard = if (hasWon) {
                 resolveRewardCard()
             } else {
