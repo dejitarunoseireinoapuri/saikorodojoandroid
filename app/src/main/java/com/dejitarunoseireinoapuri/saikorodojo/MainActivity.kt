@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuScreen
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddEvenGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
@@ -28,8 +29,18 @@ class MainActivity : ComponentActivity() {
                             onRulesClick = {}
                         )
                     }
+                    composable("game") {
+                        GameRoute()
+                    }
                     composable("odd_even_game") {
-                        OddEvenGameRoute()
+                        OddEvenGameRoute(
+                            onContinueClick = {
+                                navController.popBackStack("game", inclusive = false)
+                                navController.navigate("game") {
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
                     }
                 }
             }

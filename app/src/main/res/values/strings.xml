@@ -41,5 +41,7 @@
     <string name="odd_even_correct">You got it!</string>
     <string name="odd_even_wrong">You missed</string>
     <string name="odd_even_congrats">Congratulations!</string>
+    <string name="odd_even_reward_subtitle">You won a card</string>
     <string name="odd_even_try_again">You will get it next time!</string>
+    <string name="odd_even_continue">Continue</string>
 </resources>
