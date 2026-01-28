@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 private const val DEFAULT_TOTAL_ROUNDS = 5
 private const val DEFAULT_TARGET_CORRECT = 3
-private const val DEFAULT_ROLL_ANIMATION_MS = 650L
+private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_RESULT_ANIMATION_MS = 1_500L
 private const val DEFAULT_TICK_MS = 120L
 
@@ -73,13 +73,14 @@ class OddEvenGameViewModel(
 
     private fun startGame() {
         roundJob?.cancel()
+        val initialRoll = rollOddEvenUseCase.execute()
         _uiState.update {
             it.copy(
                 isStarted = true,
                 currentRound = 1,
                 correctCount = 0,
                 selectedChoice = null,
-                diceValue = null,
+                diceValue = initialRoll.value,
                 isRolling = false,
                 showFireworks = false,
                 showFailure = false,
