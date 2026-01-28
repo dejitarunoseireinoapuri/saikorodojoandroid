@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import kotlin.random.Random
 
 @Composable
@@ -217,12 +219,12 @@ internal fun DiceBoard(
                 .height(boardHeight)
                 .fillMaxWidth()
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = SequenceSaveMatBackground,
                     shape = RoundedCornerShape(24.dp)
                 )
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
+                    color = SequenceSaveMatBorder,
                     shape = RoundedCornerShape(24.dp)
                 )
                 .padding(contentPadding),

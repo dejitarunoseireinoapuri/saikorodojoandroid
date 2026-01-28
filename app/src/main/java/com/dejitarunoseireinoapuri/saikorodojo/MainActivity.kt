@@ -11,6 +11,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRou
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuScreen
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddEvenGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation.SequenceGameRoute
+import com.dejitarunoseireinoapuri.saikorodojo.navigation.AppRoutes
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,32 +23,32 @@ class MainActivity : ComponentActivity() {
             SaikoroDojoTheme {
                 NavHost(
                     navController = navController,
-                    startDestination = "menu"
+                    startDestination = AppRoutes.StartDestination
                 ) {
-                    composable("menu") {
+                    composable(AppRoutes.Menu) {
                         MenuScreen(
-                            onPlayClick = { navController.navigate("sequence_game") },
+                            onPlayClick = { navController.navigate(AppRoutes.PlayDestination) },
                             onRulesClick = {}
                         )
                     }
-                    composable("game") {
+                    composable(AppRoutes.Game) {
                         GameRoute()
                     }
-                    composable("odd_even_game") {
+                    composable(AppRoutes.OddEvenGame) {
                         OddEvenGameRoute(
                             onContinueClick = {
-                                navController.popBackStack("game", inclusive = false)
-                                navController.navigate("game") {
+                                navController.popBackStack(AppRoutes.Game, inclusive = false)
+                                navController.navigate(AppRoutes.Game) {
                                     launchSingleTop = true
                                 }
                             }
                         )
                     }
-                    composable("sequence_game") {
+                    composable(AppRoutes.SequenceGame) {
                         SequenceGameRoute(
                             onContinueClick = {
-                                navController.popBackStack("game", inclusive = false)
-                                navController.navigate("game") {
+                                navController.popBackStack(AppRoutes.Game, inclusive = false)
+                                navController.navigate(AppRoutes.Game) {
                                     launchSingleTop = true
                                 }
                             }
