@@ -44,4 +44,11 @@
     <string name="odd_even_reward_subtitle">Has guanyat una carta</string>
     <string name="odd_even_try_again">Ho aconseguiràs la propera vegada!</string>
     <string name="odd_even_continue">Continuar</string>
+    <string name="sequence_title">Seqüència</string>
+    <string name="sequence_subtitle">Queda\'t amb el resultat del dau o descarta\'l, però al final de la cinquena tirada hauràs de tenir una seqüència ascendent de 3 daus</string>
+    <string name="sequence_start">Començar</string>
+    <string name="sequence_save">Desar</string>
+    <string name="sequence_discard">Descartar</string>
+    <string name="sequence_congrats">Enhorabona!</string>
+    <string name="sequence_reward_subtitle">Has guanyat una carta</string>
 </resources>
