@@ -7,7 +7,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,7 +41,7 @@ class GameViewModelTest {
         assertTrue(stateAfterApply.selectedDice.isEmpty())
         assertEquals(0, stateAfterApply.selectedDiceSum)
 
-        advanceUntilIdle()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         val stateAfterRoll = viewModel.uiState.value
         assertTrue(stateAfterRoll.selectedDice.isEmpty())
@@ -163,7 +162,7 @@ class GameViewModelTest {
         )
 
         viewModel.onEvent(GameUiEvent.StartRoll)
-        advanceUntilIdle()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         val initialValues = viewModel.uiState.value.diceValues
         assertEquals(listOf(6, 6, 6), initialValues)
@@ -307,7 +306,7 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.DiceClicked(0))
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
-        advanceUntilIdle()
+        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.onEvent(GameUiEvent.DiceClicked(0))
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
@@ -320,7 +319,7 @@ class GameViewModelTest {
         assertEquals(CardId.REROLL_ALL, stateAfterRepeat.lastAppliedCardId)
         assertTrue(stateAfterRepeat.cardUiModels.isEmpty())
 
-        advanceUntilIdle()
+        testDispatcher.scheduler.advanceUntilIdle()
     }
 
     private fun buildViewModel(
