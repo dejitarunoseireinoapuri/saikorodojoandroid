@@ -32,7 +32,7 @@
     <string name="card_retry_title">Retry</string>
     <string name="card_retry_description">Restart the level</string>
     <string name="odd_even_title">Odd or Even</string>
-    <string name="odd_even_subtitle">Guess at least 3 out of 5 rolls if the result is even or odd</string>
+    <string name="odd_even_subtitle">Guess at least 3 out of 5 rounds if the result is even or odd</string>
     <string name="odd_even_start">Start</string>
     <string name="odd_even_round_status">Round %1$d of %2$d</string>
     <string name="odd_even_hits_status">Hits: %1$d/%2$d</string>
@@ -44,4 +44,11 @@
     <string name="odd_even_reward_subtitle">You won a card</string>
     <string name="odd_even_try_again">You will get it next time!</string>
     <string name="odd_even_continue">Continue</string>
+    <string name="sequence_title">Sequence</string>
+    <string name="sequence_subtitle">Keep the die result or discard it, but after the fifth round you must have an ascending sequence of 3 dice</string>
+    <string name="sequence_start">Start</string>
+    <string name="sequence_save">Keep</string>
+    <string name="sequence_discard">Discard</string>
+    <string name="sequence_congrats">Congratulations!</string>
+    <string name="sequence_reward_subtitle">You won a card</string>
 </resources>

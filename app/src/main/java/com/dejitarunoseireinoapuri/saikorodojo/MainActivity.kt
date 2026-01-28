@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuScreen
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddEvenGameRoute
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation.SequenceGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable("menu") {
                         MenuScreen(
-                            onPlayClick = { navController.navigate("odd_even_game") },
+                            onPlayClick = { navController.navigate("sequence_game") },
                             onRulesClick = {}
                         )
                     }
@@ -34,6 +35,16 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("odd_even_game") {
                         OddEvenGameRoute(
+                            onContinueClick = {
+                                navController.popBackStack("game", inclusive = false)
+                                navController.navigate("game") {
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    }
+                    composable("sequence_game") {
+                        SequenceGameRoute(
                             onContinueClick = {
                                 navController.popBackStack("game", inclusive = false)
                                 navController.navigate("game") {
