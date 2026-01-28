@@ -37,7 +37,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `saving three ascending dice awards a card`() = runTest {
         val viewModel = buildViewModel(
-            diceRolls = listOf(1, 3, 5),
+            diceRolls = listOf(1, 1, 2, 2, 3, 3),
             rewardIndex = 0
         )
 
