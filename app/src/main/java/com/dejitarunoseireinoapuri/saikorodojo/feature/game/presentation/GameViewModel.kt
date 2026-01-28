@@ -61,6 +61,12 @@ class GameViewModel(
     private val diceTypeProvider: (Long, Int) -> List<DiceType> = ::defaultDiceTypes,
     cardUiModels: List<CardUiModel> = defaultCardUiModels()
 ) : ViewModel() {
+    private data class RollSnapshot(
+        val diceValues: List<Int>,
+        val diceTypes: List<DiceType>,
+        val layoutSeed: Long
+    )
+
     private val _uiState = MutableStateFlow(
         GameUiState(
             diceValues = List(diceCount) { 1 },
@@ -73,6 +79,7 @@ class GameViewModel(
     val uiState: StateFlow<GameUiState> = _uiState
 
     private var rollJob: Job? = null
+    private var initialRollSnapshot: RollSnapshot? = null
 
     fun onEvent(event: GameUiEvent) {
         when (event) {
@@ -143,6 +150,14 @@ class GameViewModel(
             }
 
             _uiState.update { it.copy(isRolling = false) }
+            if (initialRollSnapshot == null) {
+                val snapshotState = _uiState.value
+                initialRollSnapshot = RollSnapshot(
+                    diceValues = snapshotState.diceValues.toList(),
+                    diceTypes = snapshotState.diceTypes.toList(),
+                    layoutSeed = snapshotState.layoutSeed
+                )
+            }
         }
     }
 
@@ -213,6 +228,9 @@ class GameViewModel(
             return
         }
         if (applyAdjustPlusMinusCard(index)) {
+            return
+        }
+        if (applyRetryCard(index)) {
             return
         }
         applySetValueCard(index)
@@ -305,6 +323,30 @@ class GameViewModel(
                     applied = true
                     val updatedCards = consumeCard(cards, index)
                     val updatedState = applyCardEffect(state, card.id)
+                    updatedState.copy(
+                        cardUiModels = updatedCards,
+                        lastAppliedCardId = card.id
+                    )
+                }
+            }
+        }
+        return applied
+    }
+
+    private fun applyRetryCard(index: Int): Boolean {
+        var applied = false
+        _uiState.update { state ->
+            val cards = state.cardUiModels
+            if (index !in cards.indices) {
+                state
+            } else {
+                val card = cards[index]
+                if (card.id != CardId.RETRY) {
+                    state
+                } else {
+                    applied = true
+                    val updatedCards = consumeCard(cards, index)
+                    val updatedState = buildRetryState(state)
                     updatedState.copy(
                         cardUiModels = updatedCards,
                         lastAppliedCardId = card.id
@@ -540,8 +582,31 @@ class GameViewModel(
                 selectedDiceSum = 0
             )
             CardId.REPEAT_LAST,
-            CardId.RETRY -> state
+            CardId.RETRY -> buildRetryState(state)
         }
+    }
+
+    private fun buildRetryState(state: GameUiState): GameUiState {
+        val snapshot = initialRollSnapshot ?: RollSnapshot(
+            diceValues = state.diceValues.toList(),
+            diceTypes = state.diceTypes.toList(),
+            layoutSeed = state.layoutSeed
+        )
+        return state.copy(
+            diceValues = snapshot.diceValues,
+            diceTypes = snapshot.diceTypes,
+            layoutSeed = snapshot.layoutSeed,
+            isRolling = false,
+            selectedCardIndex = null,
+            isAwaitingRerollSingle = false,
+            isAwaitingFlipFace = false,
+            isAwaitingAdjustPlusMinus = false,
+            isAwaitingSetValue = false,
+            selectedAdjustmentDieIndex = null,
+            selectedSetValueDieIndex = null,
+            selectedDice = emptySet(),
+            selectedDiceSum = 0
+        )
     }
 
     private fun consumeCard(cards: List<CardUiModel>, index: Int): List<CardUiModel> {
