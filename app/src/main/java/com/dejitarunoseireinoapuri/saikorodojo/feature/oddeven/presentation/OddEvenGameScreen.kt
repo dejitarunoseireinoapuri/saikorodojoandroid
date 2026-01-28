@@ -203,7 +203,7 @@ fun OddEvenGameScreen(
             }
         }
 
-        if (uiState.isStarted && uiState.rewardCard == null) {
+        if (uiState.isStarted && uiState.rewardCard == null && !uiState.isComplete) {
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)

@@ -91,9 +91,36 @@ class OddEvenGameViewModelTest {
         assertNull(state.rewardCard)
     }
 
+    @Test
+    fun `loss completion waits for delay before ending`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2),
+            targetCorrect = 1,
+            lossMessageDelayMs = 2_000L
+        )
+
+        viewModel.onEvent(OddEvenGameUiEvent.StartGame)
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+        dispatcher.scheduler.runCurrent()
+
+        val interimState = viewModel.uiState.value
+        assertTrue(interimState.isStarted)
+        assertTrue(interimState.showFailure)
+        assertTrue(!interimState.isComplete)
+
+        dispatcher.scheduler.advanceTimeBy(2_000L)
+        dispatcher.scheduler.runCurrent()
+
+        val finalState = viewModel.uiState.value
+        assertTrue(finalState.isComplete)
+        assertNull(finalState.rewardCard)
+    }
+
     private fun buildViewModel(
         diceRolls: List<Int> = listOf(2),
-        rewardIndex: Int = 0
+        rewardIndex: Int = 0,
+        targetCorrect: Int = 3,
+        lossMessageDelayMs: Long = 0L
     ): OddEvenGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollOddEvenUseCase(diceRoller)
@@ -107,6 +134,8 @@ class OddEvenGameViewModelTest {
             rollAnimationMs = 0L,
             resultAnimationMs = 0L,
             tickMs = 1L,
+            targetCorrect = targetCorrect,
+            lossMessageDelayMs = lossMessageDelayMs,
             cardUiModels = testCardUiModels()
         )
     }
