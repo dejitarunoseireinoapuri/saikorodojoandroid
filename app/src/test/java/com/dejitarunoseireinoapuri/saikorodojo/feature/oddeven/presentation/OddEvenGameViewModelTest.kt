@@ -87,6 +87,7 @@ class OddEvenGameViewModelTest {
             dispatcher = dispatcher,
             rollAnimationMs = 0L,
             resultAnimationMs = 0L,
+            tickMs = 1L,
             cardUiModels = testCardUiModels()
         )
     }

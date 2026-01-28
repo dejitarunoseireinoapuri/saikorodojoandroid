@@ -20,6 +20,7 @@ private const val DEFAULT_TOTAL_ROUNDS = 5
 private const val DEFAULT_TARGET_CORRECT = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 650L
 private const val DEFAULT_RESULT_ANIMATION_MS = 1_500L
+private const val DEFAULT_TICK_MS = 120L
 
 data class OddEvenGameUiState(
     val isStarted: Boolean = false,
@@ -48,6 +49,7 @@ class OddEvenGameViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val resultAnimationMs: Long = DEFAULT_RESULT_ANIMATION_MS,
+    private val tickMs: Long = DEFAULT_TICK_MS,
     private val totalRounds: Int = DEFAULT_TOTAL_ROUNDS,
     private val targetCorrect: Int = DEFAULT_TARGET_CORRECT,
     private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
@@ -93,19 +95,28 @@ class OddEvenGameViewModel(
             return
         }
         roundJob?.cancel()
-        val roll = rollOddEvenUseCase.execute()
         _uiState.update {
             it.copy(
                 selectedChoice = choice,
-                diceValue = roll.value,
                 isRolling = true,
                 showFireworks = false,
                 showFailure = false
             )
         }
         roundJob = viewModelScope.launch(dispatcher) {
-            delay(rollAnimationMs)
-            val isCorrect = roll.isEven == (choice == OddEvenChoice.EVEN)
+            val steps = (rollAnimationMs / tickMs).coerceAtLeast(1L).toInt()
+            var finalRoll = rollOddEvenUseCase.execute()
+            repeat(steps) {
+                val roll = rollOddEvenUseCase.execute()
+                finalRoll = roll
+                _uiState.update { current ->
+                    current.copy(diceValue = roll.value)
+                }
+                if (rollAnimationMs > 0L) {
+                    delay(tickMs)
+                }
+            }
+            val isCorrect = finalRoll.isEven == (choice == OddEvenChoice.EVEN)
             val updatedCorrect = if (isCorrect) state.correctCount + 1 else state.correctCount
             _uiState.update {
                 it.copy(
