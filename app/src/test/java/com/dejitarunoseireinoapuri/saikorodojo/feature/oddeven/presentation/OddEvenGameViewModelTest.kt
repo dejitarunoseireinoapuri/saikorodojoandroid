@@ -116,28 +116,72 @@ class OddEvenGameViewModelTest {
         assertNull(finalState.rewardCard)
     }
 
+    @Test
+    fun `loss completion uses default delay`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2),
+            targetCorrect = 1,
+            lossMessageDelayMs = null
+        )
+
+        viewModel.onEvent(OddEvenGameUiEvent.StartGame)
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+        dispatcher.scheduler.runCurrent()
+
+        val interimState = viewModel.uiState.value
+        assertTrue(interimState.isStarted)
+        assertTrue(interimState.showFailure)
+        assertTrue(!interimState.isComplete)
+
+        dispatcher.scheduler.advanceTimeBy(999L)
+        dispatcher.scheduler.runCurrent()
+
+        val beforeDelayState = viewModel.uiState.value
+        assertTrue(!beforeDelayState.isComplete)
+
+        dispatcher.scheduler.advanceTimeBy(1L)
+        dispatcher.scheduler.runCurrent()
+
+        val finalState = viewModel.uiState.value
+        assertTrue(finalState.isComplete)
+        assertNull(finalState.rewardCard)
+    }
+
     private fun buildViewModel(
         diceRolls: List<Int> = listOf(2),
         rewardIndex: Int = 0,
         targetCorrect: Int = 3,
-        lossMessageDelayMs: Long = 0L
+        lossMessageDelayMs: Long? = 0L
     ): OddEvenGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollOddEvenUseCase(diceRoller)
         val rewardUseCase = SelectOddEvenRewardCardUseCase(
             randomProvider = IntRandomProvider { rewardIndex }
         )
-        return OddEvenGameViewModel(
-            rollOddEvenUseCase = rollUseCase,
-            selectOddEvenRewardCardUseCase = rewardUseCase,
-            dispatcher = dispatcher,
-            rollAnimationMs = 0L,
-            resultAnimationMs = 0L,
-            tickMs = 1L,
-            targetCorrect = targetCorrect,
-            lossMessageDelayMs = lossMessageDelayMs,
-            cardUiModels = testCardUiModels()
-        )
+        return if (lossMessageDelayMs == null) {
+            OddEvenGameViewModel(
+                rollOddEvenUseCase = rollUseCase,
+                selectOddEvenRewardCardUseCase = rewardUseCase,
+                dispatcher = dispatcher,
+                rollAnimationMs = 0L,
+                resultAnimationMs = 0L,
+                tickMs = 1L,
+                targetCorrect = targetCorrect,
+                cardUiModels = testCardUiModels()
+            )
+        } else {
+            OddEvenGameViewModel(
+                rollOddEvenUseCase = rollUseCase,
+                selectOddEvenRewardCardUseCase = rewardUseCase,
+                dispatcher = dispatcher,
+                rollAnimationMs = 0L,
+                resultAnimationMs = 0L,
+                tickMs = 1L,
+                targetCorrect = targetCorrect,
+                lossMessageDelayMs = lossMessageDelayMs,
+                cardUiModels = testCardUiModels()
+            )
+        }
     }
 
     private fun testCardUiModels(): List<CardUiModel> {
