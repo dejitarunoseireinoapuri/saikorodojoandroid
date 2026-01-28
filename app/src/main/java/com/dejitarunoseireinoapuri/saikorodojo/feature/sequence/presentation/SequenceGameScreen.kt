@@ -109,7 +109,7 @@ fun SequenceGameScreen(
             Spacer(modifier = Modifier.height(12.dp))
             val hasReward = uiState.rewardCard != null
             val hasPendingReward = uiState.isComplete && uiState.pendingRewardCard != null
-            val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
+            val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -170,7 +170,7 @@ fun SequenceGameScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
                     color = roundColor
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
 
