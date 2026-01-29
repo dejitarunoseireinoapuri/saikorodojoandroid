@@ -285,7 +285,8 @@ internal fun DiceBoard(
                         size = diceSize,
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
-                        isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected
+                        isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected,
+                        showSelectedFace = !uiState.isAwaitingRerollSelected
                     )
                 }
             }
@@ -300,6 +301,7 @@ private fun DiceFace(
     faceDrawable: Int,
     isSelected: Boolean,
     isAdjustmentSelected: Boolean,
+    showSelectedFace: Boolean = true,
     numberTextScale: Float = 1f
 ) {
     Box(
@@ -319,7 +321,7 @@ private fun DiceFace(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected)),
+            painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected && showSelectedFace)),
             contentDescription = stringResource(R.string.cd_dice_face, number)
         )
         Text(
