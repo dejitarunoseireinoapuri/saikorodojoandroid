@@ -121,7 +121,8 @@ class HigherLowerGameViewModel(
         _uiState.update {
             it.copy(
                 selectedChoice = choice,
-                isRolling = true
+                isRolling = true,
+                isChoiceVisible = false
             )
         }
         startRoll(

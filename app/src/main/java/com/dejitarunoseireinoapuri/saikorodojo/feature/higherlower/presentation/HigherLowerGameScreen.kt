@@ -163,7 +163,7 @@ fun HigherLowerGameScreen(
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                if (uiState.isChoiceVisible) {
+                if (uiState.isChoiceVisible && uiState.selectedChoice == null) {
                     Row(
                         modifier = Modifier.testTag(HIGHER_LOWER_BUTTON_ROW_TAG),
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -199,6 +199,25 @@ fun HigherLowerGameScreen(
                 Text(
                     text = stringResource(R.string.higher_lower_start),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+                )
+            }
+        }
+
+        if (uiState.isStarted && !uiState.isComplete && uiState.isRolling && uiState.selectedChoice != null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                HigherLowerChoiceButton(
+                    label = stringResource(
+                        if (uiState.selectedChoice == HigherLowerChoice.HIGHER) {
+                            R.string.higher_lower_higher
+                        } else {
+                            R.string.higher_lower_lower
+                        }
+                    ),
+                    isSelected = true,
+                    onClick = {}
                 )
             }
         }
@@ -417,7 +436,7 @@ private fun HigherLowerDiceRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = horizontalPadding),
-            horizontalArrangement = Arrangement.spacedBy(spacing),
+            horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
             values.take(2).forEach { value ->
