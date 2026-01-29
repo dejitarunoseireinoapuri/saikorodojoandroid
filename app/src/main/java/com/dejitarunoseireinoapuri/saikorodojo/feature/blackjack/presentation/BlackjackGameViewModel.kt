@@ -301,15 +301,15 @@ class BlackjackGameViewModel(
         isDealerBust: Boolean
     ) {
         viewModelScope.launch(dispatcher) {
-            if (delayMs > 0L) {
-                delay(delayMs)
-            }
             val outcome = determineBlackjackOutcomeUseCase.execute(
                 playerTotal = playerTotal,
                 dealerTotal = dealerTotal,
                 isPlayerBust = isPlayerBust,
                 isDealerBust = isDealerBust
             )
+            if (outcome == BlackjackOutcome.PLAYER_WIN && delayMs > 0L) {
+                delay(delayMs)
+            }
             val rewardCard = if (outcome == BlackjackOutcome.PLAYER_WIN) {
                 resolveRewardCard(playerTotal)
             } else {

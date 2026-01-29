@@ -125,6 +125,34 @@ fun BlackjackGameScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
+                        text = stringResource(
+                            R.string.blackjack_dealer_score,
+                            uiState.dealerTotal
+                        ),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.blackjack_player_score,
+                            uiState.playerTotal
+                        ),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
                         text = stringResource(R.string.blackjack_reward_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                         color = Color.White
