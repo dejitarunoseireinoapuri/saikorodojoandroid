@@ -142,7 +142,7 @@ fun BlackjackGameScreen(
                 else -> {
                     Text(
                         text = stringResource(R.string.blackjack_subtitle),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                         color = Color.White.copy(alpha = 0.9f),
                         textAlign = TextAlign.Center
                     )
@@ -170,14 +170,15 @@ fun BlackjackGameScreen(
             }
         }
 
-        if (uiState.isStarted) {
+        if (uiState.isStarted && uiState.rewardCard == null) {
             Column(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(80.dp))
+                Spacer(modifier = Modifier.height(120.dp))
                 ScoreLabel(
                     text = stringResource(R.string.blackjack_dealer_score, uiState.dealerTotal)
                 )
@@ -231,6 +232,7 @@ fun BlackjackGameScreen(
                         minSize = 64.dp
                     )
                 }
+                Spacer(modifier = Modifier.height(72.dp))
             }
         }
 
