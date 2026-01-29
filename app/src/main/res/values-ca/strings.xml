@@ -51,4 +51,15 @@
     <string name="sequence_discard">Descartar</string>
     <string name="sequence_congrats">Enhorabona!</string>
     <string name="sequence_reward_subtitle">Has guanyat una carta</string>
+    <string name="blackjack_title">Blackjack</string>
+    <string name="blackjack_subtitle">Arriba a 21 sense passar-te. Després de la primera tirada, tria si vols tirar un dau de 10 més o plantar-te. Després que et plantis serà el torn de la banca. Qui s’acosti més a 21 guanya; si hi ha empat, perden tots dos. L’1 val com a 1 o 11 segons convingui.</string>
+    <string name="blackjack_start">Començar</string>
+    <string name="blackjack_hit">Demanar</string>
+    <string name="blackjack_stand">Plantar-se</string>
+    <string name="blackjack_player_score">La teva puntuació: %1$d</string>
+    <string name="blackjack_dealer_score">Puntuació de la banca: %1$d</string>
+    <string name="blackjack_win">Has guanyat!</string>
+    <string name="blackjack_lose">Has perdut</string>
+    <string name="blackjack_reward_subtitle">Has guanyat una carta</string>
+    <string name="blackjack_continue">Continuar</string>
 </resources>
