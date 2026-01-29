@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.BlackjackGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuScreen
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddEvenGameRoute
@@ -46,6 +47,16 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(AppRoutes.SequenceGame) {
                         SequenceGameRoute(
+                            onContinueClick = {
+                                navController.popBackStack(AppRoutes.Game, inclusive = false)
+                                navController.navigate(AppRoutes.Game) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    }
+                    composable(AppRoutes.BlackjackGame) {
+                        BlackjackGameRoute(
                             onContinueClick = {
                                 navController.popBackStack(AppRoutes.Game, inclusive = false)
                                 navController.navigate(AppRoutes.Game) {
