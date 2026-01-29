@@ -45,7 +45,8 @@ internal fun DiceBoard(
     onDiceClick: (Int) -> Unit,
     onAdjustSelectedDie: (Int) -> Unit,
     onSetSelectedDieValue: (Int) -> Unit,
-    onRollSelectedDice: () -> Unit
+    onRollSelectedDice: () -> Unit,
+    onRollSingleDie: () -> Unit
 ) {
     val diceCount = uiState.diceValues.size
     val boardHeight = 300.dp
@@ -225,11 +226,16 @@ internal fun DiceBoard(
                 }
             }
         }
-        if (uiState.isAwaitingRerollSelected) {
+        if (uiState.isAwaitingRerollSelected || uiState.isAwaitingRerollSingle) {
             val buttonOffset = boardHeight / 2 + 48.dp
+            val isEnabled = when {
+                uiState.isAwaitingRerollSelected -> uiState.selectedDice.isNotEmpty()
+                else -> uiState.selectedRerollSingleDieIndex != null
+            }
+            val onClick = if (uiState.isAwaitingRerollSelected) onRollSelectedDice else onRollSingleDie
             Button(
-                onClick = onRollSelectedDice,
-                enabled = uiState.selectedDice.isNotEmpty() && !uiState.isRolling,
+                onClick = onClick,
+                enabled = isEnabled && !uiState.isRolling,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFF1744),
@@ -271,6 +277,7 @@ internal fun DiceBoard(
                 val isSelected = uiState.selectedDice.contains(index)
                 val isAdjustmentSelected = uiState.selectedAdjustmentDieIndex == index
                 val isSetValueSelected = uiState.selectedSetValueDieIndex == index
+                val isRerollSingleSelected = uiState.selectedRerollSingleDieIndex == index
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -285,7 +292,7 @@ internal fun DiceBoard(
                         size = diceSize,
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
-                        isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected,
+                        isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected || isRerollSingleSelected,
                         showSelectedFace = !uiState.isAwaitingRerollSelected
                     )
                 }

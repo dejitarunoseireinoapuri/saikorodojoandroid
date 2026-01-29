@@ -81,7 +81,7 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `reroll single waits for a die and updates card count`() = runTest {
+    fun `reroll single waits for selection and roll action`() = runTest {
         val viewModel = buildViewModel(
             rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)),
             cardUiModels = listOf(
@@ -102,6 +102,7 @@ class GameViewModelTest {
         assertEquals(1, afterApply.cardUiModels.single().count)
 
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
+        viewModel.onEvent(GameUiEvent.RollSingleDie)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val afterRoll = viewModel.uiState.value
@@ -298,6 +299,7 @@ class GameViewModelTest {
         assertEquals(CardId.REROLL_SINGLE, viewModel.uiState.value.lastAppliedCardId)
 
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
+        viewModel.onEvent(GameUiEvent.RollSingleDie)
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
