@@ -225,15 +225,15 @@ fun HigherLowerGameScreen(
                     val shiftY = with(LocalDensity.current) {
                         ((maxHeight - spacing) / 2f + spacing).toPx()
                     }
-                    val transitionProgress = if (uiState.isTransitioning) {
-                        animateFloatAsState(
-                            targetValue = 1f,
-                            animationSpec = tween(durationMillis = HIGHER_LOWER_TRANSITION_MS),
-                            label = "higherLowerTransition"
-                        ).value
-                    } else {
-                        0f
-                    }
+                    val transitionProgress by animateFloatAsState(
+                        targetValue = if (uiState.isTransitioning) 1f else 0f,
+                        animationSpec = if (uiState.isTransitioning) {
+                            tween(durationMillis = HIGHER_LOWER_TRANSITION_MS)
+                        } else {
+                            tween(durationMillis = 0)
+                        },
+                        label = "higherLowerTransition"
+                    )
                     val baseSum = uiState.baseDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val currentSum = uiState.currentDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val showBaseTotal = !uiState.isTransitioning
