@@ -9,8 +9,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.DiceRoll
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.RollBlackjackDiceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.SelectBlackjackRewardCardUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Rule
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -74,6 +76,37 @@ class BlackjackGameViewModelTest {
         assertEquals(BlackjackOutcome.PLAYER_WIN, state.result)
         assertNotNull(state.rewardCard)
         assertEquals(CardId.RETRY, state.rewardCard?.id)
+    }
+
+    @Test
+    fun `scores update after dice animation completes`() = runTest {
+        val viewModel = BlackjackGameViewModel(
+            rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
+                TestDiceRoller(ArrayDeque(listOf(1, 1, 1, 4, 6, 8)))
+            ),
+            calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
+            determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
+            selectBlackjackRewardCardUseCase = SelectBlackjackRewardCardUseCase(TestRandomProvider()),
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollAnimationMs = 4L,
+            tickMs = 2L,
+            resultDelayMs = 0L,
+            bustHighlightMs = 0L
+        )
+
+        viewModel.onEvent(BlackjackGameUiEvent.StartGame)
+        runCurrent()
+
+        val midState = viewModel.uiState.value
+        assertEquals(0, midState.playerTotal)
+        assertEquals(0, midState.dealerTotal)
+
+        advanceTimeBy(4L)
+        advanceUntilIdle()
+
+        val finalState = viewModel.uiState.value
+        assertEquals(10, finalState.playerTotal)
+        assertEquals(8, finalState.dealerTotal)
     }
 }
 
