@@ -15,22 +15,16 @@ import com.google.android.gms.ads.AdView
 @Composable
 fun BannerAd(
     modifier: Modifier = Modifier,
-    adUnitId: String = AdMobConfig.TestBannerAdUnitId
+    adUnitId: String = AdMobConfig.TestBannerAdUnitId,
+    adSize: AdSize = rememberBannerAdSize()
 ) {
     val context = LocalContext.current
-    val configuration = LocalConfiguration.current
     val adView = remember(context, adUnitId) {
         AdView(context).apply {
             this.adUnitId = adUnitId
         }
     }
     val adRequest = remember { AdRequest.Builder().build() }
-    val adWidthDp = remember(configuration.screenWidthDp) {
-        adWidthDp(configuration.screenWidthDp)
-    }
-    val adSize = remember(adWidthDp, context) {
-        AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidthDp)
-    }
 
     DisposableEffect(adView) {
         onDispose {
@@ -49,6 +43,22 @@ fun BannerAd(
     )
 }
 
+@Composable
+fun rememberBannerAdSize(): AdSize {
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val adWidthDp = remember(configuration.screenWidthDp) {
+        adWidthDp(configuration.screenWidthDp)
+    }
+    return remember(adWidthDp, context) {
+        AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidthDp)
+    }
+}
+
 internal fun adWidthDp(screenWidthDp: Int): Int {
     return screenWidthDp.coerceAtLeast(1)
+}
+
+internal fun bannerContentPaddingDp(adHeightDp: Int): Int {
+    return adHeightDp.coerceAtLeast(0)
 }

@@ -44,6 +44,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.BannerAd
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.bannerContentPaddingDp
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.rememberBannerAdSize
 
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
@@ -92,11 +94,14 @@ fun OddEvenGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(backgroundBrush)
+    val adSize = rememberBannerAdSize()
+    val adHeight = bannerContentPaddingDp(adSize.height).dp
     Column(modifier = containerModifier) {
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                .padding(bottom = adHeight)
         ) {
             Column(
                 modifier = Modifier
@@ -287,7 +292,10 @@ fun OddEvenGameScreen(
                 }
             }
         }
-        BannerAd(modifier = Modifier.fillMaxWidth())
+        BannerAd(
+            modifier = Modifier.fillMaxWidth(),
+            adSize = adSize
+        )
     }
 }
 

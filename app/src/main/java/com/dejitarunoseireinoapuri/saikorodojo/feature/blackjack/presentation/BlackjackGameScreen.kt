@@ -43,6 +43,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.BannerAd
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.bannerContentPaddingDp
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.rememberBannerAdSize
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -92,11 +94,14 @@ fun BlackjackGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(backgroundBrush)
+    val adSize = rememberBannerAdSize()
+    val adHeight = bannerContentPaddingDp(adSize.height).dp
     Column(modifier = containerModifier) {
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                .padding(bottom = adHeight)
         ) {
             Column(
                 modifier = Modifier
@@ -308,7 +313,10 @@ fun BlackjackGameScreen(
                 }
             }
         }
-        BannerAd(modifier = Modifier.fillMaxWidth())
+        BannerAd(
+            modifier = Modifier.fillMaxWidth(),
+            adSize = adSize
+        )
     }
 }
 

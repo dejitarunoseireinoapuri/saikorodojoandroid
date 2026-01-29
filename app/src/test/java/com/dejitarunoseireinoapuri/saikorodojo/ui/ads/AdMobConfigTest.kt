@@ -21,4 +21,14 @@ class AdMobConfigTest {
     fun adWidthDpClampsToAtLeastOne() {
         assertEquals(1, adWidthDp(screenWidthDp = 0))
     }
+
+    @Test
+    fun bannerContentPaddingClampsToZero() {
+        assertEquals(0, bannerContentPaddingDp(adHeightDp = -8))
+    }
+
+    @Test
+    fun bannerContentPaddingKeepsPositiveValue() {
+        assertEquals(50, bannerContentPaddingDp(adHeightDp = 50))
+    }
 }

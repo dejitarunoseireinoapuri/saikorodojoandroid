@@ -43,6 +43,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardIt
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.BannerAd
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.bannerContentPaddingDp
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.rememberBannerAdSize
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoThemeColors
 
 @Composable
@@ -99,11 +101,14 @@ fun GameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(backgroundBrush)
+    val adSize = rememberBannerAdSize()
+    val adHeight = bannerContentPaddingDp(adSize.height).dp
     Column(modifier = containerModifier) {
         BoxWithConstraints(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(bottom = adHeight),
             contentAlignment = Alignment.Center
         ) {
             val constraintsWidth = maxWidth
@@ -151,7 +156,10 @@ fun GameScreen(
                 )
             }
         }
-        BannerAd(modifier = Modifier.fillMaxWidth())
+        BannerAd(
+            modifier = Modifier.fillMaxWidth(),
+            adSize = adSize
+        )
     }
 }
 

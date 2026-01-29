@@ -41,6 +41,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.BannerAd
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.bannerContentPaddingDp
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.rememberBannerAdSize
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -91,11 +93,14 @@ fun SequenceGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(backgroundBrush)
+    val adSize = rememberBannerAdSize()
+    val adHeight = bannerContentPaddingDp(adSize.height).dp
     Column(modifier = containerModifier) {
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                .padding(bottom = adHeight)
         ) {
             Column(
                 modifier = Modifier
@@ -320,7 +325,10 @@ fun SequenceGameScreen(
                 }
             }
         }
-        BannerAd(modifier = Modifier.fillMaxWidth())
+        BannerAd(
+            modifier = Modifier.fillMaxWidth(),
+            adSize = adSize
+        )
     }
 }
 
