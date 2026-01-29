@@ -9,6 +9,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.DiceRoll
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.RollBlackjackDiceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.SelectBlackjackRewardCardUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -19,6 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class BlackjackGameViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
