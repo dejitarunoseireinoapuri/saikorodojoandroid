@@ -17,7 +17,7 @@ class GameViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @Test
-    fun `reroll all clears selection before rolling`() = runTest {
+    fun `reroll some clears selection and awaits selection`() = runTest {
         val viewModel = buildViewModel(
             cardUiModels = listOf(
                 CardUiModel(
@@ -38,14 +38,10 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
 
         val stateAfterApply = viewModel.uiState.value
+        assertTrue(stateAfterApply.isAwaitingRerollSelected)
         assertTrue(stateAfterApply.selectedDice.isEmpty())
         assertEquals(0, stateAfterApply.selectedDiceSum)
-
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        val stateAfterRoll = viewModel.uiState.value
-        assertTrue(stateAfterRoll.selectedDice.isEmpty())
-        assertEquals(0, stateAfterRoll.selectedDiceSum)
+        assertTrue(!stateAfterApply.isRolling)
     }
 
     @Test
@@ -85,7 +81,7 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `reroll single waits for a die and updates card count`() = runTest {
+    fun `reroll single waits for selection and roll action`() = runTest {
         val viewModel = buildViewModel(
             rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)),
             cardUiModels = listOf(
@@ -106,6 +102,7 @@ class GameViewModelTest {
         assertEquals(1, afterApply.cardUiModels.single().count)
 
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
+        viewModel.onEvent(GameUiEvent.RollSingleDie)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val afterRoll = viewModel.uiState.value
@@ -250,6 +247,34 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `roll selected dice updates only chosen indices and clears selection`() = runTest {
+        val viewModel = buildViewModel(
+            rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)),
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.REROLL_ALL,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(2))
+
+        viewModel.onEvent(GameUiEvent.RollSelectedDice)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val stateAfterRoll = viewModel.uiState.value
+        assertEquals(listOf(6, 1, 6), stateAfterRoll.diceValues)
+        assertTrue(stateAfterRoll.selectedDice.isEmpty())
+        assertEquals(0, stateAfterRoll.selectedDiceSum)
+        assertTrue(!stateAfterRoll.isAwaitingRerollSelected)
+    }
+
+    @Test
     fun `repeat last reapplies the previous card effect and consumes repeat card`() = runTest {
         val viewModel = buildViewModel(
             rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)),
@@ -274,6 +299,7 @@ class GameViewModelTest {
         assertEquals(CardId.REROLL_SINGLE, viewModel.uiState.value.lastAppliedCardId)
 
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
+        viewModel.onEvent(GameUiEvent.RollSingleDie)
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
@@ -285,7 +311,7 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `repeat last rerolls all when the last card was reroll all`() = runTest {
+    fun `repeat last reopens reroll selection when the last card was reroll some`() = runTest {
         val viewModel = buildViewModel(
             cardUiModels = listOf(
                 CardUiModel(
@@ -306,20 +332,15 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.DiceClicked(0))
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.onEvent(GameUiEvent.DiceClicked(0))
-        viewModel.onEvent(GameUiEvent.DiceClicked(1))
 
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
 
         val stateAfterRepeat = viewModel.uiState.value
+        assertTrue(stateAfterRepeat.isAwaitingRerollSelected)
         assertTrue(stateAfterRepeat.selectedDice.isEmpty())
         assertEquals(0, stateAfterRepeat.selectedDiceSum)
         assertEquals(CardId.REROLL_ALL, stateAfterRepeat.lastAppliedCardId)
         assertTrue(stateAfterRepeat.cardUiModels.isEmpty())
-
-        testDispatcher.scheduler.advanceUntilIdle()
     }
 
     private fun buildViewModel(

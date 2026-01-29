@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,7 +44,9 @@ internal fun DiceBoard(
     uiState: GameUiState,
     onDiceClick: (Int) -> Unit,
     onAdjustSelectedDie: (Int) -> Unit,
-    onSetSelectedDieValue: (Int) -> Unit
+    onSetSelectedDieValue: (Int) -> Unit,
+    onRollSelectedDice: () -> Unit,
+    onRollSingleDie: () -> Unit
 ) {
     val diceCount = uiState.diceValues.size
     val boardHeight = 300.dp
@@ -83,6 +87,16 @@ internal fun DiceBoard(
             uiState.isAwaitingRerollSingle -> {
                 Text(
                     text = stringResource(R.string.select_die_to_reroll),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = promptOffset),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+            }
+            uiState.isAwaitingRerollSelected -> {
+                Text(
+                    text = stringResource(R.string.select_dice_to_reroll),
                     modifier = Modifier
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
@@ -212,6 +226,33 @@ internal fun DiceBoard(
                 }
             }
         }
+        if (uiState.isAwaitingRerollSelected || uiState.isAwaitingRerollSingle) {
+            val buttonOffset = boardHeight / 2 + 48.dp
+            val isEnabled = when {
+                uiState.isAwaitingRerollSelected -> uiState.selectedDice.isNotEmpty()
+                else -> uiState.selectedRerollSingleDieIndex != null
+            }
+            val onClick = if (uiState.isAwaitingRerollSelected) onRollSelectedDice else onRollSingleDie
+            Button(
+                onClick = onClick,
+                enabled = isEnabled && !uiState.isRolling,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF1744),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = buttonOffset)
+                    .padding(top = 8.dp)
+                    .height(48.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.roll_selected_dice),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+        }
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -236,6 +277,7 @@ internal fun DiceBoard(
                 val isSelected = uiState.selectedDice.contains(index)
                 val isAdjustmentSelected = uiState.selectedAdjustmentDieIndex == index
                 val isSetValueSelected = uiState.selectedSetValueDieIndex == index
+                val isRerollSingleSelected = uiState.selectedRerollSingleDieIndex == index
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -250,7 +292,8 @@ internal fun DiceBoard(
                         size = diceSize,
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
-                        isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected
+                        isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected || isRerollSingleSelected,
+                        showSelectedFace = !uiState.isAwaitingRerollSelected
                     )
                 }
             }
@@ -265,13 +308,14 @@ private fun DiceFace(
     faceDrawable: Int,
     isSelected: Boolean,
     isAdjustmentSelected: Boolean,
+    showSelectedFace: Boolean = true,
     numberTextScale: Float = 1f
 ) {
     Box(
         modifier = Modifier
             .size(size)
             .then(
-                if (isAdjustmentSelected) {
+                if (isAdjustmentSelected || isSelected) {
                     Modifier.border(
                         width = 3.dp,
                         color = MaterialTheme.colorScheme.secondary,
@@ -284,7 +328,7 @@ private fun DiceFace(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected)),
+            painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected && showSelectedFace)),
             contentDescription = stringResource(R.string.cd_dice_face, number)
         )
         Text(

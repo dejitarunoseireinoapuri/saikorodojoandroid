@@ -11,6 +11,7 @@
     <string name="cd_dice_face">Cara del dado %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
     <string name="select_die_to_reroll">Selecciona un dado para volver a tirar</string>
+    <string name="select_dice_to_reroll">Selecciona los dados a relanzar</string>
     <string name="select_die_to_flip">Selecciona un dado para voltear</string>
     <string name="select_die_to_modify">Selecciona un dado para modificar</string>
     <string name="adjust_plus_one">+1</string>
@@ -22,8 +23,9 @@
     <string name="card_flip_face_description">Invierte el valor del dado</string>
     <string name="card_reroll_single_title">Volver a tirar un dado</string>
     <string name="card_reroll_single_description">Elige un dado y vuelve a tirarlo</string>
-    <string name="card_reroll_all_title">Volver a tirar todos</string>
-    <string name="card_reroll_all_description">Vuelve a tirar todos los dados</string>
+    <string name="card_reroll_all_title">Volver a tirar algunos</string>
+    <string name="card_reroll_all_description">Vuelve a tirar los dados que quieras</string>
+    <string name="roll_selected_dice">Lanzar</string>
     <string name="card_set_value_title">Fijar valor</string>
     <string name="card_set_value_description">Elige el valor final de un dado dentro de su rango</string>
     <string name="card_repeat_last_title">Repetir carta</string>
