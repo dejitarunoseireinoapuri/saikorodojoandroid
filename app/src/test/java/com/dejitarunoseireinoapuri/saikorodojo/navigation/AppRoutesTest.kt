@@ -1,11 +1,11 @@
 package com.dejitarunoseireinoapuri.saikorodojo.navigation
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class AppRoutesTest {
     @Test
-    fun `play destination points to blackjack game`() {
-        assertEquals(AppRoutes.BlackjackGame, AppRoutes.PlayDestination)
+    fun `play destination points to main game`() {
+        assertEquals(AppRoutes.Game, AppRoutes.PlayDestination)
     }
 }
