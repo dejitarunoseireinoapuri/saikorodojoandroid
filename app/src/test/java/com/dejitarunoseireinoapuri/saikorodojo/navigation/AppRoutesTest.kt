@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class AppRoutesTest {
     @Test
-    fun playDestinationStartsNormalGame() {
-        assertEquals(AppRoutes.Game, AppRoutes.PlayDestination)
+    fun `play destination points to blackjack game`() {
+        assertEquals(AppRoutes.BlackjackGame, AppRoutes.PlayDestination)
     }
 }
