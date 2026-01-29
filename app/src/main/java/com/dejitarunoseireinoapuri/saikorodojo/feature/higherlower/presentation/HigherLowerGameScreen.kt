@@ -52,8 +52,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 internal const val HIGHER_LOWER_BUTTON_ROW_TAG = "higher_lower_button_row"
 internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
-private const val HIGHER_LOWER_TRANSITION_MS = 700
-private val HigherLowerButtonReserveHeight = 72.dp
+private const val HIGHER_LOWER_TRANSITION_MS = 900
+private val HigherLowerButtonReserveHeight = 120.dp
 
 @Composable
 fun HigherLowerGameRoute(
@@ -211,11 +211,11 @@ fun HigherLowerGameScreen(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(132.dp + HigherLowerButtonReserveHeight))
+                Spacer(modifier = Modifier.height(140.dp + HigherLowerButtonReserveHeight))
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(360.dp)
+                        .height(260.dp)
                         .testTag(HIGHER_LOWER_MAT_ROW_TAG)
                 ) {
                     val spacing = 16.dp
@@ -236,7 +236,8 @@ fun HigherLowerGameScreen(
                     }
                     val baseSum = uiState.baseDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val currentSum = uiState.currentDiceValues.takeIf { it.isNotEmpty() }?.sum()
-                    val showTotals = !uiState.isRolling && !uiState.isTransitioning
+                    val showBaseTotal = !uiState.isTransitioning
+                    val showCurrentTotal = !uiState.isRolling && !uiState.isTransitioning
                     val showFailure = uiState.isComplete && uiState.hasLoss
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -252,7 +253,7 @@ fun HigherLowerGameScreen(
                         ) {
                             HigherLowerSumLabel(
                                 sum = baseSum,
-                                isVisible = showTotals && baseSum != null
+                                isVisible = showBaseTotal && baseSum != null
                             )
                             HigherLowerMat(
                                 modifier = Modifier
@@ -280,7 +281,7 @@ fun HigherLowerGameScreen(
                         ) {
                             HigherLowerSumLabel(
                                 sum = currentSum,
-                                isVisible = showTotals && currentSum != null
+                                isVisible = showCurrentTotal && currentSum != null
                             )
                             HigherLowerMat(
                                 modifier = Modifier
@@ -406,12 +407,12 @@ private fun HigherLowerDiceRow(
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
-        val spacing = 12.dp
-        val horizontalPadding = 12.dp
+        val spacing = 8.dp
+        val horizontalPadding = 8.dp
         val availableWidth = maxWidth - horizontalPadding * 2 - spacing
         val diceSize = (availableWidth / 2f)
-            .coerceAtMost(132.dp)
-            .coerceAtLeast(72.dp)
+            .coerceAtMost(96.dp)
+            .coerceAtLeast(48.dp)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
