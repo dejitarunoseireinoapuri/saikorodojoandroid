@@ -108,6 +108,23 @@ class HigherLowerGameViewModelTest {
         assertFalse(state.hasLoss)
     }
 
+    @Test
+    fun `selecting a choice hides buttons while rolling`() = runTest {
+        val viewModel = buildViewModel(
+            diceValues = listOf(1, 1, 2, 3, 1, 1, 4, 4)
+        )
+
+        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isRolling)
+        assertFalse(state.isChoiceVisible)
+        assertEquals(HigherLowerChoice.HIGHER, state.selectedChoice)
+    }
+
     private fun buildViewModel(
         diceValues: List<Int>
     ): HigherLowerGameViewModel {
