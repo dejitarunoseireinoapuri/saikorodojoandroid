@@ -390,7 +390,7 @@ private fun BlackjackDieFace(
     isBust: Boolean
 ) {
     val tint = if (isBust) Color(0xFFE53935) else Color.Unspecified
-    val fontSize = (size.value * 0.32f).sp.coerceIn(14.sp, 22.sp)
+    val fontSize = (size.value * 0.32f).coerceIn(14f, 22f).sp
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
