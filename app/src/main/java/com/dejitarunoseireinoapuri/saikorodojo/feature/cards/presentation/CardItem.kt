@@ -48,10 +48,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
 data class CardUiModel(
     val id: CardId,
-    @StringRes val titleRes: Int,
-    @StringRes val descriptionRes: Int,
-    @DrawableRes val iconRes: Int,
-    @StringRes val actionLabelRes: Int = R.string.apply,
+    @param:StringRes val titleRes: Int,
+    @param:StringRes val descriptionRes: Int,
+    @param:DrawableRes val iconRes: Int,
+    @param:StringRes val actionLabelRes: Int = R.string.apply,
     val count: Int = 1
 )
 
