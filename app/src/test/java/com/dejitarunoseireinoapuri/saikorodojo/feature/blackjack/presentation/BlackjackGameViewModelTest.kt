@@ -108,6 +108,33 @@ class BlackjackGameViewModelTest {
         assertEquals(10, finalState.playerTotal)
         assertEquals(8, finalState.dealerTotal)
     }
+
+    @Test
+    fun `loss outcome is reported without delay`() = runTest {
+        val viewModel = BlackjackGameViewModel(
+            rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
+                TestDiceRoller(ArrayDeque(listOf(9, 10, 10, 10)))
+            ),
+            calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
+            determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
+            selectBlackjackRewardCardUseCase = SelectBlackjackRewardCardUseCase(TestRandomProvider()),
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollAnimationMs = 0L,
+            tickMs = 1L,
+            resultDelayMs = 1_500L,
+            bustHighlightMs = 1_500L
+        )
+
+        viewModel.onEvent(BlackjackGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(BlackjackGameUiEvent.Stand)
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertEquals(BlackjackOutcome.PLAYER_LOSE, state.result)
+        assertTrue(state.isComplete)
+    }
 }
 
 private class TestDiceRoller(
