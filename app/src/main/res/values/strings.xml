@@ -42,6 +42,12 @@
     <string name="odd_even_reward_subtitle">You won a card</string>
     <string name="odd_even_try_again">You will get it next time!</string>
     <string name="odd_even_continue">Continue</string>
+    <string name="higher_lower_title">Higher or Lower</string>
+    <string name="higher_lower_subtitle">Say whether the next roll will be higher or lower than the current one. You win if you guess correctly three times in a row or the sum of the two dice is the same twice in a row.</string>
+    <string name="higher_lower_start">Start</string>
+    <string name="higher_lower_higher">Higher</string>
+    <string name="higher_lower_lower">Lower</string>
+    <string name="higher_lower_total">Total: %1$d</string>
     <string name="sequence_title">Sequence</string>
     <string name="sequence_subtitle">Keep the die result or discard it, but after the fifth round you must have an ascending sequence of 3 dice</string>
     <string name="sequence_start">Start</string>

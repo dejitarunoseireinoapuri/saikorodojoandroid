@@ -46,6 +46,12 @@
     <string name="odd_even_reward_subtitle">Has ganado una carta</string>
     <string name="odd_even_try_again">¡Otra vez lo conseguirás!</string>
     <string name="odd_even_continue">Continuar</string>
+    <string name="higher_lower_title">Superior o Inferior</string>
+    <string name="higher_lower_subtitle">Debes decir si la siguiente tirada va a tener un resultado superior o inferior a la actual. Ganas si aciertas tres veces seguidas o la suma de los dos dados es la misma dos veces seguidas.</string>
+    <string name="higher_lower_start">Empezar</string>
+    <string name="higher_lower_higher">Superior</string>
+    <string name="higher_lower_lower">Inferior</string>
+    <string name="higher_lower_total">Total: %1$d</string>
     <string name="sequence_title">Secuencia</string>
     <string name="sequence_subtitle">Quédate con el resultado del dado o descártalo, pero al final de la quinta ronda deberás tener una secuencia ascendente de 3 dados</string>
     <string name="sequence_start">Empezar</string>
