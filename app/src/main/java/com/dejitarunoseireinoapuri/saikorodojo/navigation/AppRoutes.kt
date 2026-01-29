@@ -7,5 +7,5 @@ object AppRoutes {
     const val SequenceGame = "sequence_game"
     const val BlackjackGame = "blackjack_game"
     const val StartDestination = Menu
-    const val PlayDestination = BlackjackGame
+    const val PlayDestination = Game
 }
