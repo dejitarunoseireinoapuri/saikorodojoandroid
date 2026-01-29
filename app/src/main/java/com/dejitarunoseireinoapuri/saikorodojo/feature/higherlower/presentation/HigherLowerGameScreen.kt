@@ -209,17 +209,19 @@ fun HigherLowerGameScreen(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(72.dp))
+                Spacer(modifier = Modifier.height(96.dp))
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(184.dp)
+                        .height(360.dp)
                         .testTag(HIGHER_LOWER_MAT_ROW_TAG)
                 ) {
                     val spacing = 16.dp
-                    val matWidth = (maxWidth - spacing) / 2f
-                    val shiftPx = with(LocalDensity.current) {
-                        (matWidth + spacing).toPx()
+                    val shiftX = with(LocalDensity.current) {
+                        maxWidth.toPx() + 24.dp.toPx()
+                    }
+                    val shiftY = with(LocalDensity.current) {
+                        ((maxHeight - spacing) / 2f + spacing).toPx()
                     }
                     val transitionProgress = if (uiState.isTransitioning) {
                         animateFloatAsState(
@@ -233,15 +235,15 @@ fun HigherLowerGameScreen(
                     val baseSum = uiState.baseDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val currentSum = uiState.currentDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val showTotals = !uiState.isRolling && !uiState.isTransitioning
-                    Row(
+                    Column(
                         modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.spacedBy(spacing),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalArrangement = Arrangement.spacedBy(spacing),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .fillMaxSize(),
+                                .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -257,7 +259,7 @@ fun HigherLowerGameScreen(
                                     values = uiState.baseDiceValues,
                                     diceRes = R.drawable.ten_sides,
                                     modifier = Modifier.graphicsLayer {
-                                        translationX = -shiftPx * transitionProgress
+                                        translationX = shiftX * transitionProgress
                                     }
                                 )
                             }
@@ -265,7 +267,7 @@ fun HigherLowerGameScreen(
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .fillMaxSize(),
+                                .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -282,7 +284,7 @@ fun HigherLowerGameScreen(
                                     diceRes = R.drawable.ten_sides_green,
                                     modifier = Modifier
                                         .graphicsLayer {
-                                            translationX = -shiftPx * transitionProgress
+                                            translationY = -shiftY * transitionProgress
                                         }
                                         .zIndex(2f)
                                 )
@@ -392,12 +394,12 @@ private fun HigherLowerDiceRow(
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
-        val spacing = 10.dp
-        val horizontalPadding = 8.dp
+        val spacing = 12.dp
+        val horizontalPadding = 12.dp
         val availableWidth = maxWidth - horizontalPadding * 2 - spacing
         val diceSize = (availableWidth / 2f)
-            .coerceAtMost(112.dp)
-            .coerceAtLeast(64.dp)
+            .coerceAtMost(132.dp)
+            .coerceAtLeast(72.dp)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
