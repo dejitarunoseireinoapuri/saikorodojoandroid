@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,7 +44,8 @@ internal fun DiceBoard(
     uiState: GameUiState,
     onDiceClick: (Int) -> Unit,
     onAdjustSelectedDie: (Int) -> Unit,
-    onSetSelectedDieValue: (Int) -> Unit
+    onSetSelectedDieValue: (Int) -> Unit,
+    onRollSelectedDice: () -> Unit
 ) {
     val diceCount = uiState.diceValues.size
     val boardHeight = 300.dp
@@ -83,6 +86,16 @@ internal fun DiceBoard(
             uiState.isAwaitingRerollSingle -> {
                 Text(
                     text = stringResource(R.string.select_die_to_reroll),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = promptOffset),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+            }
+            uiState.isAwaitingRerollSelected -> {
+                Text(
+                    text = stringResource(R.string.select_dice_to_reroll),
                     modifier = Modifier
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
@@ -210,6 +223,27 @@ internal fun DiceBoard(
                         }
                     }
                 }
+            }
+        }
+        if (uiState.isAwaitingRerollSelected) {
+            val buttonOffset = boardHeight / 2 + 24.dp
+            Button(
+                onClick = onRollSelectedDice,
+                enabled = uiState.selectedDice.isNotEmpty() && !uiState.isRolling,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF1744),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = buttonOffset)
+                    .height(48.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.roll_selected_dice),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
             }
         }
         Box(

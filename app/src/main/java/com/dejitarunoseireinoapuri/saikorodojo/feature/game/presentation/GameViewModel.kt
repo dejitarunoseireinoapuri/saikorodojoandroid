@@ -28,6 +28,7 @@ data class GameUiState(
     val layoutSeed: Long = 0L,
     val isRolling: Boolean = false,
     val isAwaitingRerollSingle: Boolean = false,
+    val isAwaitingRerollSelected: Boolean = false,
     val isAwaitingFlipFace: Boolean = false,
     val isAwaitingAdjustPlusMinus: Boolean = false,
     val isAwaitingSetValue: Boolean = false,
@@ -47,6 +48,7 @@ sealed interface GameUiEvent {
     data class ApplyCard(val index: Int) : GameUiEvent
     data class AdjustSelectedDie(val delta: Int) : GameUiEvent
     data class SetSelectedDieValue(val value: Int) : GameUiEvent
+    data object RollSelectedDice : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
 }
 
@@ -97,6 +99,7 @@ class GameViewModel(
             }
             is GameUiEvent.AdjustSelectedDie -> adjustSelectedDie(event.delta)
             is GameUiEvent.SetSelectedDieValue -> setSelectedDieValue(event.value)
+            GameUiEvent.RollSelectedDice -> rollSelectedDice()
             GameUiEvent.DismissSelectedCard -> {
                 if (!isCardInteractionBlocked()) {
                     dismissSelectedCard()
@@ -107,6 +110,7 @@ class GameViewModel(
 
     private fun isCardInteractionBlocked(): Boolean {
         return _uiState.value.isAwaitingRerollSingle ||
+            _uiState.value.isAwaitingRerollSelected ||
             _uiState.value.isAwaitingFlipFace ||
             _uiState.value.isAwaitingAdjustPlusMinus ||
             _uiState.value.isAwaitingSetValue
@@ -130,6 +134,7 @@ class GameViewModel(
                     layoutSeed = seed,
                     diceTypes = diceTypes,
                     isAwaitingRerollSingle = false,
+                    isAwaitingRerollSelected = false,
                     isAwaitingFlipFace = false,
                     isAwaitingAdjustPlusMinus = false,
                     isAwaitingSetValue = false,
@@ -211,14 +216,10 @@ class GameViewModel(
     private fun applyCard(index: Int) {
         val repeatedCardId = applyRepeatLastCard(index)
         if (repeatedCardId != null) {
-            if (repeatedCardId == CardId.REROLL_ALL) {
-                startRolling(keepLayout = true)
-            }
             return
         }
         val applied = applyRerollAllCard(index)
         if (applied) {
-            startRolling(keepLayout = true)
             return
         }
         if (applyRerollSingleCard(index)) {
@@ -367,6 +368,7 @@ class GameViewModel(
                 it.copy(
                     isRolling = true,
                     isAwaitingRerollSingle = false,
+                    isAwaitingRerollSelected = false,
                     isAwaitingFlipFace = false
                 )
             }
@@ -537,6 +539,7 @@ class GameViewModel(
             CardId.REROLL_SINGLE -> state.copy(
                 selectedCardIndex = null,
                 isAwaitingRerollSingle = true,
+                isAwaitingRerollSelected = false,
                 isAwaitingFlipFace = false,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
@@ -547,6 +550,7 @@ class GameViewModel(
                 selectedCardIndex = null,
                 isAwaitingFlipFace = true,
                 isAwaitingRerollSingle = false,
+                isAwaitingRerollSelected = false,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
                 selectedAdjustmentDieIndex = null,
@@ -556,6 +560,7 @@ class GameViewModel(
                 selectedCardIndex = null,
                 isAwaitingAdjustPlusMinus = true,
                 isAwaitingRerollSingle = false,
+                isAwaitingRerollSelected = false,
                 isAwaitingFlipFace = false,
                 isAwaitingSetValue = false,
                 selectedAdjustmentDieIndex = null,
@@ -565,6 +570,7 @@ class GameViewModel(
                 selectedCardIndex = null,
                 isAwaitingSetValue = true,
                 isAwaitingRerollSingle = false,
+                isAwaitingRerollSelected = false,
                 isAwaitingFlipFace = false,
                 isAwaitingAdjustPlusMinus = false,
                 selectedAdjustmentDieIndex = null,
@@ -573,6 +579,7 @@ class GameViewModel(
             CardId.REROLL_ALL -> state.copy(
                 selectedCardIndex = null,
                 isAwaitingRerollSingle = false,
+                isAwaitingRerollSelected = true,
                 isAwaitingFlipFace = false,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
@@ -599,6 +606,7 @@ class GameViewModel(
             isRolling = false,
             selectedCardIndex = null,
             isAwaitingRerollSingle = false,
+            isAwaitingRerollSelected = false,
             isAwaitingFlipFace = false,
             isAwaitingAdjustPlusMinus = false,
             isAwaitingSetValue = false,
@@ -607,6 +615,41 @@ class GameViewModel(
             selectedDice = emptySet(),
             selectedDiceSum = 0
         )
+    }
+
+    private fun rollSelectedDice() {
+        val state = _uiState.value
+        if (!state.isAwaitingRerollSelected || rollJob?.isActive == true) return
+        val selectedIndices = state.selectedDice.toList()
+        if (selectedIndices.isEmpty()) return
+        val diceTypes = selectedIndices.map { index ->
+            state.diceTypes.getOrElse(index) { state.diceType }
+        }
+        rollJob = viewModelScope.launch(dispatcher) {
+            val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
+            _uiState.update {
+                it.copy(
+                    isRolling = true,
+                    isAwaitingRerollSelected = false,
+                    selectedDice = emptySet(),
+                    selectedDiceSum = 0
+                )
+            }
+            repeat(steps) {
+                val values = rollDiceUseCase.execute(diceTypes)
+                _uiState.update { currentState ->
+                    val updatedValues = currentState.diceValues.toMutableList()
+                    selectedIndices.forEachIndexed { listIndex, dieIndex ->
+                        if (dieIndex in updatedValues.indices) {
+                            updatedValues[dieIndex] = values.getOrNull(listIndex) ?: updatedValues[dieIndex]
+                        }
+                    }
+                    currentState.copy(diceValues = updatedValues)
+                }
+                delay(tickMs)
+            }
+            _uiState.update { it.copy(isRolling = false) }
+        }
     }
 
     private fun consumeCard(cards: List<CardUiModel>, index: Int): List<CardUiModel> {
