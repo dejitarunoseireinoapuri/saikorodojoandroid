@@ -44,7 +44,9 @@ kotlin {
 
 kover {
     currentProject {
-        createVariant("debug") {}
+        createVariant("debug") {
+            addTest("testDebugUnitTest")
+        }
     }
 }
 
