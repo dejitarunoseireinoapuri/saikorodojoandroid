@@ -22,7 +22,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -42,11 +46,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.BannerAd
 import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.bannerContentPaddingDp
 import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.rememberBannerAdSize
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import kotlinx.coroutines.delay
 
 internal const val BLACKJACK_HIT_BUTTON_TAG = "blackjack_hit_button"
 internal const val BLACKJACK_STAND_BUTTON_TAG = "blackjack_stand_button"
@@ -96,6 +102,17 @@ fun BlackjackGameScreen(
         .background(backgroundBrush)
     val adSize = rememberBannerAdSize()
     val adHeight = bannerContentPaddingDp(adSize.height).dp
+    val isLoss = uiState.result == BlackjackOutcome.PLAYER_LOSE
+    var showPostLossSummary by remember { mutableStateOf(false) }
+    LaunchedEffect(isLoss) {
+        if (isLoss) {
+            showPostLossSummary = false
+            delay(1500)
+            showPostLossSummary = true
+        } else {
+            showPostLossSummary = false
+        }
+    }
     Column(modifier = containerModifier) {
         Box(
             modifier = Modifier
@@ -176,6 +193,22 @@ fun BlackjackGameScreen(
                             color = Color(0xFFFFF176),
                             textAlign = TextAlign.Center
                         )
+                        if (showPostLossSummary) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            ScoreLabel(
+                                text = stringResource(
+                                    R.string.blackjack_dealer_score,
+                                    uiState.dealerTotal
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            ScoreLabel(
+                                text = stringResource(
+                                    R.string.blackjack_player_score,
+                                    uiState.playerTotal
+                                )
+                            )
+                        }
                     }
                     else -> {
                         Text(
@@ -208,7 +241,12 @@ fun BlackjackGameScreen(
                 }
             }
 
-            if (uiState.isStarted && uiState.rewardCard == null) {
+            if (shouldShowMats(
+                    isStarted = uiState.isStarted,
+                    rewardCard = uiState.rewardCard,
+                    showPostLossSummary = showPostLossSummary
+                )
+            ) {
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -216,7 +254,7 @@ fun BlackjackGameScreen(
                         .padding(horizontal = 24.dp, vertical = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                Spacer(modifier = Modifier.height(64.dp))
+                    Spacer(modifier = Modifier.height(64.dp))
                     ScoreLabel(
                         text = stringResource(R.string.blackjack_dealer_score, uiState.dealerTotal)
                     )
@@ -268,7 +306,7 @@ fun BlackjackGameScreen(
                             isBust = uiState.showPlayerBust
                         )
                     }
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 
@@ -334,6 +372,14 @@ private fun ScoreLabel(text: String) {
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth()
     )
+}
+
+internal fun shouldShowMats(
+    isStarted: Boolean,
+    rewardCard: CardUiModel?,
+    showPostLossSummary: Boolean
+): Boolean {
+    return isStarted && rewardCard == null && !showPostLossSummary
 }
 
 @Composable

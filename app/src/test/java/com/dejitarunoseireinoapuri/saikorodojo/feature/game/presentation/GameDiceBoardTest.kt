@@ -1,5 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import org.junit.Assert.assertEquals
