@@ -191,8 +191,7 @@ fun BlackjackGameScreen(
                 ) {
                     DiceRow(
                         values = uiState.dealerDice,
-                        isBust = uiState.showDealerBust,
-                        minSize = 72.dp
+                        isBust = uiState.showDealerBust
                     )
                 }
                 Spacer(modifier = Modifier.height(20.dp))
@@ -228,8 +227,7 @@ fun BlackjackGameScreen(
                 ) {
                     DiceRow(
                         values = uiState.playerDice,
-                        isBust = uiState.showPlayerBust,
-                        minSize = 64.dp
+                        isBust = uiState.showPlayerBust
                     )
                 }
                 Spacer(modifier = Modifier.height(72.dp))
@@ -336,8 +334,7 @@ private fun BlackjackMat(
 @Composable
 private fun DiceRow(
     values: List<Int>,
-    isBust: Boolean,
-    minSize: Dp
+    isBust: Boolean
 ) {
     if (values.isEmpty()) return
     BoxWithConstraints(
@@ -357,7 +354,9 @@ private fun DiceRow(
             (availableWidth - spacing * (columns - 1)).coerceAtLeast(0.dp) / columns
         val heightBasedSize =
             (availableHeight / rowCount.coerceAtLeast(1)).coerceAtLeast(0.dp)
-        val diceSize = minOf(widthBasedSize, heightBasedSize).coerceAtLeast(minSize)
+        val diceSize = minOf(widthBasedSize, heightBasedSize)
+            .coerceAtMost(96.dp)
+            .coerceAtLeast(32.dp)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
