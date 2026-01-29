@@ -70,22 +70,53 @@ Ejemplo: seleccionar 3 dados y usar 2 cartas = **5 movimientos**.
 
 ## 5. Objetivos de nivel (tipos)
 
-Los niveles pueden pedir uno de estos objetivos (se irán introduciendo con la dificultad):
+Los niveles pueden pedir uno de estos objetivos (se irán introduciendo con la dificultad). El **objetivo siempre se evalúa sobre la tirada final** (tras re-tiradas y cartas).
 
-### 5.1. Objetivos numéricos básicos
+**Dados del nivel**
+- En un nivel **no es obligatorio usar todos los dados disponibles**: el objetivo puede cumplirse usando un **subconjunto** de dados (según indique el nivel o según convenga al jugador).
+- La **tirada inicial** puede incluir **uno o varios tipos de dado** (d6, d8 y/o d10), según el nivel.
+
+### 5.1. Objetivos de combinación
+- **X iguales:** conseguir un **par**, **trío**, **póker**, etc.
+- **Doble grupo:** “**dos pares**”, “**par + trío**”, “**dos tríos**” (si el nº de dados lo permite).
+- **Full:** **trío + par**.
+- **Escalera:** conseguir **N consecutivos** (p. ej. 3 o 4 seguidos).
+- **Todos distintos:** ningún valor repetido.
+
+### 5.2. Objetivos de valores exactos (colección / set)
+- **Colección exacta:** deben aparecer estos valores (en cualquier orden).
+  - Ej.: “aparecen un **1** y un **3**”.
+  - Ej.: “aparecen **2, 3, 8 y 9**”.
+- **Colección con multiplicidades:** valores concretos con repeticiones exigidas.
+  - Ej.: “**dos 4** y **un 7**”.
+- **Colección parcial:** de una lista dada deben aparecer al menos `K`.
+  - Ej.: “de {2,3,8,9} aparecen al menos 3”.
+- **Colección prohibida:** no puede aparecer ninguno de {x,y,z}.
+
+> Nota: cuando haya mezcla de d6/d8/d10, la lista de valores se genera para que sea compatible con los dados presentes (no se pedirá un 9 si no hay ningún dado que pueda mostrar 9).
+
+### 5.3. Objetivos numéricos y métricas simples
 - **Exacto:** alcanzar exactamente `N`.
 - **Rango:** el resultado debe estar dentro de `[A, B]`.
 - **Comparación:** `> X`, `≥ X`, `< X` o `≤ X`.
+- **Diferencia en rango:** `máximo − mínimo` debe estar dentro de `[A, B]`.
+- **Distancia objetivo (tolerancia):** quedar a **0–1** (o 0–2) del objetivo `N` (según indique el nivel).
 
-### 5.2. Objetivos con propiedades (siempre con umbral)
-- **Paridad + umbral:** `resultado > X` y el resultado es **par** o **impar**.
-- **Primo + umbral:** `resultado > X` y el resultado es **primo**.
-- **Múltiplo + umbral:** `resultado > X` y el resultado es **múltiplo de Y**.
+### 5.4. Objetivos con propiedades (siempre con umbral)
+- **Paridad + umbral:** `resultado ≥ X` y el resultado es **par** o **impar**.
+- **Múltiplo + umbral:** `resultado ≥ X` y el resultado es **múltiplo de Y**.
+- **Residuo (módulo):** `resultado mod M = R` (con `resultado ≥ X` o con “resultado en rango” indicado por el nivel).
+- **Rango comprimido:** todos los dados usados para el objetivo deben quedar dentro de un intervalo `[A, B]` (p. ej., “todos entre 4 y 7”).
 
-### 5.3. Límite superior de objetivos
-- El objetivo se genera de forma que sea alcanzable con los dados del nivel.
-- Cota superior práctica:
-  - `objetivo < nDados * maxCarasDelNivel` (usando el máximo tipo de dado presente: 6/8/10).
+### 5.5. Objetivos de ejecución (dificultad avanzada)
+- **Uso limitado de cartas:** “cumple el objetivo usando como máximo `C` cartas” o “usa exactamente 1 carta”.
+- **Bloqueo obligatorio:** “tras la 1ª tirada, bloquea al menos `K` dados”.
+- **Cambios limitados:** “entre inicio y final solo pueden cambiar `K` dados”.
+
+### 5.6. Límites y coherencia de generación
+- Cualquier objetivo numérico se genera respetando límites del conjunto de dados del nivel (p. ej., suma máxima posible con los dados disponibles).
+- Los objetivos de colección se generan para que **todos los valores solicitados existan** en los tipos de dados presentes en el nivel.
+
 
 ---
 
@@ -134,17 +165,24 @@ Los niveles pueden pedir uno de estos objetivos (se irán introduciendo con la d
 
 ---
 
-## 7. Regla anti-frustración para cartas de re-tirada masiva (robustez)
+## 7. Generación resoluble por construcción (tirada inicial desde el resultado final)
 
-Para evitar que el jugador se frustre al usar cartas como **“Re-tirar todos menos uno”**, los niveles que incluyan cartas de re-tirada masiva se generan con una condición adicional:
+Para garantizar que **todos los niveles son resolubles**, el generador construye los niveles **desde una solución final válida** y deriva la tirada inicial a partir de ella.
 
-- Si un nivel incluye una carta que obliga al jugador a elegir **qué dado conservar** (o qué dados conservar/retirar),
-  el nivel debe ser **robusto**:
-  - **Da igual qué opción elija el jugador** (qué dado conserva), tras aplicar la carta debe existir al menos una forma de alcanzar el objetivo dentro del límite de movimientos.
+1. **Elige el objetivo** del nivel (combinación, colección, numérico, propiedades, etc.).
+2. **Construye una tirada final válida** (valores concretos de cada dado) que **cumpla el objetivo**.
+3. Define las restricciones del nivel:
+  - número de **tiradas** (re-tiradas) permitidas,
+  - y un subconjunto de **cartas disponibles** (pueden incluirse o no **por azar**, entre las que el jugador ya posee).
+4. A partir de la tirada final, el generador calcula la **tirada inicial mostrada** “yendo hacia atrás”:
+  - se generan estados previos compatibles con las re-tiradas y con las cartas elegidas (si se decide usarlas en la construcción),
+  - de forma que exista al menos un camino que permita al jugador volver a la tirada final (o a cualquier otra tirada final que cumpla el objetivo) dentro de los límites del nivel.
+5. **Validación final:** el nivel solo se acepta si, desde la tirada inicial, existe **al menos una secuencia** de re-tiradas y uso de cartas (respetando límites y disponibilidad) que alcanza el objetivo.
 
-En la práctica, el generador:
-- simula todas las elecciones posibles del jugador para esa carta,
-- y sólo acepta el nivel si **todas** las ramas permiten completar el objetivo.
+Consecuencias:
+- La **tirada inicial no es aleatoria pura**: está **derivada** de una solución final.
+- Según el nivel, la tirada inicial puede incluir **uno o varios tipos de dado** (d6, d8 y/o d10).
+- El jugador **no tiene por qué usar todos los dados disponibles** para cumplir el objetivo: puede resolverlo con un subconjunto si así lo permiten las reglas del objetivo y del nivel.
 
 ---
 
