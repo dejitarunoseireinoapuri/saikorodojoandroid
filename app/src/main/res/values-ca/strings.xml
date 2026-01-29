@@ -11,6 +11,7 @@
     <string name="cd_dice_face">Cara del dau %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
     <string name="select_die_to_reroll">Selecciona un dau per tornar a tirar</string>
+    <string name="select_dice_to_reroll">Selecciona els daus per tornar a tirar</string>
     <string name="select_die_to_flip">Selecciona un dau per girar</string>
     <string name="select_die_to_modify">Selecciona un dau per modificar</string>
     <string name="adjust_plus_one">+1</string>
@@ -22,8 +23,9 @@
     <string name="card_flip_face_description">Inverteix el valor del dau</string>
     <string name="card_reroll_single_title">Torna a tirar un dau</string>
     <string name="card_reroll_single_description">Tria un dau i torna\'l a tirar</string>
-    <string name="card_reroll_all_title">Torna a tirar-ho tot</string>
-    <string name="card_reroll_all_description">Torna a tirar tots els daus</string>
+    <string name="card_reroll_all_title">Torna a tirar alguns</string>
+    <string name="card_reroll_all_description">Selecciona els daus que vols tornar a tirar</string>
+    <string name="roll_selected_dice">Llançar</string>
     <string name="card_set_value_title">Fixar valor</string>
     <string name="card_set_value_description">Tria el valor final d\'un dau dins del seu rang</string>
     <string name="card_repeat_last_title">Repetir carta</string>
