@@ -226,7 +226,7 @@ internal fun DiceBoard(
             }
         }
         if (uiState.isAwaitingRerollSelected) {
-            val buttonOffset = boardHeight / 2 + 24.dp
+            val buttonOffset = boardHeight / 2 + 48.dp
             Button(
                 onClick = onRollSelectedDice,
                 enabled = uiState.selectedDice.isNotEmpty() && !uiState.isRolling,
@@ -238,6 +238,7 @@ internal fun DiceBoard(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(y = buttonOffset)
+                    .padding(top = 8.dp)
                     .height(48.dp)
             ) {
                 Text(
@@ -305,7 +306,7 @@ private fun DiceFace(
         modifier = Modifier
             .size(size)
             .then(
-                if (isAdjustmentSelected) {
+                if (isAdjustmentSelected || isSelected) {
                     Modifier.border(
                         width = 3.dp,
                         color = MaterialTheme.colorScheme.secondary,

@@ -24,7 +24,7 @@
     <string name="card_reroll_single_title">Torna a tirar un dau</string>
     <string name="card_reroll_single_description">Tria un dau i torna\'l a tirar</string>
     <string name="card_reroll_all_title">Torna a tirar alguns</string>
-    <string name="card_reroll_all_description">Selecciona els daus que vols tornar a tirar</string>
+    <string name="card_reroll_all_description">Torna a tirar els daus que vulguis</string>
     <string name="roll_selected_dice">Llançar</string>
     <string name="card_set_value_title">Fixar valor</string>
     <string name="card_set_value_description">Tria el valor final d\'un dau dins del seu rang</string>
