@@ -64,7 +64,8 @@ fun GameRoute(
         onSetSelectedDieValue = { value ->
             viewModel.onEvent(GameUiEvent.SetSelectedDieValue(value))
         },
-        onRollSelectedDice = { viewModel.onEvent(GameUiEvent.RollSelectedDice) }
+        onRollSelectedDice = { viewModel.onEvent(GameUiEvent.RollSelectedDice) },
+        onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) }
     )
 }
 
@@ -80,7 +81,8 @@ fun GameScreen(
     onCardApply: (Int) -> Unit,
     onAdjustSelectedDie: (Int) -> Unit,
     onSetSelectedDieValue: (Int) -> Unit,
-    onRollSelectedDice: () -> Unit
+    onRollSelectedDice: () -> Unit,
+    onRollSingleDie: () -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -125,7 +127,8 @@ fun GameScreen(
             onDiceClick = onDiceClick,
             onAdjustSelectedDie = onAdjustSelectedDie,
             onSetSelectedDieValue = onSetSelectedDieValue,
-            onRollSelectedDice = onRollSelectedDice
+            onRollSelectedDice = onRollSelectedDice,
+            onRollSingleDie = onRollSingleDie
         )
         Box(
             modifier = Modifier
