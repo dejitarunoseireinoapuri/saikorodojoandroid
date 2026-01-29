@@ -221,13 +221,18 @@ fun HigherLowerGameScreen(
                     val shiftPx = with(LocalDensity.current) {
                         (matWidth + spacing).toPx()
                     }
-                    val transitionProgress by animateFloatAsState(
-                        targetValue = if (uiState.isTransitioning) 1f else 0f,
-                        animationSpec = tween(durationMillis = HIGHER_LOWER_TRANSITION_MS),
-                        label = "higherLowerTransition"
-                    )
+                    val transitionProgress = if (uiState.isTransitioning) {
+                        animateFloatAsState(
+                            targetValue = 1f,
+                            animationSpec = tween(durationMillis = HIGHER_LOWER_TRANSITION_MS),
+                            label = "higherLowerTransition"
+                        ).value
+                    } else {
+                        0f
+                    }
                     val baseSum = uiState.baseDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val currentSum = uiState.currentDiceValues.takeIf { it.isNotEmpty() }?.sum()
+                    val showTotals = !uiState.isRolling && !uiState.isTransitioning
                     Row(
                         modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.spacedBy(spacing),
@@ -240,7 +245,7 @@ fun HigherLowerGameScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            HigherLowerSumLabel(sum = baseSum)
+                            HigherLowerSumLabel(sum = baseSum, isVisible = showTotals)
                             HigherLowerMat(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -264,7 +269,7 @@ fun HigherLowerGameScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            HigherLowerSumLabel(sum = currentSum)
+                            HigherLowerSumLabel(sum = currentSum, isVisible = showTotals)
                             HigherLowerMat(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -387,12 +392,12 @@ private fun HigherLowerDiceRow(
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
-        val spacing = 12.dp
-        val horizontalPadding = 12.dp
+        val spacing = 10.dp
+        val horizontalPadding = 8.dp
         val availableWidth = maxWidth - horizontalPadding * 2 - spacing
         val diceSize = (availableWidth / 2f)
-            .coerceAtMost(132.dp)
-            .coerceAtLeast(72.dp)
+            .coerceAtMost(112.dp)
+            .coerceAtLeast(64.dp)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -413,9 +418,14 @@ private fun HigherLowerDiceRow(
 
 @Composable
 private fun HigherLowerSumLabel(
-    sum: Int?
+    sum: Int?,
+    isVisible: Boolean
 ) {
-    val text = sum?.let { stringResource(R.string.higher_lower_total, it) }.orEmpty()
+    val text = if (isVisible && sum != null) {
+        stringResource(R.string.higher_lower_total, sum)
+    } else {
+        ""
+    }
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium.copy(

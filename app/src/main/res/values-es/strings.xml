@@ -51,7 +51,7 @@
     <string name="higher_lower_start">Empezar</string>
     <string name="higher_lower_higher">Superior</string>
     <string name="higher_lower_lower">Inferior</string>
-    <string name="higher_lower_total">Total %1$d</string>
+    <string name="higher_lower_total">Total: %1$d</string>
     <string name="sequence_title">Secuencia</string>
     <string name="sequence_subtitle">Quédate con el resultado del dado o descártalo, pero al final de la quinta ronda deberás tener una secuencia ascendente de 3 dados</string>
     <string name="sequence_start">Empezar</string>
