@@ -47,10 +47,11 @@
     <string name="odd_even_try_again">Ho aconseguiràs la propera vegada!</string>
     <string name="odd_even_continue">Continuar</string>
     <string name="higher_lower_title">Superior o Inferior</string>
-    <string name="higher_lower_subtitle">Has de dir si la següent tirada tindrà un resultat superior o inferior a l'actual. Guanyes si l'encertes tres vegades seguides o la suma dels dos daus és la mateixa dues vegades seguides.</string>
+    <string name="higher_lower_subtitle">Has de dir si la següent tirada tindrà un resultat superior o inferior a l\'actual. Guanyes si l\'encertes tres vegades seguides o la suma dels dos daus és la mateixa dues vegades seguides.</string>
     <string name="higher_lower_start">Començar</string>
     <string name="higher_lower_higher">Superior</string>
     <string name="higher_lower_lower">Inferior</string>
+    <string name="higher_lower_total">Total %1$d</string>
     <string name="sequence_title">Seqüència</string>
     <string name="sequence_subtitle">Queda\'t amb el resultat del dau o descarta\'l, però al final de la cinquena ronda hauràs de tenir una seqüència ascendent de 3 daus</string>
     <string name="sequence_start">Començar</string>
