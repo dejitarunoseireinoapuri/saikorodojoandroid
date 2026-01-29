@@ -326,7 +326,13 @@ fun BlackjackGameScreen(
                 }
             }
 
-            if (uiState.isComplete && uiState.isStarted) {
+            if (shouldShowContinueButton(
+                    isComplete = uiState.isComplete,
+                    isStarted = uiState.isStarted,
+                    isLoss = isLoss,
+                    showPostLossSummary = showPostLossSummary
+                )
+            ) {
                 Button(
                     onClick = onContinueClick,
                     shape = RoundedCornerShape(20.dp),
@@ -380,6 +386,16 @@ internal fun shouldShowMats(
     showPostLossSummary: Boolean
 ): Boolean {
     return isStarted && rewardCard == null && !showPostLossSummary
+}
+
+internal fun shouldShowContinueButton(
+    isComplete: Boolean,
+    isStarted: Boolean,
+    isLoss: Boolean,
+    showPostLossSummary: Boolean
+): Boolean {
+    if (!isComplete || !isStarted) return false
+    return !isLoss || showPostLossSummary
 }
 
 @Composable

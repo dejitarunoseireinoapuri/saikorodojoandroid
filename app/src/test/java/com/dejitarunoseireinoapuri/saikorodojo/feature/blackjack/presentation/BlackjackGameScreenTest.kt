@@ -52,6 +52,42 @@ class BlackjackGameScreenTest {
         )
     }
 
+    @Test
+    fun shouldHideContinueWhenLossSummaryNotReady() {
+        assertFalse(
+            shouldShowContinueButton(
+                isComplete = true,
+                isStarted = true,
+                isLoss = true,
+                showPostLossSummary = false
+            )
+        )
+    }
+
+    @Test
+    fun shouldShowContinueWhenLossSummaryReady() {
+        assertTrue(
+            shouldShowContinueButton(
+                isComplete = true,
+                isStarted = true,
+                isLoss = true,
+                showPostLossSummary = true
+            )
+        )
+    }
+
+    @Test
+    fun shouldShowContinueWhenNotLoss() {
+        assertTrue(
+            shouldShowContinueButton(
+                isComplete = true,
+                isStarted = true,
+                isLoss = false,
+                showPostLossSummary = false
+            )
+        )
+    }
+
     private fun sampleRewardCard(): CardUiModel {
         return CardUiModel(
             id = CardId.ADJUST_PLUS_MINUS_ONE,
