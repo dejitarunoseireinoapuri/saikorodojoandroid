@@ -212,7 +212,7 @@ fun BlackjackGameScreen(
                         .padding(horizontal = 24.dp, vertical = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(120.dp))
+                Spacer(modifier = Modifier.height(64.dp))
                     ScoreLabel(
                         text = stringResource(R.string.blackjack_dealer_score, uiState.dealerTotal)
                     )
@@ -264,7 +264,7 @@ fun BlackjackGameScreen(
                             isBust = uiState.showPlayerBust
                         )
                     }
-                    Spacer(modifier = Modifier.height(72.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 

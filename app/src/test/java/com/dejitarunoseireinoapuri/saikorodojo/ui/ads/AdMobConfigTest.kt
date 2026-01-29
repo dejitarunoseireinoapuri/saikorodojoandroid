@@ -11,4 +11,9 @@ class AdMobConfigTest {
             AdMobConfig.TestBannerAdUnitId
         )
     }
+
+    @Test
+    fun adWidthPxUsesDensity() {
+        assertEquals(1080, adWidthPx(screenWidthDp = 360, density = 3f))
+    }
 }
