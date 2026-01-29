@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -51,7 +52,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 internal const val HIGHER_LOWER_BUTTON_ROW_TAG = "higher_lower_button_row"
 internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
-private const val HIGHER_LOWER_TRANSITION_MS = 320
+private const val HIGHER_LOWER_TRANSITION_MS = 700
+private val HigherLowerButtonReserveHeight = 72.dp
 
 @Composable
 fun HigherLowerGameRoute(
@@ -209,7 +211,7 @@ fun HigherLowerGameScreen(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(132.dp))
+                Spacer(modifier = Modifier.height(132.dp + HigherLowerButtonReserveHeight))
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -235,6 +237,7 @@ fun HigherLowerGameScreen(
                     val baseSum = uiState.baseDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val currentSum = uiState.currentDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val showTotals = !uiState.isRolling && !uiState.isTransitioning
+                    val showFailure = uiState.isComplete && uiState.hasLoss
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(spacing),
@@ -263,7 +266,8 @@ fun HigherLowerGameScreen(
                                     diceRes = R.drawable.ten_sides,
                                     modifier = Modifier.graphicsLayer {
                                         translationX = shiftX * transitionProgress
-                                    }
+                                    },
+                                    isFailure = false
                                 )
                             }
                         }
@@ -292,7 +296,8 @@ fun HigherLowerGameScreen(
                                         .graphicsLayer {
                                             translationY = -shiftY * transitionProgress
                                         }
-                                        .zIndex(2f)
+                                        .zIndex(2f),
+                                    isFailure = showFailure
                                 )
                             }
                         }
@@ -394,7 +399,8 @@ private fun HigherLowerMat(
 private fun HigherLowerDiceRow(
     values: List<Int>,
     diceRes: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFailure: Boolean
 ) {
     if (values.isEmpty()) return
     BoxWithConstraints(
@@ -417,7 +423,8 @@ private fun HigherLowerDiceRow(
                 HigherLowerDieFace(
                     value = value,
                     size = diceSize,
-                    diceRes = diceRes
+                    diceRes = diceRes,
+                    isFailure = isFailure
                 )
             }
         }
@@ -450,16 +457,19 @@ private fun HigherLowerSumLabel(
 private fun HigherLowerDieFace(
     value: Int,
     size: Dp,
-    diceRes: Int
+    diceRes: Int,
+    isFailure: Boolean
 ) {
     val fontSize = (size.value * 0.32f).coerceIn(14f, 22f).sp
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
+        val tint = if (isFailure) Color(0xFFE53935) else Color.Unspecified
         Image(
             painter = painterResource(id = diceRes),
             contentDescription = stringResource(R.string.cd_dice_face, value),
+            colorFilter = if (isFailure) ColorFilter.tint(tint) else null,
             modifier = Modifier.fillMaxSize()
         )
         Text(
