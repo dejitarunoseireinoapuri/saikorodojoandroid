@@ -42,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.BannerAd
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -91,216 +92,223 @@ fun BlackjackGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(backgroundBrush)
-    Box(modifier = containerModifier) {
-        Column(
+    Column(modifier = containerModifier) {
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .weight(1f)
+                .fillMaxWidth()
         ) {
-            Text(
-                text = stringResource(R.string.blackjack_title),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 30.sp
-                ),
-                color = Color.White,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            val resultTextRes = when (uiState.result) {
-                BlackjackOutcome.PLAYER_WIN -> R.string.blackjack_win
-                BlackjackOutcome.PLAYER_LOSE -> R.string.blackjack_lose
-                null -> null
-            }
-            val hasReward = uiState.rewardCard != null
-            when {
-                hasReward -> {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(R.string.blackjack_win),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = Color(0xFFFFF176),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(
-                            R.string.blackjack_dealer_score,
-                            uiState.dealerTotal
-                        ),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(
-                            R.string.blackjack_player_score,
-                            uiState.playerTotal
-                        ),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.blackjack_reward_subtitle),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = Color.White
-                    )
-                }
-                resultTextRes != null -> {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(resultTextRes),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = Color(0xFFFFF176),
-                        textAlign = TextAlign.Center
-                    )
-                }
-                else -> {
-                    Text(
-                        text = stringResource(R.string.blackjack_subtitle),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                        color = Color.White.copy(alpha = 0.9f),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-        }
-
-        if (!uiState.isStarted) {
-            Button(
-                onClick = onStartClick,
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF1744),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .height(64.dp)
-                    .testTag(BLACKJACK_START_BUTTON_TAG)
-            ) {
-                Text(
-                    text = stringResource(R.string.blackjack_start),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
-                )
-            }
-        }
-
-        if (uiState.isStarted && uiState.rewardCard == null) {
             Column(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 24.dp),
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(120.dp))
-                ScoreLabel(
-                    text = stringResource(R.string.blackjack_dealer_score, uiState.dealerTotal)
+                Text(
+                    text = stringResource(R.string.blackjack_title),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp
+                    ),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                BlackjackMat(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(130.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    DiceRow(
-                        values = uiState.dealerDice,
-                        isBust = uiState.showDealerBust
-                    )
+                Spacer(modifier = Modifier.height(12.dp))
+                val resultTextRes = when (uiState.result) {
+                    BlackjackOutcome.PLAYER_WIN -> R.string.blackjack_win
+                    BlackjackOutcome.PLAYER_LOSE -> R.string.blackjack_lose
+                    null -> null
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-                if (uiState.isAwaitingDecision) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        BlackjackActionButton(
-                            label = stringResource(R.string.blackjack_hit),
-                            testTag = BLACKJACK_HIT_BUTTON_TAG,
-                            onClick = onHitClick
+                val hasReward = uiState.rewardCard != null
+                when {
+                    hasReward -> {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(R.string.blackjack_win),
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                            color = Color(0xFFFFF176),
+                            textAlign = TextAlign.Center
                         )
-                        BlackjackActionButton(
-                            label = stringResource(R.string.blackjack_stand),
-                            testTag = BLACKJACK_STAND_BUTTON_TAG,
-                            onClick = onStandClick
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(
+                                R.string.blackjack_dealer_score,
+                                uiState.dealerTotal
+                            ),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(
+                                R.string.blackjack_player_score,
+                                uiState.playerTotal
+                            ),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.blackjack_reward_subtitle),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                            color = Color.White
                         )
                     }
-                } else {
-                    Spacer(modifier = Modifier.height(56.dp))
+                    resultTextRes != null -> {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(resultTextRes),
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                            color = Color(0xFFFFF176),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    else -> {
+                        Text(
+                            text = stringResource(R.string.blackjack_subtitle),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                            color = Color.White.copy(alpha = 0.9f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                ScoreLabel(
-                    text = stringResource(R.string.blackjack_player_score, uiState.playerTotal)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                BlackjackMat(
+            }
+
+            if (!uiState.isStarted) {
+                Button(
+                    onClick = onStartClick,
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF1744),
+                        contentColor = Color.White
+                    ),
                     modifier = Modifier
+                        .align(Alignment.Center)
+                        .height(64.dp)
+                        .testTag(BLACKJACK_START_BUTTON_TAG)
+                ) {
+                    Text(
+                        text = stringResource(R.string.blackjack_start),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+                    )
+                }
+            }
+
+            if (uiState.isStarted && uiState.rewardCard == null) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .height(140.dp),
+                        .padding(horizontal = 24.dp, vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(120.dp))
+                    ScoreLabel(
+                        text = stringResource(R.string.blackjack_dealer_score, uiState.dealerTotal)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    BlackjackMat(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(130.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        DiceRow(
+                            values = uiState.dealerDice,
+                            isBust = uiState.showDealerBust
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    if (uiState.isAwaitingDecision) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(24.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            BlackjackActionButton(
+                                label = stringResource(R.string.blackjack_hit),
+                                testTag = BLACKJACK_HIT_BUTTON_TAG,
+                                onClick = onHitClick
+                            )
+                            BlackjackActionButton(
+                                label = stringResource(R.string.blackjack_stand),
+                                testTag = BLACKJACK_STAND_BUTTON_TAG,
+                                onClick = onStandClick
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.height(56.dp))
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    ScoreLabel(
+                        text = stringResource(R.string.blackjack_player_score, uiState.playerTotal)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    BlackjackMat(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        DiceRow(
+                            values = uiState.playerDice,
+                            isBust = uiState.showPlayerBust
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(72.dp))
+                }
+            }
+
+            uiState.rewardCard?.let { reward ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(3f),
                     contentAlignment = Alignment.Center
                 ) {
-                    DiceRow(
-                        values = uiState.playerDice,
-                        isBust = uiState.showPlayerBust
+                    CardItem(
+                        card = reward,
+                        onApplyClick = {},
+                        showActionButton = false,
+                        showCount = false
                     )
                 }
-                Spacer(modifier = Modifier.height(72.dp))
             }
-        }
 
-        uiState.rewardCard?.let { reward ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(3f),
-                contentAlignment = Alignment.Center
-            ) {
-                CardItem(
-                    card = reward,
-                    onApplyClick = {},
-                    showActionButton = false,
-                    showCount = false
-                )
-            }
-        }
-
-        if (uiState.isComplete && uiState.isStarted) {
-            Button(
-                onClick = onContinueClick,
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF26C6DA),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 24.dp)
-                    .height(56.dp)
-                    .zIndex(4f)
-            ) {
-                Text(
-                    text = stringResource(R.string.blackjack_continue),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
+            if (uiState.isComplete && uiState.isStarted) {
+                Button(
+                    onClick = onContinueClick,
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF26C6DA),
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 24.dp)
+                        .height(56.dp)
+                        .zIndex(4f)
+                ) {
+                    Text(
+                        text = stringResource(R.string.blackjack_continue),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
                     )
-                )
+                }
             }
         }
+        BannerAd(modifier = Modifier.fillMaxWidth())
     }
 }
 

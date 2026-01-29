@@ -8,8 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -40,6 +42,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.BannerAd
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoThemeColors
 
 @Composable
@@ -96,54 +99,59 @@ fun GameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(backgroundBrush)
-    BoxWithConstraints(
-        modifier = containerModifier,
-        contentAlignment = Alignment.Center
-    ) {
-        val constraintsWidth = maxWidth
-        val constraintsHeight = maxHeight
-        val shouldHideCards = uiState.isAwaitingRerollSingle ||
-            uiState.isAwaitingAdjustPlusMinus ||
-            uiState.isAwaitingSetValue
-        val stackOffset by animateDpAsState(
-            targetValue = if (shouldHideCards) maxHeight else 0.dp,
-            animationSpec = tween(durationMillis = 220),
-            label = "cardStackOffset"
-        )
-        val stackAlpha by animateFloatAsState(
-            targetValue = if (shouldHideCards) 0f else 1f,
-            animationSpec = tween(durationMillis = 180),
-            label = "cardStackAlpha"
-        )
-        DiceBoard(
-            modifier = Modifier.zIndex(0f),
-            maxWidth = maxWidth,
-            uiState = uiState,
-            onDiceClick = onDiceClick,
-            onAdjustSelectedDie = onAdjustSelectedDie,
-            onSetSelectedDieValue = onSetSelectedDieValue
-        )
-        Box(
+    Column(modifier = containerModifier) {
+        BoxWithConstraints(
             modifier = Modifier
-                .fillMaxSize()
-                .navigationBarsPadding()
-                .clipToBounds()
-                .zIndex(1f)
-                .offset(y = stackOffset)
-                .alpha(stackAlpha)
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
-            GameCardStack(
-                cards = uiState.cardUiModels,
-                selectedCardIndex = uiState.selectedCardIndex,
-                lastAppliedCardId = uiState.lastAppliedCardId,
-                maxWidth = constraintsWidth,
-                maxHeight = constraintsHeight,
-                isInteractionEnabled = !shouldHideCards,
-                onCardSelect = onCardSelect,
-                onCardDismiss = onCardDismiss,
-                onCardApply = onCardApply
+            val constraintsWidth = maxWidth
+            val constraintsHeight = maxHeight
+            val shouldHideCards = uiState.isAwaitingRerollSingle ||
+                uiState.isAwaitingAdjustPlusMinus ||
+                uiState.isAwaitingSetValue
+            val stackOffset by animateDpAsState(
+                targetValue = if (shouldHideCards) maxHeight else 0.dp,
+                animationSpec = tween(durationMillis = 220),
+                label = "cardStackOffset"
             )
+            val stackAlpha by animateFloatAsState(
+                targetValue = if (shouldHideCards) 0f else 1f,
+                animationSpec = tween(durationMillis = 180),
+                label = "cardStackAlpha"
+            )
+            DiceBoard(
+                modifier = Modifier.zIndex(0f),
+                maxWidth = maxWidth,
+                uiState = uiState,
+                onDiceClick = onDiceClick,
+                onAdjustSelectedDie = onAdjustSelectedDie,
+                onSetSelectedDieValue = onSetSelectedDieValue
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .clipToBounds()
+                    .zIndex(1f)
+                    .offset(y = stackOffset)
+                    .alpha(stackAlpha)
+            ) {
+                GameCardStack(
+                    cards = uiState.cardUiModels,
+                    selectedCardIndex = uiState.selectedCardIndex,
+                    lastAppliedCardId = uiState.lastAppliedCardId,
+                    maxWidth = constraintsWidth,
+                    maxHeight = constraintsHeight,
+                    isInteractionEnabled = !shouldHideCards,
+                    onCardSelect = onCardSelect,
+                    onCardDismiss = onCardDismiss,
+                    onCardApply = onCardApply
+                )
+            }
         }
+        BannerAd(modifier = Modifier.fillMaxWidth())
     }
 }
 

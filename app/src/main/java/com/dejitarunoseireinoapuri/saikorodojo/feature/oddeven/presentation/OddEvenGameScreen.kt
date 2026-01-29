@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -42,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
+import com.dejitarunoseireinoapuri.saikorodojo.ui.ads.BannerAd
 
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
@@ -90,197 +92,202 @@ fun OddEvenGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(backgroundBrush)
-    Box(
-        modifier = containerModifier
-    ) {
-        Column(
+    Column(modifier = containerModifier) {
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .weight(1f)
+                .fillMaxWidth()
         ) {
-            Text(
-                text = stringResource(R.string.odd_even_title),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 30.sp
-                ),
-                color = Color.White,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            val hasReward = uiState.rewardCard != null
-            val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
-            if (hasReward) {
-                Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
-                    text = stringResource(R.string.odd_even_congrats),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = Color(0xFFFFF176)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.odd_even_reward_subtitle),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = Color.White
-                )
-            } else if (hasLoss) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.odd_even_try_again),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = Color(0xFFFFF176)
-                )
-            } else {
-                Text(
-                    text = stringResource(R.string.odd_even_subtitle),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = Color.White.copy(alpha = 0.9f),
+                    text = stringResource(R.string.odd_even_title),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp
+                    ),
+                    color = Color.White,
                     textAlign = TextAlign.Center
                 )
-                if (uiState.isStarted) {
-                    Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                val hasReward = uiState.rewardCard != null
+                val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
+                if (hasReward) {
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = stringResource(
-                            R.string.odd_even_round_status,
-                            uiState.currentRound,
-                            uiState.totalRounds
-                        ),
+                        text = stringResource(R.string.odd_even_congrats),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = Color.White
+                        color = Color(0xFFFFF176)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = stringResource(
-                            R.string.odd_even_hits_status,
-                            uiState.correctCount,
-                            uiState.targetCorrect
-                        ),
+                        text = stringResource(R.string.odd_even_reward_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = Color.White.copy(alpha = 0.85f)
+                        color = Color.White
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Row(
-                        modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OddEvenChoiceButton(
-                            visible = uiState.selectedChoice != OddEvenChoice.ODD,
-                            label = stringResource(R.string.odd_even_even),
-                            isEnabled = uiState.selectedChoice == null,
-                            onClick = { onChoiceSelect(OddEvenChoice.EVEN) }
-                        )
-                        OddEvenChoiceButton(
-                            visible = uiState.selectedChoice != OddEvenChoice.EVEN,
-                            label = stringResource(R.string.odd_even_odd),
-                            isEnabled = uiState.selectedChoice == null,
-                            onClick = { onChoiceSelect(OddEvenChoice.ODD) }
-                        )
-                    }
-                }
-            }
-        }
-
-        if (!uiState.isStarted) {
-            Button(
-                onClick = onStartClick,
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF1744),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .height(64.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.odd_even_start),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
-                )
-            }
-        }
-
-        if (uiState.isStarted && uiState.rewardCard == null && !uiState.isComplete) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .offset(y = 120.dp)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                OddEvenDiceFace(
-                    value = uiState.diceValue,
-                    size = ODD_EVEN_DICE_SIZE,
-                    modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
-                )
-                val resultTextRes = when {
-                    uiState.showFireworks -> R.string.odd_even_correct
-                    uiState.showFailure -> R.string.odd_even_wrong
-                    else -> null
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    modifier = Modifier.height(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (resultTextRes != null) {
+                } else if (hasLoss) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.odd_even_try_again),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                        color = Color(0xFFFFF176)
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.odd_even_subtitle),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                        color = Color.White.copy(alpha = 0.9f),
+                        textAlign = TextAlign.Center
+                    )
+                    if (uiState.isStarted) {
+                        Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = stringResource(resultTextRes),
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                            text = stringResource(
+                                R.string.odd_even_round_status,
+                                uiState.currentRound,
+                                uiState.totalRounds
+                            ),
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
                             color = Color.White
                         )
-                    } else {
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "",
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            modifier = Modifier.alpha(0f)
+                            text = stringResource(
+                                R.string.odd_even_hits_status,
+                                uiState.correctCount,
+                                uiState.targetCorrect
+                            ),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                            color = Color.White.copy(alpha = 0.85f)
                         )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(
+                            modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
+                            horizontalArrangement = Arrangement.spacedBy(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OddEvenChoiceButton(
+                                visible = uiState.selectedChoice != OddEvenChoice.ODD,
+                                label = stringResource(R.string.odd_even_even),
+                                isEnabled = uiState.selectedChoice == null,
+                                onClick = { onChoiceSelect(OddEvenChoice.EVEN) }
+                            )
+                            OddEvenChoiceButton(
+                                visible = uiState.selectedChoice != OddEvenChoice.EVEN,
+                                label = stringResource(R.string.odd_even_odd),
+                                isEnabled = uiState.selectedChoice == null,
+                                onClick = { onChoiceSelect(OddEvenChoice.ODD) }
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        uiState.rewardCard?.let { reward ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(3f),
-                contentAlignment = Alignment.Center
-            ) {
-                CardItem(
-                    card = reward,
-                    onApplyClick = {},
-                    showActionButton = false,
-                    showCount = false
-                )
-            }
-        }
-
-        if (uiState.isComplete && uiState.isStarted) {
-            Button(
-                onClick = onContinueClick,
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF26C6DA),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 24.dp)
-                    .height(56.dp)
-                    .zIndex(4f)
-                    .testTag(ODD_EVEN_CONTINUE_BUTTON_TAG)
-            ) {
-                Text(
-                    text = stringResource(R.string.odd_even_continue),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
+            if (!uiState.isStarted) {
+                Button(
+                    onClick = onStartClick,
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF1744),
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .height(64.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.odd_even_start),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
                     )
-                )
+                }
+            }
+
+            if (uiState.isStarted && uiState.rewardCard == null && !uiState.isComplete) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = 120.dp)
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OddEvenDiceFace(
+                        value = uiState.diceValue,
+                        size = ODD_EVEN_DICE_SIZE,
+                        modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
+                    )
+                    val resultTextRes = when {
+                        uiState.showFireworks -> R.string.odd_even_correct
+                        uiState.showFailure -> R.string.odd_even_wrong
+                        else -> null
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box(
+                        modifier = Modifier.height(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (resultTextRes != null) {
+                            Text(
+                                text = stringResource(resultTextRes),
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                                color = Color.White
+                            )
+                        } else {
+                            Text(
+                                text = "",
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                                modifier = Modifier.alpha(0f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            uiState.rewardCard?.let { reward ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(3f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CardItem(
+                        card = reward,
+                        onApplyClick = {},
+                        showActionButton = false,
+                        showCount = false
+                    )
+                }
+            }
+
+            if (uiState.isComplete && uiState.isStarted) {
+                Button(
+                    onClick = onContinueClick,
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF26C6DA),
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 24.dp)
+                        .height(56.dp)
+                        .zIndex(4f)
+                        .testTag(ODD_EVEN_CONTINUE_BUTTON_TAG)
+                ) {
+                    Text(
+                        text = stringResource(R.string.odd_even_continue),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+                    )
+                }
             }
         }
+        BannerAd(modifier = Modifier.fillMaxWidth())
     }
 }
 
