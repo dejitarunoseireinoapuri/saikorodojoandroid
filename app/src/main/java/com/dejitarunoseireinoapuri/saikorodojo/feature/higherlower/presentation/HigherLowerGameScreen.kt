@@ -209,7 +209,7 @@ fun HigherLowerGameScreen(
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(96.dp))
+                Spacer(modifier = Modifier.height(132.dp))
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -247,7 +247,10 @@ fun HigherLowerGameScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            HigherLowerSumLabel(sum = baseSum, isVisible = showTotals)
+                            HigherLowerSumLabel(
+                                sum = baseSum,
+                                isVisible = showTotals && baseSum != null
+                            )
                             HigherLowerMat(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -271,7 +274,10 @@ fun HigherLowerGameScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            HigherLowerSumLabel(sum = currentSum, isVisible = showTotals)
+                            HigherLowerSumLabel(
+                                sum = currentSum,
+                                isVisible = showTotals && currentSum != null
+                            )
                             HigherLowerMat(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -281,7 +287,7 @@ fun HigherLowerGameScreen(
                             ) {
                                 HigherLowerDiceRow(
                                     values = uiState.currentDiceValues,
-                                    diceRes = R.drawable.ten_sides_green,
+                                    diceRes = R.drawable.ten_sides,
                                     modifier = Modifier
                                         .graphicsLayer {
                                             translationY = -shiftY * transitionProgress
