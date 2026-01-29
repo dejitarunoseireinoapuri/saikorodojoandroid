@@ -333,6 +333,11 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
 
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(2))
+        viewModel.onEvent(GameUiEvent.RollSelectedDice)
+        testDispatcher.scheduler.advanceUntilIdle()
+
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
 
         val stateAfterRepeat = viewModel.uiState.value
