@@ -5,7 +5,7 @@ import org.junit.Test
 
 class AppRoutesTest {
     @Test
-    fun `play destination points to blackjack game`() {
-        assertEquals(AppRoutes.BlackjackGame, AppRoutes.PlayDestination)
+    fun `play destination points to main game`() {
+        assertEquals(AppRoutes.Game, AppRoutes.PlayDestination)
     }
 }
