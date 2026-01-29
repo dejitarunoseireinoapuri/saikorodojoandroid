@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "com.dejitarunoseireinoapuri.saikorodojo"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.dejitarunoseireinoapuri.saikorodojo"
@@ -46,7 +44,7 @@ kotlin {
 
 kover {
     currentProject {
-        createVariant("debug")
+        createVariant("debug") {}
     }
 }
 
