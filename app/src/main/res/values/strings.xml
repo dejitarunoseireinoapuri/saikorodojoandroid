@@ -51,4 +51,15 @@
     <string name="sequence_discard">Discard</string>
     <string name="sequence_congrats">Congratulations!</string>
     <string name="sequence_reward_subtitle">You won a card</string>
+    <string name="blackjack_title">Blackjack</string>
+    <string name="blackjack_subtitle">Llega a 21 sin pasarte. Después de la primera tirada, elige si quieres tirar un dado de 10 más o plantarte. Después de que te plantes será el turno de la banca. El que se acerque más a 21 gana, perdiendo los dos si hay empate. El 1 vale como 1 u 11 según convenga.</string>
+    <string name="blackjack_start">Empezar</string>
+    <string name="blackjack_hit">Pedir</string>
+    <string name="blackjack_stand">Plantarse</string>
+    <string name="blackjack_player_score">Tu puntuación: %1$d</string>
+    <string name="blackjack_dealer_score">Puntuación de la banca: %1$d</string>
+    <string name="blackjack_win">¡Has ganado!</string>
+    <string name="blackjack_lose">Has perdido</string>
+    <string name="blackjack_reward_subtitle">Has ganado una carta</string>
+    <string name="blackjack_continue">Continuar</string>
 </resources>
