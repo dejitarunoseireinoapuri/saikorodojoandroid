@@ -13,7 +13,12 @@ class AdMobConfigTest {
     }
 
     @Test
-    fun adWidthPxUsesDensity() {
-        assertEquals(1080, adWidthPx(screenWidthDp = 360, density = 3f))
+    fun adWidthDpUsesConfigurationValue() {
+        assertEquals(360, adWidthDp(screenWidthDp = 360))
+    }
+
+    @Test
+    fun adWidthDpClampsToAtLeastOne() {
+        assertEquals(1, adWidthDp(screenWidthDp = 0))
     }
 }
