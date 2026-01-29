@@ -47,6 +47,7 @@
     <string name="higher_lower_start">Start</string>
     <string name="higher_lower_higher">Higher</string>
     <string name="higher_lower_lower">Lower</string>
+    <string name="higher_lower_total">Total %1$d</string>
     <string name="sequence_title">Sequence</string>
     <string name="sequence_subtitle">Keep the die result or discard it, but after the fifth round you must have an ascending sequence of 3 dice</string>
     <string name="sequence_start">Start</string>

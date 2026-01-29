@@ -1,5 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,10 +45,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
 internal const val HIGHER_LOWER_BUTTON_ROW_TAG = "higher_lower_button_row"
 internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
+private const val HIGHER_LOWER_TRANSITION_MS = 320
 
 @Composable
 fun HigherLowerGameRoute(
@@ -203,37 +210,79 @@ fun HigherLowerGameScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(72.dp))
-                Row(
+                BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(160.dp)
-                        .testTag(HIGHER_LOWER_MAT_ROW_TAG),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .height(184.dp)
+                        .testTag(HIGHER_LOWER_MAT_ROW_TAG)
                 ) {
-                    HigherLowerMat(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxSize(),
-                        backgroundColor = Color(0xFFFFF8E1),
-                        borderColor = Color(0xFFFFCC80)
-                    ) {
-                        HigherLowerDiceRow(
-                            values = uiState.baseDiceValues,
-                            diceRes = R.drawable.ten_sides
-                        )
+                    val spacing = 16.dp
+                    val matWidth = (maxWidth - spacing) / 2f
+                    val shiftPx = with(LocalDensity.current) {
+                        (matWidth + spacing).toPx()
                     }
-                    HigherLowerMat(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxSize(),
-                        backgroundColor = Color(0xFFE8F5E9),
-                        borderColor = Color(0xFFA5D6A7)
+                    val transitionProgress by animateFloatAsState(
+                        targetValue = if (uiState.isTransitioning) 1f else 0f,
+                        animationSpec = tween(durationMillis = HIGHER_LOWER_TRANSITION_MS),
+                        label = "higherLowerTransition"
+                    )
+                    val baseSum = uiState.baseDiceValues.takeIf { it.isNotEmpty() }?.sum()
+                    val currentSum = uiState.currentDiceValues.takeIf { it.isNotEmpty() }?.sum()
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(spacing),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        HigherLowerDiceRow(
-                            values = uiState.currentDiceValues,
-                            diceRes = R.drawable.ten_sides_green
-                        )
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            HigherLowerSumLabel(sum = baseSum)
+                            HigherLowerMat(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                backgroundColor = Color(0xFFFFF59D),
+                                borderColor = Color(0xFFFFD54F)
+                            ) {
+                                HigherLowerDiceRow(
+                                    values = uiState.baseDiceValues,
+                                    diceRes = R.drawable.ten_sides,
+                                    modifier = Modifier.graphicsLayer {
+                                        translationX = -shiftPx * transitionProgress
+                                    }
+                                )
+                            }
+                        }
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            HigherLowerSumLabel(sum = currentSum)
+                            HigherLowerMat(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                backgroundColor = SequenceSaveMatBackground,
+                                borderColor = SequenceSaveMatBorder
+                            ) {
+                                HigherLowerDiceRow(
+                                    values = uiState.currentDiceValues,
+                                    diceRes = R.drawable.ten_sides_green,
+                                    modifier = Modifier
+                                        .graphicsLayer {
+                                            translationX = -shiftPx * transitionProgress
+                                        }
+                                        .zIndex(2f)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -331,16 +380,19 @@ private fun HigherLowerMat(
 @Composable
 private fun HigherLowerDiceRow(
     values: List<Int>,
-    diceRes: Int
+    diceRes: Int,
+    modifier: Modifier = Modifier
 ) {
     if (values.isEmpty()) return
     BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         val spacing = 12.dp
         val horizontalPadding = 12.dp
         val availableWidth = maxWidth - horizontalPadding * 2 - spacing
-        val diceSize = (availableWidth / 2f).coerceAtMost(96.dp)
+        val diceSize = (availableWidth / 2f)
+            .coerceAtMost(132.dp)
+            .coerceAtLeast(72.dp)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -357,6 +409,23 @@ private fun HigherLowerDiceRow(
             }
         }
     }
+}
+
+@Composable
+private fun HigherLowerSumLabel(
+    sum: Int?
+) {
+    val text = sum?.let { stringResource(R.string.higher_lower_total, it) }.orEmpty()
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        ),
+        color = Color.White,
+        modifier = Modifier.height(24.dp),
+        textAlign = TextAlign.Center
+    )
 }
 
 @Composable

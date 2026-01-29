@@ -8,5 +8,5 @@ object AppRoutes {
     const val BlackjackGame = "blackjack_game"
     const val HigherLowerGame = "higher_lower_game"
     const val StartDestination = Menu
-    const val PlayDestination = Game
+    const val PlayDestination = HigherLowerGame
 }

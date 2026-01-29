@@ -22,6 +22,7 @@ private const val DEFAULT_TARGET_CORRECT = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_RESULT_DELAY_MS = 1_500L
+private const val DEFAULT_TRANSITION_MS = 320L
 
 @JvmInline
 value class DiceSum(val value: Int)
@@ -31,12 +32,14 @@ data class HigherLowerGameUiState(
     val currentRound: Int = 0,
     val totalRounds: Int = DEFAULT_TOTAL_ROUNDS,
     val correctStreak: Int = 0,
+    val equalStreak: Int = 0,
     val targetCorrect: Int = DEFAULT_TARGET_CORRECT,
     val selectedChoice: HigherLowerChoice? = null,
     val baseDiceValues: List<Int> = emptyList(),
     val currentDiceValues: List<Int> = emptyList(),
     val isRolling: Boolean = false,
     val isChoiceVisible: Boolean = false,
+    val isTransitioning: Boolean = false,
     val isComplete: Boolean = false,
     val hasLoss: Boolean = false,
     val rewardCard: CardUiModel? = null
@@ -55,6 +58,7 @@ class HigherLowerGameViewModel(
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
     private val resultDelayMs: Long = DEFAULT_RESULT_DELAY_MS,
+    private val transitionMs: Long = DEFAULT_TRANSITION_MS,
     private val totalRounds: Int = DEFAULT_TOTAL_ROUNDS,
     private val targetCorrect: Int = DEFAULT_TARGET_CORRECT,
     private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
@@ -83,11 +87,13 @@ class HigherLowerGameViewModel(
                 isStarted = true,
                 currentRound = 1,
                 correctStreak = 0,
+                equalStreak = 0,
                 selectedChoice = null,
                 baseDiceValues = emptyList(),
                 currentDiceValues = emptyList(),
                 isRolling = true,
                 isChoiceVisible = false,
+                isTransitioning = false,
                 isComplete = false,
                 hasLoss = false,
                 rewardCard = null
@@ -126,7 +132,7 @@ class HigherLowerGameViewModel(
                 val baseSum = DiceSum(state.baseDiceValues.sum())
                 val newSum = DiceSum(roll.sum)
                 if (newSum.value == baseSum.value) {
-                    resolveWin()
+                    resolveEqualSum(roll.values)
                 } else if (isCorrectGuess(choice, baseSum, newSum)) {
                     resolveCorrectGuess(roll.values)
                 } else {
@@ -173,11 +179,58 @@ class HigherLowerGameViewModel(
             _uiState.update {
                 it.copy(
                     correctStreak = updatedStreak,
+                    equalStreak = 0,
                     currentRound = it.currentRound + 1,
                     selectedChoice = null,
+                    isRolling = false,
+                    isTransitioning = true,
+                    isChoiceVisible = false
+                )
+            }
+            if (transitionMs > 0L) {
+                delay(transitionMs)
+            }
+            _uiState.update {
+                it.copy(
                     baseDiceValues = newValues,
                     currentDiceValues = emptyList(),
+                    isTransitioning = false,
+                    isChoiceVisible = true
+                )
+            }
+        }
+    }
+
+    private fun resolveEqualSum(newValues: List<Int>) {
+        val state = _uiState.value
+        val updatedEqualStreak = state.equalStreak + 1
+        if (updatedEqualStreak >= 2) {
+            resolveWin()
+            return
+        }
+        rollJob = viewModelScope.launch(dispatcher) {
+            if (resultDelayMs > 0L) {
+                delay(resultDelayMs)
+            }
+            _uiState.update {
+                it.copy(
+                    equalStreak = updatedEqualStreak,
+                    correctStreak = 0,
+                    selectedChoice = null,
+                    currentRound = it.currentRound + 1,
                     isRolling = false,
+                    isTransitioning = true,
+                    isChoiceVisible = false
+                )
+            }
+            if (transitionMs > 0L) {
+                delay(transitionMs)
+            }
+            _uiState.update {
+                it.copy(
+                    baseDiceValues = newValues,
+                    currentDiceValues = emptyList(),
+                    isTransitioning = false,
                     isChoiceVisible = true
                 )
             }
@@ -194,6 +247,8 @@ class HigherLowerGameViewModel(
                     currentDiceValues = newValues,
                     isRolling = false,
                     isChoiceVisible = false,
+                    isTransitioning = false,
+                    equalStreak = 0,
                     isComplete = true,
                     hasLoss = true
                 )
@@ -211,6 +266,7 @@ class HigherLowerGameViewModel(
                 it.copy(
                     isRolling = false,
                     isChoiceVisible = false,
+                    isTransitioning = false,
                     isComplete = true,
                     rewardCard = rewardCard
                 )

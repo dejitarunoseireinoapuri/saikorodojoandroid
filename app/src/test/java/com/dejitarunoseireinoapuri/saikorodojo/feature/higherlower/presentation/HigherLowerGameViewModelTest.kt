@@ -91,13 +91,23 @@ class HigherLowerGameViewModelTest {
     }
 
     @Test
-    fun `matching sums trigger an immediate win`() = runTest {
+    fun `matching sums twice in a row trigger a win`() = runTest {
         val viewModel = buildViewModel(
-            diceValues = listOf(1, 1, 3, 7, 1, 1, 6, 4)
+            diceValues = listOf(
+                1, 1, 3, 3,
+                2, 2, 2, 4,
+                5, 1, 1, 5
+            )
         )
 
         viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
         advanceUntilIdle()
+
+        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
+        advanceUntilIdle()
+
+        val midState = viewModel.uiState.value
+        assertFalse(midState.isComplete)
 
         viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
         advanceUntilIdle()
