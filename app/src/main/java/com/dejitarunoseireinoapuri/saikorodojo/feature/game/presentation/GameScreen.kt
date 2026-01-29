@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -220,7 +221,7 @@ private fun GameCardStack(
         )
         Box(
             modifier = Modifier
-                .offset(x = animatedX, y = animatedY)
+                .offset { IntOffset(animatedX.roundToPx(), animatedY.roundToPx()) }
                 .zIndex(if (isSelected) 2f else 1f + index * 0.01f)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
