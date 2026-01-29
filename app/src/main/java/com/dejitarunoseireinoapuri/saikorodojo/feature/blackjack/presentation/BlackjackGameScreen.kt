@@ -101,7 +101,6 @@ fun BlackjackGameScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(bottom = adHeight)
         ) {
             Column(
                 modifier = Modifier
@@ -313,10 +312,16 @@ fun BlackjackGameScreen(
                 }
             }
         }
-        BannerAd(
-            modifier = Modifier.fillMaxWidth(),
-            adSize = adSize
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(adHeight)
+        ) {
+            BannerAd(
+                modifier = Modifier.fillMaxSize(),
+                adSize = adSize
+            )
+        }
     }
 }
 

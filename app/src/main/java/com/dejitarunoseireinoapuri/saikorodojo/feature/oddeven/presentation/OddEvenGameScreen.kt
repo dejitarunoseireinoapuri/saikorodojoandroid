@@ -101,7 +101,6 @@ fun OddEvenGameScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(bottom = adHeight)
         ) {
             Column(
                 modifier = Modifier
@@ -292,10 +291,16 @@ fun OddEvenGameScreen(
                 }
             }
         }
-        BannerAd(
-            modifier = Modifier.fillMaxWidth(),
-            adSize = adSize
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(adHeight)
+        ) {
+            BannerAd(
+                modifier = Modifier.fillMaxSize(),
+                adSize = adSize
+            )
+        }
     }
 }
 

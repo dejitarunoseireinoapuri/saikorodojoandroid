@@ -107,8 +107,7 @@ fun GameScreen(
         BoxWithConstraints(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth()
-                .padding(bottom = adHeight),
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             val constraintsWidth = maxWidth
@@ -156,10 +155,16 @@ fun GameScreen(
                 )
             }
         }
-        BannerAd(
-            modifier = Modifier.fillMaxWidth(),
-            adSize = adSize
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(adHeight)
+        ) {
+            BannerAd(
+                modifier = Modifier.fillMaxSize(),
+                adSize = adSize
+            )
+        }
     }
 }
 
