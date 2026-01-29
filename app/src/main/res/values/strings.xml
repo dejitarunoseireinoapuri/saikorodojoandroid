@@ -3,8 +3,6 @@
     <string name="game_title">Saikoro Dojo</string>
     <string name="play">Play</string>
     <string name="rules">Rules</string>
-    <string name="cd_light_mode">Light mode</string>
-    <string name="cd_dark_mode">Dark mode</string>
     <string name="cd_sound_on">Sound on</string>
     <string name="cd_sound_off">Sound off</string>
     <string name="cd_settings">Settings</string>
@@ -14,8 +12,6 @@
     <string name="select_dice_to_reroll">Select dice to reroll</string>
     <string name="select_die_to_flip">Select a die to flip</string>
     <string name="select_die_to_modify">Select a die to modify</string>
-    <string name="adjust_plus_one">+1</string>
-    <string name="adjust_minus_one">-1</string>
     <string name="apply">Use</string>
     <string name="card_adjust_plus_minus_one_title">Adjust ±1</string>
     <string name="card_adjust_plus_minus_one_description">Increase or decrease a die value by 1 without leaving its range</string>
