@@ -120,7 +120,8 @@ class BlackjackGameViewModel(
                     playerValues = playerValues,
                     dealerValues = dealerValues,
                     isRolling = true,
-                    isAwaitingDecision = false
+                    isAwaitingDecision = false,
+                    updateTotals = false
                 )
                 if (rollAnimationMs > 0L) {
                     delay(tickMs)
@@ -131,6 +132,7 @@ class BlackjackGameViewModel(
                 dealerValues = dealerValues,
                 isRolling = false,
                 isAwaitingDecision = true,
+                updateTotals = true,
                 isPlayerTurn = true
             )
         }
@@ -152,7 +154,8 @@ class BlackjackGameViewModel(
                     playerValues = dice.toList(),
                     dealerValues = state.dealerDice,
                     isRolling = true,
-                    isAwaitingDecision = false
+                    isAwaitingDecision = false,
+                    updateTotals = false
                 )
                 if (rollAnimationMs > 0L) {
                     delay(tickMs)
@@ -164,6 +167,7 @@ class BlackjackGameViewModel(
                 it.copy(
                     playerDice = dice.toList(),
                     playerTotal = playerTotal,
+                    dealerTotal = it.dealerTotal,
                     isRolling = false,
                     isAwaitingDecision = !isBust,
                     isPlayerTurn = !isBust,
@@ -207,6 +211,13 @@ class BlackjackGameViewModel(
                 dealerValues = animateDealerRoll(dealerValues)
                 dealerTotal = calculateBlackjackScoreUseCase.execute(dealerValues)
                 isDealerBust = dealerTotal > BLACKJACK_LIMIT
+                _uiState.update { current ->
+                    current.copy(
+                        dealerDice = dealerValues,
+                        dealerTotal = dealerTotal,
+                        isRolling = false
+                    )
+                }
             }
             _uiState.update {
                 it.copy(
@@ -239,6 +250,7 @@ class BlackjackGameViewModel(
                 dealerValues = dice.toList(),
                 isRolling = true,
                 isAwaitingDecision = false,
+                updateTotals = false,
                 isDealerTurn = true
             )
             if (rollAnimationMs > 0L) {
@@ -253,11 +265,20 @@ class BlackjackGameViewModel(
         dealerValues: List<Int>,
         isRolling: Boolean,
         isAwaitingDecision: Boolean,
+        updateTotals: Boolean,
         isPlayerTurn: Boolean = _uiState.value.isPlayerTurn,
         isDealerTurn: Boolean = _uiState.value.isDealerTurn
     ) {
-        val playerTotal = calculateBlackjackScoreUseCase.execute(playerValues)
-        val dealerTotal = calculateBlackjackScoreUseCase.execute(dealerValues)
+        val playerTotal = if (updateTotals) {
+            calculateBlackjackScoreUseCase.execute(playerValues)
+        } else {
+            _uiState.value.playerTotal
+        }
+        val dealerTotal = if (updateTotals) {
+            calculateBlackjackScoreUseCase.execute(dealerValues)
+        } else {
+            _uiState.value.dealerTotal
+        }
         _uiState.update {
             it.copy(
                 playerDice = playerValues,

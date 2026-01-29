@@ -283,7 +283,9 @@ private fun ScoreLabel(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-        color = Color.White
+        color = Color.White,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
@@ -341,23 +343,41 @@ private fun DiceRow(
     BoxWithConstraints(
         modifier = Modifier.fillMaxWidth()
     ) {
-        val spacing = 12.dp
-        val horizontalPadding = 16.dp
-        val diceCount = values.size
-        val totalSpacing = spacing * (diceCount - 1).coerceAtLeast(0)
-        val availableWidth = maxWidth - horizontalPadding * 2 - totalSpacing
-        val diceSize = (availableWidth / diceCount.coerceAtLeast(1)).coerceAtLeast(minSize)
-        Row(
-            modifier = Modifier.padding(horizontal = horizontalPadding),
-            horizontalArrangement = Arrangement.spacedBy(spacing),
-            verticalAlignment = Alignment.CenterVertically
+        val maxPerRow = 5
+        val rows = values.chunked(maxPerRow)
+        val rowCount = rows.size.coerceAtLeast(1)
+        val spacing = 10.dp
+        val rowSpacing = 8.dp
+        val horizontalPadding = 12.dp
+        val verticalPadding = 8.dp
+        val availableWidth = maxWidth - horizontalPadding * 2
+        val availableHeight = maxHeight - verticalPadding * 2 - rowSpacing * (rowCount - 1)
+        val columns = rows.maxOfOrNull { it.size }?.coerceAtLeast(1) ?: 1
+        val widthBasedSize =
+            (availableWidth - spacing * (columns - 1)).coerceAtLeast(0.dp) / columns
+        val heightBasedSize =
+            (availableHeight / rowCount.coerceAtLeast(1)).coerceAtLeast(0.dp)
+        val diceSize = minOf(widthBasedSize, heightBasedSize).coerceAtLeast(minSize)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+            verticalArrangement = Arrangement.spacedBy(rowSpacing),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            values.forEach { value ->
-                BlackjackDieFace(
-                    value = value,
-                    size = diceSize.coerceAtMost(96.dp),
-                    isBust = isBust
-                )
+            rows.forEach { rowValues ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(spacing),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    rowValues.forEach { value ->
+                        BlackjackDieFace(
+                            value = value,
+                            size = diceSize.coerceAtMost(96.dp),
+                            isBust = isBust
+                        )
+                    }
+                }
             }
         }
     }
@@ -370,6 +390,7 @@ private fun BlackjackDieFace(
     isBust: Boolean
 ) {
     val tint = if (isBust) Color(0xFFE53935) else Color.Unspecified
+    val fontSize = (size.value * 0.32f).sp.coerceIn(14.sp, 22.sp)
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
@@ -382,7 +403,7 @@ private fun BlackjackDieFace(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = fontSize),
             color = Color.White
         )
     }
