@@ -27,7 +27,7 @@ class MenuScreenTest {
         var typographyFontFamily = SourceCodeProFontFamily
 
         composeRule.setContent {
-            SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
+            SaikoroDojoTheme {
                 typographyFontFamily = requireNotNull(MaterialTheme.typography.bodyLarge.fontFamily)
             }
         }
@@ -43,7 +43,7 @@ class MenuScreenTest {
         val topPadding = 32.dp
 
         composeRule.setContent {
-            SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
+            SaikoroDojoTheme {
                 MenuScreen(
                     contentPadding = PaddingValues(top = topPadding),
                     applySystemBarsPadding = false,
@@ -62,7 +62,7 @@ class MenuScreenTest {
         val expectedHeight = 64.dp
 
         composeRule.setContent {
-            SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
+            SaikoroDojoTheme {
                 MenuScreen(
                     applySystemBarsPadding = false,
                     onPlayClick = {},
