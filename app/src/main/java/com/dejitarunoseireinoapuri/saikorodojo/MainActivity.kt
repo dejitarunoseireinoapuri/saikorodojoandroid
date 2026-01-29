@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.BlackjackGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRoute
+import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation.HigherLowerGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuScreen
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddEvenGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation.SequenceGameRoute
@@ -57,6 +58,16 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(AppRoutes.BlackjackGame) {
                         BlackjackGameRoute(
+                            onContinueClick = {
+                                navController.popBackStack(AppRoutes.Game, inclusive = false)
+                                navController.navigate(AppRoutes.Game) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    }
+                    composable(AppRoutes.HigherLowerGame) {
+                        HigherLowerGameRoute(
                             onContinueClick = {
                                 navController.popBackStack(AppRoutes.Game, inclusive = false)
                                 navController.navigate(AppRoutes.Game) {
