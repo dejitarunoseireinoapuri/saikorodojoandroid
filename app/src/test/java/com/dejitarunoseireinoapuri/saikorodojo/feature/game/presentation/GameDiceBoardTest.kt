@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.R
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -37,5 +38,11 @@ class GameDiceBoardTest {
         assertEquals(expectedInsetY.value, minY, 0.001f)
         assertEquals(expectedInsetX.value + gridWidth.value - diceSize.value, maxX, 0.001f)
         assertEquals(expectedInsetY.value + gridHeight.value - diceSize.value, maxY, 0.001f)
+    }
+
+    @Test
+    fun diceNumberYOffsetUsesSameOffsetForGreenD8Face() {
+        assertEquals(6.dp, diceNumberYOffset(R.drawable.eigth_sides))
+        assertEquals(6.dp, diceNumberYOffset(R.drawable.eigth_sides_green))
     }
 }

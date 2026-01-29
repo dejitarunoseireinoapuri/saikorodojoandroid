@@ -2,9 +2,9 @@ package com.dejitarunoseireinoapuri.saikorodojo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val LightMenuGameGradientTop = Color(0xFFB71C1C)
-val LightMenuGameGradientMiddle = Color(0xFFD32F2F)
-val LightMenuGameGradientBottom = Color(0xFFFF7043)
+val LightMenuGameGradientTop = Color(0xFF2A0A4A)
+val LightMenuGameGradientMiddle = Color(0xFF4A148C)
+val LightMenuGameGradientBottom = Color(0xFF7E57C2)
 
 val SequenceSaveMatBackground = Color(0xFF00695C)
 val SequenceSaveMatBorder = Color(0xFF80CBC4)
