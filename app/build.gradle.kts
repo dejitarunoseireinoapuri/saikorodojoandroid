@@ -44,10 +44,12 @@ kotlin {
 
 kover {
     currentProject {
-        createVariant("debug") {
-            addTest("testDebugUnitTest")
-        }
+        createVariant("debug") {}
     }
+}
+
+tasks.named("koverHtmlReportDebug") {
+    dependsOn("testDebugUnitTest")
 }
 
 dependencies {
