@@ -163,7 +163,7 @@ fun HigherLowerGameScreen(
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                if (uiState.isChoiceVisible && uiState.selectedChoice == null) {
+                if (shouldShowHigherLowerChoiceRow(uiState.isChoiceVisible, uiState.selectedChoice)) {
                     Row(
                         modifier = Modifier.testTag(HIGHER_LOWER_BUTTON_ROW_TAG),
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -171,12 +171,14 @@ fun HigherLowerGameScreen(
                     ) {
                         HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_higher),
-                            isSelected = uiState.selectedChoice == HigherLowerChoice.HIGHER,
+                            isEnabled = uiState.selectedChoice == null,
+                            isVisible = uiState.selectedChoice != HigherLowerChoice.LOWER,
                             onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
                         )
                         HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_lower),
-                            isSelected = uiState.selectedChoice == HigherLowerChoice.LOWER,
+                            isEnabled = uiState.selectedChoice == null,
+                            isVisible = uiState.selectedChoice != HigherLowerChoice.HIGHER,
                             onClick = { onChoiceSelect(HigherLowerChoice.LOWER) }
                         )
                     }
@@ -199,25 +201,6 @@ fun HigherLowerGameScreen(
                 Text(
                     text = stringResource(R.string.higher_lower_start),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
-                )
-            }
-        }
-
-        if (uiState.isStarted && !uiState.isComplete && uiState.isRolling && uiState.selectedChoice != null) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                HigherLowerChoiceButton(
-                    label = stringResource(
-                        if (uiState.selectedChoice == HigherLowerChoice.HIGHER) {
-                            R.string.higher_lower_higher
-                        } else {
-                            R.string.higher_lower_lower
-                        }
-                    ),
-                    isSelected = true,
-                    onClick = {}
                 )
             }
         }
@@ -255,8 +238,12 @@ fun HigherLowerGameScreen(
                     )
                     val baseSum = uiState.baseDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val currentSum = uiState.currentDiceValues.takeIf { it.isNotEmpty() }?.sum()
-                    val showBaseTotal = !uiState.isTransitioning
-                    val showCurrentTotal = !uiState.isRolling && !uiState.isTransitioning
+                    val showTotals = shouldShowHigherLowerTotals(
+                        isRolling = uiState.isRolling,
+                        isTransitioning = uiState.isTransitioning
+                    )
+                    val showBaseTotal = showTotals
+                    val showCurrentTotal = showTotals
                     val showFailure = uiState.isComplete && uiState.hasLoss
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -372,18 +359,19 @@ fun HigherLowerGameScreen(
 @Composable
 private fun HigherLowerChoiceButton(
     label: String,
-    isSelected: Boolean,
+    isEnabled: Boolean,
+    isVisible: Boolean,
     onClick: () -> Unit
 ) {
+    if (!isVisible) return
     Button(
         onClick = onClick,
-        enabled = !isSelected,
+        enabled = isEnabled,
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFFF1744),
             contentColor = Color.White,
-            disabledContainerColor = Color(0xFFFF1744),
-            disabledContentColor = Color.White
+            disabledContentColor = Color(0xFFFFF8E1)
         ),
         modifier = Modifier.height(56.dp)
     ) {
@@ -395,6 +383,20 @@ private fun HigherLowerChoiceButton(
             )
         )
     }
+}
+
+internal fun shouldShowHigherLowerTotals(
+    isRolling: Boolean,
+    isTransitioning: Boolean
+): Boolean {
+    return !isRolling && !isTransitioning
+}
+
+internal fun shouldShowHigherLowerChoiceRow(
+    isChoiceVisible: Boolean,
+    selectedChoice: HigherLowerChoice?
+): Boolean {
+    return isChoiceVisible || selectedChoice != null
 }
 
 @Composable
