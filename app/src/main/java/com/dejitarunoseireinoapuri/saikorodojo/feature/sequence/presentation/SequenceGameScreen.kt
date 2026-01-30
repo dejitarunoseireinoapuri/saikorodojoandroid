@@ -250,10 +250,10 @@ fun SequenceGameScreen(
                         BoxWithConstraints(
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            val horizontalPadding = 20.dp
-                            val spacing = 12.dp
+                            val horizontalPadding = 16.dp
+                            val spacing = 10.dp
                             val availableWidth = maxWidth - horizontalPadding * 2 - spacing * 2
-                            val dieSize = (availableWidth / 3f).coerceAtMost(96.dp)
+                            val dieSize = (availableWidth / 3f).coerceAtMost(104.dp)
                             Row(
                                 modifier = Modifier.padding(horizontal = horizontalPadding),
                                 horizontalArrangement = Arrangement.spacedBy(spacing),
@@ -395,7 +395,7 @@ private fun SequenceDiceFace(
             )
             Text(
                 text = value.toString(),
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.displaySmall.copy(fontSize = 40.sp),
                 color = Color.White,
                 modifier = Modifier
                     .graphicsLayer { translationY = textOffsetPx }
