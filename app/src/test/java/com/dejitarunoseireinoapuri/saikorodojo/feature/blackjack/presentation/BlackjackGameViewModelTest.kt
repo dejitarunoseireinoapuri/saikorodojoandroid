@@ -2,12 +2,12 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
-import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.CalculateBlackjackScoreUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.DetermineBlackjackOutcomeUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.DiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.RollBlackjackDiceUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.SelectBlackjackRewardCardUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.RewardCardsRandomProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
@@ -16,7 +16,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.runCurrent
 import org.junit.Rule
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -33,7 +32,9 @@ class BlackjackGameViewModelTest {
             ),
             calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
             determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
-            selectBlackjackRewardCardUseCase = SelectBlackjackRewardCardUseCase(TestRandomProvider()),
+            selectMinigameRewardCardsUseCase = SelectMinigameRewardCardsUseCase(
+                TestRewardRandomProvider(listOf(0.4f, 0.2f, 0.3f))
+            ),
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
@@ -53,14 +54,16 @@ class BlackjackGameViewModelTest {
     }
 
     @Test
-    fun `blackjack win grants retry card`() = runTest {
+    fun `blackjack win grants reward cards`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
                 TestDiceRoller(ArrayDeque(listOf(10, 1, 8, 9)))
             ),
             calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
             determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
-            selectBlackjackRewardCardUseCase = SelectBlackjackRewardCardUseCase(TestRandomProvider()),
+            selectMinigameRewardCardsUseCase = SelectMinigameRewardCardsUseCase(
+                TestRewardRandomProvider(listOf(0.4f, 0.2f, 0.3f))
+            ),
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
@@ -76,8 +79,11 @@ class BlackjackGameViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(BlackjackOutcome.PLAYER_WIN, state.result)
-        assertNotNull(state.rewardCard)
-        assertEquals(CardId.RETRY, state.rewardCard?.id)
+        assertTrue(state.rewardCards.isNotEmpty())
+        assertEquals(
+            listOf(CardId.ADJUST_PLUS_MINUS_ONE, CardId.FLIP_FACE),
+            state.rewardCards.map { it.id }
+        )
     }
 
     @Test
@@ -88,7 +94,9 @@ class BlackjackGameViewModelTest {
             ),
             calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
             determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
-            selectBlackjackRewardCardUseCase = SelectBlackjackRewardCardUseCase(TestRandomProvider()),
+            selectMinigameRewardCardsUseCase = SelectMinigameRewardCardsUseCase(
+                TestRewardRandomProvider(listOf(0.4f, 0.2f, 0.3f))
+            ),
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 4L,
             tickMs = 2L,
@@ -119,7 +127,9 @@ class BlackjackGameViewModelTest {
             ),
             calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
             determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
-            selectBlackjackRewardCardUseCase = SelectBlackjackRewardCardUseCase(TestRandomProvider()),
+            selectMinigameRewardCardsUseCase = SelectMinigameRewardCardsUseCase(
+                TestRewardRandomProvider(listOf(0.4f, 0.2f, 0.3f))
+            ),
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
@@ -145,6 +155,14 @@ private class TestDiceRoller(
     override fun roll(range: IntRange): Int = values.removeFirst()
 }
 
-private class TestRandomProvider : BlackjackRandomProvider {
-    override fun nextInt(bound: Int): Int = 0
+private class TestRewardRandomProvider(
+    private val values: List<Float>
+) : RewardCardsRandomProvider {
+    private var index = 0
+
+    override fun nextFloat(): Float {
+        val value = values.getOrElse(index) { values.last() }
+        index += 1
+        return value
+    }
 }

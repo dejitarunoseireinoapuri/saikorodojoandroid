@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.RollOddEvenUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.SelectOddEvenRewardCardUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,7 +36,7 @@ data class OddEvenGameUiState(
     val showFireworks: Boolean = false,
     val showFailure: Boolean = false,
     val isComplete: Boolean = false,
-    val rewardCard: CardUiModel? = null
+    val rewardCards: List<CardUiModel> = emptyList()
 )
 
 sealed interface OddEvenGameUiEvent {
@@ -46,8 +46,8 @@ sealed interface OddEvenGameUiEvent {
 
 class OddEvenGameViewModel(
     private val rollOddEvenUseCase: RollOddEvenUseCase = RollOddEvenUseCase(),
-    private val selectOddEvenRewardCardUseCase: SelectOddEvenRewardCardUseCase =
-        SelectOddEvenRewardCardUseCase(),
+    private val selectMinigameRewardCardsUseCase: SelectMinigameRewardCardsUseCase =
+        SelectMinigameRewardCardsUseCase(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val resultAnimationMs: Long = DEFAULT_RESULT_ANIMATION_MS,
@@ -88,7 +88,7 @@ class OddEvenGameViewModel(
                 showFireworks = false,
                 showFailure = false,
                 isComplete = false,
-                rewardCard = null
+                rewardCards = emptyList()
             )
         }
     }
@@ -141,10 +141,10 @@ class OddEvenGameViewModel(
                 delay(lossMessageDelayMs)
             }
             val isComplete = hasWon || hasLossOutcome
-            val rewardCard = if (hasWon) {
-                resolveRewardCard()
+            val rewardCards = if (hasWon) {
+                resolveRewardCards()
             } else {
-                null
+                emptyList()
             }
             _uiState.update {
                 it.copy(
@@ -153,14 +153,15 @@ class OddEvenGameViewModel(
                     showFailure = false,
                     currentRound = if (isComplete) it.currentRound else nextRound,
                     isComplete = isComplete,
-                    rewardCard = rewardCard
+                    rewardCards = rewardCards
                 )
             }
         }
     }
 
-    private fun resolveRewardCard(): CardUiModel? {
-        val rewardId = selectOddEvenRewardCardUseCase.execute()
-        return cardUiModels.firstOrNull { it.id == rewardId }
+    private fun resolveRewardCards(): List<CardUiModel> {
+        return selectMinigameRewardCardsUseCase.execute().mapNotNull { rewardId ->
+            cardUiModels.firstOrNull { it.id == rewardId }
+        }
     }
 }
