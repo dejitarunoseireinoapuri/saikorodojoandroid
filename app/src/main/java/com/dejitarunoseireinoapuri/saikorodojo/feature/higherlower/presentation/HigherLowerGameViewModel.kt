@@ -7,7 +7,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaul
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerRoll
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.RollHigherLowerUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.SelectHigherLowerRewardCardUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,7 +41,7 @@ data class HigherLowerGameUiState(
     val isTransitioning: Boolean = false,
     val isComplete: Boolean = false,
     val hasLoss: Boolean = false,
-    val rewardCard: CardUiModel? = null
+    val rewardCards: List<CardUiModel> = emptyList()
 )
 
 sealed interface HigherLowerGameUiEvent {
@@ -51,8 +51,8 @@ sealed interface HigherLowerGameUiEvent {
 
 class HigherLowerGameViewModel(
     private val rollHigherLowerUseCase: RollHigherLowerUseCase = RollHigherLowerUseCase(),
-    private val selectHigherLowerRewardCardUseCase: SelectHigherLowerRewardCardUseCase =
-        SelectHigherLowerRewardCardUseCase(),
+    private val selectMinigameRewardCardsUseCase: SelectMinigameRewardCardsUseCase =
+        SelectMinigameRewardCardsUseCase(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -94,7 +94,7 @@ class HigherLowerGameViewModel(
                 isTransitioning = false,
                 isComplete = false,
                 hasLoss = false,
-                rewardCard = null
+                rewardCards = emptyList()
             )
         }
         startRoll(
@@ -222,22 +222,23 @@ class HigherLowerGameViewModel(
             if (resultDelayMs > 0L) {
                 delay(resultDelayMs)
             }
-            val rewardCard = resolveRewardCard()
+            val rewardCards = resolveRewardCards()
             _uiState.update {
                 it.copy(
                     isRolling = false,
                     isChoiceVisible = false,
                     isTransitioning = false,
                     isComplete = true,
-                    rewardCard = rewardCard
+                    rewardCards = rewardCards
                 )
             }
         }
     }
 
-    private fun resolveRewardCard(): CardUiModel? {
-        val rewardId = selectHigherLowerRewardCardUseCase.execute()
-        return cardUiModels.firstOrNull { it.id == rewardId }
+    private fun resolveRewardCards(): List<CardUiModel> {
+        return selectMinigameRewardCardsUseCase.execute().mapNotNull { rewardId ->
+            cardUiModels.firstOrNull { it.id == rewardId }
+        }
     }
 
     private fun startRoll(

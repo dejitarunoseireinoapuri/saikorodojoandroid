@@ -41,7 +41,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
-import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -114,8 +114,8 @@ fun SequenceGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
-            val hasReward = uiState.rewardCard != null
-            val hasPendingReward = uiState.isComplete && uiState.pendingRewardCard != null
+            val hasReward = uiState.rewardCards.isNotEmpty()
+            val hasPendingReward = uiState.isComplete && uiState.pendingRewardCards.isNotEmpty()
             val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -238,7 +238,7 @@ fun SequenceGameScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
-                if (uiState.rewardCard == null) {
+                if (uiState.rewardCards.isEmpty()) {
                     SequenceMat(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -280,19 +280,14 @@ fun SequenceGameScreen(
             }
         }
 
-        uiState.rewardCard?.let { reward ->
+        if (uiState.rewardCards.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
-                CardItem(
-                    card = reward,
-                    onApplyClick = {},
-                    showActionButton = false,
-                    showCount = false
-                )
+                RewardCardStack(cards = uiState.rewardCards)
             }
         }
 
