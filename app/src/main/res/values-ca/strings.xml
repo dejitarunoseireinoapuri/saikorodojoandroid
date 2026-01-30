@@ -37,7 +37,7 @@
     <string name="odd_even_subtitle">Encerta almenys 3 de 5 rondes si el resultat és parell o senar</string>
     <string name="odd_even_start">Començar</string>
     <string name="odd_even_round_status">Ronda %1$d de %2$d</string>
-    <string name="odd_even_hits_status">Encerts: %1$d/%2$d</string>
+    <string name="odd_even_hits_status">Encerts: %1$d de %2$d</string>
     <string name="odd_even_even">Parell</string>
     <string name="odd_even_odd">Senar</string>
     <string name="odd_even_correct">Has encertat!</string>
