@@ -11,12 +11,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import kotlin.math.roundToInt
 
 @Composable
 fun RewardCardStack(
@@ -34,13 +31,11 @@ fun RewardCardStack(
         val centerY = (maxHeight - cardSize.height) / 2f
         cards.forEachIndexed { index, card ->
             val isExpanded = expandedIndex == index
-            val position = Offset(
-                x = startX + stackSpacing * index.toFloat(),
-                y = centerY - stackRise * index.toFloat()
-            )
+            val positionX = startX + stackSpacing * index.toFloat()
+            val positionY = centerY - stackRise * index.toFloat()
             Box(
                 modifier = Modifier
-                    .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt()) }
+                    .offset(x = positionX, y = positionY)
                     .zIndex(index.toFloat())
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
