@@ -37,7 +37,7 @@
     <string name="odd_even_subtitle">Acierta al menos 3 veces de 5 rondas si el resultado es par o impar</string>
     <string name="odd_even_start">Empezar</string>
     <string name="odd_even_round_status">Ronda %1$d de %2$d</string>
-    <string name="odd_even_hits_status">Aciertos: %1$d/%2$d</string>
+    <string name="odd_even_hits_status">Aciertos: %1$d de %2$d</string>
     <string name="odd_even_even">Par</string>
     <string name="odd_even_odd">Impar</string>
     <string name="odd_even_correct">¡Acertaste!</string>
