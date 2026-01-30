@@ -26,7 +26,7 @@ fun RewardCardStack(
     var expandedIndex by remember(cards) { mutableStateOf(cards.lastIndex) }
     val cardSize = DpSize(width = 208.dp, height = 278.dp)
     val stackSpacing = 40.dp
-    val stackRise = 16.dp
+    val stackRise = 32.dp
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val totalWidth = cardSize.width + stackSpacing * (cards.size - 1).coerceAtLeast(0)
         val startX = (maxWidth - totalWidth) / 2f
