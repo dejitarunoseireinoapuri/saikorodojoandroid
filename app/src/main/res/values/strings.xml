@@ -63,7 +63,7 @@
     <string name="blackjack_player_score">Your score: %1$d</string>
     <string name="blackjack_dealer_score">Dealer score: %1$d</string>
     <string name="blackjack_win">You win!</string>
-    <string name="blackjack_lose">You lose</string>
+    <string name="blackjack_lose">You will get it next time!</string>
     <string name="blackjack_reward_subtitle">You’ve won a card</string>
     <string name="blackjack_continue">Continue</string>
 </resources>

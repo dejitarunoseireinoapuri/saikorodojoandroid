@@ -67,7 +67,7 @@
     <string name="blackjack_player_score">Tu puntuación: %1$d</string>
     <string name="blackjack_dealer_score">Puntuación de la banca: %1$d</string>
     <string name="blackjack_win">¡Has ganado!</string>
-    <string name="blackjack_lose">Has perdido</string>
+    <string name="blackjack_lose">¡Otra vez lo conseguirás!</string>
     <string name="blackjack_reward_subtitle">Has ganado una carta</string>
     <string name="blackjack_continue">Continuar</string>
 </resources>
