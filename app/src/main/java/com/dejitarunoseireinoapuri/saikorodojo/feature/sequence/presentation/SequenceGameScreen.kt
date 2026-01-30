@@ -378,7 +378,7 @@ private fun SequenceDiceFace(
     val frameBrush = Brush.radialGradient(
         colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
     )
-    val textOffsetPx = with(LocalDensity.current) { 4.dp.toPx() }
+    val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
     Box(
         modifier = modifier
             .size(size)
@@ -416,7 +416,7 @@ private fun SequenceSavedDie(
     } else {
         R.drawable.eigth_sides
     }
-    val textOffsetPx = with(LocalDensity.current) { 4.dp.toPx() }
+    val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
     Box(
         modifier = Modifier
             .size(size)
@@ -430,7 +430,7 @@ private fun SequenceSavedDie(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 26.sp),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
             color = Color.White,
             modifier = Modifier
                 .graphicsLayer { translationY = textOffsetPx }
