@@ -33,7 +33,7 @@
     <string name="odd_even_subtitle">Guess at least 3 out of 5 rounds if the result is even or odd</string>
     <string name="odd_even_start">Start</string>
     <string name="odd_even_round_status">Round %1$d of %2$d</string>
-    <string name="odd_even_hits_status">Hits: %1$d/%2$d</string>
+    <string name="odd_even_hits_status">Hits: %1$d of %2$d</string>
     <string name="odd_even_even">Even</string>
     <string name="odd_even_odd">Odd</string>
     <string name="odd_even_correct">You got it!</string>
