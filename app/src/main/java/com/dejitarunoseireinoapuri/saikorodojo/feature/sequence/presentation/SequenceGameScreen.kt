@@ -27,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,9 +46,12 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackgroun
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
 internal const val SEQUENCE_DICE_TAG = "sequence_dice"
+internal const val SEQUENCE_DICE_VALUE_TAG = "sequence_dice_value"
 internal const val SEQUENCE_SAVE_BUTTON_TAG = "sequence_save_button"
 internal const val SEQUENCE_DISCARD_BUTTON_TAG = "sequence_discard_button"
 internal const val SEQUENCE_CONTINUE_BUTTON_TAG = "sequence_continue_button"
+internal const val SEQUENCE_SAVED_DIE_TAG_PREFIX = "sequence_saved_die"
+internal const val SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX = "sequence_saved_die_value"
 
 @Composable
 fun SequenceGameRoute(
@@ -245,10 +250,10 @@ fun SequenceGameScreen(
                         BoxWithConstraints(
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            val horizontalPadding = 20.dp
-                            val spacing = 12.dp
+                            val horizontalPadding = 16.dp
+                            val spacing = 10.dp
                             val availableWidth = maxWidth - horizontalPadding * 2 - spacing * 2
-                            val dieSize = (availableWidth / 3f).coerceAtMost(96.dp)
+                            val dieSize = (availableWidth / 3f).coerceAtMost(104.dp)
                             Row(
                                 modifier = Modifier.padding(horizontal = horizontalPadding),
                                 horizontalArrangement = Arrangement.spacedBy(spacing),
@@ -373,6 +378,7 @@ private fun SequenceDiceFace(
     val frameBrush = Brush.radialGradient(
         colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
     )
+    val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
     Box(
         modifier = modifier
             .size(size)
@@ -389,8 +395,11 @@ private fun SequenceDiceFace(
             )
             Text(
                 text = value.toString(),
-                style = MaterialTheme.typography.displaySmall,
-                color = Color.White
+                style = MaterialTheme.typography.displaySmall.copy(fontSize = 40.sp),
+                color = Color.White,
+                modifier = Modifier
+                    .graphicsLayer { translationY = textOffsetPx }
+                    .testTag(SEQUENCE_DICE_VALUE_TAG)
             )
         }
     }
@@ -407,8 +416,11 @@ private fun SequenceSavedDie(
     } else {
         R.drawable.eigth_sides
     }
+    val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
     Box(
-        modifier = Modifier.size(size),
+        modifier = Modifier
+            .size(size)
+            .testTag("${SEQUENCE_SAVED_DIE_TAG_PREFIX}_$value"),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -418,9 +430,11 @@ private fun SequenceSavedDie(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 26.sp),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
             color = Color.White,
-            modifier = Modifier.padding(top = 6.dp)
+            modifier = Modifier
+                .graphicsLayer { translationY = textOffsetPx }
+                .testTag("${SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX}_$value")
         )
     }
 }
