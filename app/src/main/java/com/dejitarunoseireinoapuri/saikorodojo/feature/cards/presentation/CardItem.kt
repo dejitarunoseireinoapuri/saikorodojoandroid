@@ -3,13 +3,13 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.ColumnScope
@@ -21,11 +21,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -73,6 +73,8 @@ fun CardItem(
     descriptionTextAlign: TextAlign = TextAlign.Start
 ) {
     val shape = RoundedCornerShape(20.dp)
+    val outerBorderWidth = 1.dp
+    val innerBorderWidth = 2.dp
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
     val countLayout = resolveCountLayout(
         showTitle = showTitle,
@@ -88,81 +90,91 @@ fun CardItem(
     Box(
         modifier = modifier
             .size(cardSize)
-            .background(cardBrush, shape)
-            .border(width = 1.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.4f), shape = shape)
-            .padding(12.dp)
+            .background(Color.Black, shape)
+            .padding(outerBorderWidth)
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = bottomPadding),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.Start
+                .fillMaxSize()
+                .background(Color.White, shape)
+                .padding(innerBorderWidth)
+                .clip(shape)
+                .background(cardBrush)
+                .padding(12.dp)
         ) {
-            if (showTitle) {
-                Text(
-                    text = stringResource(card.titleRes),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = rememberFittingTitleSize(
-                            text = stringResource(card.titleRes),
-                            style = MaterialTheme.typography.titleMedium,
-                            maxWidthDp = cardSize.width - 24.dp
-                        )
-                    ),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    maxLines = 1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            if (showCount) {
-                CountWithIcon(
-                    count = card.count,
-                    iconRes = card.iconRes,
-                    iconAlignment = iconAlignment,
-                    layout = countLayout
-                )
-            } else {
-                Icon(
-                    painter = painterResource(card.iconRes),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .align(iconAlignment)
-                )
-            }
-            if (showDescription) {
-                Text(
-                    text = description ?: AnnotatedString(stringResource(card.descriptionRes)),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
-                    textAlign = descriptionTextAlign,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-        if (showActionButton) {
-            OutlinedButton(
-                onClick = onApplyClick,
-                enabled = isEnabled,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+            Column(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 4.dp, end = 4.dp)
-                    .defaultMinSize(minWidth = 120.dp, minHeight = 52.dp)
+                    .fillMaxWidth()
+                    .padding(bottom = bottomPadding),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.Start
             ) {
-                Text(
-                    text = stringResource(card.actionLabelRes),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight =  FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+                if (showTitle) {
+                    Text(
+                        text = stringResource(card.titleRes),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontSize = rememberFittingTitleSize(
+                                text = stringResource(card.titleRes),
+                                style = MaterialTheme.typography.titleMedium,
+                                maxWidthDp = cardSize.width - 24.dp
+                            )
+                        ),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if (showCount) {
+                    CountWithIcon(
+                        count = card.count,
+                        iconRes = card.iconRes,
+                        iconAlignment = iconAlignment,
+                        layout = countLayout
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(card.iconRes),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .align(iconAlignment)
+                    )
+                }
+                if (showDescription) {
+                    Text(
+                        text = description ?: AnnotatedString(stringResource(card.descriptionRes)),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                        textAlign = descriptionTextAlign,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            if (showActionButton) {
+                Button(
+                    onClick = onApplyClick,
+                    enabled = isEnabled,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 4.dp, end = 4.dp)
+                        .defaultMinSize(minWidth = 120.dp, minHeight = 52.dp)
+                ) {
+                    Text(
+                        text = stringResource(card.actionLabelRes),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
             }
         }
     }
