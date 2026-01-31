@@ -34,14 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoThemeColors
 
 internal const val MENU_TOP_APP_BAR_TAG = "menu_top_app_bar"
 internal const val MENU_PLAY_BUTTON_TAG = "menu_play_button"
@@ -62,17 +60,9 @@ fun MenuScreen(
         scaffoldModifier = scaffoldModifier.systemBarsPadding()
     }
     scaffoldModifier = scaffoldModifier.padding(contentPadding)
-    val gradientColors = SaikoroDojoThemeColors.gradientColors
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(
-            gradientColors.menuGameTop,
-            gradientColors.menuGameMiddle,
-            gradientColors.menuGameBottom
-        )
-    )
     scaffoldModifier = scaffoldModifier
         .fillMaxSize()
-        .background(backgroundBrush)
+        .background(MaterialTheme.colorScheme.background)
 
     Scaffold(
         modifier = scaffoldModifier,
@@ -82,8 +72,8 @@ fun MenuScreen(
                 modifier = Modifier.testTag(MENU_TOP_APP_BAR_TAG),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 title = { },
                 actions = {
@@ -99,14 +89,14 @@ fun MenuScreen(
                             } else {
                                 stringResource(R.string.cd_sound_on)
                             },
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                     IconButton(onClick = { }) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(R.string.cd_settings),
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 }
@@ -122,7 +112,7 @@ fun MenuScreen(
             Text(
                 text = stringResource(R.string.game_title),
                 style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
 
@@ -136,9 +126,9 @@ fun MenuScreen(
                     onClick = onPlayClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
-                        contentColor = Color.White
+                        contentColor = MaterialTheme.colorScheme.onBackground
                     ),
-                    border = BorderStroke(2.dp, Color.White),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -148,16 +138,16 @@ fun MenuScreen(
                     Text(
                         text = stringResource(R.string.play),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 OutlinedButton(
                     onClick = onRulesClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
-                        contentColor = Color.White
+                        contentColor = MaterialTheme.colorScheme.onBackground
                     ),
-                    border = BorderStroke(2.dp, Color.White),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -167,7 +157,7 @@ fun MenuScreen(
                     Text(
                         text = stringResource(R.string.rules),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
