@@ -74,7 +74,7 @@ fun CardItem(
 ) {
     val shape = RoundedCornerShape(20.dp)
     val outerBorderWidth = 1.dp
-    val innerBorderWidth = 2.dp
+    val innerBorderWidth = 4.dp
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
     val countLayout = resolveCountLayout(
         showTitle = showTitle,
@@ -84,7 +84,7 @@ fun CardItem(
     val cardBrush = Brush.linearGradient(
         colors = listOf(
             MaterialTheme.colorScheme.tertiary,
-            MaterialTheme.colorScheme.primary
+            Color.Black
         )
     )
     Box(
@@ -158,8 +158,8 @@ fun CardItem(
                     onClick = onApplyClick,
                     enabled = isEnabled,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(12.dp),
@@ -172,7 +172,7 @@ fun CardItem(
                     Text(
                         text = stringResource(card.actionLabelRes),
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
