@@ -16,13 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -41,7 +41,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoThemeColors
 
 @Composable
 fun GameRoute(
@@ -90,17 +89,9 @@ fun GameScreen(
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
     }
-    val gradientColors = SaikoroDojoThemeColors.gradientColors
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(
-            gradientColors.menuGameTop,
-            gradientColors.menuGameMiddle,
-            gradientColors.menuGameBottom
-        )
-    )
     containerModifier = containerModifier
         .padding(contentPadding)
-        .background(backgroundBrush)
+        .background(MaterialTheme.colorScheme.background)
     BoxWithConstraints(
         modifier = containerModifier,
         contentAlignment = Alignment.Center

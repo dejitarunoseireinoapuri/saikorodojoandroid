@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -42,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppWarmAccent
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -85,16 +85,9 @@ fun SequenceGameScreen(
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
     }
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF1F2335),
-            Color(0xFF2E2A6B),
-            Color(0xFF2B5B8A)
-        )
-    )
     containerModifier = containerModifier
         .padding(contentPadding)
-        .background(backgroundBrush)
+        .background(MaterialTheme.colorScheme.background)
     Box(
         modifier = containerModifier
     ) {
@@ -110,7 +103,7 @@ fun SequenceGameScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp
                 ),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -122,20 +115,20 @@ fun SequenceGameScreen(
                 Text(
                     text = stringResource(R.string.sequence_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = Color(0xFFFFF176)
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.sequence_reward_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.odd_even_try_again),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = Color(0xFFFFF176),
+                    color = MaterialTheme.colorScheme.tertiary,
                     textAlign = TextAlign.Center
                 )
             } else if (hasPendingReward) {
@@ -143,13 +136,13 @@ fun SequenceGameScreen(
                 Text(
                     text = stringResource(R.string.sequence_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = Color(0xFFFFF176)
+                    color = MaterialTheme.colorScheme.primary
                 )
             } else {
                 Text(
                     text = stringResource(R.string.sequence_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = Color.White.copy(alpha = 0.9f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
                     textAlign = TextAlign.Center
                 )
             }
@@ -158,9 +151,9 @@ fun SequenceGameScreen(
                 val roundColor = if (uiState.isComplete &&
                     uiState.failureReason == SequenceFailureReason.ROUNDS
                 ) {
-                    Color(0xFFFF1744)
+                    MaterialTheme.colorScheme.tertiary
                 } else {
-                    Color.White
+                    MaterialTheme.colorScheme.onBackground
                 }
                 Text(
                     text = stringResource(
@@ -180,8 +173,8 @@ fun SequenceGameScreen(
                 onClick = onStartClick,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF1744),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
                 ),
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -296,8 +289,8 @@ fun SequenceGameScreen(
                 onClick = onContinueClick,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF26C6DA),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
                 ),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -328,8 +321,8 @@ private fun SequenceChoiceButton(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFFF1744),
-            contentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            contentColor = MaterialTheme.colorScheme.onTertiary
         ),
         modifier = Modifier
             .height(56.dp)
@@ -370,15 +363,12 @@ private fun SequenceDiceFace(
     size: Dp,
     modifier: Modifier = Modifier
 ) {
-    val frameBrush = Brush.radialGradient(
-        colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
-    )
     val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
     Box(
         modifier = modifier
             .size(size)
-            .background(frameBrush, RoundedCornerShape(18.dp))
-            .border(2.dp, Color(0xFFFFD54F), RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(18.dp))
+            .border(2.dp, AppWarmAccent, RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -391,7 +381,7 @@ private fun SequenceDiceFace(
             Text(
                 text = value.toString(),
                 style = MaterialTheme.typography.displaySmall.copy(fontSize = 40.sp),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
                     .graphicsLayer { translationY = textOffsetPx }
                     .testTag(SEQUENCE_DICE_VALUE_TAG)
@@ -426,7 +416,7 @@ private fun SequenceSavedDie(
         Text(
             text = value.toString(),
             style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .graphicsLayer { translationY = textOffsetPx }
                 .testTag("${SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX}_$value")
