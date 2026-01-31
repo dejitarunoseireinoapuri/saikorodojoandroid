@@ -6,8 +6,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.Blackjac
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.CalculateBlackjackScoreUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.DetermineBlackjackOutcomeUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.RollBlackjackDiceUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.SelectBlackjackRewardCardUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import kotlinx.coroutines.CoroutineDispatcher
@@ -41,7 +40,7 @@ data class BlackjackGameUiState(
     val showPlayerBust: Boolean = false,
     val showDealerBust: Boolean = false,
     val result: BlackjackOutcome? = null,
-    val rewardCard: CardUiModel? = null,
+    val rewardCards: List<CardUiModel> = emptyList(),
     val isComplete: Boolean = false
 )
 
@@ -57,8 +56,8 @@ class BlackjackGameViewModel(
         CalculateBlackjackScoreUseCase(),
     private val determineBlackjackOutcomeUseCase: DetermineBlackjackOutcomeUseCase =
         DetermineBlackjackOutcomeUseCase(),
-    private val selectBlackjackRewardCardUseCase: SelectBlackjackRewardCardUseCase =
-        SelectBlackjackRewardCardUseCase(),
+    private val selectMinigameRewardCardsUseCase: SelectMinigameRewardCardsUseCase =
+        SelectMinigameRewardCardsUseCase(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -100,7 +99,7 @@ class BlackjackGameViewModel(
                 showPlayerBust = false,
                 showDealerBust = false,
                 result = null,
-                rewardCard = null,
+                rewardCards = emptyList(),
                 isComplete = false
             )
         }
@@ -310,27 +309,24 @@ class BlackjackGameViewModel(
             if (outcome == BlackjackOutcome.PLAYER_WIN && delayMs > 0L) {
                 delay(delayMs)
             }
-            val rewardCard = if (outcome == BlackjackOutcome.PLAYER_WIN) {
-                resolveRewardCard(playerTotal)
+            val rewardCards = if (outcome == BlackjackOutcome.PLAYER_WIN) {
+                resolveRewardCards()
             } else {
-                null
+                emptyList()
             }
             _uiState.update {
                 it.copy(
                     result = outcome,
-                    rewardCard = rewardCard,
+                    rewardCards = rewardCards,
                     isComplete = true
                 )
             }
         }
     }
 
-    private fun resolveRewardCard(playerTotal: Int): CardUiModel? {
-        val rewardId = if (playerTotal == BLACKJACK_LIMIT) {
-            CardId.RETRY
-        } else {
-            selectBlackjackRewardCardUseCase.execute()
+    private fun resolveRewardCards(): List<CardUiModel> {
+        return selectMinigameRewardCardsUseCase.execute().mapNotNull { rewardId ->
+            cardUiModels.firstOrNull { it.id == rewardId }
         }
-        return cardUiModels.firstOrNull { it.id == rewardId }
     }
 }

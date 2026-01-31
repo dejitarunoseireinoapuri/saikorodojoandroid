@@ -2,10 +2,10 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.RollSequenceUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.SelectSequenceRewardCardUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -34,8 +34,8 @@ data class SequenceGameUiState(
     val savedValues: List<Int> = emptyList(),
     val diceValue: Int? = null,
     val isComplete: Boolean = false,
-    val rewardCard: CardUiModel? = null,
-    val pendingRewardCard: CardUiModel? = null,
+    val rewardCards: List<CardUiModel> = emptyList(),
+    val pendingRewardCards: List<CardUiModel> = emptyList(),
     val failureReason: SequenceFailureReason? = null,
     val failureDieValue: Int? = null
 )
@@ -54,8 +54,8 @@ sealed interface SequenceGameUiEvent {
 
 class SequenceGameViewModel(
     private val rollSequenceUseCase: RollSequenceUseCase = RollSequenceUseCase(),
-    private val selectSequenceRewardCardUseCase: SelectSequenceRewardCardUseCase =
-        SelectSequenceRewardCardUseCase(),
+    private val selectMinigameRewardCardsUseCase: SelectMinigameRewardCardsUseCase =
+        SelectMinigameRewardCardsUseCase(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -96,8 +96,8 @@ class SequenceGameViewModel(
                 savedValues = emptyList(),
                 diceValue = null,
                 isComplete = false,
-                rewardCard = null,
-                pendingRewardCard = null,
+                rewardCards = emptyList(),
+                pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null
             )
@@ -174,7 +174,7 @@ class SequenceGameViewModel(
                 isRolling = true,
                 isAwaitingDecision = false,
                 diceValue = null,
-                pendingRewardCard = null,
+                pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null
             )
@@ -204,7 +204,7 @@ class SequenceGameViewModel(
 
     private fun completeSuccess(savedValues: List<Int>, discardCount: Int) {
         rollJob?.cancel()
-        val rewardCard = resolveRewardCard()
+        val rewardCards = resolveRewardCards()
         _uiState.update {
             it.copy(
                 savedValues = savedValues,
@@ -212,8 +212,8 @@ class SequenceGameViewModel(
                 isComplete = true,
                 isAwaitingDecision = false,
                 isRolling = false,
-                rewardCard = null,
-                pendingRewardCard = rewardCard,
+                rewardCards = emptyList(),
+                pendingRewardCards = rewardCards,
                 failureReason = null,
                 failureDieValue = null
             )
@@ -222,8 +222,8 @@ class SequenceGameViewModel(
             delay(rewardRevealDelayMs)
             _uiState.update { current ->
                 current.copy(
-                    rewardCard = current.pendingRewardCard,
-                    pendingRewardCard = null
+                    rewardCards = current.pendingRewardCards,
+                    pendingRewardCards = emptyList()
                 )
             }
         }
@@ -243,16 +243,17 @@ class SequenceGameViewModel(
                 isComplete = true,
                 isAwaitingDecision = false,
                 isRolling = false,
-                rewardCard = null,
-                pendingRewardCard = null,
+                rewardCards = emptyList(),
+                pendingRewardCards = emptyList(),
                 failureReason = reason,
                 failureDieValue = failureDieValue
             )
         }
     }
 
-    private fun resolveRewardCard(): CardUiModel? {
-        val rewardId = selectSequenceRewardCardUseCase.execute()
-        return cardUiModels.firstOrNull { it.id == rewardId }
+    private fun resolveRewardCards(): List<CardUiModel> {
+        return selectMinigameRewardCardsUseCase.execute().mapNotNull { rewardId ->
+            cardUiModels.firstOrNull { it.id == rewardId }
+        }
     }
 }

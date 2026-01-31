@@ -1,17 +1,16 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.RewardCardsRandomProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.DiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.RollHigherLowerUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.SelectHigherLowerRewardCardUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.IntRandomProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -87,7 +86,7 @@ class HigherLowerGameViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
         assertFalse(state.hasLoss)
-        assertNotNull(state.rewardCard)
+        assertTrue(state.rewardCards.isNotEmpty())
     }
 
     @Test
@@ -104,7 +103,7 @@ class HigherLowerGameViewModelTest {
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
-        assertNotNull(state.rewardCard)
+        assertTrue(state.rewardCards.isNotEmpty())
         assertFalse(state.hasLoss)
     }
 
@@ -131,8 +130,8 @@ class HigherLowerGameViewModelTest {
         val diceRoller = QueueDiceRoller(diceValues.toMutableList())
         return HigherLowerGameViewModel(
             rollHigherLowerUseCase = RollHigherLowerUseCase(diceRoller),
-            selectHigherLowerRewardCardUseCase = SelectHigherLowerRewardCardUseCase(
-                randomProvider = FixedRandomProvider()
+            selectMinigameRewardCardsUseCase = SelectMinigameRewardCardsUseCase(
+                FixedRewardRandomProvider()
             ),
             dispatcher = dispatcherRule.dispatcher,
             rollAnimationMs = 0L,
@@ -149,7 +148,7 @@ class HigherLowerGameViewModelTest {
         }
     }
 
-    private class FixedRandomProvider : IntRandomProvider {
-        override fun nextInt(bound: Int): Int = 0
+    private class FixedRewardRandomProvider : RewardCardsRandomProvider {
+        override fun nextFloat(): Float = 0.4f
     }
 }
