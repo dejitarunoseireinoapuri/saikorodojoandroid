@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -46,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppWarmAccent
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -87,16 +87,9 @@ fun HigherLowerGameScreen(
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
     }
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF1F2335),
-            Color(0xFF2E2A6B),
-            Color(0xFF2B5B8A)
-        )
-    )
     containerModifier = containerModifier
         .padding(contentPadding)
-        .background(backgroundBrush)
+        .background(MaterialTheme.colorScheme.background)
     Box(
         modifier = containerModifier
     ) {
@@ -112,7 +105,7 @@ fun HigherLowerGameScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp
                 ),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -124,13 +117,13 @@ fun HigherLowerGameScreen(
                     Text(
                         text = stringResource(R.string.odd_even_congrats),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = Color(0xFFFFF176)
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.odd_even_reward_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 hasLoss -> {
@@ -138,7 +131,7 @@ fun HigherLowerGameScreen(
                     Text(
                         text = stringResource(R.string.odd_even_try_again),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                        color = Color(0xFFFFF176),
+                        color = MaterialTheme.colorScheme.tertiary,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -146,7 +139,7 @@ fun HigherLowerGameScreen(
                     Text(
                         text = stringResource(R.string.higher_lower_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = Color.White.copy(alpha = 0.9f),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -160,7 +153,7 @@ fun HigherLowerGameScreen(
                         uiState.totalRounds
                     ),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 if (shouldShowHigherLowerChoiceRow(uiState.isChoiceVisible, uiState.selectedChoice)) {
@@ -191,8 +184,8 @@ fun HigherLowerGameScreen(
                 onClick = onStartClick,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF1744),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
                 ),
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -265,8 +258,8 @@ fun HigherLowerGameScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
-                                backgroundColor = Color(0xFFFFF59D),
-                                borderColor = Color(0xFFFFD54F)
+                                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                                borderColor = AppWarmAccent
                             ) {
                                 HigherLowerDiceRow(
                                     values = uiState.baseDiceValues,
@@ -329,8 +322,8 @@ fun HigherLowerGameScreen(
                 onClick = onContinueClick,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF26C6DA),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
                 ),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -364,9 +357,9 @@ private fun HigherLowerChoiceButton(
         enabled = isEnabled,
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFFF1744),
-            contentColor = Color.White,
-            disabledContentColor = Color(0xFFFFF8E1)
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            contentColor = MaterialTheme.colorScheme.onTertiary,
+            disabledContentColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.6f)
         ),
         modifier = Modifier.height(56.dp)
     ) {
@@ -464,7 +457,7 @@ private fun HigherLowerSumLabel(
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp
         ),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.height(24.dp),
         textAlign = TextAlign.Center
     )
@@ -482,7 +475,7 @@ private fun HigherLowerDieFace(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
-        val tint = if (isFailure) Color(0xFFE53935) else Color.Unspecified
+        val tint = if (isFailure) MaterialTheme.colorScheme.tertiary else Color.Unspecified
         Image(
             painter = painterResource(id = diceRes),
             contentDescription = stringResource(R.string.cd_dice_face, value),
@@ -492,7 +485,7 @@ private fun HigherLowerDieFace(
         Text(
             text = value.toString(),
             style = MaterialTheme.typography.titleMedium.copy(fontSize = fontSize),
-            color = Color.White
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

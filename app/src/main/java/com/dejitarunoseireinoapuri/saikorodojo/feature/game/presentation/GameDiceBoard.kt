@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -91,7 +90,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
             uiState.isAwaitingRerollSelected -> {
@@ -101,7 +100,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
             uiState.isAwaitingFlipFace -> {
@@ -111,7 +110,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
             uiState.isAwaitingAdjustPlusMinus -> {
@@ -121,7 +120,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 if (uiState.selectedAdjustmentDieIndex != null) {
                     val selectedIndex = uiState.selectedAdjustmentDieIndex
@@ -168,7 +167,7 @@ internal fun DiceBoard(
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 if (uiState.selectedSetValueDieIndex != null) {
                     val selectedIndex = uiState.selectedSetValueDieIndex
@@ -238,8 +237,8 @@ internal fun DiceBoard(
                 enabled = isEnabled && !uiState.isRolling,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF1744),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
                 ),
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -337,7 +336,7 @@ private fun DiceFace(
             style = MaterialTheme.typography.displaySmall.copy(
                 fontSize = MaterialTheme.typography.displaySmall.fontSize * numberTextScale
             ),
-            color = Color.White
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

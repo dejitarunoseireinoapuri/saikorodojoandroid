@@ -26,8 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppWarmAccent
 
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
@@ -80,16 +79,9 @@ fun OddEvenGameScreen(
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
     }
-    val backgroundBrush = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF1F2335),
-            Color(0xFF2E2A6B),
-            Color(0xFF2B5B8A)
-        )
-    )
     containerModifier = containerModifier
         .padding(contentPadding)
-        .background(backgroundBrush)
+        .background(MaterialTheme.colorScheme.background)
     Box(
         modifier = containerModifier
     ) {
@@ -105,7 +97,7 @@ fun OddEvenGameScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp
                 ),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -116,26 +108,26 @@ fun OddEvenGameScreen(
                 Text(
                     text = stringResource(R.string.odd_even_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = Color(0xFFFFF176)
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.odd_even_reward_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.odd_even_try_again),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = Color(0xFFFFF176)
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             } else {
                 Text(
                     text = stringResource(R.string.odd_even_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = Color.White.copy(alpha = 0.9f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
                     textAlign = TextAlign.Center
                 )
                 if (uiState.isStarted) {
@@ -147,7 +139,7 @@ fun OddEvenGameScreen(
                             uiState.totalRounds
                         ),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -157,7 +149,7 @@ fun OddEvenGameScreen(
                             uiState.targetCorrect
                         ),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = Color.White.copy(alpha = 0.85f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f)
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(
@@ -187,8 +179,8 @@ fun OddEvenGameScreen(
                 onClick = onStartClick,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF1744),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
                 ),
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -228,7 +220,7 @@ fun OddEvenGameScreen(
                         Text(
                             text = stringResource(resultTextRes),
                             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     } else {
                         Text(
@@ -257,8 +249,8 @@ fun OddEvenGameScreen(
                 onClick = onContinueClick,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF26C6DA),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
                 ),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -292,9 +284,9 @@ private fun OddEvenChoiceButton(
         enabled = isEnabled,
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFFF1744),
-            contentColor = Color.White,
-            disabledContentColor = Color(0xFFFFF8E1)
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            contentColor = MaterialTheme.colorScheme.onTertiary,
+            disabledContentColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.6f)
         ),
         modifier = Modifier.height(56.dp)
     ) {
@@ -314,19 +306,16 @@ private fun OddEvenDiceFace(
     size: Dp,
     modifier: Modifier = Modifier
 ) {
-    val frameBrush = Brush.radialGradient(
-        colors = listOf(Color(0xFFFFF59D), Color(0xFFFF6F00))
-    )
     Box(
         modifier = modifier
             .size(size)
             .graphicsLayer {
                 shadowElevation = 12.dp.toPx()
-                ambientShadowColor = Color(0xFF4E2A00)
-                spotShadowColor = Color(0xFF4E2A00)
+                ambientShadowColor = AppWarmAccent
+                spotShadowColor = AppWarmAccent
             }
-            .background(frameBrush, RoundedCornerShape(18.dp))
-            .border(2.dp, Color(0xFFFFD54F), RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(18.dp))
+            .border(2.dp, AppWarmAccent, RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -339,7 +328,7 @@ private fun OddEvenDiceFace(
             Text(
                 text = value.toString(),
                 style = MaterialTheme.typography.displaySmall,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.offset(y = 0.dp)
             )
         }
