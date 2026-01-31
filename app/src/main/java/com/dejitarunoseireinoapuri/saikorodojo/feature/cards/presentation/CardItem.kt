@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -161,6 +162,7 @@ fun CardItem(
                         containerColor = Color.Transparent,
                         contentColor = Color.White
                     ),
+                    border = BorderStroke(2.dp, Color.White),
                     shape = RoundedCornerShape(12.dp),
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                     modifier = Modifier
@@ -201,19 +203,19 @@ private fun ColumnScope.CountWithIcon(
             Text(
                 text = count.toString(),
                 style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "x",
                 style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
                 textAlign = TextAlign.Center
             )
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = Color.White,
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -228,19 +230,19 @@ private fun ColumnScope.CountWithIcon(
             Text(
                 text = count.toString(),
                 style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "x",
                 style = textStyle,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
                 textAlign = TextAlign.Center
             )
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = Color.White,
                 modifier = Modifier.size(32.dp)
             )
         }
