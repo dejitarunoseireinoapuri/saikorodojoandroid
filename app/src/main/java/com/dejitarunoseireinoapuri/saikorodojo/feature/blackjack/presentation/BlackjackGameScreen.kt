@@ -41,7 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
-import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -113,7 +113,7 @@ fun BlackjackGameScreen(
                 BlackjackOutcome.PLAYER_LOSE -> R.string.blackjack_lose
                 null -> null
             }
-            val hasReward = uiState.rewardCard != null
+            val hasReward = uiState.rewardCards.isNotEmpty()
             when {
                 hasReward -> {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -198,7 +198,7 @@ fun BlackjackGameScreen(
             }
         }
 
-        if (uiState.isStarted && uiState.rewardCard == null) {
+        if (uiState.isStarted && uiState.rewardCards.isEmpty()) {
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -262,19 +262,14 @@ fun BlackjackGameScreen(
             }
         }
 
-        uiState.rewardCard?.let { reward ->
+        if (uiState.rewardCards.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
-                CardItem(
-                    card = reward,
-                    onApplyClick = {},
-                    showActionButton = false,
-                    showCount = false
-                )
+                RewardCardStack(cards = uiState.rewardCards)
             }
         }
 

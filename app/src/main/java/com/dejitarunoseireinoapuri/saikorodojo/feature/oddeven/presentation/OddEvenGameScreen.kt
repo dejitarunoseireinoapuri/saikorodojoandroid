@@ -40,7 +40,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
-import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
@@ -109,7 +109,7 @@ fun OddEvenGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
-            val hasReward = uiState.rewardCard != null
+            val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -201,7 +201,7 @@ fun OddEvenGameScreen(
             }
         }
 
-        if (uiState.isStarted && uiState.rewardCard == null && !uiState.isComplete) {
+        if (uiState.isStarted && uiState.rewardCards.isEmpty() && !uiState.isComplete) {
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -241,19 +241,14 @@ fun OddEvenGameScreen(
             }
         }
 
-        uiState.rewardCard?.let { reward ->
+        if (uiState.rewardCards.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
-                CardItem(
-                    card = reward,
-                    onApplyClick = {},
-                    showActionButton = false,
-                    showCount = false
-                )
+                RewardCardStack(cards = uiState.rewardCards)
             }
         }
 

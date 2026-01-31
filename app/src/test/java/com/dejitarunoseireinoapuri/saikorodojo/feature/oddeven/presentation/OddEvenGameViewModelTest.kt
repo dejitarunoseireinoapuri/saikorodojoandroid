@@ -1,18 +1,17 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.RewardCardsRandomProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.rewardCardIds
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.DiceRoller
-import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.IntRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.RollOddEvenUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.SelectOddEvenRewardCardUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.oddEvenRewardCardIds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -52,10 +51,10 @@ class OddEvenGameViewModelTest {
     }
 
     @Test
-    fun `winning the game shows a reward card`() = runTest {
+    fun `winning the game shows reward cards`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2, 4, 6),
-            rewardIndex = 0
+            rewardRolls = listOf(0.4f, 0.2f, 0.3f)
         )
 
         viewModel.onEvent(OddEvenGameUiEvent.StartGame)
@@ -68,8 +67,11 @@ class OddEvenGameViewModelTest {
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
-        assertNotNull(state.rewardCard)
-        assertEquals(CardId.ADJUST_PLUS_MINUS_ONE, state.rewardCard?.id)
+        assertTrue(state.rewardCards.isNotEmpty())
+        assertEquals(
+            listOf(CardId.ADJUST_PLUS_MINUS_ONE, CardId.FLIP_FACE),
+            state.rewardCards.map { it.id }
+        )
     }
 
     @Test
@@ -88,7 +90,7 @@ class OddEvenGameViewModelTest {
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
-        assertNull(state.rewardCard)
+        assertTrue(state.rewardCards.isEmpty())
     }
 
     @Test
@@ -113,7 +115,7 @@ class OddEvenGameViewModelTest {
 
         val finalState = viewModel.uiState.value
         assertTrue(finalState.isComplete)
-        assertNull(finalState.rewardCard)
+        assertTrue(finalState.rewardCards.isEmpty())
     }
 
     @Test
@@ -144,24 +146,24 @@ class OddEvenGameViewModelTest {
 
         val finalState = viewModel.uiState.value
         assertTrue(finalState.isComplete)
-        assertNull(finalState.rewardCard)
+        assertTrue(finalState.rewardCards.isEmpty())
     }
 
     private fun buildViewModel(
         diceRolls: List<Int> = listOf(2),
-        rewardIndex: Int = 0,
+        rewardRolls: List<Float> = listOf(0.4f, 0.2f, 0.3f),
         targetCorrect: Int = 3,
         lossMessageDelayMs: Long? = 0L
     ): OddEvenGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollOddEvenUseCase(diceRoller)
-        val rewardUseCase = SelectOddEvenRewardCardUseCase(
-            randomProvider = IntRandomProvider { rewardIndex }
+        val rewardUseCase = SelectMinigameRewardCardsUseCase(
+            TestRewardRandomProvider(rewardRolls)
         )
         return if (lossMessageDelayMs == null) {
             OddEvenGameViewModel(
                 rollOddEvenUseCase = rollUseCase,
-                selectOddEvenRewardCardUseCase = rewardUseCase,
+                selectMinigameRewardCardsUseCase = rewardUseCase,
                 dispatcher = dispatcher,
                 rollAnimationMs = 0L,
                 resultAnimationMs = 0L,
@@ -172,7 +174,7 @@ class OddEvenGameViewModelTest {
         } else {
             OddEvenGameViewModel(
                 rollOddEvenUseCase = rollUseCase,
-                selectOddEvenRewardCardUseCase = rewardUseCase,
+                selectMinigameRewardCardsUseCase = rewardUseCase,
                 dispatcher = dispatcher,
                 rollAnimationMs = 0L,
                 resultAnimationMs = 0L,
@@ -185,13 +187,25 @@ class OddEvenGameViewModelTest {
     }
 
     private fun testCardUiModels(): List<CardUiModel> {
-        return oddEvenRewardCardIds().map { id ->
+        return (rewardCardIds() + CardId.RETRY).map { id ->
             CardUiModel(
                 id = id,
                 titleRes = 0,
                 descriptionRes = 0,
                 iconRes = 0
             )
+        }
+    }
+
+    private class TestRewardRandomProvider(
+        private val values: List<Float>
+    ) : RewardCardsRandomProvider {
+        private var index = 0
+
+        override fun nextFloat(): Float {
+            val value = values.getOrElse(index) { values.last() }
+            index += 1
+            return value
         }
     }
 

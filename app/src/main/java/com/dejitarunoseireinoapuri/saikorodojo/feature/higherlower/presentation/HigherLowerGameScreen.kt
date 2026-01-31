@@ -44,7 +44,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
-import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -116,7 +116,7 @@ fun HigherLowerGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
-            val hasReward = uiState.rewardCard != null
+            val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.hasLoss && uiState.isComplete
             when {
                 hasReward -> {
@@ -205,7 +205,7 @@ fun HigherLowerGameScreen(
             }
         }
 
-        val showMats = uiState.isStarted && uiState.rewardCard == null
+        val showMats = uiState.isStarted && uiState.rewardCards.isEmpty()
         if (showMats) {
             Column(
                 modifier = Modifier
@@ -313,19 +313,14 @@ fun HigherLowerGameScreen(
             }
         }
 
-        uiState.rewardCard?.let { reward ->
+        if (uiState.rewardCards.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
-                CardItem(
-                    card = reward,
-                    onApplyClick = {},
-                    showActionButton = false,
-                    showCount = false
-                )
+                RewardCardStack(cards = uiState.rewardCards)
             }
         }
 
