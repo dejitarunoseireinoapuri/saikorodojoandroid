@@ -6,7 +6,7 @@ val LightMenuGameGradientTop = Color(0xFF0B1F2A)
 val LightMenuGameGradientMiddle = Color(0xFF0B1F2A)
 val LightMenuGameGradientBottom = Color(0xFF0B1F2A)
 
-val SequenceSaveMatBackground = Color(0xFFF7FBF9)
+val SequenceSaveMatBackground = Color(0xFF56BD88)
 val SequenceSaveMatBorder = Color(0xFF56BD88)
 
 val AppPrimary = Color(0xFF56BD88)
