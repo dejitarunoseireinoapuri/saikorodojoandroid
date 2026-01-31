@@ -8,7 +8,6 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.R
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppPrimary
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import kotlin.math.abs
 import org.junit.Rule
@@ -23,7 +22,7 @@ class CardItemTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun actionButtonUsesPrimaryColor() {
+    fun actionButtonTextUsesWhiteColor() {
         val card = defaultCardUiModels().first()
         val actionLabel = composeTestRule.activity.getString(R.string.apply)
 
@@ -39,7 +38,7 @@ class CardItemTest {
         val sampleY = (pixelMap.height * 0.5f).toInt().coerceAtLeast(0)
         val sampledColor = pixelMap[sampleX, sampleY]
 
-        assertColorApproximatelyEquals(AppPrimary, sampledColor)
+        assertColorApproximatelyEquals(Color.White, sampledColor)
     }
 
     private fun assertColorApproximatelyEquals(

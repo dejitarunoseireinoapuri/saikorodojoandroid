@@ -17,10 +17,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -119,7 +119,7 @@ fun CardItem(
                                 maxWidthDp = cardSize.width - 24.dp
                             )
                         ),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = Color.White,
                         maxLines = 1,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
@@ -137,7 +137,7 @@ fun CardItem(
                     Icon(
                         painter = painterResource(card.iconRes),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = Color.White,
                         modifier = Modifier
                             .size(32.dp)
                             .align(iconAlignment)
@@ -147,21 +147,20 @@ fun CardItem(
                     Text(
                         text = description ?: AnnotatedString(stringResource(card.descriptionRes)),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                        color = Color.White.copy(alpha = 0.85f),
                         textAlign = descriptionTextAlign,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
             if (showActionButton) {
-                Button(
+                OutlinedButton(
                     onClick = onApplyClick,
                     enabled = isEnabled,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
                     ),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(12.dp),
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                     modifier = Modifier
@@ -172,7 +171,7 @@ fun CardItem(
                     Text(
                         text = stringResource(card.actionLabelRes),
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = Color.White
                     )
                 }
             }
