@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -40,6 +39,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OddEvenFailureMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OddEvenSuccessMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -205,32 +206,10 @@ fun OddEvenGameScreen(
                 OddEvenDiceFace(
                     value = uiState.diceValue,
                     size = ODD_EVEN_DICE_SIZE,
+                    isSuccess = uiState.showFireworks,
+                    isFailure = uiState.showFailure,
                     modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
                 )
-                val resultTextRes = when {
-                    uiState.showFireworks -> R.string.odd_even_correct
-                    uiState.showFailure -> R.string.odd_even_wrong
-                    else -> null
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    modifier = Modifier.height(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (resultTextRes != null) {
-                        Text(
-                            text = stringResource(resultTextRes),
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    } else {
-                        Text(
-                            text = "",
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            modifier = Modifier.alpha(0f)
-                        )
-                    }
-                }
             }
         }
 
@@ -305,18 +284,30 @@ private fun OddEvenChoiceButton(
 private fun OddEvenDiceFace(
     value: Int?,
     size: Dp,
+    isSuccess: Boolean,
+    isFailure: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val matBackground = when {
+        isSuccess -> OddEvenSuccessMatBackground
+        isFailure -> OddEvenFailureMatBackground
+        else -> SequenceSaveMatBackground
+    }
+    val matBorder = when {
+        isSuccess -> OddEvenSuccessMatBackground
+        isFailure -> OddEvenFailureMatBackground
+        else -> SequenceSaveMatBorder
+    }
     Box(
         modifier = modifier
             .size(size)
             .graphicsLayer {
                 shadowElevation = 12.dp.toPx()
-                ambientShadowColor = SequenceSaveMatBorder
-                spotShadowColor = SequenceSaveMatBorder
+                ambientShadowColor = matBorder
+                spotShadowColor = matBorder
             }
-            .background(SequenceSaveMatBackground, RoundedCornerShape(18.dp))
-            .border(2.dp, SequenceSaveMatBorder, RoundedCornerShape(18.dp))
+            .background(matBackground, RoundedCornerShape(18.dp))
+            .border(2.dp, matBorder, RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {

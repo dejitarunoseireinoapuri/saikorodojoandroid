@@ -8,6 +8,8 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OddEvenFailureMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OddEvenSuccessMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import org.junit.Assert.assertEquals
@@ -84,5 +86,53 @@ class OddEvenGameScreenTest {
         val pixelMap = image.toPixelMap()
         val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
         assertEquals(SequenceSaveMatBackground, centerColor)
+    }
+
+    @Test
+    fun successStateUsesGreenMatColor() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = false,
+                        diceValue = null,
+                        showFireworks = true
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(OddEvenSuccessMatBackground, centerColor)
+    }
+
+    @Test
+    fun failureStateUsesRedMatColor() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = false,
+                        diceValue = null,
+                        showFailure = true
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(OddEvenFailureMatBackground, centerColor)
     }
 }
