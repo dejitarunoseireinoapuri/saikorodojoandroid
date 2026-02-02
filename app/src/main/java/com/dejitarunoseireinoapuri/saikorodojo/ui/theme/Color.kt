@@ -8,6 +8,7 @@ val LightMenuGameGradientBottom = Color(0xFF0B1F2A)
 
 val SequenceSaveMatBackground = Color(0xFFF5F1E6)
 val SequenceSaveMatBorder = Color(0xFFF5F1E6)
+val DiceOptionNumberColor = Color(0xFF1B2233)
 
 val AppPrimary = Color(0xFF56BD88)
 val AppOnPrimary = Color(0xFF121416)
