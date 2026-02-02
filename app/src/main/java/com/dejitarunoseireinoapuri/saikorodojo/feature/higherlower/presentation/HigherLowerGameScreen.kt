@@ -34,6 +34,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -45,12 +47,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 
 internal const val HIGHER_LOWER_BUTTON_ROW_TAG = "higher_lower_button_row"
 internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
+internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
 private const val HIGHER_LOWER_TRANSITION_MS = 900
 private val HigherLowerButtonReserveHeight = 120.dp
 
@@ -110,19 +115,25 @@ fun HigherLowerGameScreen(
             Spacer(modifier = Modifier.height(12.dp))
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.hasLoss && uiState.isComplete
+            val showRules = !uiState.isStarted
+            val rulesModifier = if (showRules) {
+                Modifier
+            } else {
+                Modifier.alpha(0f).clearAndSetSemantics { }
+            }
             when {
                 hasReward -> {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = stringResource(R.string.odd_even_congrats),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = MaterialTheme.colorScheme.primary
+                        color = VictoryMatBackground
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.odd_even_reward_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = VictoryMatBackground
                     )
                 }
                 hasLoss -> {
@@ -130,7 +141,7 @@ fun HigherLowerGameScreen(
                     Text(
                         text = stringResource(R.string.odd_even_try_again),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                        color = MaterialTheme.colorScheme.tertiary,
+                        color = FailureMatBackground,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -139,7 +150,8 @@ fun HigherLowerGameScreen(
                         text = stringResource(R.string.higher_lower_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = rulesModifier
                     )
                 }
             }
@@ -309,6 +321,8 @@ fun HigherLowerGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top = 32.dp)
+                    .testTag(HIGHER_LOWER_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {

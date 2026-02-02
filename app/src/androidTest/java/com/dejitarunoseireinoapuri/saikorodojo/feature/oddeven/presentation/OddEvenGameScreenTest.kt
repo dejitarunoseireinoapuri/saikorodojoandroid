@@ -3,10 +3,20 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -24,7 +34,7 @@ class OddEvenGameScreenTest {
                         isStarted = true,
                         isComplete = true,
                         diceValue = 6,
-                        rewardCard = rewardCard
+                        rewardCards = listOf(rewardCard)
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
@@ -46,7 +56,7 @@ class OddEvenGameScreenTest {
                         isStarted = true,
                         isComplete = true,
                         diceValue = 4,
-                        rewardCard = null
+                        rewardCards = emptyList()
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
@@ -57,5 +67,119 @@ class OddEvenGameScreenTest {
 
         composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).assertIsDisplayed()
         composeTestRule.onNodeWithTag(ODD_EVEN_CONTINUE_BUTTON_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun diceMatUsesMainGameMatColor() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = false,
+                        diceValue = null
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(SequenceSaveMatBackground, centerColor)
+    }
+
+    @Test
+    fun successStateUsesGreenMatColor() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = false,
+                        diceValue = null,
+                        showFireworks = true
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(VictoryMatBackground, centerColor)
+    }
+
+    @Test
+    fun failureStateUsesRedMatColor() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = false,
+                        diceValue = null,
+                        showFailure = true
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(FailureMatBackground, centerColor)
+    }
+
+    @Test
+    fun rulesTextIsHiddenAfterStart() {
+        val subtitle = composeTestRule.activity.getString(R.string.odd_even_subtitle)
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText(subtitle).assertDoesNotExist()
+    }
+
+    @Test
+    fun rewardStackIsOffsetDownward() {
+        val rewardCard = defaultCardUiModels().first()
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        rewardCards = listOf(rewardCard)
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val node = composeTestRule.onNodeWithTag(ODD_EVEN_REWARD_STACK_TAG)
+            .fetchSemanticsNode()
+        val expectedOffset = with(composeTestRule.density) { 32.dp.toPx() }
+        assertTrue(node.boundsInRoot.top >= expectedOffset)
     }
 }

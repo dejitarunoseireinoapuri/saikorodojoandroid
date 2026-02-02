@@ -37,13 +37,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppWarmAccent
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 
 internal const val SEQUENCE_DICE_TAG = "sequence_dice"
 internal const val SEQUENCE_DICE_VALUE_TAG = "sequence_dice_value"
@@ -52,6 +55,8 @@ internal const val SEQUENCE_DISCARD_BUTTON_TAG = "sequence_discard_button"
 internal const val SEQUENCE_CONTINUE_BUTTON_TAG = "sequence_continue_button"
 internal const val SEQUENCE_SAVED_DIE_TAG_PREFIX = "sequence_saved_die"
 internal const val SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX = "sequence_saved_die_value"
+internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
+internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 
 @Composable
 fun SequenceGameRoute(
@@ -110,25 +115,31 @@ fun SequenceGameScreen(
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasPendingReward = uiState.isComplete && uiState.pendingRewardCards.isNotEmpty()
             val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
+            val showRules = !uiState.isStarted
+            val rulesModifier = if (showRules) {
+                Modifier
+            } else {
+                Modifier.alpha(0f).clearAndSetSemantics { }
+            }
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.sequence_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = VictoryMatBackground
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.sequence_reward_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = VictoryMatBackground
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.odd_even_try_again),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = FailureMatBackground,
                     textAlign = TextAlign.Center
                 )
             } else if (hasPendingReward) {
@@ -136,14 +147,15 @@ fun SequenceGameScreen(
                 Text(
                     text = stringResource(R.string.sequence_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = VictoryMatBackground
                 )
             } else {
                 Text(
                     text = stringResource(R.string.sequence_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = rulesModifier
                 )
             }
             if (uiState.isStarted && !hasReward) {
@@ -232,12 +244,23 @@ fun SequenceGameScreen(
                 }
                 Spacer(modifier = Modifier.height(32.dp))
                 if (uiState.rewardCards.isEmpty()) {
+                    val matBackground = when {
+                        uiState.failureReason != null -> FailureMatBackground
+                        uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
+                        else -> SequenceSaveMatBackground
+                    }
+                    val matBorder = when {
+                        uiState.failureReason != null -> FailureMatBackground
+                        uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
+                        else -> SequenceSaveMatBorder
+                    }
                     SequenceMat(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(140.dp),
-                        backgroundColor = SequenceSaveMatBackground,
-                        borderColor = SequenceSaveMatBorder,
+                            .height(140.dp)
+                            .testTag(SEQUENCE_SAVED_MAT_TAG),
+                        backgroundColor = matBackground,
+                        borderColor = matBorder,
                         contentAlignment = Alignment.CenterStart
                     ) {
                         BoxWithConstraints(
@@ -255,15 +278,13 @@ fun SequenceGameScreen(
                                 uiState.savedValues.forEach { value ->
                                     SequenceSavedDie(
                                         value = value,
-                                        size = dieSize,
-                                        isFailure = false
+                                        size = dieSize
                                     )
                                 }
                                 uiState.failureDieValue?.let { value ->
                                     SequenceSavedDie(
                                         value = value,
-                                        size = dieSize,
-                                        isFailure = uiState.failureReason == SequenceFailureReason.ORDER
+                                        size = dieSize
                                     )
                                 }
                             }
@@ -277,6 +298,8 @@ fun SequenceGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top = 32.dp)
+                    .testTag(SEQUENCE_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
@@ -367,8 +390,8 @@ private fun SequenceDiceFace(
     Box(
         modifier = modifier
             .size(size)
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(18.dp))
-            .border(2.dp, AppWarmAccent, RoundedCornerShape(18.dp))
+            .background(SequenceSaveMatBackground, RoundedCornerShape(18.dp))
+            .border(2.dp, SequenceSaveMatBorder, RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -393,14 +416,9 @@ private fun SequenceDiceFace(
 @Composable
 private fun SequenceSavedDie(
     value: Int,
-    size: Dp,
-    isFailure: Boolean
+    size: Dp
 ) {
-    val diceRes = if (isFailure) {
-        R.drawable.eigth_sides_red
-    } else {
-        R.drawable.eigth_sides
-    }
+    val diceRes = R.drawable.eigth_sides
     val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
     Box(
         modifier = Modifier
@@ -415,7 +433,7 @@ private fun SequenceSavedDie(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .graphicsLayer { translationY = textOffsetPx }

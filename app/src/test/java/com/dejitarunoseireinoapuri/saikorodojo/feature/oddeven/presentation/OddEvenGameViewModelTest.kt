@@ -94,6 +94,48 @@ class OddEvenGameViewModelTest {
     }
 
     @Test
+    fun `success state persists until next roll`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 4)
+        )
+
+        viewModel.onEvent(OddEvenGameUiEvent.StartGame)
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.EVEN))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val afterWinState = viewModel.uiState.value
+        assertTrue(afterWinState.showFireworks)
+        assertTrue(!afterWinState.isRolling)
+
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.EVEN))
+
+        val nextRollState = viewModel.uiState.value
+        assertTrue(!nextRollState.showFireworks)
+        assertTrue(nextRollState.isRolling)
+    }
+
+    @Test
+    fun `failure state persists until next roll`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 4)
+        )
+
+        viewModel.onEvent(OddEvenGameUiEvent.StartGame)
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val afterLossState = viewModel.uiState.value
+        assertTrue(afterLossState.showFailure)
+        assertTrue(!afterLossState.isRolling)
+
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+
+        val nextRollState = viewModel.uiState.value
+        assertTrue(!nextRollState.showFailure)
+        assertTrue(nextRollState.isRolling)
+    }
+
+    @Test
     fun `loss completion waits for delay before ending`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2),

@@ -42,7 +42,7 @@
     <string name="odd_even_odd">Impar</string>
     <string name="odd_even_correct">¡Acertaste!</string>
     <string name="odd_even_wrong">Fallaste</string>
-    <string name="odd_even_congrats">¡Enhorabuena!</string>
+    <string name="odd_even_congrats">¡Has ganado cartas!</string>
     <string name="odd_even_reward_subtitle">Has ganado una carta</string>
     <string name="odd_even_try_again">¡Otra vez lo conseguirás!</string>
     <string name="odd_even_continue">Continuar</string>
@@ -58,7 +58,7 @@
     <string name="sequence_save">Guardar</string>
     <string name="sequence_discard">Descartar</string>
     <string name="sequence_congrats">¡Enhorabuena!</string>
-    <string name="sequence_reward_subtitle">Has ganado una carta</string>
+    <string name="sequence_reward_subtitle">Has ganado cartas</string>
     <string name="blackjack_title">Blackjack</string>
     <string name="blackjack_subtitle">Llega a 21 sin pasarte. Después de la primera tirada, elige si quieres tirar un dado de 10 más o plantarte. Después de que te plantes será el turno de la banca. El que se acerque más a 21 gana, perdiendo los dos si hay empate. El 1 vale como 1 u 11 según convenga.</string>
     <string name="blackjack_start">Empezar</string>
