@@ -8,10 +8,10 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OddEvenFailureMatBackground
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OddEvenSuccessMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -109,7 +109,7 @@ class OddEvenGameScreenTest {
         val image = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).captureToImage()
         val pixelMap = image.toPixelMap()
         val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
-        assertEquals(OddEvenSuccessMatBackground, centerColor)
+        assertEquals(VictoryMatBackground, centerColor)
     }
 
     @Test
@@ -133,6 +133,6 @@ class OddEvenGameScreenTest {
         val image = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).captureToImage()
         val pixelMap = image.toPixelMap()
         val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
-        assertEquals(OddEvenFailureMatBackground, centerColor)
+        assertEquals(FailureMatBackground, centerColor)
     }
 }
