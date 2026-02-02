@@ -51,6 +51,7 @@ internal const val BLACKJACK_STAND_BUTTON_TAG = "blackjack_stand_button"
 internal const val BLACKJACK_START_BUTTON_TAG = "blackjack_start_button"
 internal const val BLACKJACK_DEALER_MAT_TAG = "blackjack_dealer_mat"
 internal const val BLACKJACK_PLAYER_MAT_TAG = "blackjack_player_mat"
+internal const val BLACKJACK_REWARD_STACK_TAG = "blackjack_reward_stack"
 
 @Composable
 fun BlackjackGameRoute(
@@ -157,7 +158,7 @@ fun BlackjackGameScreen(
                     Text(
                         text = stringResource(R.string.blackjack_reward_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = VictoryMatBackground
                     )
                 }
                 resultTextRes != null -> {
@@ -281,6 +282,8 @@ fun BlackjackGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top = 32.dp)
+                    .testTag(BLACKJACK_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {

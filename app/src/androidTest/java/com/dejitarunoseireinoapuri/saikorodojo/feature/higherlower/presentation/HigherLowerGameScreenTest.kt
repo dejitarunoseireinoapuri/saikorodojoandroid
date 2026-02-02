@@ -3,9 +3,13 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -30,5 +34,34 @@ class HigherLowerGameScreenTest {
         }
 
         composeTestRule.onNodeWithText(subtitle).assertDoesNotExist()
+    }
+
+    @Test
+    fun rewardStackIsOffsetDownward() {
+        val rewardCard = CardUiModel(
+            id = com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId.FLIP_FACE,
+            titleRes = 0,
+            descriptionRes = 0,
+            iconRes = 0
+        )
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                HigherLowerGameScreen(
+                    uiState = HigherLowerGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        rewardCards = listOf(rewardCard)
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val node = composeTestRule.onNodeWithTag(HIGHER_LOWER_REWARD_STACK_TAG)
+            .fetchSemanticsNode()
+        val expectedOffset = with(composeTestRule.density) { 32.dp.toPx() }
+        assertTrue(node.boundsInRoot.top >= expectedOffset)
     }
 }

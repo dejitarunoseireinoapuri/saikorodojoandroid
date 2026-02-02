@@ -56,6 +56,7 @@ internal const val SEQUENCE_CONTINUE_BUTTON_TAG = "sequence_continue_button"
 internal const val SEQUENCE_SAVED_DIE_TAG_PREFIX = "sequence_saved_die"
 internal const val SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX = "sequence_saved_die_value"
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
+internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 
 @Composable
 fun SequenceGameRoute(
@@ -131,7 +132,7 @@ fun SequenceGameScreen(
                 Text(
                     text = stringResource(R.string.sequence_reward_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = VictoryMatBackground
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -297,6 +298,8 @@ fun SequenceGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top = 32.dp)
+                    .testTag(SEQUENCE_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
