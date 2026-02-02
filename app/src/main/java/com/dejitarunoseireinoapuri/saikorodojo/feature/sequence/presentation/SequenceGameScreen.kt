@@ -41,7 +41,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppWarmAccent
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -367,8 +366,8 @@ private fun SequenceDiceFace(
     Box(
         modifier = modifier
             .size(size)
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(18.dp))
-            .border(2.dp, AppWarmAccent, RoundedCornerShape(18.dp))
+            .background(SequenceSaveMatBackground, RoundedCornerShape(18.dp))
+            .border(2.dp, SequenceSaveMatBorder, RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
