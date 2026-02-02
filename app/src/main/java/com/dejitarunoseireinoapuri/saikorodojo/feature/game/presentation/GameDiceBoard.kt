@@ -64,11 +64,11 @@ internal fun DiceBoard(
         diceCount = diceCount,
         spacing = 4.dp,
         columns = diceCount.coerceAtMost(2)
-    ) * 0.89f
+    )
     val numberTextScale = if (diceSize.value == 0f) {
         1f
     } else {
-        (diceSize / 80.dp).coerceIn(0.6f, 1f)
+        (diceSize / 80.dp).coerceAtMost(1f)
     }
     val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
         calculateDicePositions(
