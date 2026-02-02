@@ -80,10 +80,13 @@ class GameDiceBoardTest {
     }
 
     @Test
-    fun `selection border appears only during card selection`() {
+    fun `selection border ignores preselected dice outside reroll selection`() {
         assertTrue(
             shouldShowDiceSelectionBorder(
-                isCardSelectionActive = true,
+                isAwaitingRerollSelected = true,
+                isAwaitingRerollSingle = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
                 isSelected = true,
                 isAdjustmentSelected = false,
                 isSetValueSelected = false,
@@ -93,11 +96,26 @@ class GameDiceBoardTest {
         assertEquals(
             false,
             shouldShowDiceSelectionBorder(
-                isCardSelectionActive = false,
+                isAwaitingRerollSelected = false,
+                isAwaitingRerollSingle = true,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
                 isSelected = true,
                 isAdjustmentSelected = false,
                 isSetValueSelected = false,
                 isRerollSingleSelected = false
+            )
+        )
+        assertTrue(
+            shouldShowDiceSelectionBorder(
+                isAwaitingRerollSelected = false,
+                isAwaitingRerollSingle = true,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                isSelected = false,
+                isAdjustmentSelected = false,
+                isSetValueSelected = false,
+                isRerollSingleSelected = true
             )
         )
     }
