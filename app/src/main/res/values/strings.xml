@@ -12,7 +12,6 @@
     <string name="select_dice_to_reroll">Select dice to reroll</string>
     <string name="select_die_to_flip">Select a die to flip</string>
     <string name="select_die_to_modify">Select a die to modify</string>
-    <string name="add_die">Add die</string>
     <string name="apply">Use</string>
     <string name="card_adjust_plus_minus_one_title">Adjust ±1</string>
     <string name="card_adjust_plus_minus_one_description">Increase or decrease a die value by 1 without leaving its range</string>

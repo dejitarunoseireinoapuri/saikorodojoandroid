@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,8 +43,7 @@ internal fun DiceBoard(
     onAdjustSelectedDie: (Int) -> Unit,
     onSetSelectedDieValue: (Int) -> Unit,
     onRollSelectedDice: () -> Unit,
-    onRollSingleDie: () -> Unit,
-    onIncreaseDiceCount: () -> Unit
+    onRollSingleDie: () -> Unit
 ) {
     val diceCount = uiState.diceValues.size
     val boardHeight = 300.dp
@@ -89,25 +86,6 @@ internal fun DiceBoard(
     val diceTextScale = calculateDiceTextScale(diceSize)
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val promptOffset = -(boardHeight / 2 + 32.dp)
-        Button(
-            onClick = onIncreaseDiceCount,
-            enabled = !uiState.isRolling,
-            shape = RoundedCornerShape(18.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.onSecondary
-            ),
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = horizontalMargin)
-                .offset(y = (-boardHeight / 2) + 12.dp)
-                .height(36.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.add_die),
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
-            )
-        }
         when {
             uiState.isAwaitingRerollSingle -> {
                 Text(
