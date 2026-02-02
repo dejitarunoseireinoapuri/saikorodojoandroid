@@ -7,37 +7,70 @@ import org.junit.Test
 
 class GameDiceBoardTest {
     @Test
-    fun calculateRandomDicePositionsCentersGridWithEqualInsets() {
-        val availableWidth = 105.dp
-        val availableHeight = 95.dp
+    fun calculateDicePositionsArrangesFiveDiceInTwoOneTwoRows() {
+        val availableWidth = 100.dp
+        val availableHeight = 120.dp
         val diceSize = 20.dp
         val minSpacing = 0.dp
-        val columns = ((availableWidth + minSpacing) / (diceSize + minSpacing)).toInt().coerceAtLeast(1)
-        val rows = ((availableHeight + minSpacing) / (diceSize + minSpacing)).toInt().coerceAtLeast(1)
-        val totalCells = columns * rows
-        val gridWidth = (diceSize * columns) + (minSpacing * (columns - 1).coerceAtLeast(0))
-        val gridHeight = (diceSize * rows) + (minSpacing * (rows - 1).coerceAtLeast(0))
-        val expectedInsetX = ((availableWidth - gridWidth) / 2f).coerceAtLeast(0.dp)
-        val expectedInsetY = ((availableHeight - gridHeight) / 2f).coerceAtLeast(0.dp)
+        val expectedLeftX = 0.dp
+        val expectedRightX = 80.dp
+        val expectedCenterX = 40.dp
+        val expectedRowSpacing = (availableHeight - diceSize * 3) / 2
+        val expectedTopY = 0.dp
+        val expectedMiddleY = diceSize + expectedRowSpacing
+        val expectedBottomY = diceSize * 2 + expectedRowSpacing * 2
 
-        val positions = calculateRandomDicePositions(
+        val positions = calculateDicePositions(
             seed = 0L,
-            diceCount = totalCells,
+            diceCount = 5,
             availableWidth = availableWidth,
             availableHeight = availableHeight,
             diceSize = diceSize,
             minSpacing = minSpacing
         )
 
-        val minX = positions.minOf { it.x.value }
-        val maxX = positions.maxOf { it.x.value }
-        val minY = positions.minOf { it.y.value }
-        val maxY = positions.maxOf { it.y.value }
+        assertEquals(5, positions.size)
+        assertEquals(expectedLeftX, positions[0].x)
+        assertEquals(expectedTopY, positions[0].y)
+        assertEquals(expectedRightX, positions[1].x)
+        assertEquals(expectedTopY, positions[1].y)
+        assertEquals(expectedCenterX, positions[2].x)
+        assertEquals(expectedMiddleY, positions[2].y)
+        assertEquals(expectedLeftX, positions[3].x)
+        assertEquals(expectedBottomY, positions[3].y)
+        assertEquals(expectedRightX, positions[4].x)
+        assertEquals(expectedBottomY, positions[4].y)
+    }
 
-        assertEquals(expectedInsetX.value, minX, 0.001f)
-        assertEquals(expectedInsetY.value, minY, 0.001f)
-        assertEquals(expectedInsetX.value + gridWidth.value - diceSize.value, maxX, 0.001f)
-        assertEquals(expectedInsetY.value + gridHeight.value - diceSize.value, maxY, 0.001f)
+    @Test
+    fun calculateDicePositionsArrangesSixDiceInTwoPerRow() {
+        val availableWidth = 100.dp
+        val availableHeight = 120.dp
+        val diceSize = 20.dp
+        val minSpacing = 0.dp
+        val expectedLeftX = 0.dp
+        val expectedRightX = 80.dp
+        val expectedRowSpacing = (availableHeight - diceSize * 3) / 2
+        val expectedTopY = 0.dp
+        val expectedMiddleY = diceSize + expectedRowSpacing
+        val expectedBottomY = diceSize * 2 + expectedRowSpacing * 2
+
+        val positions = calculateDicePositions(
+            seed = 0L,
+            diceCount = 6,
+            availableWidth = availableWidth,
+            availableHeight = availableHeight,
+            diceSize = diceSize,
+            minSpacing = minSpacing
+        )
+
+        assertEquals(6, positions.size)
+        assertEquals(listOf(expectedLeftX, expectedRightX), positions.take(2).map { it.x })
+        assertEquals(listOf(expectedTopY, expectedTopY), positions.take(2).map { it.y })
+        assertEquals(listOf(expectedLeftX, expectedRightX), positions.drop(2).take(2).map { it.x })
+        assertEquals(listOf(expectedMiddleY, expectedMiddleY), positions.drop(2).take(2).map { it.y })
+        assertEquals(listOf(expectedLeftX, expectedRightX), positions.drop(4).map { it.x })
+        assertEquals(listOf(expectedBottomY, expectedBottomY), positions.drop(4).map { it.y })
     }
 
     @Test

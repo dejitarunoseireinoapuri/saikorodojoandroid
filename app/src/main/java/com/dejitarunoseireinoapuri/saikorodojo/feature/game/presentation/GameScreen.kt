@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,7 +67,8 @@ fun GameRoute(
             viewModel.onEvent(GameUiEvent.SetSelectedDieValue(value))
         },
         onRollSelectedDice = { viewModel.onEvent(GameUiEvent.RollSelectedDice) },
-        onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) }
+        onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) },
+        onAddDie = { viewModel.onEvent(GameUiEvent.AddDie) }
     )
 }
 
@@ -82,7 +85,8 @@ fun GameScreen(
     onAdjustSelectedDie: (Int) -> Unit,
     onSetSelectedDieValue: (Int) -> Unit,
     onRollSelectedDice: () -> Unit,
-    onRollSingleDie: () -> Unit
+    onRollSingleDie: () -> Unit,
+    onAddDie: () -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -122,6 +126,15 @@ fun GameScreen(
             onRollSelectedDice = onRollSelectedDice,
             onRollSingleDie = onRollSingleDie
         )
+        Button(
+            onClick = onAddDie,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 8.dp)
+                .zIndex(2f)
+        ) {
+            Text(text = stringResource(R.string.add_die))
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()

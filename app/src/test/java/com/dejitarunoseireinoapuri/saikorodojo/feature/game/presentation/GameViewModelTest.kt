@@ -61,6 +61,27 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `add die increases dice count and clears selections`() = runTest {
+        val viewModel = buildViewModel(
+            rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(4)),
+            diceCount = 5
+        )
+
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(2))
+
+        viewModel.onEvent(GameUiEvent.AddDie)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(6, state.diceCount)
+        assertEquals(6, state.diceValues.size)
+        assertEquals(List(6) { 4 }, state.diceValues)
+        assertTrue(state.selectedDice.isEmpty())
+        assertEquals(0, state.selectedDiceSum)
+    }
+
+    @Test
     fun `selecting and dismissing a card updates selection`() = runTest {
         val viewModel = buildViewModel(
             cardUiModels = listOf(
@@ -350,6 +371,7 @@ class GameViewModelTest {
 
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
+        diceCount: Int = 3,
         cardUiModels: List<CardUiModel> = listOf(
             CardUiModel(
                 id = CardId.REROLL_ALL,
@@ -364,7 +386,7 @@ class GameViewModelTest {
             dispatcher = testDispatcher,
             rollDurationMs = 1L,
             tickMs = 1L,
-            diceCount = 3,
+            diceCount = diceCount,
             diceType = DiceType.D6,
             layoutSeedProvider = { 0L },
             diceTypeProvider = { _, count -> List(count) { DiceType.D6 } },

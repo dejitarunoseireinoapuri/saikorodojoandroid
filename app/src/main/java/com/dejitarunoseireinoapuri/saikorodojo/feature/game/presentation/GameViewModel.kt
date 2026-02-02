@@ -51,6 +51,7 @@ sealed interface GameUiEvent {
     data class SetSelectedDieValue(val value: Int) : GameUiEvent
     data object RollSelectedDice : GameUiEvent
     data object RollSingleDie : GameUiEvent
+    data object AddDie : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
 }
 
@@ -103,6 +104,7 @@ class GameViewModel(
             is GameUiEvent.SetSelectedDieValue -> setSelectedDieValue(event.value)
             GameUiEvent.RollSelectedDice -> rollSelectedDice()
             GameUiEvent.RollSingleDie -> rollSingleDie()
+            GameUiEvent.AddDie -> addDie()
             GameUiEvent.DismissSelectedCard -> {
                 if (!isCardInteractionBlocked()) {
                     dismissSelectedCard()
@@ -168,6 +170,23 @@ class GameViewModel(
                 )
             }
         }
+    }
+
+    private fun addDie() {
+        _uiState.update { state ->
+            val newDiceValues = state.diceValues + 1
+            state.copy(
+                diceValues = newDiceValues,
+                diceTypes = state.diceTypes + state.diceType,
+                diceCount = newDiceValues.size,
+                selectedDice = emptySet(),
+                selectedDiceSum = 0,
+                selectedRerollSingleDieIndex = null,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null
+            )
+        }
+        startRolling()
     }
 
     private fun handleDiceClick(index: Int) {

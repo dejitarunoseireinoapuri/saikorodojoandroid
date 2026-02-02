@@ -65,8 +65,13 @@ internal fun DiceBoard(
         spacing = 4.dp,
         columns = diceCount.coerceAtMost(2)
     ) * 0.89f
+    val numberTextScale = if (diceSize.value == 0f) {
+        1f
+    } else {
+        (diceSize / 80.dp).coerceIn(0.6f, 1f)
+    }
     val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
-        calculateRandomDicePositions(
+        calculateDicePositions(
             seed = uiState.layoutSeed,
             diceCount = diceCount,
             availableWidth = contentSize.width,
@@ -292,7 +297,8 @@ internal fun DiceBoard(
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
                         isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected || isRerollSingleSelected,
-                        showSelectedFace = !uiState.isAwaitingRerollSelected
+                        showSelectedFace = !uiState.isAwaitingRerollSelected,
+                        numberTextScale = numberTextScale
                     )
                 }
             }
@@ -431,7 +437,7 @@ internal fun calculateBoardContentSize(
 
 internal data class DicePosition(val x: Dp, val y: Dp)
 
-internal fun calculateRandomDicePositions(
+internal fun calculateDicePositions(
     seed: Long,
     diceCount: Int,
     availableWidth: Dp,
@@ -440,31 +446,65 @@ internal fun calculateRandomDicePositions(
     minSpacing: Dp
 ): List<DicePosition> {
     if (diceCount <= 0) return emptyList()
-    val cellSize = diceSize + minSpacing
-    val columns = ((availableWidth + minSpacing) / cellSize).toInt().coerceAtLeast(1)
-    val rows = ((availableHeight + minSpacing) / cellSize).toInt().coerceAtLeast(1)
-    val totalCells = columns * rows
-    val gridWidth = (diceSize * columns) + (minSpacing * (columns - 1).coerceAtLeast(0))
-    val gridHeight = (diceSize * rows) + (minSpacing * (rows - 1).coerceAtLeast(0))
-    val horizontalInset = ((availableWidth - gridWidth) / 2f).coerceAtLeast(0.dp)
-    val verticalInset = ((availableHeight - gridHeight) / 2f).coerceAtLeast(0.dp)
+    val rows = ((diceCount + 1) / 2).coerceAtLeast(1)
+    val rawSpacing = if (rows > 1) {
+        (availableHeight - diceSize * rows) / (rows - 1)
+    } else {
+        0.dp
+    }
+    val rowSpacing = rawSpacing.coerceAtLeast(minSpacing).coerceAtLeast(0.dp)
+    val totalHeight = diceSize * rows + rowSpacing * (rows - 1).coerceAtLeast(0)
+    val verticalInset = ((availableHeight - totalHeight) / 2f).coerceAtLeast(0.dp)
+    val columnSpacing = (availableWidth - diceSize * 2).coerceAtLeast(minSpacing).coerceAtLeast(0.dp)
+    val totalWidth = diceSize * 2 + columnSpacing
+    val horizontalInset = ((availableWidth - totalWidth) / 2f).coerceAtLeast(0.dp)
     val random = Random(seed)
-    val indices = List(totalCells) { it }.shuffled(random)
     val jitterXLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
     val jitterYLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
-    return List(minOf(diceCount, totalCells)) { index ->
-        val cellIndex = indices[index]
-        val row = cellIndex / columns
-        val column = cellIndex % columns
-        val baseX = (horizontalInset + cellSize * column).coerceAtMost(availableWidth - diceSize)
-        val baseY = (verticalInset + cellSize * row).coerceAtMost(availableHeight - diceSize)
-        val jitterX = ((random.nextFloat() - 0.5f) * 2f * jitterXLimit.value).dp
+    val leftX = horizontalInset.coerceAtMost(availableWidth - diceSize)
+    val rightX = (horizontalInset + diceSize + columnSpacing).coerceAtMost(availableWidth - diceSize)
+    val centerX = ((availableWidth - diceSize) / 2f).coerceIn(0.dp, availableWidth - diceSize)
+    val singleRowIndex = if (diceCount % 2 == 1) rows / 2 else -1
+    val positions = mutableListOf<DicePosition>()
+    var remaining = diceCount
+    repeat(rows) { rowIndex ->
+        if (remaining <= 0) return@repeat
+        val baseY = (verticalInset + (diceSize + rowSpacing) * rowIndex)
+            .coerceAtMost(availableHeight - diceSize)
         val jitterY = ((random.nextFloat() - 0.5f) * 2f * jitterYLimit.value).dp
-        DicePosition(
-            x = (baseX + jitterX).coerceIn(0.dp, availableWidth - diceSize),
-            y = (baseY + jitterY).coerceIn(0.dp, availableHeight - diceSize)
-        )
+        val y = (baseY + jitterY).coerceIn(0.dp, availableHeight - diceSize)
+        val isSingleRow = rowIndex == singleRowIndex && remaining % 2 == 1
+        if (isSingleRow) {
+            val jitterX = ((random.nextFloat() - 0.5f) * 2f * jitterXLimit.value).dp
+            positions.add(
+                DicePosition(
+                    x = (centerX + jitterX).coerceIn(0.dp, availableWidth - diceSize),
+                    y = y
+                )
+            )
+            remaining -= 1
+        } else {
+            val jitterLeft = ((random.nextFloat() - 0.5f) * 2f * jitterXLimit.value).dp
+            positions.add(
+                DicePosition(
+                    x = (leftX + jitterLeft).coerceIn(0.dp, availableWidth - diceSize),
+                    y = y
+                )
+            )
+            remaining -= 1
+            if (remaining > 0) {
+                val jitterRight = ((random.nextFloat() - 0.5f) * 2f * jitterXLimit.value).dp
+                positions.add(
+                    DicePosition(
+                        x = (rightX + jitterRight).coerceIn(0.dp, availableWidth - diceSize),
+                        y = y
+                    )
+                )
+                remaining -= 1
+            }
+        }
     }
+    return positions
 }
 
 internal fun diceNumberYOffset(faceDrawable: Int): Dp {
