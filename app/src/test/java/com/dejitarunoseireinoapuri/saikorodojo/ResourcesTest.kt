@@ -1,7 +1,9 @@
 package com.dejitarunoseireinoapuri.saikorodojo
 
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class ResourcesTest {
     @Test
@@ -9,5 +11,20 @@ class ResourcesTest {
         assertNotEquals(0, R.drawable.six_sides)
         assertNotEquals(0, R.drawable.eigth_sides)
         assertNotEquals(0, R.drawable.ten_sides)
+    }
+
+    @Test
+    fun `selected dice drawables use app secondary color`() {
+        val expectedColor = "#FF57169C"
+        val drawablePaths = listOf(
+            "app/src/main/res/drawable/six_sides_selected.xml",
+            "app/src/main/res/drawable/eigth_sides_selected.xml",
+            "app/src/main/res/drawable/ten_sides_selected.xml"
+        )
+
+        drawablePaths.forEach { path ->
+            val contents = File(path).readText()
+            assertTrue(contents.contains(expectedColor))
+        }
     }
 }
