@@ -14,8 +14,8 @@ class ResourcesTest {
     }
 
     @Test
-    fun `selected dice drawables use app secondary color`() {
-        val expectedColor = "#FF57169C"
+    fun `selected dice drawables use app primary color`() {
+        val expectedColor = "#FF56BD88"
         val drawablePaths = listOf(
             "app/src/main/res/drawable/six_sides_selected.xml",
             "app/src/main/res/drawable/eigth_sides_selected.xml",
