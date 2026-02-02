@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,21 +56,26 @@ internal fun DiceBoard(
         horizontalPadding = contentPadding,
         verticalPadding = contentPadding
     )
-    val diceSize = calculateDiceSize(
-        availableWidth = contentSize.width,
-        availableHeight = contentSize.height,
-        diceCount = diceCount,
-        spacing = 4.dp,
-        columns = diceCount.coerceAtMost(2)
-    ) * 0.89f
-    val positions = remember(uiState.layoutSeed, maxWidth, diceCount) {
-        calculateRandomDicePositions(
-            seed = uiState.layoutSeed,
+    val diceSpacing = 4.dp
+    val gridSpec = remember(diceCount, contentSize) {
+        calculateDiceGridSpec(
+            availableWidth = contentSize.width,
+            availableHeight = contentSize.height,
+            diceCount = diceCount,
+            spacing = diceSpacing
+        )
+    }
+    val diceSize = gridSpec.diceSize
+    val positions = remember(diceCount, contentSize, gridSpec) {
+        calculatePackedDicePositions(
             diceCount = diceCount,
             availableWidth = contentSize.width,
             availableHeight = contentSize.height,
             diceSize = diceSize,
-            minSpacing = 4.dp
+            spacing = diceSpacing,
+            columns = gridSpec.columns,
+            rows = gridSpec.rows,
+            seed = uiState.layoutSeed
         )
     }
     val diceFaces = remember(uiState.diceTypes, diceCount) {
@@ -80,6 +83,7 @@ internal fun DiceBoard(
             diceTypeDrawable(uiState.diceTypes.getOrElse(index) { DiceType.D6 })
         }
     }
+    val diceTextScale = calculateDiceTextScale(diceSize)
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val promptOffset = -(boardHeight / 2 + 32.dp)
         when {
@@ -292,7 +296,8 @@ internal fun DiceBoard(
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
                         isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected || isRerollSingleSelected,
-                        showSelectedFace = !uiState.isAwaitingRerollSelected
+                        showSelectedFace = !uiState.isAwaitingRerollSelected,
+                        numberTextScale = diceTextScale
                     )
                 }
             }
@@ -378,19 +383,47 @@ internal fun adjustActionAvailability(value: Int, diceType: DiceType): AdjustAct
     )
 }
 
-internal fun calculateDiceSize(
+internal data class DiceGridSpec(
+    val columns: Int,
+    val rows: Int,
+    val diceSize: Dp
+)
+
+internal fun calculateDiceGridSpec(
     availableWidth: Dp,
     availableHeight: Dp,
     diceCount: Int,
-    spacing: Dp,
-    columns: Int
-): Dp {
-    if (diceCount <= 0) return 0.dp
-    val safeColumns = columns.coerceAtLeast(1)
-    val rows = ((diceCount + safeColumns - 1) / safeColumns).coerceAtLeast(1)
-    val widthBasedSize = (availableWidth - spacing * (safeColumns - 1)) / safeColumns
-    val heightBasedSize = (availableHeight - spacing * (rows - 1)) / rows
-    return minOf(widthBasedSize, heightBasedSize)
+    spacing: Dp
+): DiceGridSpec {
+    if (diceCount <= 0) {
+        return DiceGridSpec(columns = 0, rows = 0, diceSize = 0.dp)
+    }
+    var bestColumns = 1
+    var bestRows = diceCount
+    var bestSize = 0.dp
+    var bestDiff = Int.MAX_VALUE
+    var bestCapacity = Int.MAX_VALUE
+    for (columns in 1..diceCount) {
+        val rows = ((diceCount + columns - 1) / columns).coerceAtLeast(1)
+        if (diceCount >= 4 && (rows < 2 || columns < 2)) continue
+        val widthBasedSize = (availableWidth - spacing * (columns - 1)) / columns
+        val heightBasedSize = (availableHeight - spacing * (rows - 1)) / rows
+        val size = minOf(widthBasedSize, heightBasedSize)
+        if (size <= 0.dp) continue
+        val diff = kotlin.math.abs(columns - rows)
+        val capacity = columns * rows
+        if (diff < bestDiff ||
+            (diff == bestDiff && size > bestSize) ||
+            (diff == bestDiff && size == bestSize && capacity < bestCapacity)
+        ) {
+            bestDiff = diff
+            bestSize = size
+            bestColumns = columns
+            bestRows = rows
+            bestCapacity = capacity
+        }
+    }
+    return DiceGridSpec(columns = bestColumns, rows = bestRows, diceSize = bestSize)
 }
 
 internal fun calculateRowDiceSize(
@@ -431,40 +464,57 @@ internal fun calculateBoardContentSize(
 
 internal data class DicePosition(val x: Dp, val y: Dp)
 
-internal fun calculateRandomDicePositions(
-    seed: Long,
+internal fun calculatePackedDicePositions(
     diceCount: Int,
     availableWidth: Dp,
     availableHeight: Dp,
     diceSize: Dp,
-    minSpacing: Dp
+    spacing: Dp,
+    columns: Int,
+    rows: Int,
+    seed: Long
 ): List<DicePosition> {
     if (diceCount <= 0) return emptyList()
-    val cellSize = diceSize + minSpacing
-    val columns = ((availableWidth + minSpacing) / cellSize).toInt().coerceAtLeast(1)
-    val rows = ((availableHeight + minSpacing) / cellSize).toInt().coerceAtLeast(1)
-    val totalCells = columns * rows
-    val gridWidth = (diceSize * columns) + (minSpacing * (columns - 1).coerceAtLeast(0))
-    val gridHeight = (diceSize * rows) + (minSpacing * (rows - 1).coerceAtLeast(0))
+    val safeColumns = columns.coerceAtLeast(1)
+    val safeRows = rows.coerceAtLeast(1)
+    val totalCells = safeColumns * safeRows
+    val gridWidth = (diceSize * safeColumns) + (spacing * (safeColumns - 1).coerceAtLeast(0))
+    val gridHeight = (diceSize * safeRows) + (spacing * (safeRows - 1).coerceAtLeast(0))
     val horizontalInset = ((availableWidth - gridWidth) / 2f).coerceAtLeast(0.dp)
     val verticalInset = ((availableHeight - gridHeight) / 2f).coerceAtLeast(0.dp)
-    val random = Random(seed)
-    val indices = List(totalCells) { it }.shuffled(random)
-    val jitterXLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
-    val jitterYLimit = (minSpacing / 2f).coerceAtLeast(0.dp)
-    return List(minOf(diceCount, totalCells)) { index ->
-        val cellIndex = indices[index]
-        val row = cellIndex / columns
-        val column = cellIndex % columns
-        val baseX = (horizontalInset + cellSize * column).coerceAtMost(availableWidth - diceSize)
-        val baseY = (verticalInset + cellSize * row).coerceAtMost(availableHeight - diceSize)
-        val jitterX = ((random.nextFloat() - 0.5f) * 2f * jitterXLimit.value).dp
-        val jitterY = ((random.nextFloat() - 0.5f) * 2f * jitterYLimit.value).dp
+    val allCells = buildList(totalCells) {
+        for (row in 0 until safeRows) {
+            for (column in 0 until safeColumns) {
+                add(column to row)
+            }
+        }
+    }
+    val corners = listOf(
+        0 to 0,
+        (safeColumns - 1) to 0,
+        0 to (safeRows - 1),
+        (safeColumns - 1) to (safeRows - 1)
+    ).filter { (column, row) ->
+        column in 0 until safeColumns && row in 0 until safeRows
+    }
+    val remainingCells = allCells.filterNot { it in corners }
+    val shuffledRemaining = remainingCells.shuffled(Random(seed))
+    val orderedCells = corners + shuffledRemaining
+    return orderedCells.take(minOf(diceCount, totalCells)).map { (column, row) ->
+        val baseX = (horizontalInset + (diceSize + spacing) * column)
+            .coerceAtMost(availableWidth - diceSize)
+        val baseY = (verticalInset + (diceSize + spacing) * row)
+            .coerceAtMost(availableHeight - diceSize)
         DicePosition(
-            x = (baseX + jitterX).coerceIn(0.dp, availableWidth - diceSize),
-            y = (baseY + jitterY).coerceIn(0.dp, availableHeight - diceSize)
+            x = baseX.coerceIn(0.dp, availableWidth - diceSize),
+            y = baseY.coerceIn(0.dp, availableHeight - diceSize)
         )
     }
+}
+
+internal fun calculateDiceTextScale(diceSize: Dp, referenceSize: Dp = 72.dp): Float {
+    if (referenceSize.value == 0f) return 1f
+    return (diceSize.value / referenceSize.value).coerceAtMost(1f)
 }
 
 internal fun diceNumberYOffset(faceDrawable: Int): Dp {
