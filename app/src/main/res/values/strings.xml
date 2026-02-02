@@ -38,9 +38,6 @@
     <string name="odd_even_odd">Odd</string>
     <string name="odd_even_correct">You got it!</string>
     <string name="odd_even_wrong">You missed</string>
-    <string name="odd_even_congrats">You won cards!</string>
-    <string name="odd_even_reward_subtitle">You won a card</string>
-    <string name="odd_even_try_again">You will get it next time!</string>
     <string name="odd_even_continue">Continue</string>
     <string name="higher_lower_title">Higher or Lower</string>
     <string name="higher_lower_subtitle">Say whether the next roll will be higher or lower than the current one. You win if you guess correctly three times in a row or the sum of the two dice is the same twice in a row.</string>
@@ -53,8 +50,6 @@
     <string name="sequence_start">Start</string>
     <string name="sequence_save">Keep</string>
     <string name="sequence_discard">Discard</string>
-    <string name="sequence_congrats">Congratulations!</string>
-    <string name="sequence_reward_subtitle">You won a card</string>
     <string name="blackjack_title">Blackjack</string>
     <string name="blackjack_subtitle">Reach 21 without going over. After the first roll, choose whether to roll one more 10-sided die or stand. After you stand, it will be the dealer’s turn. Whoever gets closer to 21 wins; if it’s a tie, both lose. A 1 counts as 1 or 11, whichever is better.</string>
     <string name="blackjack_start">Start</string>
@@ -62,8 +57,8 @@
     <string name="blackjack_stand">Stand</string>
     <string name="blackjack_player_score">Your score: %1$d</string>
     <string name="blackjack_dealer_score">Dealer score: %1$d</string>
-    <string name="blackjack_win">You win!</string>
-    <string name="blackjack_lose">You will get it next time!</string>
-    <string name="blackjack_reward_subtitle">You’ve won a card</string>
     <string name="blackjack_continue">Continue</string>
+    <string name="minigame_win_message">>You win!</string>
+    <string name="minigame_lose_message">You will get it next time!</string>
+    <string name="minigame_win_cards_message">You’ve won some cards</string>
 </resources>
