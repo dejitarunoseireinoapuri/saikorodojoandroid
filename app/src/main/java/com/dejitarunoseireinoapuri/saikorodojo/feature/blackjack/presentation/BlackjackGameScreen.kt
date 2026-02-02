@@ -25,8 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,12 +39,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 
 internal const val BLACKJACK_HIT_BUTTON_TAG = "blackjack_hit_button"
 internal const val BLACKJACK_STAND_BUTTON_TAG = "blackjack_stand_button"
 internal const val BLACKJACK_START_BUTTON_TAG = "blackjack_start_button"
+internal const val BLACKJACK_DEALER_MAT_TAG = "blackjack_dealer_mat"
+internal const val BLACKJACK_PLAYER_MAT_TAG = "blackjack_player_mat"
 
 @Composable
 fun BlackjackGameRoute(
@@ -206,12 +208,14 @@ fun BlackjackGameScreen(
                 BlackjackMat(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(130.dp),
-                    contentAlignment = Alignment.Center
+                        .height(130.dp)
+                        .testTag(BLACKJACK_DEALER_MAT_TAG),
+                    contentAlignment = Alignment.Center,
+                    backgroundColor = SequenceSaveMatBackground,
+                    borderColor = SequenceSaveMatBorder
                 ) {
                     DiceRow(
-                        values = uiState.dealerDice,
-                        isBust = uiState.showDealerBust
+                        values = uiState.dealerDice
                     )
                 }
                 Spacer(modifier = Modifier.height(20.dp))
@@ -242,12 +246,22 @@ fun BlackjackGameScreen(
                 BlackjackMat(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(140.dp),
-                    contentAlignment = Alignment.Center
+                        .height(140.dp)
+                        .testTag(BLACKJACK_PLAYER_MAT_TAG),
+                    contentAlignment = Alignment.Center,
+                    backgroundColor = when (uiState.result) {
+                        BlackjackOutcome.PLAYER_WIN -> VictoryMatBackground
+                        BlackjackOutcome.PLAYER_LOSE -> FailureMatBackground
+                        null -> SequenceSaveMatBackground
+                    },
+                    borderColor = when (uiState.result) {
+                        BlackjackOutcome.PLAYER_WIN -> VictoryMatBackground
+                        BlackjackOutcome.PLAYER_LOSE -> FailureMatBackground
+                        null -> SequenceSaveMatBorder
+                    }
                 ) {
                     DiceRow(
-                        values = uiState.playerDice,
-                        isBust = uiState.showPlayerBust
+                        values = uiState.playerDice
                     )
                 }
                 Spacer(modifier = Modifier.height(72.dp))
@@ -333,12 +347,14 @@ private fun BlackjackActionButton(
 private fun BlackjackMat(
     modifier: Modifier,
     contentAlignment: Alignment,
+    backgroundColor: androidx.compose.ui.graphics.Color,
+    borderColor: androidx.compose.ui.graphics.Color,
     content: @Composable () -> Unit
 ) {
     Box(
         modifier = modifier
-            .background(SequenceSaveMatBackground, RoundedCornerShape(24.dp))
-            .border(2.dp, SequenceSaveMatBorder, RoundedCornerShape(24.dp))
+            .background(backgroundColor, RoundedCornerShape(24.dp))
+            .border(2.dp, borderColor, RoundedCornerShape(24.dp))
             .padding(8.dp),
         contentAlignment = contentAlignment
     ) {
@@ -348,8 +364,7 @@ private fun BlackjackMat(
 
 @Composable
 private fun DiceRow(
-    values: List<Int>,
-    isBust: Boolean
+    values: List<Int>
 ) {
     if (values.isEmpty()) return
     BoxWithConstraints(
@@ -387,8 +402,7 @@ private fun DiceRow(
                     rowValues.forEach { value ->
                         BlackjackDieFace(
                             value = value,
-                            size = diceSize.coerceAtMost(96.dp),
-                            isBust = isBust
+                            size = diceSize.coerceAtMost(96.dp)
                         )
                     }
                 }
@@ -400,10 +414,8 @@ private fun DiceRow(
 @Composable
 private fun BlackjackDieFace(
     value: Int,
-    size: Dp,
-    isBust: Boolean
+    size: Dp
 ) {
-    val tint = if (isBust) MaterialTheme.colorScheme.tertiary else Color.Unspecified
     val fontSize = (size.value * 0.32f).coerceIn(14f, 22f).sp
     Box(
         modifier = Modifier.size(size),
@@ -412,7 +424,6 @@ private fun BlackjackDieFace(
         Image(
             painter = painterResource(id = R.drawable.ten_sides),
             contentDescription = stringResource(R.string.cd_dice_face, value),
-            colorFilter = if (isBust) ColorFilter.tint(tint) else null,
             modifier = Modifier.fillMaxSize()
         )
         Text(
