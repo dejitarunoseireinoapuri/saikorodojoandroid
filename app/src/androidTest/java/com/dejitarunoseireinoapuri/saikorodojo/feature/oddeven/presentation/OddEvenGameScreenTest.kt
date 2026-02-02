@@ -8,12 +8,14 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -155,5 +157,29 @@ class OddEvenGameScreenTest {
         }
 
         composeTestRule.onNodeWithText(subtitle).assertDoesNotExist()
+    }
+
+    @Test
+    fun rewardStackIsOffsetDownward() {
+        val rewardCard = defaultCardUiModels().first()
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        rewardCards = listOf(rewardCard)
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val node = composeTestRule.onNodeWithTag(ODD_EVEN_REWARD_STACK_TAG)
+            .fetchSemanticsNode()
+        val expectedOffset = with(composeTestRule.density) { 32.dp.toPx() }
+        assertTrue(node.boundsInRoot.top >= expectedOffset)
     }
 }

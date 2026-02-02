@@ -49,6 +49,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
 internal const val ODD_EVEN_CONTINUE_BUTTON_TAG = "odd_even_continue_button"
+internal const val ODD_EVEN_REWARD_STACK_TAG = "odd_even_reward_stack"
 internal val ODD_EVEN_DICE_SIZE = 150.dp
 
 @Composable
@@ -124,7 +125,7 @@ fun OddEvenGameScreen(
                 Text(
                     text = stringResource(R.string.odd_even_reward_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = VictoryMatBackground
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -226,6 +227,8 @@ fun OddEvenGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top = 32.dp)
+                    .testTag(ODD_EVEN_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {

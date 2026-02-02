@@ -55,6 +55,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 internal const val HIGHER_LOWER_BUTTON_ROW_TAG = "higher_lower_button_row"
 internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
+internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
 private const val HIGHER_LOWER_TRANSITION_MS = 900
 private val HigherLowerButtonReserveHeight = 120.dp
 
@@ -132,7 +133,7 @@ fun HigherLowerGameScreen(
                     Text(
                         text = stringResource(R.string.odd_even_reward_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = VictoryMatBackground
                     )
                 }
                 hasLoss -> {
@@ -320,6 +321,8 @@ fun HigherLowerGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top = 32.dp)
+                    .testTag(HIGHER_LOWER_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
