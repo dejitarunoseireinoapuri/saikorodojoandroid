@@ -282,7 +282,7 @@ fun BlackjackGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 32.dp)
+                    .padding(top = 64.dp)
                     .testTag(BLACKJACK_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
