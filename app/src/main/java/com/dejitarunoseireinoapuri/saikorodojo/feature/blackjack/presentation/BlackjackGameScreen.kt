@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -108,6 +110,12 @@ fun BlackjackGameScreen(
                 null -> null
             }
             val hasReward = uiState.rewardCards.isNotEmpty()
+            val showRules = !uiState.isStarted
+            val rulesModifier = if (showRules) {
+                Modifier
+            } else {
+                Modifier.alpha(0f).clearAndSetSemantics { }
+            }
             when {
                 hasReward -> {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -166,7 +174,8 @@ fun BlackjackGameScreen(
                         text = stringResource(R.string.blackjack_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = rulesModifier
                     )
                 }
             }
