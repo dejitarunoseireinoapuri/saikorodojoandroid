@@ -45,7 +45,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppWarmAccent
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 
@@ -258,8 +257,8 @@ fun HigherLowerGameScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
-                                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                                borderColor = AppWarmAccent
+                                backgroundColor = SequenceSaveMatBackground,
+                                borderColor = SequenceSaveMatBorder
                             ) {
                                 HigherLowerDiceRow(
                                     values = uiState.baseDiceValues,
