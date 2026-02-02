@@ -78,4 +78,45 @@ class GameDiceBoardTest {
     fun `dice option number color uses mat darkest tone`() {
         assertEquals(DiceOptionNumberColor, diceOptionNumberColor())
     }
+
+    @Test
+    fun `selection border ignores preselected dice outside reroll selection`() {
+        assertTrue(
+            shouldShowDiceSelectionBorder(
+                isAwaitingRerollSelected = true,
+                isAwaitingRerollSingle = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                isSelected = true,
+                isAdjustmentSelected = false,
+                isSetValueSelected = false,
+                isRerollSingleSelected = false
+            )
+        )
+        assertEquals(
+            false,
+            shouldShowDiceSelectionBorder(
+                isAwaitingRerollSelected = false,
+                isAwaitingRerollSingle = true,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                isSelected = true,
+                isAdjustmentSelected = false,
+                isSetValueSelected = false,
+                isRerollSingleSelected = false
+            )
+        )
+        assertTrue(
+            shouldShowDiceSelectionBorder(
+                isAwaitingRerollSelected = false,
+                isAwaitingRerollSingle = true,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                isSelected = false,
+                isAdjustmentSelected = false,
+                isSetValueSelected = false,
+                isRerollSingleSelected = true
+            )
+        )
+    }
 }
