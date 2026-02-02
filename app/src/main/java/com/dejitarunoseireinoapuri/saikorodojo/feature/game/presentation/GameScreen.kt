@@ -65,7 +65,8 @@ fun GameRoute(
             viewModel.onEvent(GameUiEvent.SetSelectedDieValue(value))
         },
         onRollSelectedDice = { viewModel.onEvent(GameUiEvent.RollSelectedDice) },
-        onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) }
+        onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) },
+        onIncreaseDiceCount = { viewModel.onEvent(GameUiEvent.IncreaseDiceCount) }
     )
 }
 
@@ -82,7 +83,8 @@ fun GameScreen(
     onAdjustSelectedDie: (Int) -> Unit,
     onSetSelectedDieValue: (Int) -> Unit,
     onRollSelectedDice: () -> Unit,
-    onRollSingleDie: () -> Unit
+    onRollSingleDie: () -> Unit,
+    onIncreaseDiceCount: () -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -120,7 +122,8 @@ fun GameScreen(
             onAdjustSelectedDie = onAdjustSelectedDie,
             onSetSelectedDieValue = onSetSelectedDieValue,
             onRollSelectedDice = onRollSelectedDice,
-            onRollSingleDie = onRollSingleDie
+            onRollSingleDie = onRollSingleDie,
+            onIncreaseDiceCount = onIncreaseDiceCount
         )
         Box(
             modifier = Modifier
