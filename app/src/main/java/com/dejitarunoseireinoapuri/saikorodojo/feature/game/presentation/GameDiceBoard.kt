@@ -87,11 +87,6 @@ internal fun DiceBoard(
         }
     }
     val diceTextScale = calculateDiceTextScale(diceSize)
-    val isCardSelectionActive = uiState.isAwaitingRerollSelected ||
-        uiState.isAwaitingRerollSingle ||
-        uiState.isAwaitingFlipFace ||
-        uiState.isAwaitingAdjustPlusMinus ||
-        uiState.isAwaitingSetValue
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val promptOffset = -(boardHeight / 2 + 32.dp)
         when {
@@ -293,7 +288,10 @@ internal fun DiceBoard(
                 val isSetValueSelected = uiState.selectedSetValueDieIndex == index
                 val isRerollSingleSelected = uiState.selectedRerollSingleDieIndex == index
                 val showSelectionBorder = shouldShowDiceSelectionBorder(
-                    isCardSelectionActive = isCardSelectionActive,
+                    isAwaitingRerollSelected = uiState.isAwaitingRerollSelected,
+                    isAwaitingRerollSingle = uiState.isAwaitingRerollSingle,
+                    isAwaitingAdjustPlusMinus = uiState.isAwaitingAdjustPlusMinus,
+                    isAwaitingSetValue = uiState.isAwaitingSetValue,
                     isSelected = isSelected,
                     isAdjustmentSelected = isAdjustmentSelected,
                     isSetValueSelected = isSetValueSelected,
@@ -394,14 +392,22 @@ private fun DiceOption(
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
 
 internal fun shouldShowDiceSelectionBorder(
-    isCardSelectionActive: Boolean,
+    isAwaitingRerollSelected: Boolean,
+    isAwaitingRerollSingle: Boolean,
+    isAwaitingAdjustPlusMinus: Boolean,
+    isAwaitingSetValue: Boolean,
     isSelected: Boolean,
     isAdjustmentSelected: Boolean,
     isSetValueSelected: Boolean,
     isRerollSingleSelected: Boolean
 ): Boolean {
-    return isCardSelectionActive &&
-        (isSelected || isAdjustmentSelected || isSetValueSelected || isRerollSingleSelected)
+    return when {
+        isAwaitingRerollSelected -> isSelected
+        isAwaitingRerollSingle -> isRerollSingleSelected
+        isAwaitingAdjustPlusMinus -> isAdjustmentSelected
+        isAwaitingSetValue -> isSetValueSelected
+        else -> false
+    }
 }
 
 internal data class AdjustActionAvailability(
