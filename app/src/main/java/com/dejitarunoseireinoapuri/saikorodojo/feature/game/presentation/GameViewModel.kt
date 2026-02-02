@@ -18,13 +18,11 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val DEFAULT_DICE_COUNT = 5
-private const val MAX_DICE_COUNT = 12
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
-    val maxDiceCount: Int = MAX_DICE_COUNT,
     val diceType: DiceType = DiceType.D6,
     val diceTypes: List<DiceType> = List(DEFAULT_DICE_COUNT) { DiceType.D6 },
     val layoutSeed: Long = 0L,
@@ -78,7 +76,6 @@ class GameViewModel(
         GameUiState(
             diceValues = List(diceCount) { 1 },
             diceCount = diceCount,
-            maxDiceCount = MAX_DICE_COUNT,
             diceType = diceType,
             diceTypes = diceTypeProvider(0L, diceCount),
             cardUiModels = cardUiModels
@@ -224,7 +221,7 @@ class GameViewModel(
 
     private fun increaseDiceCount() {
         val currentState = _uiState.value
-        if (currentState.isRolling || currentState.diceCount >= currentState.maxDiceCount) return
+        if (currentState.isRolling) return
         val newCount = currentState.diceCount + 1
         val newDiceValues = currentState.diceValues + 1
         val newDiceTypes = currentState.diceTypes + currentState.diceType
