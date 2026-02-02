@@ -52,6 +52,7 @@ sealed interface GameUiEvent {
     data object RollSelectedDice : GameUiEvent
     data object RollSingleDie : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
+    data object IncreaseDiceCount : GameUiEvent
 }
 
 class GameViewModel(
@@ -108,6 +109,7 @@ class GameViewModel(
                     dismissSelectedCard()
                 }
             }
+            GameUiEvent.IncreaseDiceCount -> increaseDiceCount()
         }
     }
 
@@ -215,6 +217,34 @@ class GameViewModel(
 
     private fun dismissSelectedCard() {
         _uiState.update { it.copy(selectedCardIndex = null) }
+    }
+
+    private fun increaseDiceCount() {
+        val currentState = _uiState.value
+        if (currentState.isRolling) return
+        val newCount = currentState.diceCount + 1
+        val newDiceValues = currentState.diceValues + 1
+        val newDiceTypes = currentState.diceTypes + currentState.diceType
+        val updatedSelection = currentState.selectedDice.filter { it < newCount }.toSet()
+        _uiState.update { state ->
+            state.copy(
+                diceCount = newCount,
+                diceValues = newDiceValues,
+                diceTypes = newDiceTypes,
+                isAwaitingRerollSingle = false,
+                isAwaitingRerollSelected = false,
+                isAwaitingFlipFace = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                selectedDice = updatedSelection,
+                selectedDiceSum = calculateSelectedDiceSum(newDiceValues, updatedSelection),
+                selectedRerollSingleDieIndex = null,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null
+            )
+        }
+        initialRollSnapshot = null
+        startRolling(keepLayout = false)
     }
 
     private fun applyCard(index: Int) {

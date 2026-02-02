@@ -348,6 +348,23 @@ class GameViewModelTest {
         assertTrue(stateAfterRepeat.cardUiModels.isEmpty())
     }
 
+    @Test
+    fun `increase dice count appends a new die and clears pending actions`() = runTest {
+        val viewModel = buildViewModel()
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        assertTrue(viewModel.uiState.value.isAwaitingRerollSelected)
+
+        viewModel.onEvent(GameUiEvent.IncreaseDiceCount)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val updatedState = viewModel.uiState.value
+        assertEquals(4, updatedState.diceCount)
+        assertEquals(4, updatedState.diceValues.size)
+        assertEquals(4, updatedState.diceTypes.size)
+        assertTrue(!updatedState.isAwaitingRerollSelected)
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(

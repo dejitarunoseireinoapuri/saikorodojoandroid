@@ -1,48 +1,75 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.ui.unit.dp
-import com.dejitarunoseireinoapuri.saikorodojo.R
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GameDiceBoardTest {
     @Test
-    fun calculateRandomDicePositionsCentersGridWithEqualInsets() {
-        val availableWidth = 105.dp
-        val availableHeight = 95.dp
-        val diceSize = 20.dp
-        val minSpacing = 0.dp
-        val columns = ((availableWidth + minSpacing) / (diceSize + minSpacing)).toInt().coerceAtLeast(1)
-        val rows = ((availableHeight + minSpacing) / (diceSize + minSpacing)).toInt().coerceAtLeast(1)
-        val totalCells = columns * rows
-        val gridWidth = (diceSize * columns) + (minSpacing * (columns - 1).coerceAtLeast(0))
-        val gridHeight = (diceSize * rows) + (minSpacing * (rows - 1).coerceAtLeast(0))
-        val expectedInsetX = ((availableWidth - gridWidth) / 2f).coerceAtLeast(0.dp)
-        val expectedInsetY = ((availableHeight - gridHeight) / 2f).coerceAtLeast(0.dp)
+    fun `grid spec keeps 3x3 for 7 to 9 dice`() {
+        val availableWidth = 300.dp
+        val availableHeight = 300.dp
+        val spacing = 4.dp
 
-        val positions = calculateRandomDicePositions(
-            seed = 0L,
-            diceCount = totalCells,
+        val sevenSpec = calculateDiceGridSpec(
             availableWidth = availableWidth,
             availableHeight = availableHeight,
-            diceSize = diceSize,
-            minSpacing = minSpacing
+            diceCount = 7,
+            spacing = spacing
+        )
+        val eightSpec = calculateDiceGridSpec(
+            availableWidth = availableWidth,
+            availableHeight = availableHeight,
+            diceCount = 8,
+            spacing = spacing
+        )
+        val nineSpec = calculateDiceGridSpec(
+            availableWidth = availableWidth,
+            availableHeight = availableHeight,
+            diceCount = 9,
+            spacing = spacing
         )
 
-        val minX = positions.minOf { it.x.value }
-        val maxX = positions.maxOf { it.x.value }
-        val minY = positions.minOf { it.y.value }
-        val maxY = positions.maxOf { it.y.value }
-
-        assertEquals(expectedInsetX.value, minX, 0.001f)
-        assertEquals(expectedInsetY.value, minY, 0.001f)
-        assertEquals(expectedInsetX.value + gridWidth.value - diceSize.value, maxX, 0.001f)
-        assertEquals(expectedInsetY.value + gridHeight.value - diceSize.value, maxY, 0.001f)
+        assertEquals(3, sevenSpec.columns)
+        assertEquals(3, sevenSpec.rows)
+        assertEquals(3, eightSpec.columns)
+        assertEquals(3, eightSpec.rows)
+        assertEquals(3, nineSpec.columns)
+        assertEquals(3, nineSpec.rows)
     }
 
     @Test
-    fun diceNumberYOffsetUsesSameOffsetForGreenD8Face() {
-        assertEquals(6.dp, diceNumberYOffset(R.drawable.eigth_sides))
-        assertEquals(6.dp, diceNumberYOffset(R.drawable.eigth_sides_green))
+    fun `packed positions keep corners and shuffle remaining cells by seed`() {
+        val diceSize = 20.dp
+        val spacing = 4.dp
+        val columns = 3
+        val rows = 3
+        val availableWidth = diceSize * columns + spacing * (columns - 1)
+        val availableHeight = diceSize * rows + spacing * (rows - 1)
+
+        val positions = calculatePackedDicePositions(
+            diceCount = 6,
+            availableWidth = availableWidth,
+            availableHeight = availableHeight,
+            diceSize = diceSize,
+            spacing = spacing,
+            columns = columns,
+            rows = rows,
+            seed = 42L
+        )
+
+        val step = diceSize + spacing
+        val cornerPositions = setOf(
+            DicePosition(0.dp, 0.dp),
+            DicePosition(step * 2, 0.dp),
+            DicePosition(0.dp, step * 2),
+            DicePosition(step * 2, step * 2)
+        )
+
+        assertEquals(6, positions.size)
+        cornerPositions.forEach { corner ->
+            assertTrue(positions.contains(corner))
+        }
     }
 }
