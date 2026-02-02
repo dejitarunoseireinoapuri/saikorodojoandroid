@@ -106,8 +106,8 @@ fun BlackjackGameScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
             val resultTextRes = when (uiState.result) {
-                BlackjackOutcome.PLAYER_WIN -> R.string.blackjack_win
-                BlackjackOutcome.PLAYER_LOSE -> R.string.blackjack_lose
+                BlackjackOutcome.PLAYER_WIN -> R.string.minigame_win_message
+                BlackjackOutcome.PLAYER_LOSE -> R.string.minigame_lose_message
                 null -> null
             }
             val hasReward = uiState.rewardCards.isNotEmpty()
@@ -121,9 +121,9 @@ fun BlackjackGameScreen(
                 hasReward -> {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = stringResource(R.string.blackjack_win),
+                        text = stringResource(R.string.minigame_win_cards_message),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = VictoryMatBackground,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -156,9 +156,9 @@ fun BlackjackGameScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = stringResource(R.string.blackjack_reward_subtitle),
+                        text = stringResource(R.string.minigame_win_cards_message),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = VictoryMatBackground
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 resultTextRes != null -> {
