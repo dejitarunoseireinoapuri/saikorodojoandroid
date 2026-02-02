@@ -18,11 +18,13 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private const val DEFAULT_DICE_COUNT = 5
+private const val MAX_DICE_COUNT = 12
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
+    val maxDiceCount: Int = MAX_DICE_COUNT,
     val diceType: DiceType = DiceType.D6,
     val diceTypes: List<DiceType> = List(DEFAULT_DICE_COUNT) { DiceType.D6 },
     val layoutSeed: Long = 0L,
@@ -52,6 +54,7 @@ sealed interface GameUiEvent {
     data object RollSelectedDice : GameUiEvent
     data object RollSingleDie : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
+    data object IncreaseDiceCount : GameUiEvent
 }
 
 class GameViewModel(
@@ -75,6 +78,7 @@ class GameViewModel(
         GameUiState(
             diceValues = List(diceCount) { 1 },
             diceCount = diceCount,
+            maxDiceCount = MAX_DICE_COUNT,
             diceType = diceType,
             diceTypes = diceTypeProvider(0L, diceCount),
             cardUiModels = cardUiModels
@@ -108,6 +112,7 @@ class GameViewModel(
                     dismissSelectedCard()
                 }
             }
+            GameUiEvent.IncreaseDiceCount -> increaseDiceCount()
         }
     }
 
@@ -215,6 +220,33 @@ class GameViewModel(
 
     private fun dismissSelectedCard() {
         _uiState.update { it.copy(selectedCardIndex = null) }
+    }
+
+    private fun increaseDiceCount() {
+        val currentState = _uiState.value
+        if (currentState.isRolling || currentState.diceCount >= currentState.maxDiceCount) return
+        val newCount = currentState.diceCount + 1
+        val newDiceValues = currentState.diceValues + 1
+        val newDiceTypes = currentState.diceTypes + currentState.diceType
+        val updatedSelection = currentState.selectedDice.filter { it < newCount }.toSet()
+        _uiState.update { state ->
+            state.copy(
+                diceCount = newCount,
+                diceValues = newDiceValues,
+                diceTypes = newDiceTypes,
+                isAwaitingRerollSingle = false,
+                isAwaitingRerollSelected = false,
+                isAwaitingFlipFace = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                selectedDice = updatedSelection,
+                selectedDiceSum = calculateSelectedDiceSum(newDiceValues, updatedSelection),
+                selectedRerollSingleDieIndex = null,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null
+            )
+        }
+        initialRollSnapshot = null
     }
 
     private fun applyCard(index: Int) {
