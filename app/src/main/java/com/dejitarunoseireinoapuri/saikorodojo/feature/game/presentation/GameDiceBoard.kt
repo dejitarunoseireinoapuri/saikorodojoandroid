@@ -263,26 +263,6 @@ internal fun DiceBoard(
                 )
             }
         }
-        val addDiceOffset = boardHeight / 2 + 104.dp
-        Button(
-            onClick = onIncreaseDiceCount,
-            enabled = !uiState.isRolling,
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
-            modifier = Modifier
-                .align(Alignment.Center)
-                .offset(y = addDiceOffset)
-                .padding(top = 8.dp)
-                .height(48.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.add_die),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-            )
-        }
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -301,6 +281,25 @@ internal fun DiceBoard(
                 .padding(contentPadding),
             contentAlignment = Alignment.TopStart
         ) {
+            Button(
+                onClick = onIncreaseDiceCount,
+                enabled = !uiState.isRolling,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
+                    .height(48.dp)
+                    .zIndex(1f)
+            ) {
+                Text(
+                    text = stringResource(R.string.add_die),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
             uiState.diceValues.forEachIndexed { index, value ->
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
                 val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
