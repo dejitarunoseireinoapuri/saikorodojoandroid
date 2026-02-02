@@ -20,11 +20,19 @@ class ResourcesTest {
             "app/src/main/res/drawable/six_sides_selected.xml",
             "app/src/main/res/drawable/eigth_sides_selected.xml",
             "app/src/main/res/drawable/ten_sides_selected.xml"
-        )
+        ).map { resolveProjectPath(it) }
 
-        drawablePaths.forEach { path ->
-            val contents = File(path).readText()
+        drawablePaths.forEach { file ->
+            val contents = file.readText()
             assertTrue(contents.contains(expectedColor))
         }
+    }
+
+    private fun resolveProjectPath(path: String): File {
+        val projectDir = File(System.getProperty("user.dir"))
+        val direct = File(projectDir, path)
+        if (direct.exists()) return direct
+        val parent = projectDir.parentFile ?: projectDir
+        return File(parent, path)
     }
 }

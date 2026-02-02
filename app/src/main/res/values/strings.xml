@@ -22,7 +22,6 @@
     <string name="card_reroll_all_title">Reroll some</string>
     <string name="card_reroll_all_description">Reroll the dice you want</string>
     <string name="roll_selected_dice">Roll</string>
-    <string name="add_die">Add die</string>
     <string name="card_set_value_title">Set value</string>
     <string name="card_set_value_description">Choose the final value of a die within its range</string>
     <string name="card_repeat_last_title">Repeat card</string>
