@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import kotlin.random.Random
@@ -150,6 +152,7 @@ internal fun DiceBoard(
                                 faceDrawable = diceTypeOptionDrawable(selectedType),
                                 size = diceSize,
                                 numberTextScale = 1f,
+                                numberTextColor = diceOptionNumberColor(),
                                 onClick = { onAdjustSelectedDie(-1) }
                             )
                         }
@@ -159,6 +162,7 @@ internal fun DiceBoard(
                                 faceDrawable = diceTypeOptionDrawable(selectedType),
                                 size = diceSize,
                                 numberTextScale = 1f,
+                                numberTextColor = diceOptionNumberColor(),
                                 onClick = { onAdjustSelectedDie(1) }
                             )
                         }
@@ -220,6 +224,7 @@ internal fun DiceBoard(
                                             faceDrawable = diceTypeOptionDrawable(selectedType),
                                             size = optionSize,
                                             numberTextScale = textScale,
+                                            numberTextColor = diceOptionNumberColor(),
                                             onClick = { onSetSelectedDieValue(value) }
                                         )
                                     }
@@ -314,7 +319,8 @@ private fun DiceFace(
     isSelected: Boolean,
     isAdjustmentSelected: Boolean,
     showSelectedFace: Boolean = true,
-    numberTextScale: Float = 1f
+    numberTextScale: Float = 1f,
+    numberTextColor: Color = MaterialTheme.colorScheme.onBackground
 ) {
     Box(
         modifier = Modifier
@@ -342,7 +348,7 @@ private fun DiceFace(
             style = MaterialTheme.typography.displaySmall.copy(
                 fontSize = MaterialTheme.typography.displaySmall.fontSize * numberTextScale
             ),
-            color = MaterialTheme.colorScheme.onBackground
+            color = numberTextColor
         )
     }
 }
@@ -353,6 +359,7 @@ private fun DiceOption(
     faceDrawable: Int,
     size: Dp,
     numberTextScale: Float,
+    numberTextColor: Color,
     onClick: () -> Unit
 ) {
     Box(
@@ -367,10 +374,13 @@ private fun DiceOption(
             faceDrawable = faceDrawable,
             isSelected = false,
             isAdjustmentSelected = false,
-            numberTextScale = numberTextScale
+            numberTextScale = numberTextScale,
+            numberTextColor = numberTextColor
         )
     }
 }
+
+internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
 
 internal data class AdjustActionAvailability(
     val canIncrease: Boolean,
