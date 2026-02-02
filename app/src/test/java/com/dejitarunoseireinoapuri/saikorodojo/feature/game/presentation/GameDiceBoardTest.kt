@@ -1,6 +1,8 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -71,5 +73,12 @@ class GameDiceBoardTest {
         cornerPositions.forEach { corner ->
             assertTrue(positions.contains(corner))
         }
+    }
+
+    @Test
+    fun `inverted dice options use light drawables`() {
+        assertEquals(R.drawable.six_sides_inverted, diceTypeInvertedOptionDrawable(DiceType.D6))
+        assertEquals(R.drawable.eigth_sides_inverted, diceTypeInvertedOptionDrawable(DiceType.D8))
+        assertEquals(R.drawable.ten_sides_inverted, diceTypeInvertedOptionDrawable(DiceType.D10))
     }
 }

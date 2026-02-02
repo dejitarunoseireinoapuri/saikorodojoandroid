@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -151,6 +152,7 @@ internal fun DiceBoard(
                                 faceDrawable = diceTypeOptionDrawable(selectedType),
                                 size = diceSize,
                                 numberTextScale = 1f,
+                                numberColor = MaterialTheme.colorScheme.onBackground,
                                 onClick = { onAdjustSelectedDie(-1) }
                             )
                         }
@@ -160,6 +162,7 @@ internal fun DiceBoard(
                                 faceDrawable = diceTypeOptionDrawable(selectedType),
                                 size = diceSize,
                                 numberTextScale = 1f,
+                                numberColor = MaterialTheme.colorScheme.onBackground,
                                 onClick = { onAdjustSelectedDie(1) }
                             )
                         }
@@ -218,9 +221,10 @@ internal fun DiceBoard(
                                     } else {
                                         DiceOption(
                                             value = value,
-                                            faceDrawable = diceTypeOptionDrawable(selectedType),
+                                            faceDrawable = diceTypeInvertedOptionDrawable(selectedType),
                                             size = optionSize,
                                             numberTextScale = textScale,
+                                            numberColor = MaterialTheme.colorScheme.background,
                                             onClick = { onSetSelectedDieValue(value) }
                                         )
                                     }
@@ -299,7 +303,8 @@ internal fun DiceBoard(
                         isSelected = isSelected,
                         isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected || isRerollSingleSelected,
                         showSelectedFace = !uiState.isAwaitingRerollSelected,
-                        numberTextScale = diceTextScale
+                        numberTextScale = diceTextScale,
+                        numberColor = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -315,7 +320,8 @@ private fun DiceFace(
     isSelected: Boolean,
     isAdjustmentSelected: Boolean,
     showSelectedFace: Boolean = true,
-    numberTextScale: Float = 1f
+    numberTextScale: Float = 1f,
+    numberColor: Color
 ) {
     Box(
         modifier = Modifier
@@ -343,7 +349,7 @@ private fun DiceFace(
             style = MaterialTheme.typography.displaySmall.copy(
                 fontSize = MaterialTheme.typography.displaySmall.fontSize * numberTextScale
             ),
-            color = MaterialTheme.colorScheme.onBackground
+            color = numberColor
         )
     }
 }
@@ -354,6 +360,7 @@ private fun DiceOption(
     faceDrawable: Int,
     size: Dp,
     numberTextScale: Float,
+    numberColor: Color,
     onClick: () -> Unit
 ) {
     Box(
@@ -368,7 +375,8 @@ private fun DiceOption(
             faceDrawable = faceDrawable,
             isSelected = false,
             isAdjustmentSelected = false,
-            numberTextScale = numberTextScale
+            numberTextScale = numberTextScale,
+            numberColor = numberColor
         )
     }
 }
@@ -540,6 +548,14 @@ internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
         DiceType.D6 -> R.drawable.six_sides_green
         DiceType.D8 -> R.drawable.eigth_sides_green
         DiceType.D10 -> R.drawable.ten_sides_green
+    }
+}
+
+internal fun diceTypeInvertedOptionDrawable(diceType: DiceType): Int {
+    return when (diceType) {
+        DiceType.D6 -> R.drawable.six_sides_inverted
+        DiceType.D8 -> R.drawable.eigth_sides_inverted
+        DiceType.D10 -> R.drawable.ten_sides_inverted
     }
 }
 
