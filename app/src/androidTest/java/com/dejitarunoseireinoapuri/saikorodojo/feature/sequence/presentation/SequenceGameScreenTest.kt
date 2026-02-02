@@ -6,8 +6,11 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -64,5 +67,59 @@ class SequenceGameScreenTest {
         val pixelMap = image.toPixelMap()
         val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
         assertEquals(SequenceSaveMatBackground, centerColor)
+    }
+
+    @Test
+    fun savedMatUsesFailureColorOnLoss() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                SequenceGameScreen(
+                    uiState = SequenceGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        failureReason = SequenceFailureReason.ORDER
+                    ),
+                    onStartClick = {},
+                    onSaveClick = {},
+                    onDiscardClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(SEQUENCE_SAVED_MAT_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(FailureMatBackground, centerColor)
+    }
+
+    @Test
+    fun savedMatUsesVictoryColorOnSuccess() {
+        val pendingReward = CardUiModel(
+            id = com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId.FLIP_FACE,
+            titleRes = 0,
+            descriptionRes = 0,
+            iconRes = 0
+        )
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                SequenceGameScreen(
+                    uiState = SequenceGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        pendingRewardCards = listOf(pendingReward)
+                    ),
+                    onStartClick = {},
+                    onSaveClick = {},
+                    onDiscardClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(SEQUENCE_SAVED_MAT_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(VictoryMatBackground, centerColor)
     }
 }
