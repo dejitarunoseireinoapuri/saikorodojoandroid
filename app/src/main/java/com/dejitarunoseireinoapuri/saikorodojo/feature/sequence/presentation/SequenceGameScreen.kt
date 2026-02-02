@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -112,12 +114,18 @@ fun SequenceGameScreen(
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasPendingReward = uiState.isComplete && uiState.pendingRewardCards.isNotEmpty()
             val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
+            val showRules = !uiState.isStarted
+            val rulesModifier = if (showRules) {
+                Modifier
+            } else {
+                Modifier.alpha(0f).clearAndSetSemantics { }
+            }
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.sequence_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = VictoryMatBackground
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -130,7 +138,7 @@ fun SequenceGameScreen(
                 Text(
                     text = stringResource(R.string.odd_even_try_again),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = FailureMatBackground,
                     textAlign = TextAlign.Center
                 )
             } else if (hasPendingReward) {
@@ -138,14 +146,15 @@ fun SequenceGameScreen(
                 Text(
                     text = stringResource(R.string.sequence_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = VictoryMatBackground
                 )
             } else {
                 Text(
                     text = stringResource(R.string.sequence_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = rulesModifier
                 )
             }
             if (uiState.isStarted && !hasReward) {
