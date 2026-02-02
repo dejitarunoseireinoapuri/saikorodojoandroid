@@ -23,7 +23,7 @@
       android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
       android:strokeLineJoin="round"
       android:strokeWidth="8"
-      android:strokeColor="#FF2BD6"
+      android:strokeColor="#FF56BD88"
       android:strokeLineCap="round">
     <aapt:attr name="android:fillColor">
       <gradient
@@ -32,8 +32,8 @@
           android:startY="151.2"
           android:endX="872.8"
           android:endY="872.8"
-          android:startColor="#FF5AE5"
-          android:endColor="#FF2BD6"/>
+          android:startColor="#FF56BD88"
+          android:endColor="#FF56BD88"/>
     </aapt:attr>
   </path>
 </vector>
