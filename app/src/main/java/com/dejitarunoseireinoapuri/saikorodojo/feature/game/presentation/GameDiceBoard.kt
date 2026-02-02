@@ -20,7 +20,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -522,7 +521,7 @@ internal fun calculateDiceTextScale(diceSize: Dp, referenceSize: Dp = 72.dp): Fl
 internal fun diceNumberYOffset(faceDrawable: Int): Dp {
     return when (faceDrawable) {
         R.drawable.eigth_sides,
-        R.drawable.eigth_sides_green -> 6.dp
+        R.drawable.eigth_sides_contrast -> 6.dp
         else -> 0.dp
     }
 }
@@ -537,9 +536,9 @@ internal fun diceTypeDrawable(diceType: DiceType): Int {
 
 internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
     return when (diceType) {
-        DiceType.D6 -> R.drawable.six_sides_green
-        DiceType.D8 -> R.drawable.eigth_sides_green
-        DiceType.D10 -> R.drawable.ten_sides_green
+        DiceType.D6 -> R.drawable.six_sides_contrast
+        DiceType.D8 -> R.drawable.eigth_sides_contrast
+        DiceType.D10 -> R.drawable.ten_sides_contrast
     }
 }
 
