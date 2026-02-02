@@ -87,10 +87,9 @@ internal fun DiceBoard(
     val diceTextScale = calculateDiceTextScale(diceSize)
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val promptOffset = -(boardHeight / 2 + 32.dp)
-        val isAddDiceEnabled = !uiState.isRolling && uiState.diceCount < uiState.maxDiceCount
         Button(
             onClick = onIncreaseDiceCount,
-            enabled = isAddDiceEnabled,
+            enabled = !uiState.isRolling,
             shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondary,
@@ -419,24 +418,29 @@ internal fun calculateDiceGridSpec(
     if (diceCount <= 0) {
         return DiceGridSpec(columns = 0, rows = 0, diceSize = 0.dp)
     }
-    val minColumns = if (diceCount >= 4) 2 else 1
-    var bestColumns = minColumns
-    var bestRows = ((diceCount + minColumns - 1) / minColumns).coerceAtLeast(1)
+    var bestColumns = 1
+    var bestRows = diceCount
     var bestSize = 0.dp
-    var bestWaste = Int.MAX_VALUE
-    for (columns in minColumns..diceCount) {
+    var bestDiff = Int.MAX_VALUE
+    var bestCapacity = Int.MAX_VALUE
+    for (columns in 1..diceCount) {
         val rows = ((diceCount + columns - 1) / columns).coerceAtLeast(1)
-        if (diceCount >= 4 && rows < 2) continue
+        if (diceCount >= 4 && (rows < 2 || columns < 2)) continue
         val widthBasedSize = (availableWidth - spacing * (columns - 1)) / columns
         val heightBasedSize = (availableHeight - spacing * (rows - 1)) / rows
         val size = minOf(widthBasedSize, heightBasedSize)
         if (size <= 0.dp) continue
-        val waste = columns * rows - diceCount
-        if (waste < bestWaste || (waste == bestWaste && size > bestSize)) {
-            bestWaste = waste
+        val diff = kotlin.math.abs(columns - rows)
+        val capacity = columns * rows
+        if (diff < bestDiff ||
+            (diff == bestDiff && size > bestSize) ||
+            (diff == bestDiff && size == bestSize && capacity < bestCapacity)
+        ) {
+            bestDiff = diff
             bestSize = size
             bestColumns = columns
             bestRows = rows
+            bestCapacity = capacity
         }
     }
     return DiceGridSpec(columns = bestColumns, rows = bestRows, diceSize = bestSize)
