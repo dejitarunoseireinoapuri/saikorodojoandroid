@@ -266,7 +266,7 @@ internal fun DiceBoard(
         val addDiceOffset = boardHeight / 2 + 104.dp
         Button(
             onClick = onIncreaseDiceCount,
-            enabled = canIncreaseDiceCount(uiState),
+            enabled = !uiState.isRolling,
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -441,15 +441,6 @@ internal fun adjustActionAvailability(value: Int, diceType: DiceType): AdjustAct
         canIncrease = value < diceType.sides,
         canDecrease = value > 1
     )
-}
-
-internal fun canIncreaseDiceCount(uiState: GameUiState): Boolean {
-    return !uiState.isRolling &&
-        !uiState.isAwaitingRerollSingle &&
-        !uiState.isAwaitingRerollSelected &&
-        !uiState.isAwaitingFlipFace &&
-        !uiState.isAwaitingAdjustPlusMinus &&
-        !uiState.isAwaitingSetValue
 }
 
 internal data class DiceGridSpec(
