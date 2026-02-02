@@ -149,8 +149,6 @@ class OddEvenGameViewModel(
             _uiState.update {
                 it.copy(
                     selectedChoice = null,
-                    showFireworks = false,
-                    showFailure = false,
                     currentRound = if (isComplete) it.currentRound else nextRound,
                     isComplete = isComplete,
                     rewardCards = rewardCards

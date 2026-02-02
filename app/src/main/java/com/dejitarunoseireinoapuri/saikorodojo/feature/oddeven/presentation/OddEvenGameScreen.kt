@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -35,16 +34,22 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppWarmAccent
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
 internal const val ODD_EVEN_CONTINUE_BUTTON_TAG = "odd_even_continue_button"
+internal const val ODD_EVEN_REWARD_STACK_TAG = "odd_even_reward_stack"
 internal val ODD_EVEN_DICE_SIZE = 150.dp
 
 @Composable
@@ -103,32 +108,39 @@ fun OddEvenGameScreen(
             Spacer(modifier = Modifier.height(12.dp))
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
+            val showRules = !uiState.isStarted
+            val rulesModifier = if (showRules) {
+                Modifier
+            } else {
+                Modifier.alpha(0f).clearAndSetSemantics { }
+            }
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.odd_even_congrats),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = VictoryMatBackground
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.odd_even_reward_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = VictoryMatBackground
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.odd_even_try_again),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = FailureMatBackground
                 )
             } else {
                 Text(
                     text = stringResource(R.string.odd_even_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = rulesModifier
                 )
                 if (uiState.isStarted) {
                     Spacer(modifier = Modifier.height(24.dp))
@@ -204,32 +216,10 @@ fun OddEvenGameScreen(
                 OddEvenDiceFace(
                     value = uiState.diceValue,
                     size = ODD_EVEN_DICE_SIZE,
+                    isSuccess = uiState.showFireworks,
+                    isFailure = uiState.showFailure,
                     modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
                 )
-                val resultTextRes = when {
-                    uiState.showFireworks -> R.string.odd_even_correct
-                    uiState.showFailure -> R.string.odd_even_wrong
-                    else -> null
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    modifier = Modifier.height(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (resultTextRes != null) {
-                        Text(
-                            text = stringResource(resultTextRes),
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    } else {
-                        Text(
-                            text = "",
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            modifier = Modifier.alpha(0f)
-                        )
-                    }
-                }
             }
         }
 
@@ -237,6 +227,8 @@ fun OddEvenGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top = 32.dp)
+                    .testTag(ODD_EVEN_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
@@ -304,18 +296,30 @@ private fun OddEvenChoiceButton(
 private fun OddEvenDiceFace(
     value: Int?,
     size: Dp,
+    isSuccess: Boolean,
+    isFailure: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val matBackground = when {
+        isSuccess -> VictoryMatBackground
+        isFailure -> FailureMatBackground
+        else -> SequenceSaveMatBackground
+    }
+    val matBorder = when {
+        isSuccess -> VictoryMatBackground
+        isFailure -> FailureMatBackground
+        else -> SequenceSaveMatBorder
+    }
     Box(
         modifier = modifier
             .size(size)
             .graphicsLayer {
                 shadowElevation = 12.dp.toPx()
-                ambientShadowColor = AppWarmAccent
-                spotShadowColor = AppWarmAccent
+                ambientShadowColor = matBorder
+                spotShadowColor = matBorder
             }
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(18.dp))
-            .border(2.dp, AppWarmAccent, RoundedCornerShape(18.dp))
+            .background(matBackground, RoundedCornerShape(18.dp))
+            .border(2.dp, matBorder, RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
