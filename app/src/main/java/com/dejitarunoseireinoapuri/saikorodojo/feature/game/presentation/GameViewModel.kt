@@ -244,6 +244,7 @@ class GameViewModel(
             )
         }
         initialRollSnapshot = null
+        startRolling(keepLayout = false)
     }
 
     private fun applyCard(index: Int) {

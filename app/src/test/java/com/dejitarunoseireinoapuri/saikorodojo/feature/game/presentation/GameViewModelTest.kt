@@ -356,12 +356,12 @@ class GameViewModelTest {
         assertTrue(viewModel.uiState.value.isAwaitingRerollSelected)
 
         viewModel.onEvent(GameUiEvent.IncreaseDiceCount)
+        testDispatcher.scheduler.advanceUntilIdle()
 
         val updatedState = viewModel.uiState.value
         assertEquals(4, updatedState.diceCount)
         assertEquals(4, updatedState.diceValues.size)
         assertEquals(4, updatedState.diceTypes.size)
-        assertEquals(1, updatedState.diceValues.last())
         assertTrue(!updatedState.isAwaitingRerollSelected)
     }
 

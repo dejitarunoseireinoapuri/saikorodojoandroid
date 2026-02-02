@@ -34,6 +34,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import kotlin.random.Random
 
 @Composable
 internal fun DiceBoard(
@@ -76,7 +77,8 @@ internal fun DiceBoard(
             diceSize = diceSize,
             spacing = diceSpacing,
             columns = gridSpec.columns,
-            rows = gridSpec.rows
+            rows = gridSpec.rows,
+            seed = uiState.layoutSeed
         )
     }
     val diceFaces = remember(uiState.diceTypes, diceCount) {
@@ -491,7 +493,8 @@ internal fun calculatePackedDicePositions(
     diceSize: Dp,
     spacing: Dp,
     columns: Int,
-    rows: Int
+    rows: Int,
+    seed: Long
 ): List<DicePosition> {
     if (diceCount <= 0) return emptyList()
     val safeColumns = columns.coerceAtLeast(1)
@@ -501,24 +504,25 @@ internal fun calculatePackedDicePositions(
     val gridHeight = (diceSize * safeRows) + (spacing * (safeRows - 1).coerceAtLeast(0))
     val horizontalInset = ((availableWidth - gridWidth) / 2f).coerceAtLeast(0.dp)
     val verticalInset = ((availableHeight - gridHeight) / 2f).coerceAtLeast(0.dp)
-    val cells = LinkedHashSet<Pair<Int, Int>>(totalCells)
+    val allCells = buildList(totalCells) {
+        for (row in 0 until safeRows) {
+            for (column in 0 until safeColumns) {
+                add(column to row)
+            }
+        }
+    }
     val corners = listOf(
         0 to 0,
         (safeColumns - 1) to 0,
         0 to (safeRows - 1),
         (safeColumns - 1) to (safeRows - 1)
-    )
-    corners.forEach { (column, row) ->
-        if (column in 0 until safeColumns && row in 0 until safeRows) {
-            cells.add(column to row)
-        }
+    ).filter { (column, row) ->
+        column in 0 until safeColumns && row in 0 until safeRows
     }
-    for (row in 0 until safeRows) {
-        for (column in 0 until safeColumns) {
-            cells.add(column to row)
-        }
-    }
-    return cells.take(minOf(diceCount, totalCells)).map { (column, row) ->
+    val remainingCells = allCells.filterNot { it in corners }
+    val shuffledRemaining = remainingCells.shuffled(Random(seed))
+    val orderedCells = corners + shuffledRemaining
+    return orderedCells.take(minOf(diceCount, totalCells)).map { (column, row) ->
         val baseX = (horizontalInset + (diceSize + spacing) * column)
             .coerceAtMost(availableWidth - diceSize)
         val baseY = (verticalInset + (diceSize + spacing) * row)
