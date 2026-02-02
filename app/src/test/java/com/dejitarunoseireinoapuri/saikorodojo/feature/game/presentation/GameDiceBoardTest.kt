@@ -78,4 +78,27 @@ class GameDiceBoardTest {
     fun `dice option number color uses mat darkest tone`() {
         assertEquals(DiceOptionNumberColor, diceOptionNumberColor())
     }
+
+    @Test
+    fun `selection border appears only during card selection`() {
+        assertTrue(
+            shouldShowDiceSelectionBorder(
+                isCardSelectionActive = true,
+                isSelected = true,
+                isAdjustmentSelected = false,
+                isSetValueSelected = false,
+                isRerollSingleSelected = false
+            )
+        )
+        assertEquals(
+            false,
+            shouldShowDiceSelectionBorder(
+                isCardSelectionActive = false,
+                isSelected = true,
+                isAdjustmentSelected = false,
+                isSetValueSelected = false,
+                isRerollSingleSelected = false
+            )
+        )
+    }
 }

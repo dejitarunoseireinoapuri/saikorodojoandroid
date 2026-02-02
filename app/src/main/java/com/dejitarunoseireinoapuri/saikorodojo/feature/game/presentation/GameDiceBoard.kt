@@ -87,6 +87,11 @@ internal fun DiceBoard(
         }
     }
     val diceTextScale = calculateDiceTextScale(diceSize)
+    val isCardSelectionActive = uiState.isAwaitingRerollSelected ||
+        uiState.isAwaitingRerollSingle ||
+        uiState.isAwaitingFlipFace ||
+        uiState.isAwaitingAdjustPlusMinus ||
+        uiState.isAwaitingSetValue
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val promptOffset = -(boardHeight / 2 + 32.dp)
         when {
@@ -287,6 +292,13 @@ internal fun DiceBoard(
                 val isAdjustmentSelected = uiState.selectedAdjustmentDieIndex == index
                 val isSetValueSelected = uiState.selectedSetValueDieIndex == index
                 val isRerollSingleSelected = uiState.selectedRerollSingleDieIndex == index
+                val showSelectionBorder = shouldShowDiceSelectionBorder(
+                    isCardSelectionActive = isCardSelectionActive,
+                    isSelected = isSelected,
+                    isAdjustmentSelected = isAdjustmentSelected,
+                    isSetValueSelected = isSetValueSelected,
+                    isRerollSingleSelected = isRerollSingleSelected
+                )
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -301,8 +313,7 @@ internal fun DiceBoard(
                         size = diceSize,
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
-                        isAdjustmentSelected = isAdjustmentSelected || isSetValueSelected || isRerollSingleSelected,
-                        showSelectedFace = !uiState.isAwaitingRerollSelected,
+                        showSelectionBorder = showSelectionBorder,
                         numberTextScale = diceTextScale
                     )
                 }
@@ -317,7 +328,7 @@ private fun DiceFace(
     size: Dp,
     faceDrawable: Int,
     isSelected: Boolean,
-    isAdjustmentSelected: Boolean,
+    showSelectionBorder: Boolean,
     showSelectedFace: Boolean = true,
     numberTextScale: Float = 1f,
     numberTextColor: Color = MaterialTheme.colorScheme.onBackground
@@ -326,10 +337,10 @@ private fun DiceFace(
         modifier = Modifier
             .size(size)
             .then(
-                if (isAdjustmentSelected || isSelected) {
+                if (showSelectionBorder) {
                     Modifier.border(
                         width = 3.dp,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.tertiary,
                         shape = RoundedCornerShape(12.dp)
                     )
                 } else {
@@ -373,7 +384,7 @@ private fun DiceOption(
             size = size,
             faceDrawable = faceDrawable,
             isSelected = false,
-            isAdjustmentSelected = false,
+            showSelectionBorder = false,
             numberTextScale = numberTextScale,
             numberTextColor = numberTextColor
         )
@@ -381,6 +392,17 @@ private fun DiceOption(
 }
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
+
+internal fun shouldShowDiceSelectionBorder(
+    isCardSelectionActive: Boolean,
+    isSelected: Boolean,
+    isAdjustmentSelected: Boolean,
+    isSetValueSelected: Boolean,
+    isRerollSingleSelected: Boolean
+): Boolean {
+    return isCardSelectionActive &&
+        (isSelected || isAdjustmentSelected || isSetValueSelected || isRerollSingleSelected)
+}
 
 internal data class AdjustActionAvailability(
     val canIncrease: Boolean,
