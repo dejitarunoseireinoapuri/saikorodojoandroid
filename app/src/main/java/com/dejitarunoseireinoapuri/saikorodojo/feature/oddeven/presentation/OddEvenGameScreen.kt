@@ -39,10 +39,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OddEvenFailureMatBackground
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OddEvenSuccessMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 
 internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
@@ -289,13 +289,13 @@ private fun OddEvenDiceFace(
     modifier: Modifier = Modifier
 ) {
     val matBackground = when {
-        isSuccess -> OddEvenSuccessMatBackground
-        isFailure -> OddEvenFailureMatBackground
+        isSuccess -> VictoryMatBackground
+        isFailure -> FailureMatBackground
         else -> SequenceSaveMatBackground
     }
     val matBorder = when {
-        isSuccess -> OddEvenSuccessMatBackground
-        isFailure -> OddEvenFailureMatBackground
+        isSuccess -> VictoryMatBackground
+        isFailure -> FailureMatBackground
         else -> SequenceSaveMatBorder
     }
     Box(
