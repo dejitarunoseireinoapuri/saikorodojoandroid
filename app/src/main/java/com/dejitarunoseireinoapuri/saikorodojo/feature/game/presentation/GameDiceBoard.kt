@@ -475,6 +475,20 @@ internal fun calculateRowDiceSize(
     return ((availableWidth - totalSpacing) / diceCount).coerceAtLeast(0.dp)
 }
 
+internal fun calculateDiceSize(
+    availableWidth: Dp,
+    availableHeight: Dp,
+    diceCount: Int,
+    spacing: Dp,
+    columns: Int
+): Dp {
+    if (diceCount <= 0 || columns <= 0) return 0.dp
+    val rows = ((diceCount + columns - 1) / columns).coerceAtLeast(1)
+    val widthBasedSize = (availableWidth - spacing * (columns - 1).coerceAtLeast(0)) / columns
+    val heightBasedSize = (availableHeight - spacing * (rows - 1).coerceAtLeast(0)) / rows
+    return minOf(widthBasedSize, heightBasedSize).coerceAtLeast(0.dp)
+}
+
 internal fun setValueRowValues(
     optionCount: Int,
     optionsPerRow: Int,
@@ -502,6 +516,41 @@ internal fun calculateBoardContentSize(
 }
 
 internal data class DicePosition(val x: Dp, val y: Dp)
+
+internal fun calculateRandomDicePositions(
+    seed: Long,
+    diceCount: Int,
+    availableWidth: Dp,
+    availableHeight: Dp,
+    diceSize: Dp,
+    minSpacing: Dp
+): List<DicePosition> {
+    if (diceCount <= 0 || diceSize <= 0.dp) return emptyList()
+    val sizeWithSpacing = diceSize + minSpacing
+    val columns = ((availableWidth + minSpacing) / sizeWithSpacing).toInt().coerceAtLeast(1)
+    val rows = ((availableHeight + minSpacing) / sizeWithSpacing).toInt().coerceAtLeast(1)
+    val totalCells = columns * rows
+    if (totalCells <= 0) return emptyList()
+    val gridWidth = (diceSize * columns) + (minSpacing * (columns - 1).coerceAtLeast(0))
+    val gridHeight = (diceSize * rows) + (minSpacing * (rows - 1).coerceAtLeast(0))
+    val horizontalInset = ((availableWidth - gridWidth) / 2f).coerceAtLeast(0.dp)
+    val verticalInset = ((availableHeight - gridHeight) / 2f).coerceAtLeast(0.dp)
+    val cells = buildList(totalCells) {
+        for (row in 0 until rows) {
+            for (column in 0 until columns) {
+                add(column to row)
+            }
+        }
+    }.shuffled(Random(seed))
+    return cells.take(minOf(diceCount, totalCells)).map { (column, row) ->
+        val x = horizontalInset + (sizeWithSpacing * column)
+        val y = verticalInset + (sizeWithSpacing * row)
+        DicePosition(
+            x = x.coerceIn(0.dp, availableWidth - diceSize),
+            y = y.coerceIn(0.dp, availableHeight - diceSize)
+        )
+    }
+}
 
 internal fun calculatePackedDicePositions(
     diceCount: Int,
