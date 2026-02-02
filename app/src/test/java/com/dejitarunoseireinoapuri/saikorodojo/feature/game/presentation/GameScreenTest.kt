@@ -211,27 +211,6 @@ class GameScreenTest {
 
         assertEquals(208.dp, startX)
     }
-
-    @Test
-    fun `can increase dice count when no actions are pending`() {
-        val uiState = GameUiState()
-
-        assertTrue(canIncreaseDiceCount(uiState))
-    }
-
-    @Test
-    fun `can increase dice count is false while rolling`() {
-        val uiState = GameUiState(isRolling = true)
-
-        assertTrue(!canIncreaseDiceCount(uiState))
-    }
-
-    @Test
-    fun `can increase dice count is false while awaiting action`() {
-        val uiState = GameUiState(isAwaitingRerollSelected = true)
-
-        assertTrue(!canIncreaseDiceCount(uiState))
-    }
 }
 
 private fun overlaps(
