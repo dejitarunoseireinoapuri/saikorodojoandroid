@@ -7,6 +7,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUi
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.GenerateLevelUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.GenerateObjectiveUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjective
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
@@ -96,6 +97,7 @@ data class ObjectiveLineUiState(
 class GameViewModel(
     private val rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(),
     private val generateLevelUseCase: GenerateLevelUseCase = GenerateLevelUseCase(),
+    private val generateObjectiveUseCase: GenerateObjectiveUseCase = GenerateObjectiveUseCase(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -122,6 +124,7 @@ class GameViewModel(
     private var initialRollSnapshot: RollSnapshot? = null
     private var completionJob: Job? = null
     private var currentObjective: LevelObjective? = null
+    private var currentLevelNumber: Int = 1
 
     init {
         applyLevelDefinition(
@@ -222,6 +225,13 @@ class GameViewModel(
                     diceValues = snapshotState.diceValues.toList(),
                     diceTypes = snapshotState.diceTypes.toList(),
                     layoutSeed = snapshotState.layoutSeed
+                )
+            }
+            if (currentObjective == null) {
+                currentObjective = generateObjectiveUseCase.execute(
+                    levelNumber = currentLevelNumber,
+                    diceValues = _uiState.value.diceValues,
+                    seedBase = baseSeed
                 )
             }
             refreshObjectiveProgress()
@@ -782,7 +792,8 @@ class GameViewModel(
         levelDefinition: LevelDefinition,
         cardUiModels: List<CardUiModel> = _uiState.value.cardUiModels
     ) {
-        currentObjective = levelDefinition.objective
+        currentLevelNumber = levelDefinition.levelNumber
+        currentObjective = null
         val diceValues = List(levelDefinition.diceCount) { 1 }
         _uiState.update { state ->
             state.copy(
@@ -806,7 +817,7 @@ class GameViewModel(
                 selectedCardIndex = null,
                 lastAppliedCardId = null,
                 levelNumber = levelDefinition.levelNumber,
-                objectiveLines = buildObjectiveLines(levelDefinition.objective, diceValues),
+                objectiveLines = emptyList(),
                 isLevelComplete = false,
                 showLevelCompleteMessage = false
             )
@@ -816,8 +827,18 @@ class GameViewModel(
 
     private fun refreshObjectiveProgress() {
         val objective = currentObjective ?: return
-        val diceValues = _uiState.value.diceValues
-        val lines = buildObjectiveLines(objective, diceValues)
+        val state = _uiState.value
+        val selectedValues = state.selectedDice.mapNotNull { index ->
+            state.diceValues.getOrNull(index)
+        }
+        if (selectedValues.isEmpty()) {
+            val lines = buildObjectiveLines(objective, emptyList()).map { line ->
+                line.copy(isMet = false)
+            }
+            _uiState.update { it.copy(objectiveLines = lines, isLevelComplete = false) }
+            return
+        }
+        val lines = buildObjectiveLines(objective, selectedValues)
         val completed = lines.all { it.isMet }
         val wasComplete = _uiState.value.isLevelComplete
         _uiState.update { it.copy(objectiveLines = lines, isLevelComplete = completed) }
@@ -841,6 +862,7 @@ class GameViewModel(
             val minigame = pickMinigame(nextDefinition.levelNumber)
             _effects.emit(GameUiEffect.NavigateToMinigame(minigame))
             applyLevelDefinition(nextDefinition)
+            startRolling()
         }
     }
 

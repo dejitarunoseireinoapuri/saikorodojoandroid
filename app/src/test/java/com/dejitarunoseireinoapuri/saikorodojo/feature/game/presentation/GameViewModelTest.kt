@@ -3,10 +3,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceRandomProvider
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjective
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -389,8 +387,7 @@ class GameViewModelTest {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
             diceCount = 3,
-            diceTypes = List(3) { DiceType.D6 },
-            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+            diceTypes = List(3) { DiceType.D6 }
         )
         return GameViewModel(
             rollDiceUseCase = rollDiceUseCase,

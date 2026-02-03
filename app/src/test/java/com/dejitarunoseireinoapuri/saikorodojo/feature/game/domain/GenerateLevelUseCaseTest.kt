@@ -29,9 +29,9 @@ class GenerateLevelUseCaseTest {
     }
 
     @Test
-    fun `stage four objectives include multiple conditions`() {
+    fun `stage four keeps dice count scaling`() {
         val level = useCase.execute(levelNumber = 46, seedBase = 22L)
 
-        assertEquals(2, level.objective.conditions.size)
+        assertEquals(14, level.diceCount)
     }
 }

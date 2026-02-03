@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -180,22 +181,24 @@ fun GameScreen(
             }
             Row(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 4.dp, end = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .align(Alignment.TopCenter)
+                    .padding(top = 4.dp, start = 8.dp, end = 8.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.Top
             ) {
-                IconButton(onClick = { showSurrenderDialog = true }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Flag,
-                        contentDescription = stringResource(R.string.cd_surrender),
-                        tint = Color.White
-                    )
-                }
                 IconButton(onClick = { showExitDialog = true }) {
                     Icon(
                         imageVector = Icons.Filled.Home,
                         contentDescription = stringResource(R.string.cd_exit_home),
                         tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Box(modifier = Modifier.weight(1f))
+                IconButton(onClick = { showSurrenderDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Flag,
+                        contentDescription = stringResource(R.string.cd_surrender),
+                        tint = Color.White
                     )
                 }
             }
