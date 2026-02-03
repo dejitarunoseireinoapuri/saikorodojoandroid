@@ -4,10 +4,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjective
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -24,8 +22,7 @@ class GameViewModelSetValueTest {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
             diceCount = 1,
-            diceTypes = listOf(DiceType.D6),
-            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+            diceTypes = listOf(DiceType.D6)
         )
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
@@ -48,8 +45,7 @@ class GameViewModelSetValueTest {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
             diceCount = 1,
-            diceTypes = listOf(DiceType.D6),
-            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+            diceTypes = listOf(DiceType.D6)
         )
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,

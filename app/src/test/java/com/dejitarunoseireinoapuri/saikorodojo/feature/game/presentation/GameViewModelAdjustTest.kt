@@ -4,11 +4,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjective
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -29,8 +27,7 @@ class GameViewModelAdjustTest {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
             diceCount = 1,
-            diceTypes = listOf(DiceType.D6),
-            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+            diceTypes = listOf(DiceType.D6)
         )
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
@@ -53,8 +50,7 @@ class GameViewModelAdjustTest {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
             diceCount = 1,
-            diceTypes = listOf(DiceType.D6),
-            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+            diceTypes = listOf(DiceType.D6)
         )
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
@@ -76,8 +72,7 @@ class GameViewModelAdjustTest {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
             diceCount = 1,
-            diceTypes = listOf(DiceType.D6),
-            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+            diceTypes = listOf(DiceType.D6)
         )
         val viewModel = GameViewModel(
             rollDiceUseCase = RollDiceUseCase(FixedDiceRandomProvider(6)),
