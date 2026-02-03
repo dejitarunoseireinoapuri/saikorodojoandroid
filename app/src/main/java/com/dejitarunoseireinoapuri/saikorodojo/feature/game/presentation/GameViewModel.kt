@@ -3,8 +3,12 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.R
-import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.ConsumeCardFromInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.GetCardInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.GenerateLevelUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.GenerateObjectiveUseCase
@@ -98,6 +102,10 @@ class GameViewModel(
     private val rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(),
     private val generateLevelUseCase: GenerateLevelUseCase = GenerateLevelUseCase(),
     private val generateObjectiveUseCase: GenerateObjectiveUseCase = GenerateObjectiveUseCase(),
+    private val getCardInventoryUseCase: GetCardInventoryUseCase =
+        GetCardInventoryUseCase(InMemoryCardInventoryRepository.shared),
+    private val consumeCardFromInventoryUseCase: ConsumeCardFromInventoryUseCase =
+        ConsumeCardFromInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -127,10 +135,11 @@ class GameViewModel(
     private var currentLevelNumber: Int = 1
 
     init {
+        val initialCards = cardUiModels.ifEmpty { loadInventoryCardModels() }
         applyLevelDefinition(
             levelDefinition = initialLevelDefinition
                 ?: generateLevelUseCase.execute(levelNumber = 1, seedBase = baseSeed),
-            cardUiModels = cardUiModels
+            cardUiModels = initialCards
         )
     }
 
@@ -185,6 +194,10 @@ class GameViewModel(
 
     private fun startRolling(keepLayout: Boolean = false) {
         if (rollJob?.isActive == true) return
+        if (!keepLayout && initialRollSnapshot != null && currentObjective != null) {
+            refreshCardInventory()
+            return
+        }
 
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
@@ -780,6 +793,7 @@ class GameViewModel(
     private fun consumeCard(cards: List<CardUiModel>, index: Int): List<CardUiModel> {
         val updatedCards = cards.toMutableList()
         val card = updatedCards.getOrNull(index) ?: return cards
+        consumeCardFromInventoryUseCase.execute(card.id)
         if (card.count > 1) {
             updatedCards[index] = card.copy(count = card.count - 1)
         } else {
@@ -823,6 +837,23 @@ class GameViewModel(
             )
         }
         initialRollSnapshot = null
+    }
+
+    private fun refreshCardInventory() {
+        val updatedCards = loadInventoryCardModels()
+        _uiState.update { it.copy(cardUiModels = updatedCards) }
+    }
+
+    private fun loadInventoryCardModels(): List<CardUiModel> {
+        val counts = getCardInventoryUseCase.execute()
+        return defaultCardUiModels().mapNotNull { card ->
+            val count = counts[card.id] ?: 0
+            if (count > 0) {
+                card.copy(count = count)
+            } else {
+                null
+            }
+        }
     }
 
     private fun refreshObjectiveProgress() {

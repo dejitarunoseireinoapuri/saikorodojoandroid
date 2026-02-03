@@ -6,6 +6,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.Blackjac
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.CalculateBlackjackScoreUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.DetermineBlackjackOutcomeUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.RollBlackjackDiceUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.AddCardsToInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
@@ -58,6 +60,8 @@ class BlackjackGameViewModel(
         DetermineBlackjackOutcomeUseCase(),
     private val selectMinigameRewardCardsUseCase: SelectMinigameRewardCardsUseCase =
         SelectMinigameRewardCardsUseCase(),
+    private val addCardsToInventoryUseCase: AddCardsToInventoryUseCase =
+        AddCardsToInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -325,8 +329,10 @@ class BlackjackGameViewModel(
     }
 
     private fun resolveRewardCards(): List<CardUiModel> {
-        return selectMinigameRewardCardsUseCase.execute().mapNotNull { rewardId ->
-            cardUiModels.firstOrNull { it.id == rewardId }
+        val rewardIds = selectMinigameRewardCardsUseCase.execute()
+        addCardsToInventoryUseCase.execute(rewardIds)
+        return rewardIds.mapNotNull { rewardId ->
+            cardUiModels.firstOrNull { it.id == rewardId }?.copy(count = 1)
         }
     }
 }

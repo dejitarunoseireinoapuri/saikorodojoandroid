@@ -4,6 +4,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.ConsumeCardFromInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.GetCardInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,8 +27,11 @@ class GameViewModelFlipFaceTest {
             diceCount = 1,
             diceTypes = listOf(DiceType.D6)
         )
+        val repository = InMemoryCardInventoryRepository()
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
+            getCardInventoryUseCase = GetCardInventoryUseCase(repository),
+            consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(repository),
             initialLevelDefinition = levelDefinition,
             cardUiModels = listOf(flipFaceCard(count = 2))
         )
