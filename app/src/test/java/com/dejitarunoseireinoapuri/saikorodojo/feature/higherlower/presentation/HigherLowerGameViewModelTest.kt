@@ -176,7 +176,8 @@ class HigherLowerGameViewModelTest {
 
         val finalState = viewModel.uiState.value
         assertEquals(currentDice, finalState.baseDiceValues)
-        assertTrue(finalState.currentDiceValues.isEmpty())
+        assertEquals(currentDice, finalState.currentDiceValues)
+        assertTrue(finalState.isCurrentDiceHidden)
         assertFalse(finalState.isTransitioning)
     }
 
