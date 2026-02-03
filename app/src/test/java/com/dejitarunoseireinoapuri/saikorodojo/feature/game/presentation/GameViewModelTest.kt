@@ -2,6 +2,9 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.ConsumeCardFromInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.GetCardInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
@@ -389,8 +392,11 @@ class GameViewModelTest {
             diceCount = 3,
             diceTypes = List(3) { DiceType.D6 }
         )
+        val repository = InMemoryCardInventoryRepository()
         return GameViewModel(
             rollDiceUseCase = rollDiceUseCase,
+            getCardInventoryUseCase = GetCardInventoryUseCase(repository),
+            consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(repository),
             dispatcher = testDispatcher,
             rollDurationMs = 1L,
             tickMs = 1L,

@@ -2,6 +2,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.AddCardsToInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
@@ -48,6 +50,8 @@ class OddEvenGameViewModel(
     private val rollOddEvenUseCase: RollOddEvenUseCase = RollOddEvenUseCase(),
     private val selectMinigameRewardCardsUseCase: SelectMinigameRewardCardsUseCase =
         SelectMinigameRewardCardsUseCase(),
+    private val addCardsToInventoryUseCase: AddCardsToInventoryUseCase =
+        AddCardsToInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val resultAnimationMs: Long = DEFAULT_RESULT_ANIMATION_MS,
@@ -158,8 +162,10 @@ class OddEvenGameViewModel(
     }
 
     private fun resolveRewardCards(): List<CardUiModel> {
-        return selectMinigameRewardCardsUseCase.execute().mapNotNull { rewardId ->
-            cardUiModels.firstOrNull { it.id == rewardId }
+        val rewardIds = selectMinigameRewardCardsUseCase.execute()
+        addCardsToInventoryUseCase.execute(rewardIds)
+        return rewardIds.mapNotNull { rewardId ->
+            cardUiModels.firstOrNull { it.id == rewardId }?.copy(count = 1)
         }
     }
 }
