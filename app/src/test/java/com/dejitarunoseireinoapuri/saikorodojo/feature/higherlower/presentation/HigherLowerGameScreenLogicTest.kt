@@ -1,6 +1,11 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -24,5 +29,91 @@ class HigherLowerGameScreenLogicTest {
             )
         )
         assertFalse(shouldShowHigherLowerChoiceRow(isChoiceVisible = false, selectedChoice = null))
+    }
+
+    @Test
+    fun `lower dice render only during roll highlight transition or completion`() {
+        assertFalse(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = false,
+                isTransitioning = false,
+                isSuccessHighlighting = false,
+                isComplete = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = true,
+                isTransitioning = false,
+                isSuccessHighlighting = false,
+                isComplete = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = false,
+                isTransitioning = true,
+                isSuccessHighlighting = false,
+                isComplete = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = false,
+                isTransitioning = false,
+                isSuccessHighlighting = true,
+                isComplete = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = false,
+                isTransitioning = false,
+                isSuccessHighlighting = false,
+                isComplete = true
+            )
+        )
+        assertFalse(
+            shouldShowHigherLowerLowerDice(
+                hasDice = false,
+                isRolling = true,
+                isTransitioning = false,
+                isSuccessHighlighting = false,
+                isComplete = false
+            )
+        )
+    }
+
+    @Test
+    fun `bottom mat highlights success or failure`() {
+        assertEquals(
+            HigherLowerMatColors(VictoryMatBackground, VictoryMatBackground),
+            higherLowerBottomMatColors(
+                isSuccessHighlighting = true,
+                isComplete = false,
+                hasLoss = false
+            )
+        )
+        assertEquals(
+            HigherLowerMatColors(FailureMatBackground, FailureMatBackground),
+            higherLowerBottomMatColors(
+                isSuccessHighlighting = false,
+                isComplete = true,
+                hasLoss = true
+            )
+        )
+        assertEquals(
+            HigherLowerMatColors(SequenceSaveMatBackground, SequenceSaveMatBorder),
+            higherLowerBottomMatColors(
+                isSuccessHighlighting = false,
+                isComplete = false,
+                hasLoss = false
+            )
+        )
     }
 }

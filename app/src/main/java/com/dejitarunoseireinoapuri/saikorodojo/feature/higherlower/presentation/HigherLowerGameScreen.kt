@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -174,16 +173,16 @@ fun HigherLowerGameScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         HigherLowerChoiceButton(
-                            label = stringResource(R.string.higher_lower_higher),
-                            isEnabled = uiState.selectedChoice == null,
-                            isVisible = uiState.selectedChoice != HigherLowerChoice.LOWER,
-                            onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
-                        )
-                        HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_lower),
                             isEnabled = uiState.selectedChoice == null,
                             isVisible = uiState.selectedChoice != HigherLowerChoice.HIGHER,
                             onClick = { onChoiceSelect(HigherLowerChoice.LOWER) }
+                        )
+                        HigherLowerChoiceButton(
+                            label = stringResource(R.string.higher_lower_higher),
+                            isEnabled = uiState.selectedChoice == null,
+                            isVisible = uiState.selectedChoice != HigherLowerChoice.LOWER,
+                            onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
                         )
                     }
                 }
@@ -246,9 +245,20 @@ fun HigherLowerGameScreen(
                         isRolling = uiState.isRolling,
                         isTransitioning = uiState.isTransitioning
                     )
+                    val showLowerDice = shouldShowHigherLowerLowerDice(
+                        hasDice = uiState.currentDiceValues.isNotEmpty(),
+                        isRolling = uiState.isRolling,
+                        isTransitioning = uiState.isTransitioning,
+                        isSuccessHighlighting = uiState.isSuccessHighlighting,
+                        isComplete = uiState.isComplete
+                    )
                     val showBaseTotal = showTotals
-                    val showCurrentTotal = showTotals
-                    val showFailure = uiState.isComplete && uiState.hasLoss
+                    val showCurrentTotal = showTotals && showLowerDice
+                    val lowerMatColors = higherLowerBottomMatColors(
+                        isSuccessHighlighting = uiState.isSuccessHighlighting,
+                        isComplete = uiState.isComplete,
+                        hasLoss = uiState.hasLoss
+                    )
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(spacing),
@@ -277,8 +287,7 @@ fun HigherLowerGameScreen(
                                     diceRes = R.drawable.ten_sides,
                                     modifier = Modifier.graphicsLayer {
                                         translationX = shiftX * transitionProgress
-                                    },
-                                    isFailure = false
+                                    }
                                 )
                             }
                         }
@@ -297,19 +306,20 @@ fun HigherLowerGameScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
-                                backgroundColor = SequenceSaveMatBackground,
-                                borderColor = SequenceSaveMatBorder
+                                backgroundColor = lowerMatColors.background,
+                                borderColor = lowerMatColors.border
                             ) {
-                                HigherLowerDiceRow(
-                                    values = uiState.currentDiceValues,
-                                    diceRes = R.drawable.ten_sides,
-                                    modifier = Modifier
-                                        .graphicsLayer {
-                                            translationY = -shiftY * transitionProgress
-                                        }
-                                        .zIndex(2f),
-                                    isFailure = showFailure
-                                )
+                                if (showLowerDice) {
+                                    HigherLowerDiceRow(
+                                        values = uiState.currentDiceValues,
+                                        diceRes = R.drawable.ten_sides,
+                                        modifier = Modifier
+                                            .graphicsLayer {
+                                                translationY = -shiftY * transitionProgress
+                                            }
+                                            .zIndex(2f)
+                                    )
+                                }
                             }
                         }
                     }
@@ -372,7 +382,7 @@ private fun HigherLowerChoiceButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.tertiary,
             contentColor = MaterialTheme.colorScheme.onTertiary,
-            disabledContentColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.6f)
+            disabledContentColor = MaterialTheme.colorScheme.onTertiary
         ),
         modifier = Modifier.height(56.dp)
     ) {
@@ -400,6 +410,33 @@ internal fun shouldShowHigherLowerChoiceRow(
     return isChoiceVisible || selectedChoice != null
 }
 
+internal fun shouldShowHigherLowerLowerDice(
+    hasDice: Boolean,
+    isRolling: Boolean,
+    isTransitioning: Boolean,
+    isSuccessHighlighting: Boolean,
+    isComplete: Boolean
+): Boolean {
+    return hasDice && (isRolling || isTransitioning || isSuccessHighlighting || isComplete)
+}
+
+internal data class HigherLowerMatColors(
+    val background: Color,
+    val border: Color
+)
+
+internal fun higherLowerBottomMatColors(
+    isSuccessHighlighting: Boolean,
+    isComplete: Boolean,
+    hasLoss: Boolean
+): HigherLowerMatColors {
+    return when {
+        isComplete && hasLoss -> HigherLowerMatColors(FailureMatBackground, FailureMatBackground)
+        isSuccessHighlighting -> HigherLowerMatColors(VictoryMatBackground, VictoryMatBackground)
+        else -> HigherLowerMatColors(SequenceSaveMatBackground, SequenceSaveMatBorder)
+    }
+}
+
 @Composable
 private fun HigherLowerMat(
     modifier: Modifier,
@@ -422,8 +459,7 @@ private fun HigherLowerMat(
 private fun HigherLowerDiceRow(
     values: List<Int>,
     diceRes: Int,
-    modifier: Modifier = Modifier,
-    isFailure: Boolean
+    modifier: Modifier = Modifier
 ) {
     if (values.isEmpty()) return
     BoxWithConstraints(
@@ -446,8 +482,7 @@ private fun HigherLowerDiceRow(
                 HigherLowerDieFace(
                     value = value,
                     size = diceSize,
-                    diceRes = diceRes,
-                    isFailure = isFailure
+                    diceRes = diceRes
                 )
             }
         }
@@ -480,19 +515,16 @@ private fun HigherLowerSumLabel(
 private fun HigherLowerDieFace(
     value: Int,
     size: Dp,
-    diceRes: Int,
-    isFailure: Boolean
+    diceRes: Int
 ) {
     val fontSize = (size.value * 0.32f).coerceIn(14f, 22f).sp
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
-        val tint = if (isFailure) MaterialTheme.colorScheme.tertiary else Color.Unspecified
         Image(
             painter = painterResource(id = diceRes),
             contentDescription = stringResource(R.string.cd_dice_face, value),
-            colorFilter = if (isFailure) ColorFilter.tint(tint) else null,
             modifier = Modifier.fillMaxSize()
         )
         Text(

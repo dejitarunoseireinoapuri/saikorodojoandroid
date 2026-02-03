@@ -8,7 +8,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.Higher
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.RollHigherLowerUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -124,8 +126,64 @@ class HigherLowerGameViewModelTest {
         assertEquals(HigherLowerChoice.HIGHER, state.selectedChoice)
     }
 
+    @Test
+    fun `success highlight shows before transition starts`() = runTest {
+        val viewModel = buildViewModel(
+            diceValues = listOf(1, 1, 2, 3, 1, 1, 4, 4),
+            successHighlightMs = 1_000L,
+            transitionMs = 10L
+        )
+
+        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
+        runCurrent()
+
+        val highlightState = viewModel.uiState.value
+        assertTrue(highlightState.isSuccessHighlighting)
+        assertFalse(highlightState.isTransitioning)
+
+        advanceTimeBy(1_000L)
+        runCurrent()
+
+        val transitionState = viewModel.uiState.value
+        assertFalse(transitionState.isSuccessHighlighting)
+        assertTrue(transitionState.isTransitioning)
+    }
+
+    @Test
+    fun `transition keeps current dice visible while updating base`() = runTest {
+        val viewModel = buildViewModel(
+            diceValues = listOf(1, 1, 2, 3, 1, 1, 4, 4),
+            successHighlightMs = 0L,
+            transitionMs = 1_000L
+        )
+
+        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
+        runCurrent()
+
+        val transitionState = viewModel.uiState.value
+        val currentDice = transitionState.currentDiceValues
+        assertTrue(currentDice.isNotEmpty())
+        assertTrue(transitionState.isTransitioning)
+
+        advanceTimeBy(1_000L)
+        runCurrent()
+
+        val finalState = viewModel.uiState.value
+        assertEquals(currentDice, finalState.baseDiceValues)
+        assertTrue(finalState.currentDiceValues.isEmpty())
+        assertFalse(finalState.isTransitioning)
+    }
+
     private fun buildViewModel(
-        diceValues: List<Int>
+        diceValues: List<Int>,
+        successHighlightMs: Long = 0L,
+        transitionMs: Long = 0L
     ): HigherLowerGameViewModel {
         val diceRoller = QueueDiceRoller(diceValues.toMutableList())
         return HigherLowerGameViewModel(
@@ -136,7 +194,9 @@ class HigherLowerGameViewModelTest {
             dispatcher = dispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            resultDelayMs = 0L
+            resultDelayMs = 0L,
+            transitionMs = transitionMs,
+            successHighlightMs = successHighlightMs
         )
     }
 
