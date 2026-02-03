@@ -17,6 +17,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjectiv
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ObjectiveCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumAtLeastCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumExactCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumInRangeCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumParityCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasPairCondition
@@ -920,6 +921,7 @@ class GameViewModel(
     private fun objectiveLineText(condition: ObjectiveCondition): Pair<Int, List<Any>> {
         return when (condition) {
             is SumAtLeastCondition -> R.string.objective_sum_at_least to listOf(condition.threshold)
+            is SumExactCondition -> R.string.objective_sum_exact to listOf(condition.target)
             is SumInRangeCondition -> R.string.objective_sum_in_range to listOf(condition.min, condition.max)
             is SumParityCondition -> if (condition.shouldBeEven) {
                 R.string.objective_sum_even to emptyList()

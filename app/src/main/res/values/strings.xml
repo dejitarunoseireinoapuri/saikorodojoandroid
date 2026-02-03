@@ -71,12 +71,13 @@
     <string name="objective_all_distinct">All dice are different</string>
     <string name="objective_straight">Get a straight of %1$d</string>
     <string name="objective_sum_at_least">Sum is at least %1$d</string>
+    <string name="objective_sum_exact">Sum is exactly %1$d</string>
     <string name="objective_sum_in_range">Sum is between %1$d and %2$d</string>
     <string name="objective_sum_even">Sum is even</string>
     <string name="objective_sum_odd">Sum is odd</string>
     <string name="objective_contains_values">Contains: %1$s</string>
     <string name="objective_collection_partial">From %1$s, at least %2$d</string>
-    <string name="objective_forbid_values">No %1$s</string>
+    <string name="objective_forbid_values">Do not select any %1$s</string>
     <string name="surrender_title">Surrender?</string>
     <string name="surrender_message">Do you want to surrender and return to the menu?</string>
     <string name="surrender_confirm">Surrender</string>

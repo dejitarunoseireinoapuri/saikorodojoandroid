@@ -37,6 +37,12 @@ data class SumInRangeCondition(val min: Int, val max: Int) : ObjectiveCondition 
     }
 }
 
+data class SumExactCondition(val target: Int) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>): Boolean {
+        return diceValues.sum() == target
+    }
+}
+
 data class SumParityCondition(val shouldBeEven: Boolean) : ObjectiveCondition {
     override fun isMet(diceValues: List<Int>): Boolean {
         val sum = diceValues.sum()
@@ -196,7 +202,12 @@ class GenerateObjectiveUseCase {
                 if (containsValues.isNotEmpty()) {
                     candidates.add(ContainsValuesCondition(containsValues))
                 }
-                candidates.add(SumInRangeCondition(min = totalSum, max = totalSum))
+                candidates.add(SumExactCondition(pickExactSumTarget(diceValues, random)))
+                candidates.add(buildSumRange(diceValues, random))
+                val forbidValues = buildForbiddenValues(distinctValues, maxValue, random)
+                if (forbidValues.isNotEmpty() && hasValueOutside(diceValues, forbidValues)) {
+                    candidates.add(ForbidValuesCondition(forbidValues))
+                }
             }
             2 -> {
                 addIf(HasPairCondition(requiredPairs = 2), diceCounts.values.count { it >= 2 } >= 2)
@@ -211,7 +222,8 @@ class GenerateObjectiveUseCase {
                     )
                 }
                 addIf(StraightCondition(length = 3), canFormStraight(distinctValues, 3))
-                candidates.add(SumInRangeCondition(min = totalSum, max = totalSum))
+                candidates.add(SumExactCondition(pickExactSumTarget(diceValues, random)))
+                candidates.add(buildSumRange(diceValues, random))
             }
             3 -> {
                 addIf(HasFourOfKindCondition(), diceCounts.values.any { it >= 4 })
@@ -221,21 +233,29 @@ class GenerateObjectiveUseCase {
                 if (multiplicity.isNotEmpty()) {
                     candidates.add(ContainsValuesWithMultiplicityCondition(multiplicity))
                 }
-                candidates.add(SumInRangeCondition(min = totalSum, max = totalSum))
+                candidates.add(SumExactCondition(pickExactSumTarget(diceValues, random)))
+                candidates.add(buildSumRange(diceValues, random))
             }
             4 -> {
                 candidates.add(SumParityCondition(shouldBeEven = totalSum % 2 == 0))
                 candidates.add(SumAtLeastCondition(threshold = totalSum))
+                candidates.add(buildSumRange(diceValues, random))
             }
             else -> {
                 addIf(HasPairCondition(requiredPairs = 2), diceCounts.values.count { it >= 2 } >= 2)
                 addIf(StraightCondition(length = 4), canFormStraight(distinctValues, 4))
+                candidates.add(SumExactCondition(pickExactSumTarget(diceValues, random)))
+                candidates.add(buildSumRange(diceValues, random))
                 candidates.add(SumAtLeastCondition(threshold = totalSum))
+                val forbidValues = buildForbiddenValues(distinctValues, maxValue, random)
+                if (forbidValues.isNotEmpty() && hasValueOutside(diceValues, forbidValues)) {
+                    candidates.add(ForbidValuesCondition(forbidValues))
+                }
             }
         }
 
         if (candidates.isEmpty()) {
-            return LevelObjective(conditions = listOf(SumInRangeCondition(min = totalSum, max = totalSum)))
+            return LevelObjective(conditions = listOf(SumExactCondition(totalSum)))
         }
 
         return if (stage == 4 || stage >= 5) {
@@ -281,6 +301,41 @@ private fun buildMultiplicityValues(counts: Map<Int, Int>, random: Random): List
     val otherValue = counts.keys.filterNot { it == pairValue }.ifEmpty { listOf(pairValue) }
         .random(random)
     return listOf(pairValue, pairValue, otherValue)
+}
+
+private fun pickExactSumTarget(diceValues: List<Int>, random: Random): Int {
+    val candidates = mutableListOf<Int>()
+    candidates.addAll(diceValues)
+    if (diceValues.size >= 2) {
+        val shuffled = diceValues.shuffled(random)
+        candidates.add(shuffled[0] + shuffled[1])
+    }
+    return candidates.random(random)
+}
+
+private fun buildSumRange(diceValues: List<Int>, random: Random): SumInRangeCondition {
+    val totalSum = diceValues.sum()
+    val minSum = diceValues.minOrNull() ?: 1
+    val maxSum = totalSum
+    val spread = maxOf(2, (maxSum - minSum) / 2)
+    val base = (totalSum - spread).coerceAtLeast(minSum)
+    val top = (totalSum + spread).coerceAtMost(maxSum)
+    val start = minOf(base, top - 1)
+    val end = maxOf(start + 1, top)
+    return SumInRangeCondition(min = start, max = end)
+}
+
+private fun buildForbiddenValues(values: List<Int>, maxValue: Int, random: Random): List<Int> {
+    val candidates = (1..maxValue).filterNot { it in values }
+    return if (candidates.isNotEmpty()) {
+        listOf(candidates.random(random))
+    } else {
+        values.shuffled(random).take(1)
+    }
+}
+
+private fun hasValueOutside(diceValues: List<Int>, forbidden: List<Int>): Boolean {
+    return diceValues.any { it !in forbidden }
 }
 
 private fun valueCounts(values: List<Int>): Map<Int, Int> {
