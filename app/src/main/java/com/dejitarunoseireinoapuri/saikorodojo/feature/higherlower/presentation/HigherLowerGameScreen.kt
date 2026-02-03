@@ -303,7 +303,11 @@ fun HigherLowerGameScreen(
                                 borderColor = lowerMatColors.border
                             ) {
                                 HigherLowerDiceRow(
-                                    values = uiState.currentDiceValues,
+                                    values = if (uiState.isCurrentDiceHidden) {
+                                        emptyList()
+                                    } else {
+                                        uiState.currentDiceValues
+                                    },
                                     diceRes = R.drawable.ten_sides,
                                     modifier = Modifier
                                         .graphicsLayer {
