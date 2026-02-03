@@ -196,10 +196,6 @@ class GenerateObjectiveUseCase {
                 if (containsValues.isNotEmpty()) {
                     candidates.add(ContainsValuesCondition(containsValues))
                 }
-                val forbidValues = buildForbiddenValues(distinctValues, maxValue, random)
-                if (forbidValues.isNotEmpty() && hasValueOutside(diceValues, forbidValues)) {
-                    candidates.add(ForbidValuesCondition(forbidValues))
-                }
                 candidates.add(SumInRangeCondition(min = totalSum, max = totalSum))
             }
             2 -> {
@@ -234,10 +230,6 @@ class GenerateObjectiveUseCase {
             else -> {
                 addIf(HasPairCondition(requiredPairs = 2), diceCounts.values.count { it >= 2 } >= 2)
                 addIf(StraightCondition(length = 4), canFormStraight(distinctValues, 4))
-                val forbidValues = buildForbiddenValues(distinctValues, maxValue, random)
-                if (forbidValues.isNotEmpty() && hasValueOutside(diceValues, forbidValues)) {
-                    candidates.add(ForbidValuesCondition(forbidValues))
-                }
                 candidates.add(SumAtLeastCondition(threshold = totalSum))
             }
         }
@@ -289,19 +281,6 @@ private fun buildMultiplicityValues(counts: Map<Int, Int>, random: Random): List
     val otherValue = counts.keys.filterNot { it == pairValue }.ifEmpty { listOf(pairValue) }
         .random(random)
     return listOf(pairValue, pairValue, otherValue)
-}
-
-private fun buildForbiddenValues(values: List<Int>, maxValue: Int, random: Random): List<Int> {
-    val candidates = (1..maxValue).filterNot { it in values }
-    return if (candidates.isNotEmpty()) {
-        listOf(candidates.random(random))
-    } else {
-        values.shuffled(random).take(1)
-    }
-}
-
-private fun hasValueOutside(diceValues: List<Int>, forbidden: List<Int>): Boolean {
-    return diceValues.any { it !in forbidden }
 }
 
 private fun valueCounts(values: List<Int>): Map<Int, Int> {
