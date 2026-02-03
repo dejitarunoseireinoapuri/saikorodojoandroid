@@ -173,16 +173,16 @@ fun HigherLowerGameScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         HigherLowerChoiceButton(
-                            label = stringResource(R.string.higher_lower_higher),
-                            isEnabled = uiState.selectedChoice == null,
-                            isVisible = uiState.selectedChoice != HigherLowerChoice.LOWER,
-                            onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
-                        )
-                        HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_lower),
                             isEnabled = uiState.selectedChoice == null,
                             isVisible = uiState.selectedChoice != HigherLowerChoice.HIGHER,
                             onClick = { onChoiceSelect(HigherLowerChoice.LOWER) }
+                        )
+                        HigherLowerChoiceButton(
+                            label = stringResource(R.string.higher_lower_higher),
+                            isEnabled = uiState.selectedChoice == null,
+                            isVisible = uiState.selectedChoice != HigherLowerChoice.LOWER,
+                            onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
                         )
                     }
                 }
@@ -275,13 +275,25 @@ fun HigherLowerGameScreen(
                                 backgroundColor = SequenceSaveMatBackground,
                                 borderColor = SequenceSaveMatBorder
                             ) {
-                                HigherLowerDiceRow(
-                                    values = uiState.baseDiceValues,
-                                    diceRes = R.drawable.ten_sides,
-                                    modifier = Modifier.graphicsLayer {
-                                        translationX = shiftX * transitionProgress
-                                    }
-                                )
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    HigherLowerDiceRow(
+                                        values = uiState.baseDiceValues,
+                                        diceRes = R.drawable.ten_sides,
+                                        modifier = Modifier.graphicsLayer {
+                                            translationX = shiftX * transitionProgress
+                                        }
+                                    )
+                                    HigherLowerDiceRow(
+                                        values = uiState.pendingBaseDiceValues,
+                                        diceRes = R.drawable.ten_sides,
+                                        modifier = Modifier.alpha(
+                                            if (uiState.isTransitioning) 0f else 1f
+                                        )
+                                    )
+                                }
                             }
                         }
                         Column(

@@ -152,6 +152,36 @@ class HigherLowerGameViewModelTest {
         assertTrue(transitionState.isTransitioning)
     }
 
+    @Test
+    fun `pending base dice are swapped after transition`() = runTest {
+        val viewModel = buildViewModel(
+            diceValues = listOf(1, 1, 2, 3, 1, 1, 4, 4),
+            successHighlightMs = 0L,
+            transitionMs = 1_000L
+        )
+
+        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
+        runCurrent()
+
+        val transitionState = viewModel.uiState.value
+        val initialBase = transitionState.baseDiceValues
+        val pendingBase = transitionState.pendingBaseDiceValues
+        assertTrue(initialBase.isNotEmpty())
+        assertTrue(pendingBase.isNotEmpty())
+        assertTrue(transitionState.isTransitioning)
+
+        advanceTimeBy(1_000L)
+        runCurrent()
+
+        val finalState = viewModel.uiState.value
+        assertEquals(pendingBase, finalState.baseDiceValues)
+        assertTrue(finalState.pendingBaseDiceValues.isEmpty())
+        assertFalse(finalState.isTransitioning)
+    }
+
     private fun buildViewModel(
         diceValues: List<Int>,
         successHighlightMs: Long = 0L,
