@@ -20,4 +20,19 @@ class GenerateObjectiveUseCaseTest {
 
         assertTrue(isSatisfied)
     }
+
+    @Test
+    fun `range objectives always have a span`() {
+        val diceValues = listOf(1, 3, 4, 6, 6)
+
+        val objective = useCase.execute(
+            levelNumber = 2,
+            diceValues = diceValues,
+            seedBase = 12L
+        )
+
+        val hasRange = objective.conditions.filterIsInstance<SumInRangeCondition>()
+
+        assertTrue(hasRange.all { it.min < it.max })
+    }
 }

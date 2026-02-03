@@ -71,12 +71,13 @@
     <string name="objective_all_distinct">Todos los dados son distintos</string>
     <string name="objective_straight">Consigue una escalera de %1$d</string>
     <string name="objective_sum_at_least">La suma es al menos %1$d</string>
+    <string name="objective_sum_exact">La suma es exactamente %1$d</string>
     <string name="objective_sum_in_range">La suma está entre %1$d y %2$d</string>
     <string name="objective_sum_even">La suma es par</string>
     <string name="objective_sum_odd">La suma es impar</string>
     <string name="objective_contains_values">Contiene: %1$s</string>
     <string name="objective_collection_partial">De %1$s, al menos %2$d</string>
-    <string name="objective_forbid_values">No %1$s</string>
+    <string name="objective_forbid_values">No selecciones ningún %1$s</string>
     <string name="surrender_title">¿Rendirse?</string>
     <string name="surrender_message">¿Quieres rendirte y volver al menú?</string>
     <string name="surrender_confirm">Rendirse</string>
