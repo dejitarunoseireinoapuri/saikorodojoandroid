@@ -32,11 +32,11 @@ class HigherLowerGameScreenLogicTest {
     }
 
     @Test
-    fun `bottom mat highlights success transition or failure`() {
+    fun `bottom mat highlights success or failure`() {
         assertEquals(
             HigherLowerMatColors(VictoryMatBackground, VictoryMatBackground),
             higherLowerBottomMatColors(
-                isTransitioning = true,
+                isSuccessHighlighting = true,
                 isComplete = false,
                 hasLoss = false
             )
@@ -44,7 +44,7 @@ class HigherLowerGameScreenLogicTest {
         assertEquals(
             HigherLowerMatColors(FailureMatBackground, FailureMatBackground),
             higherLowerBottomMatColors(
-                isTransitioning = false,
+                isSuccessHighlighting = false,
                 isComplete = true,
                 hasLoss = true
             )
@@ -52,7 +52,7 @@ class HigherLowerGameScreenLogicTest {
         assertEquals(
             HigherLowerMatColors(SequenceSaveMatBackground, SequenceSaveMatBorder),
             higherLowerBottomMatColors(
-                isTransitioning = false,
+                isSuccessHighlighting = false,
                 isComplete = false,
                 hasLoss = false
             )

@@ -248,7 +248,7 @@ fun HigherLowerGameScreen(
                     val showBaseTotal = showTotals
                     val showCurrentTotal = showTotals
                     val lowerMatColors = higherLowerBottomMatColors(
-                        isTransitioning = uiState.isTransitioning,
+                        isSuccessHighlighting = uiState.isSuccessHighlighting,
                         isComplete = uiState.isComplete,
                         hasLoss = uiState.hasLoss
                     )
@@ -407,13 +407,13 @@ internal data class HigherLowerMatColors(
 )
 
 internal fun higherLowerBottomMatColors(
-    isTransitioning: Boolean,
+    isSuccessHighlighting: Boolean,
     isComplete: Boolean,
     hasLoss: Boolean
 ): HigherLowerMatColors {
     return when {
         isComplete && hasLoss -> HigherLowerMatColors(FailureMatBackground, FailureMatBackground)
-        isTransitioning -> HigherLowerMatColors(VictoryMatBackground, VictoryMatBackground)
+        isSuccessHighlighting -> HigherLowerMatColors(VictoryMatBackground, VictoryMatBackground)
         else -> HigherLowerMatColors(SequenceSaveMatBackground, SequenceSaveMatBorder)
     }
 }
