@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -205,9 +206,14 @@ class HigherLowerGameViewModel(
             _uiState.update {
                 it.copy(
                     baseDiceValues = newValues,
-                    currentDiceValues = emptyList(),
-                    isTransitioning = false,
                     isChoiceVisible = true
+                )
+            }
+            yield()
+            _uiState.update {
+                it.copy(
+                    currentDiceValues = emptyList(),
+                    isTransitioning = false
                 )
             }
         }
