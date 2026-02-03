@@ -4,7 +4,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjective
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -18,11 +21,15 @@ class GameViewModelSetValueTest {
 
     @Test
     fun `keeps group selection while choosing die to set value`() {
+        val levelDefinition = LevelDefinition(
+            levelNumber = 1,
+            diceCount = 1,
+            diceTypes = listOf(DiceType.D6),
+            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+        )
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
-            diceCount = 1,
-            diceType = DiceType.D6,
-            diceTypeProvider = { _, count -> List(count) { DiceType.D6 } },
+            initialLevelDefinition = levelDefinition,
             cardUiModels = listOf(setValueCard())
         )
 
@@ -38,11 +45,15 @@ class GameViewModelSetValueTest {
 
     @Test
     fun `sets the selected die value and consumes the card`() {
+        val levelDefinition = LevelDefinition(
+            levelNumber = 1,
+            diceCount = 1,
+            diceTypes = listOf(DiceType.D6),
+            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+        )
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
-            diceCount = 1,
-            diceType = DiceType.D6,
-            diceTypeProvider = { _, count -> List(count) { DiceType.D6 } },
+            initialLevelDefinition = levelDefinition,
             cardUiModels = listOf(setValueCard(count = 2))
         )
 
