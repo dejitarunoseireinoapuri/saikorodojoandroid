@@ -1,4 +1,4 @@
-# Reglas definitivas — Puzzle de dados con cartas y minijuegos
+# Reglas definitivas — Puzzle de dados con cartas y minijuegos (revisadas)
 
 ---
 
@@ -6,9 +6,11 @@
 
 Juego tipo **puzzle** con **dados** y **cartas potenciadoras**.
 
-- Cada nivel presenta una **tirada de dados** (visual) y un **objetivo** matemático/lógico.
+- Cada nivel presenta una **tirada de dados** (visual) y un **objetivo** a cumplir **sobre la tirada final**.
+- Los objetivos pueden ser de **combinación, colección, métricas numéricas y propiedades** (ver apartado 5).
 - Los niveles son **procedurales** y la dificultad **aumenta progresivamente**.
 - Los niveles están diseñados para ser **siempre resolubles**.
+- **Bucle principal:** al completar un **nivel normal**, se juega **obligatoriamente** **1 minijuego** antes de pasar al siguiente nivel.
 
 ---
 
@@ -17,47 +19,50 @@ Juego tipo **puzzle** con **dados** y **cartas potenciadoras**.
 ### 2.1. Dados (tirada fija, pero “visual”)
 - En cada nivel, **todos los dados se tiran una vez** (animación).
 - El resultado de la tirada **no es aleatorio** a nivel lógico:
-  - está **predeterminado** por la seed del nivel.
+    - está **predeterminado** por la seed del nivel.
 - Los dados serán siempre **positivos** y pueden ser de **6, 8 o 10 caras** según el nivel.
 
 ### 2.2. Objetivo siempre resoluble
 - Cada nivel se genera de forma que exista **al menos una solución**, teniendo en cuenta:
-  - los valores de los dados del nivel,
-  - **las cartas disponibles en el inventario del jugador**,
-  - y el límite de movimientos del nivel.
+    - los valores de los dados del nivel,
+    - **las cartas disponibles en el inventario del jugador**,
+    - y el límite de movimientos del nivel.
 
 ### 2.3. Generación del nivel (idea)
 - Cada nivel se define con una **seed** reproducible.
 - El generador crea una **solución oculta** (ruta de éxito) que:
-  - decide qué dados se seleccionan (y por tanto se suman),
-  - decide si se usa alguna carta o ninguna (al azar),
-  - y produce un objetivo acorde a los tipos de objetivos permitidos.
+    - decide qué dados se **usan para evaluar el objetivo** (subconjunto o todos, según convenga),
+    - decide si se usa alguna carta o ninguna (al azar),
+    - y produce un objetivo acorde a los tipos de objetivos permitidos.
 - El nivel se valida como resoluble:
-  - existe al menos una solución
-  - y la solución cabe dentro del límite de movimientos del nivel.
+    - existe al menos una solución
+    - y la solución cabe dentro del límite de movimientos del nivel.
 
 ---
 
 ## 3. Formato del puzzle (cómo se juega)
 
-### 3.1. Operación única: suma
-- **Los dados seleccionados siempre se suman.**
-- No existen otras operaciones matemáticas (no hay resta, multiplicación ni división).
+### 3.1. Evaluación según objetivo
+- **No hay una única operación global.**
+- El **objetivo** determina **qué se evalúa** de los dados usados en el intento:
+    - **Combinaciones / colecciones:** se evalúa el **multiconjunto** de valores (las repeticiones importan).
+    - **Objetivos numéricos:** se evalúa normalmente la **suma** de los dados usados.
+    - **Métricas y propiedades:** se evalúan funciones como `máximo − mínimo`, paridad, múltiplos, residuos, etc. (ver apartado 5).
 
-### 3.2. Selección de dados
-- El jugador puede seleccionar **cualquier subconjunto** de dados.
-- **No es obligatorio usar todos los dados.**
-- El resultado del intento es la **suma** de los dados seleccionados.
+### 3.2. Selección de dados (“dados usados”)
+- El jugador puede marcar **cualquier subconjunto** de dados como “usados” para el intento.
+- **No es obligatorio usar todos los dados**, salvo que el objetivo del nivel lo exija explícitamente.
+- El **objetivo siempre se evalúa sobre la tirada final** y **los dados usados** (tras re-tiradas y cartas), siguiendo las reglas del apartado 5.
 
 ---
 
 ## 4. Sistema de movimientos y condición de fallo
 
 ### 4.1. Qué cuenta como movimiento
-- **Cada dado seleccionado cuenta como 1 movimiento.**
-- **Cada carta usada cuenta como 1 movimiento.**
+- **Cada dado marcado como “usado” cuenta como 1 movimiento**.
+- **Cada carta usada cuenta como 1 movimiento**.
 
-Ejemplo: seleccionar 3 dados y usar 2 cartas = **5 movimientos**.
+Ejemplo: usar 3 dados para evaluar el objetivo y usar 2 cartas = **5 movimientos**.
 
 ### 4.2. Límite de movimientos
 - Cada nivel tiene un **límite máximo de movimientos**.
@@ -85,12 +90,12 @@ Los niveles pueden pedir uno de estos objetivos (se irán introduciendo con la d
 
 ### 5.2. Objetivos de valores exactos (colección / set)
 - **Colección exacta:** deben aparecer estos valores (en cualquier orden).
-  - Ej.: “aparecen un **1** y un **3**”.
-  - Ej.: “aparecen **2, 3, 8 y 9**”.
+    - Ej.: “aparecen un **1** y un **3**”.
+    - Ej.: “aparecen **2, 3, 8 y 9**”.
 - **Colección con multiplicidades:** valores concretos con repeticiones exigidas.
-  - Ej.: “**dos 4** y **un 7**”.
+    - Ej.: “**dos 4** y **un 7**”.
 - **Colección parcial:** de una lista dada deben aparecer al menos `K`.
-  - Ej.: “de {2,3,8,9} aparecen al menos 3”.
+    - Ej.: “de {2,3,8,9} aparecen al menos 3”.
 - **Colección prohibida:** no puede aparecer ninguno de {x,y,z}.
 
 > Nota: cuando haya mezcla de d6/d8/d10, la lista de valores se genera para que sea compatible con los dados presentes (no se pedirá un 9 si no hay ningún dado que pueda mostrar 9).
@@ -117,7 +122,6 @@ Los niveles pueden pedir uno de estos objetivos (se irán introduciendo con la d
 - Cualquier objetivo numérico se genera respetando límites del conjunto de dados del nivel (p. ej., suma máxima posible con los dados disponibles).
 - Los objetivos de colección se generan para que **todos los valores solicitados existan** en los tipos de dados presentes en el nivel.
 
-
 ---
 
 ## 6. Cartas potenciadoras (inventario global)
@@ -140,28 +144,28 @@ Los niveles pueden pedir uno de estos objetivos (se irán introduciendo con la d
 ### 6.4. Cartas acordadas
 
 - **Ajuste ±1** (1 dado)
-  - El jugador elige si aumenta o reduce en 1 el valor de un dado (sin salir de `1..caras`).
+    - El jugador elige si aumenta o reduce en 1 el valor de un dado (sin salir de `1..caras`).
 
 - **Voltear cara** (1 dado)
-  - Convierte `x` en `max+1-x`, según el tipo del dado seleccionado:
-    - d6: `1↔6`, `2↔5`, `3↔4`
-    - d8: `1↔8`, `2↔7`, `3↔6`, `4↔5`
-    - d10: `1↔10`, `2↔9`, `3↔8`, `4↔7`, `5↔6`
+    - Convierte `x` en `max+1-x`, según el tipo del dado seleccionado:
+        - d6: `1↔6`, `2↔5`, `3↔4`
+        - d8: `1↔8`, `2↔7`, `3↔6`, `4↔5`
+        - d10: `1↔10`, `2↔9`, `3↔8`, `4↔7`, `5↔6`
 
 - **Re-tirar 1 dado** (1 dado)
-  - El jugador selecciona un dado y se re-tira sólo ese dado.
+    - El jugador selecciona un dado y se re-tira sólo ese dado.
 
 - **Re-tirar todos menos uno** (tirada completa)
-  - El jugador selecciona el dado a conservar y se vuelven a tirar todos los demás.
+    - El jugador selecciona el dado a conservar y se vuelven a tirar todos los demás.
 
 - **Convertir a valor fijo** (1 dado)
-  - El jugador elige el valor final del dado dentro de su rango (`1..caras`).
-  - Carta muy rara.
+    - El jugador elige el valor final del dado dentro de su rango (`1..caras`).
+    - Carta muy rara.
 
 - **Volver a utilizar la última carta** (general)
-  - Repite exactamente el efecto de la última carta usada,
-  - pero permite elegir un **nuevo objetivo** (otro dado o tirada, según el tipo de la carta repetida),
-  - como si se tuviese **una segunda copia** de esa carta.
+    - Repite exactamente el efecto de la última carta usada,
+    - pero permite elegir un **nuevo objetivo** (otro dado o tirada, según el tipo de la carta repetida),
+    - como si se tuviese **una segunda copia** de esa carta.
 
 ---
 
@@ -172,11 +176,11 @@ Para garantizar que **todos los niveles son resolubles**, el generador construye
 1. **Elige el objetivo** del nivel (combinación, colección, numérico, propiedades, etc.).
 2. **Construye una tirada final válida** (valores concretos de cada dado) que **cumpla el objetivo**.
 3. Define las restricciones del nivel:
-  - número de **tiradas** (re-tiradas) permitidas,
-  - y un subconjunto de **cartas disponibles** (pueden incluirse o no **por azar**, entre las que el jugador ya posee).
+- número de **tiradas** (re-tiradas) permitidas,
+- y un subconjunto de **cartas disponibles** (pueden incluirse o no **por azar**, entre las que el jugador ya posee).
 4. A partir de la tirada final, el generador calcula la **tirada inicial mostrada** “yendo hacia atrás”:
-  - se generan estados previos compatibles con las re-tiradas y con las cartas elegidas (si se decide usarlas en la construcción),
-  - de forma que exista al menos un camino que permita al jugador volver a la tirada final (o a cualquier otra tirada final que cumpla el objetivo) dentro de los límites del nivel.
+- se generan estados previos compatibles con las re-tiradas y con las cartas elegidas (si se decide usarlas en la construcción),
+- de forma que exista al menos un camino que permita al jugador volver a la tirada final (o a cualquier otra tirada final que cumpla el objetivo) dentro de los límites del nivel.
 5. **Validación final:** el nivel solo se acepta si, desde la tirada inicial, existe **al menos una secuencia** de re-tiradas y uso de cartas (respetando límites y disponibilidad) que alcanza el objetivo.
 
 Consecuencias:
@@ -191,9 +195,9 @@ Consecuencias:
 ### 8.1. Carta de reinicio de nivel
 - Existe una **carta de reinicio de nivel**.
 - Al usarla:
-  - se reinicia el nivel completo (mismos dados/objetivo/seed),
-  - se restablecen los movimientos,
-  - y se recuperan las cartas usadas en el intento fallido.
+    - se reinicia el nivel completo (mismos dados/objetivo/seed),
+    - se restablecen los movimientos,
+    - y se recuperan las cartas usadas en el intento fallido.
 - La carta de reinicio **se consume al reiniciar**.
 
 ### 8.2. Anuncios
@@ -217,29 +221,32 @@ Consecuencias:
 
 ### 9.4. Recompensas
 - La carta obtenida es **aleatoria**, pero:
-  - cada minijuego tiene cartas **más probables**,
-  - y el resultado del minijuego modifica la probabilidad de recibir cartas “mejores”.
+    - cada minijuego tiene cartas **más probables**,
+    - y el resultado del minijuego modifica la probabilidad de recibir cartas “mejores”.
 
 ---
 
 ## 10. Minijuegos disponibles (4)
 
-### 10.1. Poker reducido (3 tiradas con guardado)
-- El jugador realiza **3 tiradas** (con varios dados por tirada).
-- En cada tirada puede **guardar** ciertos resultados para formar una mano final.
-- Objetivo: conseguir una combinación ganadora (ejemplos):
-  - pareja
-  - trío
-  - escalera corta
-  - otras combinaciones reducidas según diseño.
+### 10.1. Mayor o menor (2d10)
+- Se realiza una **tirada inicial** de **2 dados de 10 caras (2d10)**.
+- A continuación, el jugador debe decidir si la **siguiente tirada** será **mayor** o **menor** que la anterior.
+- Se realiza una **segunda tirada** de **2d10** y se comparan los resultados.
+
+**Regla de comparación**
+- Cada tirada se evalúa por la **suma de los 2d10**.
+- Si la suma de la segunda tirada es **mayor** que la primera, gana la opción **“mayor”**.
+- Si la suma de la segunda tirada es **menor** que la primera, gana la opción **“menor”**.
+- Si la suma es **igual**, el jugador **gana**.
+
 
 ### 10.2. Blackjack con dados (vs banca)
 - El jugador suma tiradas intentando llegar a **21** sin pasarse.
 - Puede **plantarse** o **seguir tirando**.
 - Reglas de banca:
-  - Si la banca llega a 21 o supera al jugador sin pasarse, el jugador pierde.
-  - Si el jugador se pasa, pierde.
-  - Regla exacta de banca por definir (por ejemplo: tirar hasta 17).
+    - Si la banca llega a 21 o supera al jugador sin pasarse, el jugador pierde.
+    - Si el jugador se pasa, pierde.
+    - Regla exacta de banca por definir (por ejemplo: tirar hasta 17).
 
 ### 10.3. Duelos de paridad
 - En cada ronda, el jugador elige **par** o **impar**.
@@ -258,17 +265,15 @@ Consecuencias:
 ## 11. Guardado y progreso
 
 - Se guarda:
-  - `seedBase` de la partida actual,
-  - nivel alcanzado,
-  - inventario de cartas,
-  - y el estado del nivel si estaba en pausa.
+    - `seedBase` de la partida actual,
+    - nivel alcanzado,
+    - inventario de cartas,
+    - y el estado del nivel si estaba en pausa.
 - Si el jugador empieza un **nuevo juego desde nivel 1**:
-  - se genera una `seedBase` nueva para que los niveles no se repitan.
+    - se genera una `seedBase` nueva para que los niveles no se repitan.
 
 ---
 
 ## 12. Sistema de puntuación
 - No hay puntuación ni estrellas.
 - El objetivo es **superar niveles** y progresar.
-
----
