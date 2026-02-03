@@ -37,6 +37,7 @@ data class HigherLowerGameUiState(
     val selectedChoice: HigherLowerChoice? = null,
     val baseDiceValues: List<Int> = emptyList(),
     val currentDiceValues: List<Int> = emptyList(),
+    val isCurrentDiceHidden: Boolean = false,
     val isRolling: Boolean = false,
     val isChoiceVisible: Boolean = false,
     val isTransitioning: Boolean = false,
@@ -92,6 +93,7 @@ class HigherLowerGameViewModel(
                 selectedChoice = null,
                 baseDiceValues = emptyList(),
                 currentDiceValues = emptyList(),
+                isCurrentDiceHidden = false,
                 isRolling = true,
                 isChoiceVisible = false,
                 isTransitioning = false,
@@ -127,7 +129,8 @@ class HigherLowerGameViewModel(
                 selectedChoice = choice,
                 isRolling = true,
                 isChoiceVisible = false,
-                currentDiceValues = emptyList()
+                currentDiceValues = emptyList(),
+                isCurrentDiceHidden = false
             )
         }
         startRoll(
@@ -207,6 +210,7 @@ class HigherLowerGameViewModel(
             _uiState.update {
                 it.copy(
                     baseDiceValues = finalCurrentDice.ifEmpty { newValues },
+                    isCurrentDiceHidden = true,
                     isTransitioning = false,
                     isChoiceVisible = true
                 )
