@@ -1,6 +1,11 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -24,5 +29,33 @@ class HigherLowerGameScreenLogicTest {
             )
         )
         assertFalse(shouldShowHigherLowerChoiceRow(isChoiceVisible = false, selectedChoice = null))
+    }
+
+    @Test
+    fun `bottom mat highlights success transition or failure`() {
+        assertEquals(
+            HigherLowerMatColors(VictoryMatBackground, VictoryMatBackground),
+            higherLowerBottomMatColors(
+                isTransitioning = true,
+                isComplete = false,
+                hasLoss = false
+            )
+        )
+        assertEquals(
+            HigherLowerMatColors(FailureMatBackground, FailureMatBackground),
+            higherLowerBottomMatColors(
+                isTransitioning = false,
+                isComplete = true,
+                hasLoss = true
+            )
+        )
+        assertEquals(
+            HigherLowerMatColors(SequenceSaveMatBackground, SequenceSaveMatBorder),
+            higherLowerBottomMatColors(
+                isTransitioning = false,
+                isComplete = false,
+                hasLoss = false
+            )
+        )
     }
 }
