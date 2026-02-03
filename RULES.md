@@ -277,3 +277,177 @@ Consecuencias:
 ## 12. Sistema de puntuación
 - No hay puntuación ni estrellas.
 - El objetivo es **superar niveles** y progresar.
+
+## 13. Progresión de dificultad (cómo escala nivel a nivel)
+
+La dificultad escala mediante una **puntuación interna de dificultad (D)** que aumenta con el nivel y controla, de forma gradual, estas variables:
+
+- Número de dados lanzados
+- Tipo(s) de dados (d6/d8/d10)
+- Límite de movimientos
+- Subconjunto de cartas permitidas en el nivel (de tu inventario)
+- Cartas obligatorias (si existen), calculadas **siempre** en función de las cartas que el jugador **ya posee**
+- Tipo de objetivo (apartado 5) y sus parámetros (tamaño de colección, longitud de escalera, nº de repeticiones, etc.)
+- Restricciones adicionales (uso de dados/cambios/bloqueos)
+
+> Importante: **no existe “re-tirada” como variable de dificultad**. Re-tirar dados solo ocurre mediante las **cartas específicas** (p. ej. “Re-tirar 1 dado”, “Re-tirar todos menos uno”).
+
+### 13.1. Etapas (tiers) por rangos de niveles
+
+Las etapas cambian **cada 15 niveles**:
+- Etapa 1: niveles **1–15**
+- Etapa 2: niveles **16–30**
+- Etapa 3: niveles **31–45**
+- Etapa 4: niveles **46–60**
+- Etapa 5: niveles **61–75**
+- … y así sucesivamente
+
+En cada nueva etapa, la dificultad aumenta principalmente por:
+1) más dados (según 13.2),
+2) objetivos más exigentes y/o combinados,
+3) límites de movimientos más ajustados,
+4) más cartas obligatorias o restricciones de ejecución.
+
+### 13.2. Número de dados por etapa (regla fija)
+
+- Etapa 1: **5 dados**
+- Etapa 2: **8 dados** (+3)
+- Etapa 3: **11 dados** (+3)
+- Etapa 4: **14 dados** (+3)
+- Etapa 5: **17 dados** (+3)
+- Etapa 6 y posteriores: **20 dados** (máximo)
+
+Regla general:
+- `numDados(etapa) = min(5 + 3*(etapa-1), 20)`
+
+### 13.3. Tipo(s) de dados por etapa
+
+- **Etapa 1 (1–15):** solo **d6**.
+- **Etapa 2 (16–30):** d6 + introducción de **d8** con baja probabilidad.
+- **Etapa 3 (31–45):** d6/d8 con mezcla más frecuente + introducción de **d10** con baja probabilidad.
+- **Etapa 4 (46–60):** mezcla frecuente de d6/d8/d10.
+- **Etapa 5+ (61+):** mezcla libre, seleccionada por el generador para ajustar la dificultad y la coherencia del objetivo.
+
+### 13.4. Cartas obligatorias por etapa (regla fija)
+
+Las **cartas obligatorias** son cartas que el nivel exige que se usen para poder considerarse resuelto.
+
+- **Etapa 1:** hasta **1** carta obligatoria.
+- **Etapa 2:** hasta **2** cartas obligatorias.
+- **Etapa 3:** hasta **3** cartas obligatorias.
+- **Etapa 4 y posteriores:** **sin límite** (puede requerir cualquier número).
+
+Reglas de coherencia:
+- El generador **solo puede marcar como obligatorias cartas que el jugador ya tiene** en su inventario.
+- Si el jugador no tiene suficientes cartas para cumplir el requisito de la etapa, el nivel:
+    - baja el número de cartas obligatorias para ese nivel concreto, o
+    - elige otras cartas obligatorias que el jugador sí posea,
+    - manteniendo la etapa y el resto de la dificultad.
+
+### 13.5. Límite de movimientos (cómo se endurece)
+
+El límite de movimientos se fija como:
+- `movimientos = movimientosRutaExito + margen`
+
+Donde:
+- `movimientosRutaExito` es el coste exacto de la ruta de éxito (dados usados + cartas obligatorias y opcionales de la solución).
+- El **margen** disminuye con el nivel dentro de cada etapa:
+
+Patrón recomendado dentro de cada bloque de 15 niveles:
+- Niveles 1–5 de la etapa: margen **2**
+- Niveles 6–10 de la etapa: margen **1**
+- Niveles 11–15 de la etapa: margen **0**
+
+Esto hace que los últimos niveles de cada etapa sean más exigentes sin introducir mecánicas nuevas de golpe.
+
+### 13.6. Subconjunto de cartas permitidas (densidad de opciones)
+
+Aunque el inventario del jugador sea global, cada nivel puede restringir qué cartas “están disponibles” para usarse en ese nivel (siempre como subconjunto del inventario real).
+
+- Etapas bajas: subconjunto **amplio** (más libertad).
+- Etapas medias: subconjunto **medio**.
+- Etapas altas: subconjunto **pequeño** (menos libertad).
+
+Reglas:
+- Las cartas **obligatorias** siempre deben estar dentro del subconjunto permitido.
+- Las cartas raras (p. ej. “Convertir a valor fijo”) se reservan para etapas altas o para niveles puntuales.
+
+### 13.7. Objetivos “más divertidos” (desbloqueo por niveles)
+
+Los objetivos priorizan **patrones visuales**, **colecciones** y **combinaciones**.  
+Los objetivos numéricos se usan poco (como variedad), limitándose principalmente a **suma en rango** y **paridad + umbral**.
+
+#### Etapa 1 (niveles 1–15) — Básicos y muy visuales
+- **Pareja / Trío** (al menos uno).
+- **Todos distintos**.
+- **Colección exacta simple** (2–3 valores).
+- **Prohibido X** (o prohibido `{x,y}`).
+- **Suma en rango (suave)** (rango amplio).
+
+#### Etapa 2 (niveles 16–30) — Colecciones y combos reconocibles
+- **Dos pares**.
+- **Par + trío**.
+- **Colección exacta media** (3–4 valores; multiplicidad como mucho muy ligera).
+- **Colección parcial** (“de {…} aparecen al menos K”).
+- **Escalera corta** (3 consecutivos).
+
+#### Etapa 3 (niveles 31–45) — Retos “de mano” y rarezas suaves
+- **Full** (trío + par).
+- **Póker** (4 iguales).
+- **Escalera larga** (4 consecutivos).
+- **Colección con multiplicidades** (p. ej. “dos 4 y un 7”).
+- **Espejo** (parejas complementarias por tipo de dado):
+    - d6: (1,6), (2,5), (3,4)
+    - d8: (1,8), (2,7), (3,6), (4,5)
+    - d10: (1,10), (2,9), (3,8), (4,7), (5,6)
+
+#### Etapa 4 (niveles 46–60) — Objetivos temáticos (más exigentes)
+- **Doble trío**.
+- **Mano “Arcoíris”** (zonas baja/media/alta definidas por el nivel; debe aparecer al menos 1 de cada zona).
+- **Todos en el mismo “templo” (rango comprimido)**: todos los dados usados en `[A,B]` con intervalo estrecho.
+- **Colección prohibida avanzada + combinación** (p. ej. “sin {x,y,z} y además al menos un par”).
+- **Paridad + umbral (ocasional)**: suma par/impar y `≥ X`.
+
+#### Etapa 5+ (niveles 61+) — “Misiones” combinadas y ejecución avanzada
+- **Objetivo doble** (dos condiciones visuales juntas), p. ej.:
+    - “escalera corta + sin 1”
+    - “dos pares + colección parcial”
+- **Mano “Guardianes”**: exactamente `K` valores “sagrados” (lista del nivel) y el resto no puede ser de esa lista.
+- **Exactitud total (colección completa)**: lista grande de valores exactos (4–6) compatible con los dados del nivel.
+- **Espejo perfecto**: todos los dados usados se emparejan en parejas espejo (sin sobrantes).
+- **Ejecución avanzada (frecuente)**: se añade además una restricción del 5.5, por ejemplo:
+    - “usa exactamente C cartas”
+    - “usa como máximo C cartas”
+    - “tras la 1ª tirada, bloquea al menos K dados”
+    - “entre inicio y final solo pueden cambiar K dados”
+
+### 13.8. Restricciones adicionales (introducción gradual)
+
+Para evitar picos de dificultad, las restricciones de ejecución se introducen progresivamente:
+
+- “Usa exactamente K dados” / “usa al menos K dados”:
+    - Etapa 2+ (K bajo al principio; más exigente en etapas altas).
+- “Cambios limitados” / “bloqueo obligatorio” (5.5):
+    - Etapa 3+ (primero poco restrictivo; luego más estricto).
+- “Uso limitado de cartas” (5.5):
+    - Etapa 4+ (más frecuente y combinable con objetivos complejos).
+
+### 13.9. Principio de control: 1 fuente nueva a la vez
+
+Para que el incremento sea estable:
+- Dentro de una misma etapa, el generador incrementa **principalmente** una variable por nivel (por ejemplo, parámetros del objetivo o margen de movimientos),
+- mientras el resto se mantiene estable o cambia mínimamente.
+- Las “novedades” (nuevos objetivos o nuevas restricciones) entran al principio de la etapa con parámetros suaves y se endurecen hacia el final.
+
+### 13.10. Garantía de resolubilidad con escalado
+
+Aunque la dificultad suba:
+- El generador sigue construyendo desde una **tirada final válida** (apartado 7),
+- selecciona cartas obligatorias **solo** entre las que el jugador posee,
+- fija el límite de movimientos a partir de la ruta de éxito,
+- y valida que desde la tirada inicial exista al menos una secuencia válida que resuelva el nivel.
+
+Si una configuración no es resoluble:
+- se regenera el nivel con el mismo nivel `L` ajustando parámetros (margen, objetivo, selección de cartas obligatorias/permitidas),
+- sin romper las reglas de etapa (p. ej. manteniendo el número de dados de la etapa).
+
