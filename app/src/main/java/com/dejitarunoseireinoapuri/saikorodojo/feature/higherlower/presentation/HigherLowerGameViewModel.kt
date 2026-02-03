@@ -37,7 +37,6 @@ data class HigherLowerGameUiState(
     val selectedChoice: HigherLowerChoice? = null,
     val baseDiceValues: List<Int> = emptyList(),
     val currentDiceValues: List<Int> = emptyList(),
-    val pendingBaseDiceValues: List<Int> = emptyList(),
     val isRolling: Boolean = false,
     val isChoiceVisible: Boolean = false,
     val isTransitioning: Boolean = false,
@@ -93,7 +92,6 @@ class HigherLowerGameViewModel(
                 selectedChoice = null,
                 baseDiceValues = emptyList(),
                 currentDiceValues = emptyList(),
-                pendingBaseDiceValues = emptyList(),
                 isRolling = true,
                 isChoiceVisible = false,
                 isTransitioning = false,
@@ -128,7 +126,8 @@ class HigherLowerGameViewModel(
             it.copy(
                 selectedChoice = choice,
                 isRolling = true,
-                isChoiceVisible = false
+                isChoiceVisible = false,
+                currentDiceValues = emptyList()
             )
         }
         startRoll(
@@ -189,8 +188,7 @@ class HigherLowerGameViewModel(
                     isRolling = false,
                     isTransitioning = false,
                     isChoiceVisible = false,
-                    isSuccessHighlighting = true,
-                    pendingBaseDiceValues = newValues
+                    isSuccessHighlighting = true
                 )
             }
             if (successHighlightMs > 0L) {
@@ -207,9 +205,7 @@ class HigherLowerGameViewModel(
             }
             _uiState.update {
                 it.copy(
-                    baseDiceValues = newValues,
-                    currentDiceValues = emptyList(),
-                    pendingBaseDiceValues = emptyList(),
+                    baseDiceValues = currentDiceValues.ifEmpty { newValues },
                     isTransitioning = false,
                     isChoiceVisible = true
                 )
@@ -225,7 +221,6 @@ class HigherLowerGameViewModel(
             _uiState.update {
                 it.copy(
                     currentDiceValues = newValues,
-                    pendingBaseDiceValues = emptyList(),
                     isRolling = false,
                     isChoiceVisible = false,
                     isTransitioning = false,
@@ -249,7 +244,6 @@ class HigherLowerGameViewModel(
                     isChoiceVisible = false,
                     isTransitioning = false,
                     isSuccessHighlighting = false,
-                    pendingBaseDiceValues = emptyList(),
                     isComplete = true,
                     rewardCards = rewardCards
                 )

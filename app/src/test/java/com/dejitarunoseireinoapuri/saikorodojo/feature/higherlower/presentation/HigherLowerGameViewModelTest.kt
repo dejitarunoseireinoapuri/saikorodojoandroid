@@ -153,7 +153,7 @@ class HigherLowerGameViewModelTest {
     }
 
     @Test
-    fun `pending base dice are swapped after transition`() = runTest {
+    fun `transition keeps current dice visible while updating base`() = runTest {
         val viewModel = buildViewModel(
             diceValues = listOf(1, 1, 2, 3, 1, 1, 4, 4),
             successHighlightMs = 0L,
@@ -167,18 +167,15 @@ class HigherLowerGameViewModelTest {
         runCurrent()
 
         val transitionState = viewModel.uiState.value
-        val initialBase = transitionState.baseDiceValues
-        val pendingBase = transitionState.pendingBaseDiceValues
-        assertTrue(initialBase.isNotEmpty())
-        assertTrue(pendingBase.isNotEmpty())
+        val currentDice = transitionState.currentDiceValues
+        assertTrue(currentDice.isNotEmpty())
         assertTrue(transitionState.isTransitioning)
 
         advanceTimeBy(1_000L)
         runCurrent()
 
         val finalState = viewModel.uiState.value
-        assertEquals(pendingBase, finalState.baseDiceValues)
-        assertTrue(finalState.pendingBaseDiceValues.isEmpty())
+        assertEquals(currentDice, finalState.baseDiceValues)
         assertFalse(finalState.isTransitioning)
     }
 

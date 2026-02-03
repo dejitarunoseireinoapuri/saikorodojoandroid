@@ -275,25 +275,13 @@ fun HigherLowerGameScreen(
                                 backgroundColor = SequenceSaveMatBackground,
                                 borderColor = SequenceSaveMatBorder
                             ) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    HigherLowerDiceRow(
-                                        values = uiState.baseDiceValues,
-                                        diceRes = R.drawable.ten_sides,
-                                        modifier = Modifier.graphicsLayer {
-                                            translationX = shiftX * transitionProgress
-                                        }
-                                    )
-                                    HigherLowerDiceRow(
-                                        values = uiState.pendingBaseDiceValues,
-                                        diceRes = R.drawable.ten_sides,
-                                        modifier = Modifier.alpha(
-                                            if (uiState.isTransitioning) 0f else 1f
-                                        )
-                                    )
-                                }
+                                HigherLowerDiceRow(
+                                    values = uiState.baseDiceValues,
+                                    diceRes = R.drawable.ten_sides,
+                                    modifier = Modifier.graphicsLayer {
+                                        translationX = shiftX * transitionProgress
+                                    }
+                                )
                             }
                         }
                         Column(
