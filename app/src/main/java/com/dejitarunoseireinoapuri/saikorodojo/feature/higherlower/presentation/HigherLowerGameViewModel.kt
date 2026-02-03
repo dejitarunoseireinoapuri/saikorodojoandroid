@@ -23,6 +23,7 @@ private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_RESULT_DELAY_MS = 1_500L
 private const val DEFAULT_TRANSITION_MS = 900L
+private const val DEFAULT_SUCCESS_HIGHLIGHT_MS = 1_000L
 
 @JvmInline
 value class DiceSum(val value: Int)
@@ -39,6 +40,7 @@ data class HigherLowerGameUiState(
     val isRolling: Boolean = false,
     val isChoiceVisible: Boolean = false,
     val isTransitioning: Boolean = false,
+    val isSuccessHighlighting: Boolean = false,
     val isComplete: Boolean = false,
     val hasLoss: Boolean = false,
     val rewardCards: List<CardUiModel> = emptyList()
@@ -58,6 +60,7 @@ class HigherLowerGameViewModel(
     private val tickMs: Long = DEFAULT_TICK_MS,
     private val resultDelayMs: Long = DEFAULT_RESULT_DELAY_MS,
     private val transitionMs: Long = DEFAULT_TRANSITION_MS,
+    private val successHighlightMs: Long = DEFAULT_SUCCESS_HIGHLIGHT_MS,
     private val totalRounds: Int = DEFAULT_TOTAL_ROUNDS,
     private val targetCorrect: Int = DEFAULT_TARGET_CORRECT,
     private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
@@ -92,6 +95,7 @@ class HigherLowerGameViewModel(
                 isRolling = true,
                 isChoiceVisible = false,
                 isTransitioning = false,
+                isSuccessHighlighting = false,
                 isComplete = false,
                 hasLoss = false,
                 rewardCards = emptyList()
@@ -181,8 +185,18 @@ class HigherLowerGameViewModel(
                     currentRound = it.currentRound + 1,
                     selectedChoice = null,
                     isRolling = false,
+                    isTransitioning = false,
+                    isChoiceVisible = false,
+                    isSuccessHighlighting = true
+                )
+            }
+            if (successHighlightMs > 0L) {
+                delay(successHighlightMs)
+            }
+            _uiState.update {
+                it.copy(
                     isTransitioning = true,
-                    isChoiceVisible = false
+                    isSuccessHighlighting = false
                 )
             }
             if (transitionMs > 0L) {
@@ -210,6 +224,7 @@ class HigherLowerGameViewModel(
                     isRolling = false,
                     isChoiceVisible = false,
                     isTransitioning = false,
+                    isSuccessHighlighting = false,
                     isComplete = true,
                     hasLoss = true
                 )
@@ -228,6 +243,7 @@ class HigherLowerGameViewModel(
                     isRolling = false,
                     isChoiceVisible = false,
                     isTransitioning = false,
+                    isSuccessHighlighting = false,
                     isComplete = true,
                     rewardCards = rewardCards
                 )
