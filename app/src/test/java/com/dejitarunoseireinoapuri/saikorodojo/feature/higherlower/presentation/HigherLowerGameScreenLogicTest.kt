@@ -32,6 +32,64 @@ class HigherLowerGameScreenLogicTest {
     }
 
     @Test
+    fun `lower dice render only during roll highlight transition or completion`() {
+        assertFalse(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = false,
+                isTransitioning = false,
+                isSuccessHighlighting = false,
+                isComplete = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = true,
+                isTransitioning = false,
+                isSuccessHighlighting = false,
+                isComplete = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = false,
+                isTransitioning = true,
+                isSuccessHighlighting = false,
+                isComplete = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = false,
+                isTransitioning = false,
+                isSuccessHighlighting = true,
+                isComplete = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerLowerDice(
+                hasDice = true,
+                isRolling = false,
+                isTransitioning = false,
+                isSuccessHighlighting = false,
+                isComplete = true
+            )
+        )
+        assertFalse(
+            shouldShowHigherLowerLowerDice(
+                hasDice = false,
+                isRolling = true,
+                isTransitioning = false,
+                isSuccessHighlighting = false,
+                isComplete = false
+            )
+        )
+    }
+
+    @Test
     fun `bottom mat highlights success or failure`() {
         assertEquals(
             HigherLowerMatColors(VictoryMatBackground, VictoryMatBackground),

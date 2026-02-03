@@ -245,8 +245,15 @@ fun HigherLowerGameScreen(
                         isRolling = uiState.isRolling,
                         isTransitioning = uiState.isTransitioning
                     )
+                    val showLowerDice = shouldShowHigherLowerLowerDice(
+                        hasDice = uiState.currentDiceValues.isNotEmpty(),
+                        isRolling = uiState.isRolling,
+                        isTransitioning = uiState.isTransitioning,
+                        isSuccessHighlighting = uiState.isSuccessHighlighting,
+                        isComplete = uiState.isComplete
+                    )
                     val showBaseTotal = showTotals
-                    val showCurrentTotal = showTotals
+                    val showCurrentTotal = showTotals && showLowerDice
                     val lowerMatColors = higherLowerBottomMatColors(
                         isSuccessHighlighting = uiState.isSuccessHighlighting,
                         isComplete = uiState.isComplete,
@@ -302,15 +309,17 @@ fun HigherLowerGameScreen(
                                 backgroundColor = lowerMatColors.background,
                                 borderColor = lowerMatColors.border
                             ) {
-                                HigherLowerDiceRow(
-                                    values = uiState.currentDiceValues,
-                                    diceRes = R.drawable.ten_sides,
-                                    modifier = Modifier
-                                        .graphicsLayer {
-                                            translationY = -shiftY * transitionProgress
-                                        }
-                                        .zIndex(2f)
-                                )
+                                if (showLowerDice) {
+                                    HigherLowerDiceRow(
+                                        values = uiState.currentDiceValues,
+                                        diceRes = R.drawable.ten_sides,
+                                        modifier = Modifier
+                                            .graphicsLayer {
+                                                translationY = -shiftY * transitionProgress
+                                            }
+                                            .zIndex(2f)
+                                    )
+                                }
                             }
                         }
                     }
@@ -399,6 +408,16 @@ internal fun shouldShowHigherLowerChoiceRow(
     selectedChoice: HigherLowerChoice?
 ): Boolean {
     return isChoiceVisible || selectedChoice != null
+}
+
+internal fun shouldShowHigherLowerLowerDice(
+    hasDice: Boolean,
+    isRolling: Boolean,
+    isTransitioning: Boolean,
+    isSuccessHighlighting: Boolean,
+    isComplete: Boolean
+): Boolean {
+    return hasDice && (isRolling || isTransitioning || isSuccessHighlighting || isComplete)
 }
 
 internal data class HigherLowerMatColors(
