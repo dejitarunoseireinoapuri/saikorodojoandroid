@@ -4,8 +4,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjective
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -23,11 +26,15 @@ class GameViewModelAdjustTest {
 
     @Test
     fun `keeps group selection while choosing die to adjust`() {
+        val levelDefinition = LevelDefinition(
+            levelNumber = 1,
+            diceCount = 1,
+            diceTypes = listOf(DiceType.D6),
+            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+        )
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
-            diceCount = 1,
-            diceType = DiceType.D6,
-            diceTypeProvider = { _, count -> List(count) { DiceType.D6 } },
+            initialLevelDefinition = levelDefinition,
             cardUiModels = listOf(adjustCard())
         )
 
@@ -43,11 +50,15 @@ class GameViewModelAdjustTest {
 
     @Test
     fun `does not reduce below one when adjusting down`() {
+        val levelDefinition = LevelDefinition(
+            levelNumber = 1,
+            diceCount = 1,
+            diceTypes = listOf(DiceType.D6),
+            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+        )
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
-            diceCount = 1,
-            diceType = DiceType.D6,
-            diceTypeProvider = { _, count -> List(count) { DiceType.D6 } },
+            initialLevelDefinition = levelDefinition,
             cardUiModels = listOf(adjustCard())
         )
 
@@ -62,14 +73,18 @@ class GameViewModelAdjustTest {
 
     @Test
     fun `does not increase above max when adjusting up`() = runTest {
+        val levelDefinition = LevelDefinition(
+            levelNumber = 1,
+            diceCount = 1,
+            diceTypes = listOf(DiceType.D6),
+            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+        )
         val viewModel = GameViewModel(
             rollDiceUseCase = RollDiceUseCase(FixedDiceRandomProvider(6)),
             dispatcher = mainDispatcherRule.dispatcher,
             rollDurationMs = 1L,
             tickMs = 1L,
-            diceCount = 1,
-            diceType = DiceType.D6,
-            diceTypeProvider = { _, count -> List(count) { DiceType.D6 } },
+            initialLevelDefinition = levelDefinition,
             cardUiModels = listOf(adjustCard())
         )
 

@@ -2,16 +2,36 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
-import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.GenerateLevelUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjective
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ObjectiveCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumAtLeastCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumInRangeCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumParityCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasPairCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasThreeOfKindCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasFourOfKindCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.FullHouseCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.StraightCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesWithMultiplicityCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.CollectionPartialCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ForbidValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,6 +40,7 @@ import kotlin.random.Random
 private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
+private const val DEFAULT_COMPLETION_MESSAGE_MS = 1_000L
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
@@ -39,7 +60,11 @@ data class GameUiState(
     val selectedDiceSum: Int = 0,
     val cardUiModels: List<CardUiModel> = emptyList(),
     val selectedCardIndex: Int? = null,
-    val lastAppliedCardId: CardId? = null
+    val lastAppliedCardId: CardId? = null,
+    val levelNumber: Int = 1,
+    val objectiveLines: List<ObjectiveLineUiState> = emptyList(),
+    val isLevelComplete: Boolean = false,
+    val showLevelCompleteMessage: Boolean = false
 )
 
 sealed interface GameUiEvent {
@@ -53,18 +78,32 @@ sealed interface GameUiEvent {
     data object RollSingleDie : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
     data object IncreaseDiceCount : GameUiEvent
+    data object ConfirmSurrender : GameUiEvent
+    data object ConfirmExit : GameUiEvent
 }
+
+sealed interface GameUiEffect {
+    data class NavigateToMinigame(val minigame: MinigameType) : GameUiEffect
+    data class NavigateToMenu(val resetProgress: Boolean) : GameUiEffect
+}
+
+data class ObjectiveLineUiState(
+    val textRes: Int,
+    val formatArgs: List<Any>,
+    val isMet: Boolean
+)
 
 class GameViewModel(
     private val rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(),
+    private val generateLevelUseCase: GenerateLevelUseCase = GenerateLevelUseCase(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
-    private val diceCount: Int = DEFAULT_DICE_COUNT,
-    private val diceType: DiceType = DiceType.D6,
+    private val completionMessageMs: Long = DEFAULT_COMPLETION_MESSAGE_MS,
     private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() },
-    private val diceTypeProvider: (Long, Int) -> List<DiceType> = ::defaultDiceTypes,
-    cardUiModels: List<CardUiModel> = defaultCardUiModels()
+    private val baseSeedProvider: () -> Long = { Random.Default.nextLong() },
+    private val initialLevelDefinition: LevelDefinition? = null,
+    cardUiModels: List<CardUiModel> = emptyList()
 ) : ViewModel() {
     private data class RollSnapshot(
         val diceValues: List<Int>,
@@ -72,19 +111,25 @@ class GameViewModel(
         val layoutSeed: Long
     )
 
-    private val _uiState = MutableStateFlow(
-        GameUiState(
-            diceValues = List(diceCount) { 1 },
-            diceCount = diceCount,
-            diceType = diceType,
-            diceTypes = diceTypeProvider(0L, diceCount),
-            cardUiModels = cardUiModels
-        )
-    )
+    private val baseSeed = baseSeedProvider()
+    private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState
+
+    private val _effects = MutableSharedFlow<GameUiEffect>(extraBufferCapacity = 1)
+    val effects: SharedFlow<GameUiEffect> = _effects
 
     private var rollJob: Job? = null
     private var initialRollSnapshot: RollSnapshot? = null
+    private var completionJob: Job? = null
+    private var currentObjective: LevelObjective? = null
+
+    init {
+        applyLevelDefinition(
+            levelDefinition = initialLevelDefinition
+                ?: generateLevelUseCase.execute(levelNumber = 1, seedBase = baseSeed),
+            cardUiModels = cardUiModels
+        )
+    }
 
     fun onEvent(event: GameUiEvent) {
         when (event) {
@@ -110,6 +155,8 @@ class GameViewModel(
                 }
             }
             GameUiEvent.IncreaseDiceCount -> increaseDiceCount()
+            GameUiEvent.ConfirmSurrender -> confirmSurrender()
+            GameUiEvent.ConfirmExit -> confirmExit()
         }
     }
 
@@ -121,6 +168,18 @@ class GameViewModel(
             _uiState.value.isAwaitingSetValue
     }
 
+    private fun confirmSurrender() {
+        viewModelScope.launch(dispatcher) {
+            _effects.emit(GameUiEffect.NavigateToMenu(resetProgress = true))
+        }
+    }
+
+    private fun confirmExit() {
+        viewModelScope.launch(dispatcher) {
+            _effects.emit(GameUiEffect.NavigateToMenu(resetProgress = false))
+        }
+    }
+
     private fun startRolling(keepLayout: Boolean = false) {
         if (rollJob?.isActive == true) return
 
@@ -128,11 +187,7 @@ class GameViewModel(
             val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
             val currentState = _uiState.value
             val seed = if (keepLayout) currentState.layoutSeed else layoutSeedProvider()
-            val diceTypes = if (keepLayout) {
-                currentState.diceTypes
-            } else {
-                diceTypeProvider(seed, currentState.diceCount)
-            }
+            val diceTypes = currentState.diceTypes
             _uiState.update {
                 it.copy(
                     isRolling = true,
@@ -169,6 +224,7 @@ class GameViewModel(
                     layoutSeed = snapshotState.layoutSeed
                 )
             }
+            refreshObjectiveProgress()
         }
     }
 
@@ -203,6 +259,7 @@ class GameViewModel(
                 )
             }
         }
+        refreshObjectiveProgress()
     }
 
     private fun selectCard(index: Int) {
@@ -292,6 +349,9 @@ class GameViewModel(
                     )
                 }
             }
+        }
+        if (repeatedCardId == CardId.RETRY) {
+            refreshObjectiveProgress()
         }
         return repeatedCardId
     }
@@ -389,6 +449,9 @@ class GameViewModel(
                 }
             }
         }
+        if (applied) {
+            refreshObjectiveProgress()
+        }
         return applied
     }
 
@@ -431,6 +494,7 @@ class GameViewModel(
                 delay(tickMs)
             }
             _uiState.update { it.copy(isRolling = false) }
+            refreshObjectiveProgress()
         }
     }
 
@@ -452,6 +516,7 @@ class GameViewModel(
                 )
             }
         }
+        refreshObjectiveProgress()
     }
 
     private fun selectAdjustmentDie(index: Int) {
@@ -499,6 +564,7 @@ class GameViewModel(
                 )
             }
         }
+        refreshObjectiveProgress()
     }
 
     private fun setSelectedDieValue(value: Int) {
@@ -525,6 +591,7 @@ class GameViewModel(
                 )
             }
         }
+        refreshObjectiveProgress()
     }
 
     private fun applyRerollAllCard(index: Int): Boolean {
@@ -696,6 +763,7 @@ class GameViewModel(
                 delay(tickMs)
             }
             _uiState.update { it.copy(isRolling = false) }
+            refreshObjectiveProgress()
         }
     }
 
@@ -709,6 +777,138 @@ class GameViewModel(
         }
         return updatedCards
     }
+
+    private fun applyLevelDefinition(
+        levelDefinition: LevelDefinition,
+        cardUiModels: List<CardUiModel> = _uiState.value.cardUiModels
+    ) {
+        currentObjective = levelDefinition.objective
+        val diceValues = List(levelDefinition.diceCount) { 1 }
+        _uiState.update { state ->
+            state.copy(
+                diceValues = diceValues,
+                diceCount = levelDefinition.diceCount,
+                diceType = levelDefinition.diceTypes.firstOrNull() ?: DiceType.D6,
+                diceTypes = levelDefinition.diceTypes,
+                layoutSeed = 0L,
+                isRolling = false,
+                isAwaitingRerollSingle = false,
+                isAwaitingRerollSelected = false,
+                isAwaitingFlipFace = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                selectedDice = emptySet(),
+                selectedRerollSingleDieIndex = null,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null,
+                selectedDiceSum = 0,
+                cardUiModels = cardUiModels,
+                selectedCardIndex = null,
+                lastAppliedCardId = null,
+                levelNumber = levelDefinition.levelNumber,
+                objectiveLines = buildObjectiveLines(levelDefinition.objective, diceValues),
+                isLevelComplete = false,
+                showLevelCompleteMessage = false
+            )
+        }
+        initialRollSnapshot = null
+    }
+
+    private fun refreshObjectiveProgress() {
+        val objective = currentObjective ?: return
+        val diceValues = _uiState.value.diceValues
+        val lines = buildObjectiveLines(objective, diceValues)
+        val completed = lines.all { it.isMet }
+        val wasComplete = _uiState.value.isLevelComplete
+        _uiState.update { it.copy(objectiveLines = lines, isLevelComplete = completed) }
+        if (completed && !wasComplete && !_uiState.value.isRolling) {
+            handleLevelComplete()
+        }
+    }
+
+    private fun handleLevelComplete() {
+        if (completionJob?.isActive == true) return
+        completionJob = viewModelScope.launch(dispatcher) {
+            _uiState.update { it.copy(showLevelCompleteMessage = true) }
+            if (completionMessageMs > 0L) {
+                delay(completionMessageMs)
+            }
+            val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
+            val nextDefinition = generateLevelUseCase.execute(
+                levelNumber = nextLevel,
+                seedBase = baseSeed
+            )
+            val minigame = pickMinigame(nextDefinition.levelNumber)
+            _effects.emit(GameUiEffect.NavigateToMinigame(minigame))
+            applyLevelDefinition(nextDefinition)
+        }
+    }
+
+    private fun pickMinigame(levelNumber: Int): MinigameType {
+        val random = Random(baseSeed + levelNumber * 31L)
+        val values = MinigameType.values()
+        return values[random.nextInt(values.size)]
+    }
+
+    private fun buildObjectiveLines(
+        objective: LevelObjective,
+        diceValues: List<Int>
+    ): List<ObjectiveLineUiState> {
+        return objective.conditions.map { condition ->
+            val (textRes, args) = objectiveLineText(condition)
+            ObjectiveLineUiState(
+                textRes = textRes,
+                formatArgs = args,
+                isMet = condition.isMet(diceValues)
+            )
+        }
+    }
+
+    private fun objectiveLineText(condition: ObjectiveCondition): Pair<Int, List<Any>> {
+        return when (condition) {
+            is SumAtLeastCondition -> R.string.objective_sum_at_least to listOf(condition.threshold)
+            is SumInRangeCondition -> R.string.objective_sum_in_range to listOf(condition.min, condition.max)
+            is SumParityCondition -> if (condition.shouldBeEven) {
+                R.string.objective_sum_even to emptyList()
+            } else {
+                R.string.objective_sum_odd to emptyList()
+            }
+            is HasPairCondition -> if (condition.requiredPairs >= 2) {
+                R.string.objective_two_pairs to emptyList()
+            } else {
+                R.string.objective_pair to emptyList()
+            }
+            is HasThreeOfKindCondition -> R.string.objective_three_of_kind to emptyList()
+            is HasFourOfKindCondition -> R.string.objective_four_of_kind to emptyList()
+            is FullHouseCondition -> R.string.objective_full_house to emptyList()
+            is AllDistinctCondition -> R.string.objective_all_distinct to emptyList()
+            is StraightCondition -> R.string.objective_straight to listOf(condition.length)
+            is ContainsValuesCondition -> {
+                R.string.objective_contains_values to listOf(formatValues(condition.values))
+            }
+            is ContainsValuesWithMultiplicityCondition -> {
+                R.string.objective_contains_values to listOf(formatMultiplicity(condition.values))
+            }
+            is CollectionPartialCondition -> {
+                R.string.objective_collection_partial to listOf(
+                    formatValues(condition.values),
+                    condition.requiredCount
+                )
+            }
+            is ForbidValuesCondition -> {
+                R.string.objective_forbid_values to listOf(formatValues(condition.values))
+            }
+        }
+    }
+
+    private fun formatValues(values: List<Int>): String {
+        return values.distinct().sorted().joinToString(", ")
+    }
+
+    private fun formatMultiplicity(values: List<Int>): String {
+        val counts = values.groupingBy { it }.eachCount().toSortedMap()
+        return counts.entries.joinToString(", ") { (value, count) -> "${count}x$value" }
+    }
 }
 
 internal fun calculateSelectedDiceSum(
@@ -716,10 +916,4 @@ internal fun calculateSelectedDiceSum(
     selectedDice: Set<Int>
 ): Int {
     return selectedDice.sumOf { index -> diceValues.getOrNull(index) ?: 0 }
-}
-
-private fun defaultDiceTypes(seed: Long, diceCount: Int): List<DiceType> {
-    val random = Random(seed)
-    val types = DiceType.entries
-    return List(diceCount) { types[random.nextInt(types.size)] }
 }

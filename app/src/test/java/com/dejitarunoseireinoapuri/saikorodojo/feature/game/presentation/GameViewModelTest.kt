@@ -3,7 +3,10 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceRandomProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjective
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -365,6 +368,13 @@ class GameViewModelTest {
         assertTrue(!updatedState.isAwaitingRerollSelected)
     }
 
+    @Test
+    fun `level one starts without cards when inventory is empty`() = runTest {
+        val viewModel = buildViewModel(cardUiModels = emptyList())
+
+        assertTrue(viewModel.uiState.value.cardUiModels.isEmpty())
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(
@@ -376,15 +386,19 @@ class GameViewModelTest {
             )
         )
     ): GameViewModel {
+        val levelDefinition = LevelDefinition(
+            levelNumber = 1,
+            diceCount = 3,
+            diceTypes = List(3) { DiceType.D6 },
+            objective = LevelObjective(conditions = listOf(AllDistinctCondition))
+        )
         return GameViewModel(
             rollDiceUseCase = rollDiceUseCase,
             dispatcher = testDispatcher,
             rollDurationMs = 1L,
             tickMs = 1L,
-            diceCount = 3,
-            diceType = DiceType.D6,
             layoutSeedProvider = { 0L },
-            diceTypeProvider = { _, count -> List(count) { DiceType.D6 } },
+            initialLevelDefinition = levelDefinition,
             cardUiModels = cardUiModels
         )
     }
