@@ -4,7 +4,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.ConsumeCardFromInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.GetCardInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -18,11 +22,17 @@ class GameViewModelFlipFaceTest {
 
     @Test
     fun `flipping a die replaces it with its opposite value`() {
+        val levelDefinition = LevelDefinition(
+            levelNumber = 1,
+            diceCount = 1,
+            diceTypes = listOf(DiceType.D6)
+        )
+        val repository = InMemoryCardInventoryRepository()
         val viewModel = GameViewModel(
             dispatcher = mainDispatcherRule.dispatcher,
-            diceCount = 1,
-            diceType = DiceType.D6,
-            diceTypeProvider = { _, count -> List(count) { DiceType.D6 } },
+            getCardInventoryUseCase = GetCardInventoryUseCase(repository),
+            consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(repository),
+            initialLevelDefinition = levelDefinition,
             cardUiModels = listOf(flipFaceCard(count = 2))
         )
 

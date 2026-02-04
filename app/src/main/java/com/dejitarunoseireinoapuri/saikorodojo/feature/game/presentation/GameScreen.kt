@@ -8,49 +8,76 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Flag
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 
 @Composable
 fun GameRoute(
     modifier: Modifier = Modifier,
-    viewModel: GameViewModel = viewModel()
+    viewModel: GameViewModel = viewModel(),
+    onNavigateToMinigame: (MinigameType) -> Unit,
+    onNavigateToMenu: (Boolean) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(GameUiEvent.StartRoll)
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is GameUiEffect.NavigateToMinigame -> onNavigateToMinigame(effect.minigame)
+                is GameUiEffect.NavigateToMenu -> onNavigateToMenu(effect.resetProgress)
+            }
+        }
     }
 
     GameScreen(
@@ -65,7 +92,9 @@ fun GameRoute(
             viewModel.onEvent(GameUiEvent.SetSelectedDieValue(value))
         },
         onRollSelectedDice = { viewModel.onEvent(GameUiEvent.RollSelectedDice) },
-        onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) }
+        onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) },
+        onConfirmSurrender = { viewModel.onEvent(GameUiEvent.ConfirmSurrender) },
+        onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) }
     )
 }
 
@@ -82,7 +111,9 @@ fun GameScreen(
     onAdjustSelectedDie: (Int) -> Unit,
     onSetSelectedDieValue: (Int) -> Unit,
     onRollSelectedDice: () -> Unit,
-    onRollSingleDie: () -> Unit
+    onRollSingleDie: () -> Unit,
+    onConfirmSurrender: () -> Unit,
+    onConfirmExit: () -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -96,6 +127,8 @@ fun GameScreen(
         modifier = containerModifier,
         contentAlignment = Alignment.Center
     ) {
+        var showSurrenderDialog by remember { mutableStateOf(false) }
+        var showExitDialog by remember { mutableStateOf(false) }
         val constraintsWidth = maxWidth
         val constraintsHeight = maxHeight
         val shouldHideCards = uiState.isAwaitingRerollSingle ||
@@ -112,36 +145,134 @@ fun GameScreen(
             animationSpec = tween(durationMillis = 180),
             label = "cardStackAlpha"
         )
-        DiceBoard(
-            modifier = Modifier.zIndex(0f),
-            maxWidth = maxWidth,
-            uiState = uiState,
-            onDiceClick = onDiceClick,
-            onAdjustSelectedDie = onAdjustSelectedDie,
-            onSetSelectedDieValue = onSetSelectedDieValue,
-            onRollSelectedDice = onRollSelectedDice,
-            onRollSingleDie = onRollSingleDie
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .navigationBarsPadding()
-                .clipToBounds()
-                .zIndex(1f)
-                .offset(y = stackOffset)
-                .alpha(stackAlpha)
-        ) {
-            GameCardStack(
-                cards = uiState.cardUiModels,
-                selectedCardIndex = uiState.selectedCardIndex,
-                lastAppliedCardId = uiState.lastAppliedCardId,
-                maxWidth = constraintsWidth,
-                maxHeight = constraintsHeight,
-                isInteractionEnabled = !shouldHideCards,
-                onCardSelect = onCardSelect,
-                onCardDismiss = onCardDismiss,
-                onCardApply = onCardApply
+        if (uiState.showLevelCompleteMessage) {
+            Text(
+                text = stringResource(R.string.level_complete_message),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .widthIn(max = 280.dp)
             )
+        } else {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
+                    .widthIn(max = 320.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.level_title, uiState.levelNumber),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                uiState.objectiveLines.forEach { line ->
+                    Text(
+                        text = stringResource(line.textRes, *line.formatArgs.toTypedArray()),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 4.dp, start = 8.dp, end = 8.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.Top
+            ) {
+                IconButton(onClick = { showExitDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.Home,
+                        contentDescription = stringResource(R.string.cd_exit_home),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Box(modifier = Modifier.weight(1f))
+                IconButton(onClick = { showSurrenderDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Flag,
+                        contentDescription = stringResource(R.string.cd_surrender),
+                        tint = Color.White
+                    )
+                }
+            }
+            DiceBoard(
+                modifier = Modifier.zIndex(0f),
+                maxWidth = maxWidth,
+                uiState = uiState,
+                onDiceClick = onDiceClick,
+                onAdjustSelectedDie = onAdjustSelectedDie,
+                onSetSelectedDieValue = onSetSelectedDieValue,
+                onRollSelectedDice = onRollSelectedDice,
+                onRollSingleDie = onRollSingleDie
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .clipToBounds()
+                    .zIndex(1f)
+                    .offset(y = stackOffset)
+                    .alpha(stackAlpha)
+            ) {
+                GameCardStack(
+                    cards = uiState.cardUiModels,
+                    selectedCardIndex = uiState.selectedCardIndex,
+                    lastAppliedCardId = uiState.lastAppliedCardId,
+                    maxWidth = constraintsWidth,
+                    maxHeight = constraintsHeight,
+                    isInteractionEnabled = !shouldHideCards,
+                    onCardSelect = onCardSelect,
+                    onCardDismiss = onCardDismiss,
+                    onCardApply = onCardApply
+                )
+            }
+            if (showSurrenderDialog) {
+                AlertDialog(
+                    onDismissRequest = { showSurrenderDialog = false },
+                    title = { Text(text = stringResource(R.string.surrender_title)) },
+                    text = { Text(text = stringResource(R.string.surrender_message)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showSurrenderDialog = false
+                            onConfirmSurrender()
+                        }) {
+                            Text(text = stringResource(R.string.surrender_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showSurrenderDialog = false }) {
+                            Text(text = stringResource(R.string.dialog_cancel))
+                        }
+                    }
+                )
+            }
+            if (showExitDialog) {
+                AlertDialog(
+                    onDismissRequest = { showExitDialog = false },
+                    title = { Text(text = stringResource(R.string.exit_title)) },
+                    text = { Text(text = stringResource(R.string.exit_message)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showExitDialog = false
+                            onConfirmExit()
+                        }) {
+                            Text(text = stringResource(R.string.exit_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showExitDialog = false }) {
+                            Text(text = stringResource(R.string.dialog_cancel))
+                        }
+                    }
+                )
+            }
         }
     }
 }
