@@ -271,15 +271,12 @@ class GenerateObjectiveUseCase {
         } else {
             listOf(candidates.random(random))
         }
-        val enrichedConditions = selectedConditions.toMutableList()
-        val forbidCondition = selectedConditions.filterIsInstance<ForbidValuesCondition>().firstOrNull()
-        if (forbidCondition != null) {
-            val minimumCount = minimumSelectionCountForForbidden(
-                diceValues = diceValues,
-                forbiddenValues = forbidCondition.values,
-                stage = stage
-            )
-            enrichedConditions.add(MinSelectedDiceCondition(minimumCount))
+        val minimumCount = minimumSelectionCountForLevel(
+            diceCount = diceValues.size,
+            stage = stage
+        )
+        val enrichedConditions = selectedConditions.toMutableList().apply {
+            add(MinSelectedDiceCondition(minimumCount))
         }
         return LevelObjective(conditions = enrichedConditions.distinct())
     }
@@ -359,16 +356,14 @@ private fun valueCounts(values: List<Int>): Map<Int, Int> {
     return values.groupingBy { it }.eachCount()
 }
 
-internal fun minimumSelectionCountForForbidden(
-    diceValues: List<Int>,
-    forbiddenValues: List<Int>,
+internal fun minimumSelectionCountForLevel(
+    diceCount: Int,
     stage: Int
 ): Int {
-    val forbiddenCount = diceValues.count { it in forbiddenValues }
-    val nonForbiddenCount = (diceValues.size - forbiddenCount).coerceAtLeast(0)
-    return if (stage >= 4 && forbiddenCount == 0) {
-        diceValues.size
+    val baseMinimum = (diceCount - 2).coerceAtLeast(1)
+    return if (stage >= 4) {
+        diceCount.coerceAtLeast(baseMinimum)
     } else {
-        nonForbiddenCount.coerceAtLeast(1)
+        baseMinimum
     }
 }

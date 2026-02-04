@@ -38,27 +38,19 @@ class GenerateObjectiveUseCaseTest {
     }
 
     @Test
-    fun `minimum selection uses all non forbidden dice`() {
-        val diceValues = listOf(1, 2, 2, 3, 4)
-        val forbiddenValues = listOf(2)
-
-        val minimum = minimumSelectionCountForForbidden(
-            diceValues = diceValues,
-            forbiddenValues = forbiddenValues,
+    fun `minimum selection keeps at least dice count minus two`() {
+        val minimum = minimumSelectionCountForLevel(
+            diceCount = 6,
             stage = 2
         )
 
-        assertEquals(3, minimum)
+        assertEquals(4, minimum)
     }
 
     @Test
-    fun `minimum selection requires all dice on hard stages when allowed`() {
-        val diceValues = listOf(1, 2, 3, 4, 5)
-        val forbiddenValues = listOf(6)
-
-        val minimum = minimumSelectionCountForForbidden(
-            diceValues = diceValues,
-            forbiddenValues = forbiddenValues,
+    fun `minimum selection requires all dice on hard stages`() {
+        val minimum = minimumSelectionCountForLevel(
+            diceCount = 5,
             stage = 4
         )
 
