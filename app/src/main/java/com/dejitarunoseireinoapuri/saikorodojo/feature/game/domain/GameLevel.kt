@@ -137,6 +137,12 @@ data class ForbidValuesCondition(val values: List<Int>) : ObjectiveCondition {
     }
 }
 
+data class MinSelectedDiceCondition(val minCount: Int) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>): Boolean {
+        return diceValues.size >= minCount
+    }
+}
+
 class GenerateLevelUseCase {
     fun execute(levelNumber: Int, seedBase: Long): LevelDefinition {
         val stage = stageForLevel(levelNumber)
@@ -258,13 +264,24 @@ class GenerateObjectiveUseCase {
             return LevelObjective(conditions = listOf(SumExactCondition(totalSum)))
         }
 
-        return if (stage == 4 || stage >= 5) {
+        val selectedConditions = if (stage == 4 || stage >= 5) {
             val first = candidates.random(random)
             val second = candidates.filterNot { it == first }.ifEmpty { candidates }.random(random)
-            LevelObjective(conditions = listOf(first, second).distinct())
+            listOf(first, second).distinct()
         } else {
-            LevelObjective(conditions = listOf(candidates.random(random)))
+            listOf(candidates.random(random))
         }
+        val enrichedConditions = selectedConditions.toMutableList()
+        val forbidCondition = selectedConditions.filterIsInstance<ForbidValuesCondition>().firstOrNull()
+        if (forbidCondition != null) {
+            val minimumCount = minimumSelectionCountForForbidden(
+                diceValues = diceValues,
+                forbiddenValues = forbidCondition.values,
+                stage = stage
+            )
+            enrichedConditions.add(MinSelectedDiceCondition(minimumCount))
+        }
+        return LevelObjective(conditions = enrichedConditions.distinct())
     }
 }
 
@@ -340,4 +357,18 @@ private fun hasValueOutside(diceValues: List<Int>, forbidden: List<Int>): Boolea
 
 private fun valueCounts(values: List<Int>): Map<Int, Int> {
     return values.groupingBy { it }.eachCount()
+}
+
+internal fun minimumSelectionCountForForbidden(
+    diceValues: List<Int>,
+    forbiddenValues: List<Int>,
+    stage: Int
+): Int {
+    val forbiddenCount = diceValues.count { it in forbiddenValues }
+    val nonForbiddenCount = (diceValues.size - forbiddenCount).coerceAtLeast(0)
+    return if (stage >= 4 && forbiddenCount == 0) {
+        diceValues.size
+    } else {
+        nonForbiddenCount.coerceAtLeast(1)
+    }
 }

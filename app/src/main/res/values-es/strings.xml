@@ -78,6 +78,7 @@
     <string name="objective_contains_values">Contiene: %1$s</string>
     <string name="objective_collection_partial">De %1$s, al menos %2$d</string>
     <string name="objective_forbid_values">No selecciones ningún %1$s</string>
+    <string name="objective_min_selected">Selecciona al menos %1$d dados (%2$d de %1$d seleccionados)</string>
     <string name="surrender_title">¿Rendirse?</string>
     <string name="surrender_message">¿Quieres rendirte y volver al menú?</string>
     <string name="surrender_confirm">Rendirse</string>
