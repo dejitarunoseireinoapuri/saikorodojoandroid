@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -122,7 +123,7 @@ class BlackjackGameScreenTest {
 
 
     @Test
-    fun completedLossHidesBothMats() {
+    fun completedLossKeepsBothMatsVisible() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 BlackjackGameScreen(
@@ -141,8 +142,8 @@ class BlackjackGameScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).assertDoesNotExist()
-        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).assertExists()
+        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertExists()
     }
 
     @Test

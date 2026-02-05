@@ -203,7 +203,7 @@ fun BlackjackGameScreen(
             }
         }
 
-        if (uiState.isStarted && uiState.rewardCards.isEmpty() && !uiState.isComplete) {
+        if (uiState.isStarted && uiState.rewardCards.isEmpty() && (!uiState.isComplete || uiState.result == BlackjackOutcome.PLAYER_LOSE)) {
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
