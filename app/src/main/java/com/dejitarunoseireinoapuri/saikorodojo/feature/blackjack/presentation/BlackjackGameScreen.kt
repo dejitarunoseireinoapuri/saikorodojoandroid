@@ -231,18 +231,21 @@ fun BlackjackGameScreen(
                 Spacer(modifier = Modifier.height(20.dp))
                 if (uiState.isAwaitingDecision) {
                     Row(
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         BlackjackActionButton(
-                            label = stringResource(R.string.blackjack_hit),
-                            testTag = BLACKJACK_HIT_BUTTON_TAG,
-                            onClick = onHitClick
-                        )
-                        BlackjackActionButton(
                             label = stringResource(R.string.blackjack_stand),
                             testTag = BLACKJACK_STAND_BUTTON_TAG,
-                            onClick = onStandClick
+                            onClick = onStandClick,
+                            modifier = Modifier.weight(1f)
+                        )
+                        BlackjackActionButton(
+                            label = stringResource(R.string.blackjack_hit),
+                            testTag = BLACKJACK_HIT_BUTTON_TAG,
+                            onClick = onHitClick,
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 } else {
@@ -332,7 +335,8 @@ private fun ScoreLabel(text: String) {
 private fun BlackjackActionButton(
     label: String,
     testTag: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
@@ -341,7 +345,7 @@ private fun BlackjackActionButton(
             containerColor = MaterialTheme.colorScheme.tertiary,
             contentColor = MaterialTheme.colorScheme.onTertiary
         ),
-        modifier = Modifier
+        modifier = modifier
             .height(56.dp)
             .testTag(testTag)
     ) {
