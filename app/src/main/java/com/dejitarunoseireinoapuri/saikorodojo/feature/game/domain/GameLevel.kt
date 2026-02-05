@@ -212,18 +212,16 @@ class GenerateObjectiveUseCase {
             (maximumPossibleSum - minimumPossibleSum) * (0.55f + 0.1f * sumDifficultyFactor))
             .toInt()
             .coerceIn(minimumPossibleSum, maximumPossibleSum)
-        val rangeSize = (maximumPossibleSum - minimumPossibleSum)
-            .coerceAtLeast(4)
-            .let { span -> (span / (3 + sumDifficultyFactor)).coerceAtLeast(3) }
-        val rangeStart = (exactTarget - rangeSize / 2).coerceIn(
-            minimumPossibleSum,
-            (maximumPossibleSum - 1).coerceAtLeast(minimumPossibleSum)
+        val rangeCondition = buildRandomRangeCondition(
+            minimumPossibleSum = minimumPossibleSum,
+            maximumPossibleSum = maximumPossibleSum,
+            sumDifficultyFactor = sumDifficultyFactor,
+            random = random
         )
-        val rangeEnd = (rangeStart + rangeSize).coerceIn(rangeStart + 1, maximumPossibleSum)
 
         candidates.add(SumExactCondition(target = exactTarget))
         candidates.add(SumAtLeastCondition(threshold = atLeastThreshold))
-        candidates.add(SumInRangeCondition(min = rangeStart, max = rangeEnd))
+        candidates.add(rangeCondition)
         candidates.add(SumParityCondition(shouldBeEven = random.nextBoolean()))
 
         if (stage >= 1) {
@@ -304,6 +302,30 @@ class GenerateObjectiveUseCase {
         }
         return LevelObjective(conditions = enrichedConditions.distinct())
     }
+}
+
+
+private fun buildRandomRangeCondition(
+    minimumPossibleSum: Int,
+    maximumPossibleSum: Int,
+    sumDifficultyFactor: Int,
+    random: Random
+): SumInRangeCondition {
+    val span = (maximumPossibleSum - minimumPossibleSum).coerceAtLeast(1)
+    val minRangeWidth = 2
+    val maxRangeWidth = (span / (2 + sumDifficultyFactor)).coerceAtLeast(minRangeWidth)
+    val rangeWidth = random.nextInt(
+        from = minRangeWidth,
+        until = (maxRangeWidth + 1).coerceAtLeast(minRangeWidth + 1)
+    )
+    val maxStart = (maximumPossibleSum - rangeWidth).coerceAtLeast(minimumPossibleSum)
+    val start = if (maxStart > minimumPossibleSum) {
+        random.nextInt(minimumPossibleSum, maxStart + 1)
+    } else {
+        minimumPossibleSum
+    }
+    val end = (start + rangeWidth).coerceAtMost(maximumPossibleSum)
+    return SumInRangeCondition(min = start, max = end)
 }
 
 fun stageForLevel(levelNumber: Int): Int {
