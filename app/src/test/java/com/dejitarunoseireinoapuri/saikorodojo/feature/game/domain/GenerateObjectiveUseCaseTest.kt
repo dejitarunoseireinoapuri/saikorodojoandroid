@@ -38,6 +38,27 @@ class GenerateObjectiveUseCaseTest {
         assertEquals(3, hardObjective.conditions.filterNot { it is MinSelectedDiceCondition }.size)
     }
 
+
+    @Test
+    fun `sum range objective stays within achievable maximum sum`() {
+        val diceTypes = listOf(DiceType.D6, DiceType.D8, DiceType.D10, DiceType.D10)
+        val objective = useCase.execute(
+            levelNumber = 35,
+            diceTypes = diceTypes,
+            seedBase = 51L
+        )
+
+        val rangeCondition = objective.conditions.filterIsInstance<SumInRangeCondition>().single()
+        val minimumSelection = minimumSelectionCountForLevel(
+            diceCount = diceTypes.size,
+            stage = stageForLevel(35)
+        )
+        val maximumPossibleSum = diceTypes.sumOf { it.sides }
+
+        assertTrue(rangeCondition.min >= minimumSelection)
+        assertTrue(rangeCondition.max <= maximumPossibleSum)
+        assertTrue(rangeCondition.min < rangeCondition.max)
+    }
     @Test
     fun `sum at least threshold grows with stage`() {
         val earlyObjective = useCase.execute(

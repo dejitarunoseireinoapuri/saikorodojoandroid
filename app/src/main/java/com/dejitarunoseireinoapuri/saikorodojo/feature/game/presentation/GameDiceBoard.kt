@@ -90,12 +90,17 @@ internal fun DiceBoard(
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         if (uiState.selectedDice.isNotEmpty()) {
             val sumOffset = -(boardHeight / 2 + 18.dp)
-            Text(
-                text = stringResource(
+            val selectionText = if (uiState.shouldShowSelectedSum) {
+                stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum)
+            } else {
+                stringResource(
                     R.string.selected_dice_count,
                     uiState.selectedDice.size,
                     uiState.diceValues.size
-                ),
+                )
+            }
+            Text(
+                text = selectionText,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(y = sumOffset),
