@@ -162,15 +162,10 @@ fun GameScreen(
             Column(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 64.dp)
+                    .padding(top = 72.dp)
                     .widthIn(max = 360.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(R.string.level_title, uiState.levelNumber),
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
                 uiState.objectiveLines.forEach { line ->
                     Text(
                         text = stringResource(line.textRes, *line.formatArgs.toTypedArray()),
@@ -196,7 +191,17 @@ fun GameScreen(
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
-                Box(modifier = Modifier.weight(1f))
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Text(
+                        text = stringResource(R.string.level_title, uiState.levelNumber),
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
                 IconButton(onClick = onOpenRandomMinigame) {
                     Icon(
                         imageVector = Icons.Outlined.Style,

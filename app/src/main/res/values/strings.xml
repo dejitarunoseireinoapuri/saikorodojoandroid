@@ -7,7 +7,7 @@
     <string name="cd_sound_off">Sound off</string>
     <string name="cd_settings">Settings</string>
     <string name="cd_dice_face">Dice face %1$d</string>
-    <string name="selected_dice_sum">Selected sum: %1$d</string>
+    <string name="selected_dice_count">%1$d de %2$d seleccionados</string>
     <string name="select_die_to_reroll">Select a die to reroll</string>
     <string name="select_dice_to_reroll">Select dice to reroll</string>
     <string name="select_die_to_flip">Select a die to flip</string>

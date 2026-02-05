@@ -12,6 +12,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCa
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -382,6 +384,21 @@ class GameViewModelTest {
 
         val effect = deferredEffect.await()
         assertTrue(effect is GameUiEffect.NavigateToMinigame)
+    }
+
+
+    @Test
+    fun `open random minigame emits one effect per click`() = runTest {
+        val viewModel = buildViewModel()
+
+        val deferredEffects = async { viewModel.effects.take(2).toList() }
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+
+        val effects = deferredEffects.await()
+        assertEquals(2, effects.size)
+        assertTrue(effects.all { it is GameUiEffect.NavigateToMinigame })
     }
 
     @Test
