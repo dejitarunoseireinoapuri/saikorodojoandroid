@@ -35,7 +35,7 @@ class GenerateObjectiveUseCaseTest {
         )
 
         assertEquals(2, earlyObjective.conditions.size)
-        assertEquals(3, hardObjective.conditions.filterNot { it is MinSelectedDiceCondition }.size)
+        assertEquals(2, hardObjective.conditions.filterNot { it is MinSelectedDiceCondition }.size)
     }
 
 

@@ -84,14 +84,11 @@ class SequenceGameViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
         dispatcher.scheduler.advanceUntilIdle()
-        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
-        dispatcher.scheduler.advanceUntilIdle()
-        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
-        dispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
-        assertEquals(3, state.discardCount)
+        assertEquals(1, state.currentRoll)
+        assertEquals(1, state.discardCount)
         assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
         assertTrue(state.rewardCards.isEmpty())
     }
@@ -111,18 +108,20 @@ class SequenceGameViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
         dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        dispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
         assertEquals(3, state.currentRoll)
-        assertEquals(2, state.discardCount)
+        assertEquals(3, state.discardCount)
         assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
     }
 
     @Test
     fun `saving ten with pending sequence target ends the game as unwinnable`() = runTest {
         val viewModel = buildViewModel(
-            diceRolls = listOf(10, 7),
+            diceRolls = listOf(1, 10),
             totalRolls = 5,
             maxDiscards = 10
         )
@@ -143,12 +142,13 @@ class SequenceGameViewModelTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(1, 2),
             totalRolls = 2,
-            maxDiscards = 10
+            maxDiscards = 10,
+            targetSequence = 2
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
         dispatcher.scheduler.advanceUntilIdle()
-        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
         dispatcher.scheduler.advanceUntilIdle()
@@ -156,7 +156,7 @@ class SequenceGameViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
         assertEquals(2, state.currentRoll)
-        assertEquals(2, state.discardCount)
+        assertEquals(1, state.discardCount)
         assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
         assertTrue(state.rewardCards.isEmpty())
     }
@@ -166,7 +166,8 @@ class SequenceGameViewModelTest {
         rewardRolls: List<Float> = listOf(0.4f, 0.2f, 0.3f),
         totalRolls: Int = 5,
         maxDiscards: Int = 3,
-        rewardRevealDelayMs: Long = 0L
+        rewardRevealDelayMs: Long = 0L,
+        targetSequence: Int = 3
     ): SequenceGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
@@ -181,6 +182,7 @@ class SequenceGameViewModelTest {
             tickMs = 1L,
             rewardRevealDelayMs = rewardRevealDelayMs,
             totalRolls = totalRolls,
+            targetSequence = targetSequence,
             maxDiscards = maxDiscards,
             cardUiModels = testCardUiModels()
         )
