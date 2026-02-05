@@ -178,7 +178,7 @@ class BlackjackGameViewModel(
                 )
             }
             if (isBust) {
-                scheduleResult(
+                resolveRoundResult(
                     delayMs = bustHighlightMs,
                     playerTotal = playerTotal,
                     dealerTotal = state.dealerTotal,
@@ -231,7 +231,7 @@ class BlackjackGameViewModel(
                     showDealerBust = isDealerBust
                 )
             }
-            scheduleResult(
+            resolveRoundResult(
                 delayMs = if (isDealerBust) bustHighlightMs else resultDelayMs,
                 playerTotal = _uiState.value.playerTotal,
                 dealerTotal = dealerTotal,
@@ -296,35 +296,33 @@ class BlackjackGameViewModel(
         }
     }
 
-    private fun scheduleResult(
+    private suspend fun resolveRoundResult(
         delayMs: Long,
         playerTotal: Int,
         dealerTotal: Int,
         isPlayerBust: Boolean,
         isDealerBust: Boolean
     ) {
-        viewModelScope.launch(dispatcher) {
-            val outcome = determineBlackjackOutcomeUseCase.execute(
-                playerTotal = playerTotal,
-                dealerTotal = dealerTotal,
-                isPlayerBust = isPlayerBust,
-                isDealerBust = isDealerBust
+        val outcome = determineBlackjackOutcomeUseCase.execute(
+            playerTotal = playerTotal,
+            dealerTotal = dealerTotal,
+            isPlayerBust = isPlayerBust,
+            isDealerBust = isDealerBust
+        )
+        if (outcome == BlackjackOutcome.PLAYER_WIN && delayMs > 0L) {
+            delay(delayMs)
+        }
+        val rewardCards = if (outcome == BlackjackOutcome.PLAYER_WIN) {
+            resolveRewardCards()
+        } else {
+            emptyList()
+        }
+        _uiState.update {
+            it.copy(
+                result = outcome,
+                rewardCards = rewardCards,
+                isComplete = true
             )
-            if (outcome == BlackjackOutcome.PLAYER_WIN && delayMs > 0L) {
-                delay(delayMs)
-            }
-            val rewardCards = if (outcome == BlackjackOutcome.PLAYER_WIN) {
-                resolveRewardCards()
-            } else {
-                emptyList()
-            }
-            _uiState.update {
-                it.copy(
-                    result = outcome,
-                    rewardCards = rewardCards,
-                    isComplete = true
-                )
-            }
         }
     }
 
