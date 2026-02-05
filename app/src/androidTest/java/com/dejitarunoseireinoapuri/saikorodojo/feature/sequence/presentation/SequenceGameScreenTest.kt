@@ -3,6 +3,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -125,6 +126,60 @@ class SequenceGameScreenTest {
         val pixelMap = image.toPixelMap()
         val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
         assertEquals(VictoryMatBackground, centerColor)
+    }
+
+    @Test
+    fun continueButtonIsHiddenWhileRewardCardsArePending() {
+        val pendingReward = CardUiModel(
+            id = com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId.FLIP_FACE,
+            titleRes = 0,
+            descriptionRes = 0,
+            iconRes = 0
+        )
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                SequenceGameScreen(
+                    uiState = SequenceGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        pendingRewardCards = listOf(pendingReward)
+                    ),
+                    onStartClick = {},
+                    onSaveClick = {},
+                    onDiscardClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(SEQUENCE_CONTINUE_BUTTON_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun continueButtonIsShownWhenRewardCardsAreVisible() {
+        val reward = CardUiModel(
+            id = com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId.FLIP_FACE,
+            titleRes = 0,
+            descriptionRes = 0,
+            iconRes = 0
+        )
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                SequenceGameScreen(
+                    uiState = SequenceGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        rewardCards = listOf(reward)
+                    ),
+                    onStartClick = {},
+                    onSaveClick = {},
+                    onDiscardClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(SEQUENCE_CONTINUE_BUTTON_TAG).assertIsDisplayed()
     }
 
     @Test
