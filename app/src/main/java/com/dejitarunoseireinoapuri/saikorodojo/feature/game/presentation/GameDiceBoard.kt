@@ -49,7 +49,7 @@ internal fun DiceBoard(
     onRollSingleDie: () -> Unit
 ) {
     val diceCount = uiState.diceValues.size
-    val boardHeight = 300.dp
+    val boardHeight = 276.dp
     val horizontalMargin = 20.dp
     val contentPadding = 16.dp
     val boardWidth = maxWidth - horizontalMargin * 2
@@ -89,17 +89,17 @@ internal fun DiceBoard(
     val diceTextScale = calculateDiceTextScale(diceSize)
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         if (uiState.shouldShowSelectedSum) {
-            val sumOffset = -(boardHeight / 2 + 8.dp)
+            val sumOffset = -(boardHeight / 2 + 18.dp)
             Text(
                 text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(y = sumOffset),
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
-        val promptOffset = -(boardHeight / 2 + 32.dp)
+        val promptOffset = -(boardHeight / 2 + 46.dp)
         when {
             uiState.isAwaitingRerollSingle -> {
                 Text(
@@ -107,7 +107,7 @@ internal fun DiceBoard(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
@@ -117,7 +117,7 @@ internal fun DiceBoard(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
@@ -127,7 +127,7 @@ internal fun DiceBoard(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
@@ -137,7 +137,7 @@ internal fun DiceBoard(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 if (uiState.selectedAdjustmentDieIndex != null) {
@@ -186,7 +186,7 @@ internal fun DiceBoard(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .offset(y = promptOffset),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 if (uiState.selectedSetValueDieIndex != null) {
