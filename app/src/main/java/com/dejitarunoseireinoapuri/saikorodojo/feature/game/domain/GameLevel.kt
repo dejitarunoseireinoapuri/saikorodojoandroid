@@ -185,96 +185,122 @@ class GenerateLevelUseCase {
 }
 
 class GenerateObjectiveUseCase {
-    fun execute(levelNumber: Int, diceValues: List<Int>, seedBase: Long): LevelObjective {
+    fun execute(levelNumber: Int, diceTypes: List<DiceType>, seedBase: Long): LevelObjective {
         val stage = stageForLevel(levelNumber)
         val random = Random(seedBase + levelNumber * 13L)
-        val diceCounts = valueCounts(diceValues)
-        val distinctValues = diceCounts.keys.sorted()
-        val maxValue = distinctValues.maxOrNull() ?: 1
-        val totalSum = diceValues.sum()
+        val diceCount = diceTypes.size.coerceAtLeast(1)
+        val maxDieValue = diceTypes.maxOfOrNull { it.sides } ?: DiceType.D6.sides
+        val minSelectable = minimumSelectionCountForLevel(
+            diceCount = diceCount,
+            stage = stage
+        ).coerceIn(1, diceCount)
+        val maxSelectable = diceCount
+        val minimumPossibleSum = minSelectable
+        val maximumPossibleSum = maxSelectable * maxDieValue
+        val randomValuesPool = List(maxDieValue) { it + 1 }
+        val minStraightLength = minOf(3, maxDieValue)
+        val maxStraightLength = minOf(maxDieValue, maxSelectable)
+
+        val candidates = mutableListOf<ObjectiveCondition>()
+        val sumDifficultyFactor = (stage - 1).coerceAtLeast(0)
+
+        val exactTarget = buildRandomExactTarget(
+            minimumPossibleSum = minimumPossibleSum,
+            maximumPossibleSum = maximumPossibleSum,
+            sumDifficultyFactor = sumDifficultyFactor,
+            random = random
+        )
+        val atLeastThreshold = buildRandomAtLeastThreshold(
+            minimumPossibleSum = minimumPossibleSum,
+            maximumPossibleSum = maximumPossibleSum,
+            sumDifficultyFactor = sumDifficultyFactor,
+            random = random
+        )
+        val rangeCondition = buildRandomRangeCondition(
+            minimumPossibleSum = minimumPossibleSum,
+            maximumPossibleSum = maximumPossibleSum,
+            sumDifficultyFactor = sumDifficultyFactor,
+            random = random
+        )
+
+        candidates.add(SumExactCondition(target = exactTarget))
+        candidates.add(SumAtLeastCondition(threshold = atLeastThreshold))
+        candidates.add(rangeCondition)
+        candidates.add(SumParityCondition(shouldBeEven = random.nextBoolean()))
+
+        if (stage >= 1) {
+            candidates.add(AllDistinctCondition)
+            candidates.add(HasPairCondition(requiredPairs = 1))
+            val containsCount = minOf(2 + stage / 2, maxSelectable).coerceAtLeast(1)
+            candidates.add(
+                ContainsValuesCondition(
+                    values = randomValuesPool.shuffled(random).take(containsCount)
+                )
+            )
+        }
+
+        if (stage >= 2 && maxDieValue >= 3) {
+            val straightLength = random.nextInt(
+                from = minStraightLength,
+                until = (maxStraightLength + 1).coerceAtLeast(minStraightLength + 1)
+            )
+            candidates.add(StraightCondition(length = straightLength))
+            val collectionValues = randomValuesPool.shuffled(random).take(minOf(4, maxDieValue))
+            candidates.add(
+                CollectionPartialCondition(
+                    values = collectionValues,
+                    requiredCount = minOf(collectionValues.size, 2 + stage / 2)
+                )
+            )
+        }
+
+        if (stage >= 3) {
+            candidates.add(HasPairCondition(requiredPairs = 2))
+            candidates.add(HasThreeOfKindCondition(required = true))
+            val multiplicityTargetValue = randomValuesPool.random(random)
+            val secondaryValue = randomValuesPool.random(random)
+            candidates.add(
+                ContainsValuesWithMultiplicityCondition(
+                    values = listOf(
+                        multiplicityTargetValue,
+                        multiplicityTargetValue,
+                        secondaryValue
+                    )
+                )
+            )
+        }
+
+        if (stage >= 4) {
+            candidates.add(HasFourOfKindCondition(required = true))
+            candidates.add(FullHouseCondition)
+            val forbiddenCount = minOf(stage - 2, maxDieValue - 1).coerceAtLeast(1)
+            val forbiddenValues = randomValuesPool.shuffled(random).take(forbiddenCount)
+            candidates.add(ForbidValuesCondition(values = forbiddenValues))
+        }
+
+        val selectedConditionsCount = when {
+            stage <= 2 -> 1
+            stage <= 4 -> 2
+            else -> 3
+        }
+        val sumCandidates = candidates.filter {
+            it is SumExactCondition || it is SumAtLeastCondition || it is SumInRangeCondition
+        }
+        val primaryCondition = sumCandidates.random(random)
+        val selectedConditions = buildList {
+            add(primaryCondition)
+            addAll(
+                candidates
+                    .filterNot { it == primaryCondition }
+                    .shuffled(random)
+                    .take((selectedConditionsCount - 1).coerceAtLeast(0))
+            )
+        }
+
         val minimumSelectionCount = minimumSelectionCountForLevel(
-            diceCount = diceValues.size,
+            diceCount = diceCount,
             stage = stage
         )
-        val candidates = mutableListOf<ObjectiveCondition>()
-
-        fun addIf(condition: ObjectiveCondition, predicate: Boolean) {
-            if (predicate) {
-                candidates.add(condition)
-            }
-        }
-
-        when (stage) {
-            1 -> {
-                addIf(HasPairCondition(requiredPairs = 1), diceCounts.values.any { it >= 2 })
-                addIf(AllDistinctCondition, diceValues.distinct().size == diceValues.size)
-                val containsValues = distinctValues.shuffled(random).take(2).ifEmpty { distinctValues }
-                if (containsValues.isNotEmpty()) {
-                    candidates.add(ContainsValuesCondition(containsValues))
-                }
-                candidates.add(SumExactCondition(pickExactSumTarget(diceValues, minimumSelectionCount, random)))
-                candidates.add(buildSumRange(diceValues, minimumSelectionCount, random))
-                val forbidValues = buildForbiddenValues(distinctValues, maxValue, random)
-                if (forbidValues.isNotEmpty() && hasValueOutside(diceValues, forbidValues)) {
-                    candidates.add(ForbidValuesCondition(forbidValues))
-                }
-            }
-            2 -> {
-                addIf(HasPairCondition(requiredPairs = 2), diceCounts.values.count { it >= 2 } >= 2)
-                addIf(FullHouseCondition, canFullHouse(diceCounts))
-                val partialValues = distinctValues.shuffled(random).take(4).ifEmpty { distinctValues }
-                if (partialValues.isNotEmpty()) {
-                    candidates.add(
-                        CollectionPartialCondition(
-                            values = partialValues,
-                            requiredCount = min(3, partialValues.size)
-                        )
-                    )
-                }
-                addIf(StraightCondition(length = 3), canFormStraight(distinctValues, 3))
-                candidates.add(SumExactCondition(pickExactSumTarget(diceValues, minimumSelectionCount, random)))
-                candidates.add(buildSumRange(diceValues, minimumSelectionCount, random))
-            }
-            3 -> {
-                addIf(HasFourOfKindCondition(), diceCounts.values.any { it >= 4 })
-                addIf(FullHouseCondition, canFullHouse(diceCounts))
-                addIf(StraightCondition(length = 4), canFormStraight(distinctValues, 4))
-                val multiplicity = buildMultiplicityValues(diceCounts, random)
-                if (multiplicity.isNotEmpty()) {
-                    candidates.add(ContainsValuesWithMultiplicityCondition(multiplicity))
-                }
-                candidates.add(SumExactCondition(pickExactSumTarget(diceValues, minimumSelectionCount, random)))
-                candidates.add(buildSumRange(diceValues, minimumSelectionCount, random))
-            }
-            4 -> {
-                candidates.add(SumParityCondition(shouldBeEven = totalSum % 2 == 0))
-                candidates.add(SumAtLeastCondition(threshold = totalSum))
-                candidates.add(buildSumRange(diceValues, minimumSelectionCount, random))
-            }
-            else -> {
-                addIf(HasPairCondition(requiredPairs = 2), diceCounts.values.count { it >= 2 } >= 2)
-                addIf(StraightCondition(length = 4), canFormStraight(distinctValues, 4))
-                candidates.add(SumExactCondition(pickExactSumTarget(diceValues, minimumSelectionCount, random)))
-                candidates.add(buildSumRange(diceValues, minimumSelectionCount, random))
-                candidates.add(SumAtLeastCondition(threshold = totalSum))
-                val forbidValues = buildForbiddenValues(distinctValues, maxValue, random)
-                if (forbidValues.isNotEmpty() && hasValueOutside(diceValues, forbidValues)) {
-                    candidates.add(ForbidValuesCondition(forbidValues))
-                }
-            }
-        }
-
-        if (candidates.isEmpty()) {
-            return LevelObjective(conditions = listOf(SumExactCondition(totalSum)))
-        }
-
-        val selectedConditions = if (stage == 4 || stage >= 5) {
-            val first = candidates.random(random)
-            val second = candidates.filterNot { it == first }.ifEmpty { candidates }.random(random)
-            listOf(first, second).distinct()
-        } else {
-            listOf(candidates.random(random))
-        }
         val enrichedConditions = selectedConditions.toMutableList().apply {
             add(MinSelectedDiceCondition(minimumSelectionCount))
         }
@@ -282,11 +308,85 @@ class GenerateObjectiveUseCase {
     }
 }
 
-fun stageForLevel(levelNumber: Int): Int {
-    return ((levelNumber - 1) / LEVELS_PER_STAGE) + 1
+
+
+
+private fun buildRandomExactTarget(
+    minimumPossibleSum: Int,
+    maximumPossibleSum: Int,
+    sumDifficultyFactor: Int,
+    random: Random
+): Int {
+    val span = (maximumPossibleSum - minimumPossibleSum).coerceAtLeast(1)
+    val lowerFactor = (0.25f + 0.08f * sumDifficultyFactor).coerceAtMost(0.85f)
+    val upperFactor = (lowerFactor + 0.3f).coerceAtMost(1f)
+    val lowerBound = (minimumPossibleSum + span * lowerFactor)
+        .toInt()
+        .coerceIn(minimumPossibleSum, maximumPossibleSum)
+    val upperBound = (minimumPossibleSum + span * upperFactor)
+        .toInt()
+        .coerceIn(lowerBound, maximumPossibleSum)
+    return if (upperBound > lowerBound) {
+        random.nextInt(lowerBound, upperBound + 1)
+    } else {
+        lowerBound
+    }
 }
 
-private const val LEVELS_PER_STAGE = 15
+private fun buildRandomAtLeastThreshold(
+    minimumPossibleSum: Int,
+    maximumPossibleSum: Int,
+    sumDifficultyFactor: Int,
+    random: Random
+): Int {
+    val span = (maximumPossibleSum - minimumPossibleSum).coerceAtLeast(1)
+    val lowerFactor = (0.4f + 0.08f * sumDifficultyFactor).coerceAtMost(0.9f)
+    val upperFactor = (lowerFactor + 0.25f).coerceAtMost(1f)
+    val lowerBound = (minimumPossibleSum + span * lowerFactor)
+        .toInt()
+        .coerceIn(minimumPossibleSum, maximumPossibleSum)
+    val upperBound = (minimumPossibleSum + span * upperFactor)
+        .toInt()
+        .coerceIn(lowerBound, maximumPossibleSum)
+    return if (upperBound > lowerBound) {
+        random.nextInt(lowerBound, upperBound + 1)
+    } else {
+        lowerBound
+    }
+}
+
+private fun buildRandomRangeCondition(
+    minimumPossibleSum: Int,
+    maximumPossibleSum: Int,
+    sumDifficultyFactor: Int,
+    random: Random
+): SumInRangeCondition {
+    val span = (maximumPossibleSum - minimumPossibleSum).coerceAtLeast(1)
+    val minRangeWidth = 2
+    val maxRangeWidth = (span / (2 + sumDifficultyFactor)).coerceAtLeast(minRangeWidth)
+    val rangeWidth = random.nextInt(
+        from = minRangeWidth,
+        until = (maxRangeWidth + 1).coerceAtLeast(minRangeWidth + 1)
+    )
+    val maxStart = (maximumPossibleSum - rangeWidth).coerceAtLeast(minimumPossibleSum)
+    val start = if (maxStart > minimumPossibleSum) {
+        random.nextInt(minimumPossibleSum, maxStart + 1)
+    } else {
+        minimumPossibleSum
+    }
+    val end = (start + rangeWidth).coerceAtMost(maximumPossibleSum)
+    return SumInRangeCondition(min = start, max = end)
+}
+
+fun stageForLevel(levelNumber: Int): Int {
+    if (levelNumber <= FIRST_STAGE_END_LEVEL) {
+        return 1
+    }
+    return ((levelNumber - (FIRST_STAGE_END_LEVEL + 1)) / LEVELS_PER_STAGE_AFTER_FIRST) + 2
+}
+
+private const val FIRST_STAGE_END_LEVEL = 15
+private const val LEVELS_PER_STAGE_AFTER_FIRST = 25
 private const val MIN_DICE = 5
 private const val DICE_INCREMENT = 3
 private const val MAX_DICE = 20

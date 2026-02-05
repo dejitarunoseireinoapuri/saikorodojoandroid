@@ -51,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.Style
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
@@ -94,7 +95,8 @@ fun GameRoute(
         onRollSelectedDice = { viewModel.onEvent(GameUiEvent.RollSelectedDice) },
         onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) },
         onConfirmSurrender = { viewModel.onEvent(GameUiEvent.ConfirmSurrender) },
-        onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) }
+        onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) },
+        onOpenRandomMinigame = { viewModel.onEvent(GameUiEvent.OpenRandomMinigame) }
     )
 }
 
@@ -113,7 +115,8 @@ fun GameScreen(
     onRollSelectedDice: () -> Unit,
     onRollSingleDie: () -> Unit,
     onConfirmSurrender: () -> Unit,
-    onConfirmExit: () -> Unit
+    onConfirmExit: () -> Unit,
+    onOpenRandomMinigame: () -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -156,22 +159,25 @@ fun GameScreen(
                     .widthIn(max = 280.dp)
             )
         } else {
+            Text(
+                text = stringResource(R.string.level_title, uiState.levelNumber),
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 12.dp)
+            )
             Column(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 8.dp)
-                    .widthIn(max = 320.dp),
+                    .padding(top = 76.dp)
+                    .widthIn(max = 360.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(R.string.level_title, uiState.levelNumber),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
                 uiState.objectiveLines.forEach { line ->
                     Text(
                         text = stringResource(line.textRes, *line.formatArgs.toTypedArray()),
-                        style = MaterialTheme.typography.bodyMedium.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
@@ -182,7 +188,7 @@ fun GameScreen(
             Row(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 4.dp, start = 8.dp, end = 8.dp)
+                    .padding(top = 8.dp, start = 8.dp, end = 8.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
@@ -194,6 +200,13 @@ fun GameScreen(
                     )
                 }
                 Box(modifier = Modifier.weight(1f))
+                IconButton(onClick = onOpenRandomMinigame) {
+                    Icon(
+                        imageVector = Icons.Outlined.Style,
+                        contentDescription = stringResource(R.string.cd_random_minigame),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
                 IconButton(onClick = { showSurrenderDialog = true }) {
                     Icon(
                         imageVector = Icons.Outlined.Flag,
@@ -290,12 +303,12 @@ private fun GameCardStack(
     onCardApply: (Int) -> Unit
 ) {
     if (cards.isEmpty()) return
-    val cardSize = DpSize(width = 208.dp, height = 278.dp)
-    val peekHeight = 120.dp
+    val cardSize = DpSize(width = 220.dp, height = 300.dp)
+    val peekHeight = 136.dp
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
-    val stackSpacing = 40.dp
+    val stackSpacing = 44.dp
     val rightPadding = 8.dp
     val maxCardTypes = remember { defaultCardUiModels().size }
     val startX = calculateCardStackStartX(
