@@ -55,6 +55,8 @@ internal const val SEQUENCE_DISCARD_BUTTON_TAG = "sequence_discard_button"
 internal const val SEQUENCE_CONTINUE_BUTTON_TAG = "sequence_continue_button"
 internal const val SEQUENCE_SAVED_DIE_TAG_PREFIX = "sequence_saved_die"
 internal const val SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX = "sequence_saved_die_value"
+
+internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 
@@ -394,7 +396,7 @@ private fun SequenceDiceFace(
     size: Dp,
     modifier: Modifier = Modifier
 ) {
-    val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
+    val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     Box(
         modifier = modifier
             .size(size)
@@ -427,7 +429,7 @@ private fun SequenceSavedDie(
     size: Dp
 ) {
     val diceRes = R.drawable.ten_sides
-    val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
+    val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     Box(
         modifier = Modifier
             .size(size)
