@@ -22,7 +22,7 @@ private const val DEFAULT_TARGET_SEQUENCE = 3
 private const val DEFAULT_MAX_DISCARDS = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_TICK_MS = 120L
-private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_500L
+private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_000L
 private const val DEFAULT_SEQUENCE_DIE_MAX = 10
 
 data class SequenceGameUiState(
@@ -190,7 +190,7 @@ class SequenceGameViewModel(
                 discardCount = discardCount,
                 isRolling = true,
                 isAwaitingDecision = false,
-                diceValue = null,
+                diceValue = if (nextRoll == 1) null else it.diceValue,
                 pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null
