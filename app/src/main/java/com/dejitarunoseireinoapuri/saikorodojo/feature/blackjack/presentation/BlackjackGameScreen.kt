@@ -105,6 +105,7 @@ fun BlackjackGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
+            val showEndState = uiState.isComplete
             val resultTextRes = when (uiState.result) {
                 BlackjackOutcome.PLAYER_WIN -> R.string.minigame_win_message
                 BlackjackOutcome.PLAYER_LOSE -> R.string.minigame_lose_message
@@ -161,7 +162,7 @@ fun BlackjackGameScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
-                resultTextRes != null -> {
+                resultTextRes != null && showEndState -> {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = stringResource(resultTextRes),
@@ -202,7 +203,7 @@ fun BlackjackGameScreen(
             }
         }
 
-        if (uiState.isStarted && uiState.rewardCards.isEmpty()) {
+        if (uiState.isStarted && uiState.rewardCards.isEmpty() && !uiState.isComplete) {
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

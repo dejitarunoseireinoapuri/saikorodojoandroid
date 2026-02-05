@@ -120,6 +120,31 @@ class BlackjackGameScreenTest {
         assertEquals(SequenceSaveMatBackground, centerColor)
     }
 
+
+    @Test
+    fun completedLossHidesBothMats() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                BlackjackGameScreen(
+                    uiState = BlackjackGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        playerDice = listOf(4, 5),
+                        dealerDice = listOf(6, 6),
+                        result = BlackjackOutcome.PLAYER_LOSE
+                    ),
+                    onStartClick = {},
+                    onHitClick = {},
+                    onStandClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertDoesNotExist()
+    }
+
     @Test
     fun awaitingDecisionShowsStandOnLeftAndHitOnRightWithSameSize() {
         composeTestRule.setContent {
