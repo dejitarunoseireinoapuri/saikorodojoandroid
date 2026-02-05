@@ -188,7 +188,7 @@ class GameViewModel(
 
     private fun openRandomMinigame() {
         viewModelScope.launch(dispatcher) {
-            _effects.emit(GameUiEffect.NavigateToMinigame(pickMinigame(_uiState.value.levelNumber)))
+            _effects.emit(GameUiEffect.NavigateToMinigame(pickMinigame()))
         }
     }
 
@@ -921,10 +921,9 @@ class GameViewModel(
         }
     }
 
-    private fun pickMinigame(levelNumber: Int): MinigameType {
-        val random = Random(baseSeed + levelNumber * 31L)
+    private fun pickMinigame(): MinigameType {
         val values = MinigameType.values()
-        return values[random.nextInt(values.size)]
+        return values[Random.Default.nextInt(values.size)]
     }
 
     private fun buildObjectiveLines(
