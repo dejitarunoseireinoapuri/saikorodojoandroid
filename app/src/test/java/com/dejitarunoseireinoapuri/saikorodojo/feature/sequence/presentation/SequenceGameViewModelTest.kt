@@ -96,6 +96,48 @@ class SequenceGameViewModelTest {
         assertTrue(state.rewardCards.isEmpty())
     }
 
+
+    @Test
+    fun `game ends before round four when target is no longer reachable`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 3, 4),
+            totalRolls = 5,
+            maxDiscards = 10
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete)
+        assertEquals(3, state.currentRoll)
+        assertEquals(2, state.discardCount)
+        assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
+    }
+
+    @Test
+    fun `saving ten with pending sequence target ends the game as unwinnable`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(10, 7),
+            totalRolls = 5,
+            maxDiscards = 10
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete)
+        assertEquals(listOf(10), state.savedValues)
+        assertEquals(1, state.currentRoll)
+        assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
+    }
     @Test
     fun `reaching the maximum rolls without success ends the game`() = runTest {
         val viewModel = buildViewModel(
