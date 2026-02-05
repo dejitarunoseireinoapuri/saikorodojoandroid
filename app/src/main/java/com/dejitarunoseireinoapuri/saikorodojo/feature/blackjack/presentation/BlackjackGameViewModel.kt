@@ -24,8 +24,6 @@ private const val DEFAULT_INITIAL_PLAYER_DICE = 2
 private const val DEFAULT_INITIAL_DEALER_DICE = 1
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_TICK_MS = 120L
-private const val DEFAULT_RESULT_DELAY_MS = 1_500L
-private const val DEFAULT_BUST_HIGHLIGHT_MS = 1_500L
 private const val DEFAULT_DEALER_STAND_TOTAL = 17
 private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_000L
 private const val BLACKJACK_LIMIT = 21
@@ -66,8 +64,6 @@ class BlackjackGameViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
-    private val resultDelayMs: Long = DEFAULT_RESULT_DELAY_MS,
-    private val bustHighlightMs: Long = DEFAULT_BUST_HIGHLIGHT_MS,
     private val dealerStandTotal: Int = DEFAULT_DEALER_STAND_TOTAL,
     private val initialPlayerDice: Int = DEFAULT_INITIAL_PLAYER_DICE,
     private val initialDealerDice: Int = DEFAULT_INITIAL_DEALER_DICE,
@@ -181,7 +177,6 @@ class BlackjackGameViewModel(
             }
             if (isBust) {
                 resolveRoundResult(
-                    delayMs = bustHighlightMs,
                     playerTotal = playerTotal,
                     dealerTotal = state.dealerTotal,
                     isPlayerBust = true,
@@ -234,7 +229,6 @@ class BlackjackGameViewModel(
                 )
             }
             resolveRoundResult(
-                delayMs = if (isDealerBust) bustHighlightMs else resultDelayMs,
                 playerTotal = _uiState.value.playerTotal,
                 dealerTotal = dealerTotal,
                 isPlayerBust = false,
@@ -299,7 +293,6 @@ class BlackjackGameViewModel(
     }
 
     private suspend fun resolveRoundResult(
-        delayMs: Long,
         playerTotal: Int,
         dealerTotal: Int,
         isPlayerBust: Boolean,
@@ -311,18 +304,27 @@ class BlackjackGameViewModel(
             isPlayerBust = isPlayerBust,
             isDealerBust = isDealerBust
         )
-        if (outcome == BlackjackOutcome.PLAYER_WIN && delayMs > 0L) {
-            delay(delayMs)
-        }
-        val rewardCards = if (outcome == BlackjackOutcome.PLAYER_WIN) {
-            resolveRewardCards()
-        } else {
-            emptyList()
-        }
         _uiState.update {
             it.copy(
                 result = outcome,
-                rewardCards = rewardCards,
+                isComplete = false,
+                rewardCards = emptyList()
+            )
+        }
+        if (rewardRevealDelayMs > 0L) {
+            delay(rewardRevealDelayMs)
+        }
+        if (outcome == BlackjackOutcome.PLAYER_WIN) {
+            _uiState.update {
+                it.copy(
+                    rewardCards = resolveRewardCards(),
+                    isComplete = true
+                )
+            }
+            return
+        }
+        _uiState.update {
+            it.copy(
                 isComplete = true
             )
         }

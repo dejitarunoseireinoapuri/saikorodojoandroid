@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -118,6 +119,31 @@ class BlackjackGameScreenTest {
         val pixelMap = image.toPixelMap()
         val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
         assertEquals(SequenceSaveMatBackground, centerColor)
+    }
+
+
+    @Test
+    fun completedLossKeepsBothMatsVisible() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                BlackjackGameScreen(
+                    uiState = BlackjackGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        playerDice = listOf(4, 5),
+                        dealerDice = listOf(6, 6),
+                        result = BlackjackOutcome.PLAYER_LOSE
+                    ),
+                    onStartClick = {},
+                    onHitClick = {},
+                    onStandClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).assertExists()
+        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertExists()
     }
 
     @Test
