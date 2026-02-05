@@ -162,19 +162,19 @@ fun GameScreen(
             Column(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 8.dp)
-                    .widthIn(max = 320.dp),
+                    .padding(top = 64.dp)
+                    .widthIn(max = 360.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = stringResource(R.string.level_title, uiState.levelNumber),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 uiState.objectiveLines.forEach { line ->
                     Text(
                         text = stringResource(line.textRes, *line.formatArgs.toTypedArray()),
-                        style = MaterialTheme.typography.bodyMedium.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
@@ -185,7 +185,7 @@ fun GameScreen(
             Row(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 4.dp, start = 8.dp, end = 8.dp)
+                    .padding(top = 8.dp, start = 8.dp, end = 8.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
@@ -300,12 +300,12 @@ private fun GameCardStack(
     onCardApply: (Int) -> Unit
 ) {
     if (cards.isEmpty()) return
-    val cardSize = DpSize(width = 208.dp, height = 278.dp)
-    val peekHeight = 120.dp
+    val cardSize = DpSize(width = 220.dp, height = 300.dp)
+    val peekHeight = 136.dp
     val centerX = (maxWidth - cardSize.width) / 2f
     val centerY = (maxHeight - cardSize.height) / 2f
     val bottomY = maxHeight - peekHeight
-    val stackSpacing = 40.dp
+    val stackSpacing = 44.dp
     val rightPadding = 8.dp
     val maxCardTypes = remember { defaultCardUiModels().size }
     val startX = calculateCardStackStartX(

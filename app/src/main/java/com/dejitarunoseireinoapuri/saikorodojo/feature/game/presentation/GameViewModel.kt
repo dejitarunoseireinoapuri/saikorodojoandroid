@@ -916,8 +916,6 @@ class GameViewModel(
                 levelNumber = nextLevel,
                 seedBase = baseSeed
             )
-            val minigame = pickMinigame(nextDefinition.levelNumber)
-            _effects.emit(GameUiEffect.NavigateToMinigame(minigame))
             applyLevelDefinition(nextDefinition)
             startRolling()
         }
