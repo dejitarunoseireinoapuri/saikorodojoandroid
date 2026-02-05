@@ -59,6 +59,30 @@ class GenerateObjectiveUseCaseTest {
         assertTrue(rangeCondition.max <= maximumPossibleSum)
         assertTrue(rangeCondition.min < rangeCondition.max)
     }
+
+    @Test
+    fun `sum at least threshold changes with different seeds`() {
+        val diceTypes = List(5) { DiceType.D8 }
+        val firstObjective = useCase.execute(
+            levelNumber = 20,
+            diceTypes = diceTypes,
+            seedBase = 11L
+        )
+        val secondObjective = useCase.execute(
+            levelNumber = 20,
+            diceTypes = diceTypes,
+            seedBase = 99L
+        )
+
+        val firstThreshold = firstObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
+        val secondThreshold = secondObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
+        val maximumPossibleSum = diceTypes.sumOf { it.sides }
+
+        assertTrue(firstThreshold in 1..maximumPossibleSum)
+        assertTrue(secondThreshold in 1..maximumPossibleSum)
+        assertTrue(firstThreshold != secondThreshold)
+    }
+
     @Test
     fun `sum at least threshold grows with stage`() {
         val earlyObjective = useCase.execute(
