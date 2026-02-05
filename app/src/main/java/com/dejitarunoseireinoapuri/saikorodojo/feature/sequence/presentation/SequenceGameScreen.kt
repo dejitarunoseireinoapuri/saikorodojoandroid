@@ -96,6 +96,10 @@ fun SequenceGameScreen(
     Box(
         modifier = containerModifier
     ) {
+        val hasReward = uiState.rewardCards.isNotEmpty()
+        val hasPendingReward = uiState.isComplete && uiState.pendingRewardCards.isNotEmpty()
+        val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -112,9 +116,6 @@ fun SequenceGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
-            val hasReward = uiState.rewardCards.isNotEmpty()
-            val hasPendingReward = uiState.isComplete && uiState.pendingRewardCards.isNotEmpty()
-            val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
             val showRules = !uiState.isStarted
             val rulesModifier = if (showRules) {
                 Modifier
@@ -307,7 +308,7 @@ fun SequenceGameScreen(
             }
         }
 
-        if (uiState.isComplete && uiState.isStarted) {
+        if (shouldShowSequenceContinueButton(hasReward = hasReward, hasLoss = hasLoss)) {
             Button(
                 onClick = onContinueClick,
                 shape = RoundedCornerShape(20.dp),
@@ -332,6 +333,13 @@ fun SequenceGameScreen(
             }
         }
     }
+}
+
+internal fun shouldShowSequenceContinueButton(
+    hasReward: Boolean,
+    hasLoss: Boolean
+): Boolean {
+    return hasReward || hasLoss
 }
 
 @Composable
