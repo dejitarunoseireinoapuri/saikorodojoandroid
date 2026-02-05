@@ -111,6 +111,10 @@ fun BlackjackGameScreen(
                 BlackjackOutcome.PLAYER_LOSE -> R.string.minigame_lose_message
                 null -> null
             }
+            val resultTextColor = blackjackResultTextColor(
+                result = uiState.result,
+                defaultColor = MaterialTheme.colorScheme.primary
+            )
             val hasReward = uiState.rewardCards.isNotEmpty()
             val showRules = !uiState.isStarted
             val rulesModifier = if (showRules) {
@@ -167,7 +171,7 @@ fun BlackjackGameScreen(
                     Text(
                         text = stringResource(resultTextRes),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = resultTextColor,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -318,6 +322,17 @@ fun BlackjackGameScreen(
                 )
             }
         }
+    }
+}
+
+internal fun blackjackResultTextColor(
+    result: BlackjackOutcome?,
+    defaultColor: Color
+): Color {
+    return when (result) {
+        BlackjackOutcome.PLAYER_LOSE -> FailureMatBackground
+        BlackjackOutcome.PLAYER_WIN -> VictoryMatBackground
+        null -> defaultColor
     }
 }
 
