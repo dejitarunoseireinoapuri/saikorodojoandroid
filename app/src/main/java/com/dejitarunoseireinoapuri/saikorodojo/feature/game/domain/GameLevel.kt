@@ -208,10 +208,12 @@ class GenerateObjectiveUseCase {
             (maximumPossibleSum - minimumPossibleSum) * (0.45f + 0.12f * sumDifficultyFactor))
             .toInt()
             .coerceIn(minimumPossibleSum, maximumPossibleSum)
-        val atLeastThreshold = (minimumPossibleSum +
-            (maximumPossibleSum - minimumPossibleSum) * (0.55f + 0.1f * sumDifficultyFactor))
-            .toInt()
-            .coerceIn(minimumPossibleSum, maximumPossibleSum)
+        val atLeastThreshold = buildRandomAtLeastThreshold(
+            minimumPossibleSum = minimumPossibleSum,
+            maximumPossibleSum = maximumPossibleSum,
+            sumDifficultyFactor = sumDifficultyFactor,
+            random = random
+        )
         val rangeCondition = buildRandomRangeCondition(
             minimumPossibleSum = minimumPossibleSum,
             maximumPossibleSum = maximumPossibleSum,
@@ -304,6 +306,29 @@ class GenerateObjectiveUseCase {
     }
 }
 
+
+
+private fun buildRandomAtLeastThreshold(
+    minimumPossibleSum: Int,
+    maximumPossibleSum: Int,
+    sumDifficultyFactor: Int,
+    random: Random
+): Int {
+    val span = (maximumPossibleSum - minimumPossibleSum).coerceAtLeast(1)
+    val lowerFactor = (0.4f + 0.08f * sumDifficultyFactor).coerceAtMost(0.9f)
+    val upperFactor = (lowerFactor + 0.25f).coerceAtMost(1f)
+    val lowerBound = (minimumPossibleSum + span * lowerFactor)
+        .toInt()
+        .coerceIn(minimumPossibleSum, maximumPossibleSum)
+    val upperBound = (minimumPossibleSum + span * upperFactor)
+        .toInt()
+        .coerceIn(lowerBound, maximumPossibleSum)
+    return if (upperBound > lowerBound) {
+        random.nextInt(lowerBound, upperBound + 1)
+    } else {
+        lowerBound
+    }
+}
 
 private fun buildRandomRangeCondition(
     minimumPossibleSum: Int,
