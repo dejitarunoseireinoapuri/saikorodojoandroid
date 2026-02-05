@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -381,6 +382,7 @@ class GameViewModelTest {
         val deferredEffect = async { viewModel.effects.first() }
 
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        runCurrent()
 
         val effect = deferredEffect.await()
         assertTrue(effect is GameUiEffect.NavigateToMinigame)
@@ -395,6 +397,7 @@ class GameViewModelTest {
 
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        runCurrent()
 
         val effects = deferredEffects.await()
         assertEquals(2, effects.size)
