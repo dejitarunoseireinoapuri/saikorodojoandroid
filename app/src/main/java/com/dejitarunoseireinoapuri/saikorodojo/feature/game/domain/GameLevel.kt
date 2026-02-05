@@ -21,71 +21,112 @@ enum class MinigameType {
 }
 
 sealed interface ObjectiveCondition {
-    fun isMet(diceValues: List<Int>): Boolean
+    fun isMet(diceValues: List<Int>, diceSides: List<Int> = emptyList()): Boolean
 }
 
 data class SumAtLeastCondition(val threshold: Int) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         return diceValues.sum() >= threshold
     }
 }
 
+data class SumAtMostCondition(val threshold: Int) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        return diceValues.sum() <= threshold
+    }
+}
+
 data class SumInRangeCondition(val min: Int, val max: Int) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val sum = diceValues.sum()
         return sum in min..max
     }
 }
 
 data class SumExactCondition(val target: Int) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         return diceValues.sum() == target
     }
 }
 
+data class SumMultipleCondition(val factor: Int) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        if (factor <= 0) return false
+        return diceValues.sum() % factor == 0
+    }
+}
+
+data class SumMaxDifferenceCondition(
+    val target: Int,
+    val maxDifference: Int
+) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        return kotlin.math.abs(diceValues.sum() - target) <= maxDifference
+    }
+}
+
 data class SumParityCondition(val shouldBeEven: Boolean) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val sum = diceValues.sum()
         return sum % 2 == 0 == shouldBeEven
     }
 }
 
 data class HasPairCondition(val requiredPairs: Int) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val pairs = valueCounts(diceValues).values.count { it >= 2 }
         return pairs >= requiredPairs
     }
 }
 
+data object ExactTwoPairsCondition : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        val counts = valueCounts(diceValues).values.sortedDescending()
+        return counts.count { it == 2 } == 2 && counts.none { it > 2 }
+    }
+}
+
 data class HasThreeOfKindCondition(val required: Boolean = true) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val hasThree = valueCounts(diceValues).values.any { it >= 3 }
         return if (required) hasThree else !hasThree
     }
 }
 
+data class ThreeOfKindWithValueCondition(val requiredValue: Int) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        return valueCounts(diceValues).getOrDefault(requiredValue, 0) >= 3
+    }
+}
+
 data class HasFourOfKindCondition(val required: Boolean = true) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val hasFour = valueCounts(diceValues).values.any { it >= 4 }
         return if (required) hasFour else !hasFour
     }
 }
 
 data object FullHouseCondition : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val counts = valueCounts(diceValues).values.sortedDescending()
         return counts.size >= 2 && counts[0] >= 3 && counts[1] >= 2
     }
 }
 
 data object AllDistinctCondition : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         return diceValues.distinct().size == diceValues.size
     }
 }
 
+data class ExactlyDistinctValuesCondition(val distinctCount: Int) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        return diceValues.distinct().size == distinctCount
+    }
+}
+
 data class StraightCondition(val length: Int) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         if (length <= 1) return true
         val sorted = diceValues.distinct().sorted()
         if (sorted.size < length) return false
@@ -103,14 +144,14 @@ data class StraightCondition(val length: Int) : ObjectiveCondition {
 }
 
 data class ContainsValuesCondition(val values: List<Int>) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val diceSet = diceValues.toSet()
         return values.all { value -> value in diceSet }
     }
 }
 
 data class ContainsValuesWithMultiplicityCondition(val values: List<Int>) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val counts = valueCounts(diceValues)
         val requiredCounts = valueCounts(values)
         return requiredCounts.all { (value, required) ->
@@ -120,15 +161,51 @@ data class ContainsValuesWithMultiplicityCondition(val values: List<Int>) : Obje
 }
 
 data class ForbidValuesCondition(val values: List<Int>) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val diceSet = diceValues.toSet()
         return values.none { it in diceSet }
     }
 }
 
 data class MinSelectedDiceCondition(val minCount: Int) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         return diceValues.size >= minCount
+    }
+}
+
+data class ExactSelectedDiceCondition(val count: Int) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        return diceValues.size == count
+    }
+}
+
+data class AtLeastParityCountCondition(
+    val minCount: Int,
+    val even: Boolean
+) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        val parityCount = diceValues.count { value -> (value % 2 == 0) == even }
+        return parityCount >= minCount
+    }
+}
+
+data object ContainsHighAndLowValueCondition : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        if (diceValues.size != diceSides.size || diceValues.isEmpty()) {
+            return false
+        }
+        val hasLow = diceValues.zip(diceSides).any { (value, sides) -> value <= (1 + 1).coerceAtMost(sides) }
+        val hasHigh = diceValues.zip(diceSides).any { (value, sides) -> value >= (sides - 1).coerceAtLeast(1) }
+        return hasLow && hasHigh
+    }
+}
+
+data class SatisfyAndAvoidCondition(
+    val required: ObjectiveCondition,
+    val forbidden: ObjectiveCondition
+) : ObjectiveCondition {
+    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
+        return required.isMet(diceValues, diceSides) && !forbidden.isMet(diceValues, diceSides)
     }
 }
 
@@ -214,12 +291,21 @@ class GenerateObjectiveUseCase {
 
         candidates.add(SumExactCondition(target = exactTarget))
         candidates.add(SumAtLeastCondition(threshold = atLeastThreshold))
+        candidates.add(SumAtMostCondition(threshold = exactTarget + random.nextInt(0, 4)))
         candidates.add(rangeCondition)
+        candidates.add(SumMultipleCondition(factor = listOf(3, 5).random(random)))
+        candidates.add(
+            SumMaxDifferenceCondition(
+                target = exactTarget,
+                maxDifference = (4 - stage.coerceAtMost(3)).coerceAtLeast(1)
+            )
+        )
         candidates.add(SumParityCondition(shouldBeEven = random.nextBoolean()))
 
         if (stage >= 1) {
             candidates.add(AllDistinctCondition)
             candidates.add(HasPairCondition(requiredPairs = 1))
+            candidates.add(ExactlyDistinctValuesCondition(distinctCount = minOf(3, maxSelectable)))
             val containsCount = minOf(2 + stage / 2, maxSelectable).coerceAtLeast(1)
             candidates.add(
                 ContainsValuesCondition(
@@ -234,11 +320,14 @@ class GenerateObjectiveUseCase {
                 until = (maxStraightLength + 1).coerceAtLeast(minStraightLength + 1)
             )
             candidates.add(StraightCondition(length = straightLength))
+            candidates.add(AtLeastParityCountCondition(minCount = 2, even = random.nextBoolean()))
         }
 
         if (stage >= 3) {
             candidates.add(HasPairCondition(requiredPairs = 2))
+            candidates.add(ExactTwoPairsCondition)
             candidates.add(HasThreeOfKindCondition(required = true))
+            candidates.add(ThreeOfKindWithValueCondition(requiredValue = randomValuesPool.random(random)))
             val multiplicityTargetValue = randomValuesPool.random(random)
             val secondaryValue = randomValuesPool.random(random)
             candidates.add(
@@ -255,9 +344,16 @@ class GenerateObjectiveUseCase {
         if (stage >= 4) {
             candidates.add(HasFourOfKindCondition(required = true))
             candidates.add(FullHouseCondition)
+            candidates.add(ContainsHighAndLowValueCondition)
             val forbiddenCount = minOf(stage - 2, maxDieValue - 1).coerceAtLeast(1)
             val forbiddenValues = randomValuesPool.shuffled(random).take(forbiddenCount)
             candidates.add(ForbidValuesCondition(values = forbiddenValues))
+            candidates.add(
+                SatisfyAndAvoidCondition(
+                    required = SumAtLeastCondition(threshold = atLeastThreshold),
+                    forbidden = ForbidValuesCondition(values = listOf(randomValuesPool.random(random)))
+                )
+            )
         }
 
         val selectedConditionsCount = when {
@@ -284,7 +380,11 @@ class GenerateObjectiveUseCase {
             stage = stage
         )
         val enrichedConditions = selectedConditions.toMutableList().apply {
-            add(MinSelectedDiceCondition(minimumSelectionCount))
+            if (stage >= 3 && random.nextBoolean()) {
+                add(ExactSelectedDiceCondition(count = minimumSelectionCount))
+            } else {
+                add(MinSelectedDiceCondition(minimumSelectionCount))
+            }
         }
         return LevelObjective(conditions = enrichedConditions.distinct())
     }
