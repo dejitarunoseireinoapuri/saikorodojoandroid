@@ -47,8 +47,6 @@ import kotlin.random.Random
 private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
-private const val DEFAULT_PRE_COMPLETION_DELAY_MS = 1_000L
-private const val DEFAULT_COMPLETION_MESSAGE_MS = 1_000L
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
@@ -114,8 +112,6 @@ class GameViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
-    private val preCompletionDelayMs: Long = DEFAULT_PRE_COMPLETION_DELAY_MS,
-    private val completionMessageMs: Long = DEFAULT_COMPLETION_MESSAGE_MS,
     private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() },
     private val baseSeedProvider: () -> Long = { Random.Default.nextLong() },
     private val initialLevelDefinition: LevelDefinition? = null,
@@ -909,13 +905,6 @@ class GameViewModel(
     private fun handleLevelComplete() {
         if (completionJob?.isActive == true) return
         completionJob = viewModelScope.launch(dispatcher) {
-            if (preCompletionDelayMs > 0L) {
-                delay(preCompletionDelayMs)
-            }
-            _uiState.update { it.copy(showLevelCompleteMessage = true) }
-            if (completionMessageMs > 0L) {
-                delay(completionMessageMs)
-            }
             val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
             val nextDefinition = generateLevelUseCase.execute(
                 levelNumber = nextLevel,
