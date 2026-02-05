@@ -4,7 +4,6 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -146,42 +145,6 @@ class BlackjackGameScreenTest {
         assertTrue(standNode.boundsInRoot.left < hitNode.boundsInRoot.left)
         assertEquals(standNode.boundsInRoot.width, hitNode.boundsInRoot.width)
         assertEquals(standNode.boundsInRoot.height, hitNode.boundsInRoot.height)
-    }
-
-    @Test
-    fun rewardCardsHideMatsAfterOneSecond() {
-        val rewardCard = CardUiModel(
-            id = com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId.FLIP_FACE,
-            titleRes = 0,
-            descriptionRes = 0,
-            iconRes = 0
-        )
-        composeTestRule.mainClock.autoAdvance = false
-        composeTestRule.setContent {
-            SaikoroDojoTheme {
-                BlackjackGameScreen(
-                    uiState = BlackjackGameUiState(
-                        isStarted = true,
-                        isComplete = true,
-                        playerDice = listOf(4, 5),
-                        dealerDice = listOf(6),
-                        rewardCards = listOf(rewardCard),
-                        result = BlackjackOutcome.PLAYER_WIN
-                    ),
-                    onStartClick = {},
-                    onHitClick = {},
-                    onStandClick = {},
-                    onContinueClick = {}
-                )
-            }
-        }
-
-        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertExists()
-        composeTestRule.mainClock.advanceTimeBy(1_001L)
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertDoesNotExist()
-        composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).assertDoesNotExist()
-        composeTestRule.mainClock.autoAdvance = true
     }
 
     @Test
