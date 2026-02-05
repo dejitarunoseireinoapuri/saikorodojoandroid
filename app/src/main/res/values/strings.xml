@@ -78,6 +78,7 @@
     <string name="objective_contains_values">Contains: %1$s</string>
     <string name="objective_collection_partial">From %1$s, at least %2$d</string>
     <string name="objective_forbid_values">Do not select any %1$s</string>
+    <string name="objective_min_selected">Select at least %1$d dice (%2$d of %1$d selected)</string>
     <string name="surrender_title">Surrender?</string>
     <string name="surrender_message">Do you want to surrender and return to the menu?</string>
     <string name="surrender_confirm">Surrender</string>
