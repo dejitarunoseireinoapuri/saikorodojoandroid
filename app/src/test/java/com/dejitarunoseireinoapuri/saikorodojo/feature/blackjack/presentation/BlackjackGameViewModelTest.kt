@@ -118,7 +118,7 @@ class BlackjackGameViewModelTest {
     fun `player bust highlights loss before completing defeat state`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
-                TestDiceRoller(ArrayDeque(listOf(10, 10, 6)))
+                TestDiceRoller(ArrayDeque(listOf(10, 10, 5, 6)))
             ),
             calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
             determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),

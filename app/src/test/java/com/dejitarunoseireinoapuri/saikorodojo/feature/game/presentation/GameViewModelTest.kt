@@ -10,11 +10,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -377,28 +377,35 @@ class GameViewModelTest {
     @Test
     fun `open random minigame emits navigation effect`() = runTest {
         val viewModel = buildViewModel()
-
-        val deferredEffect = async { viewModel.effects.first() }
+        val effects = mutableListOf<GameUiEffect>()
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(1).toList(effects)
+        }
 
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        val effect = deferredEffect.await()
-        assertTrue(effect is GameUiEffect.NavigateToMinigame)
+        assertEquals(1, effects.size)
+        assertTrue(effects.single() is GameUiEffect.NavigateToMinigame)
+        collectorJob.cancel()
     }
 
 
     @Test
     fun `open random minigame emits one effect per click`() = runTest {
         val viewModel = buildViewModel()
-
-        val deferredEffects = async { viewModel.effects.take(2).toList() }
+        val effects = mutableListOf<GameUiEffect>()
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(2).toList(effects)
+        }
 
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        val effects = deferredEffects.await()
         assertEquals(2, effects.size)
         assertTrue(effects.all { it is GameUiEffect.NavigateToMinigame })
+        collectorJob.cancel()
     }
 
 
