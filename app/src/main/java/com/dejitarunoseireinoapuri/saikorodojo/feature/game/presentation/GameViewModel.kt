@@ -17,20 +17,30 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelObjectiv
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ObjectiveCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumAtLeastCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumAtMostCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumExactCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumInRangeCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumMaxDifferenceCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumMultipleCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumParityCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasPairCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasThreeOfKindCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasFourOfKindCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.FullHouseCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AtLeastParityCountCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsHighAndLowValueCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.StraightCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesWithMultiplicityCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactSelectedDiceCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactTwoPairsCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactlyDistinctValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ForbidValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDiceCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SatisfyAndAvoidCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ThreeOfKindWithValueCondition
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -47,6 +57,7 @@ private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
 private const val LEVEL_COMPLETE_DELAY_MS = 1_000L
+
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
@@ -871,11 +882,11 @@ class GameViewModel(
         val objective = currentObjective ?: return
         val state = _uiState.value
         val showSelectedSum = shouldShowSelectedSum(objective.conditions)
-        val selectedValues = state.selectedDice.mapNotNull { index ->
-            state.diceValues.getOrNull(index)
-        }
+        val selectedIndices = state.selectedDice.toList().sorted()
+        val selectedValues = selectedIndices.mapNotNull { index -> state.diceValues.getOrNull(index) }
+        val selectedSides = selectedIndices.mapNotNull { index -> state.diceTypes.getOrNull(index)?.sides }
         if (selectedValues.isEmpty()) {
-            val lines = buildObjectiveLines(objective, emptyList()).map { line ->
+            val lines = buildObjectiveLines(objective, emptyList(), emptyList()).map { line ->
                 line.copy(isMet = false)
             }
             _uiState.update {
@@ -887,7 +898,7 @@ class GameViewModel(
             }
             return
         }
-        val lines = buildObjectiveLines(objective, selectedValues)
+        val lines = buildObjectiveLines(objective, selectedValues, selectedSides)
         val completed = lines.all { it.isMet }
         val wasComplete = _uiState.value.isLevelComplete
         _uiState.update {
@@ -923,7 +934,8 @@ class GameViewModel(
 
     private fun buildObjectiveLines(
         objective: LevelObjective,
-        diceValues: List<Int>
+        diceValues: List<Int>,
+        diceSides: List<Int>
     ): List<ObjectiveLineUiState> {
         val selectedCount = diceValues.size
         return objective.conditions.map { condition ->
@@ -931,7 +943,7 @@ class GameViewModel(
             ObjectiveLineUiState(
                 textRes = textRes,
                 formatArgs = args,
-                isMet = condition.isMet(diceValues)
+                isMet = condition.isMet(diceValues, diceSides)
             )
         }
     }
@@ -947,8 +959,11 @@ internal fun calculateSelectedDiceSum(
 internal fun shouldShowSelectedSum(conditions: List<ObjectiveCondition>): Boolean {
     return conditions.any { condition ->
         condition is SumAtLeastCondition ||
+            condition is SumAtMostCondition ||
             condition is SumExactCondition ||
-            condition is SumInRangeCondition
+            condition is SumInRangeCondition ||
+            condition is SumMultipleCondition ||
+            condition is SumMaxDifferenceCondition
     }
 }
 
@@ -958,7 +973,12 @@ internal fun objectiveLineText(
 ): Pair<Int, List<Any>> {
     return when (condition) {
         is SumAtLeastCondition -> R.string.objective_sum_at_least to listOf(condition.threshold)
+        is SumAtMostCondition -> R.string.objective_sum_at_most to listOf(condition.threshold)
         is SumExactCondition -> R.string.objective_sum_exact to listOf(condition.target)
+        is SumMultipleCondition -> R.string.objective_sum_multiple to listOf(condition.factor)
+        is SumMaxDifferenceCondition -> {
+            R.string.objective_sum_max_difference to listOf(condition.target, condition.maxDifference)
+        }
         is SumInRangeCondition -> if (condition.min == condition.max) {
             R.string.objective_sum_exact to listOf(condition.min)
         } else {
@@ -974,10 +994,16 @@ internal fun objectiveLineText(
         } else {
             R.string.objective_pair to emptyList()
         }
+        is ExactTwoPairsCondition -> R.string.objective_two_pairs_exact to emptyList()
         is HasThreeOfKindCondition -> R.string.objective_three_of_kind to emptyList()
+        is ThreeOfKindWithValueCondition -> {
+            R.string.objective_three_of_kind_with_value to listOf(condition.requiredValue)
+        }
         is HasFourOfKindCondition -> R.string.objective_four_of_kind to emptyList()
         is FullHouseCondition -> R.string.objective_full_house to emptyList()
         is AllDistinctCondition -> R.string.objective_all_distinct to emptyList()
+        is ExactlyDistinctValuesCondition -> R.string.objective_exact_distinct_values to listOf(condition.distinctCount)
+        is ContainsHighAndLowValueCondition -> R.string.objective_contains_high_and_low to emptyList()
         is StraightCondition -> R.string.objective_straight to listOf(condition.length)
         is ContainsValuesCondition -> {
             R.string.objective_contains_values to listOf(formatValues(condition.values))
@@ -990,6 +1016,19 @@ internal fun objectiveLineText(
         }
         is MinSelectedDiceCondition -> {
             R.string.objective_selected_progress to listOf(selectedCount, condition.minCount)
+        }
+        is ExactSelectedDiceCondition -> {
+            R.string.objective_selected_exact to listOf(selectedCount, condition.count)
+        }
+        is AtLeastParityCountCondition -> {
+            if (condition.even) {
+                R.string.objective_at_least_even_values to listOf(condition.minCount)
+            } else {
+                R.string.objective_at_least_odd_values to listOf(condition.minCount)
+            }
+        }
+        is SatisfyAndAvoidCondition -> {
+            R.string.objective_satisfy_and_avoid to emptyList()
         }
     }
 }

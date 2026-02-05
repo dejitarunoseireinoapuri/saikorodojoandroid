@@ -42,13 +42,11 @@ class GenerateObjectiveUseCaseTest {
     @Test
     fun `sum range objective stays within achievable maximum sum`() {
         val diceTypes = listOf(DiceType.D6, DiceType.D8, DiceType.D10, DiceType.D10)
-        val objective = useCase.execute(
+        val rangeCondition = findCondition<SumInRangeCondition>(
             levelNumber = 35,
             diceTypes = diceTypes,
-            seedBase = 51L
+            seedBaseStart = 51L
         )
-
-        val rangeCondition = objective.conditions.filterIsInstance<SumInRangeCondition>().single()
         val minimumSelection = minimumSelectionCountForLevel(
             diceCount = diceTypes.size,
             stage = stageForLevel(35)
@@ -64,19 +62,16 @@ class GenerateObjectiveUseCaseTest {
     @Test
     fun `sum exact target changes with different seeds`() {
         val diceTypes = List(5) { DiceType.D10 }
-        val firstObjective = useCase.execute(
+        val firstTarget = findCondition<SumExactCondition>(
             levelNumber = 20,
             diceTypes = diceTypes,
-            seedBase = 31L
-        )
-        val secondObjective = useCase.execute(
+            seedBaseStart = 31L
+        ).target
+        val secondTarget = findCondition<SumExactCondition>(
             levelNumber = 20,
             diceTypes = diceTypes,
-            seedBase = 77L
-        )
-
-        val firstTarget = firstObjective.conditions.filterIsInstance<SumExactCondition>().single().target
-        val secondTarget = secondObjective.conditions.filterIsInstance<SumExactCondition>().single().target
+            seedBaseStart = 77L
+        ).target
         val minimumSelection = minimumSelectionCountForLevel(
             diceCount = diceTypes.size,
             stage = stageForLevel(20)
@@ -91,19 +86,16 @@ class GenerateObjectiveUseCaseTest {
     @Test
     fun `sum at least threshold changes with different seeds`() {
         val diceTypes = List(5) { DiceType.D8 }
-        val firstObjective = useCase.execute(
+        val firstThreshold = findCondition<SumAtLeastCondition>(
             levelNumber = 20,
             diceTypes = diceTypes,
-            seedBase = 11L
-        )
-        val secondObjective = useCase.execute(
+            seedBaseStart = 11L
+        ).threshold
+        val secondThreshold = findCondition<SumAtLeastCondition>(
             levelNumber = 20,
             diceTypes = diceTypes,
-            seedBase = 99L
-        )
-
-        val firstThreshold = firstObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
-        val secondThreshold = secondObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
+            seedBaseStart = 99L
+        ).threshold
         val maximumPossibleSum = diceTypes.sumOf { it.sides }
 
         assertTrue(firstThreshold in 1..maximumPossibleSum)
@@ -113,20 +105,33 @@ class GenerateObjectiveUseCaseTest {
 
     @Test
     fun `sum at least threshold grows with stage`() {
-        val earlyObjective = useCase.execute(
+        val earlyThreshold = findCondition<SumAtLeastCondition>(
             levelNumber = 1,
             diceTypes = List(5) { DiceType.D6 },
-            seedBase = 22L
-        )
-        val hardObjective = useCase.execute(
+            seedBaseStart = 22L
+        ).threshold
+        val hardThreshold = findCondition<SumAtLeastCondition>(
             levelNumber = 70,
             diceTypes = List(5) { DiceType.D6 },
-            seedBase = 22L
-        )
-
-        val earlyThreshold = earlyObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
-        val hardThreshold = hardObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
+            seedBaseStart = 22L
+        ).threshold
 
         assertTrue(hardThreshold > earlyThreshold)
+    }
+
+    private inline fun <reified T : ObjectiveCondition> findCondition(
+        levelNumber: Int,
+        diceTypes: List<DiceType>,
+        seedBaseStart: Long
+    ): T {
+        repeat(200) { attempt ->
+            val objective = useCase.execute(
+                levelNumber = levelNumber,
+                diceTypes = diceTypes,
+                seedBase = seedBaseStart + attempt
+            )
+            objective.conditions.filterIsInstance<T>().firstOrNull()?.let { return it }
+        }
+        throw AssertionError("Condition ${T::class.simpleName} was not generated")
     }
 }
