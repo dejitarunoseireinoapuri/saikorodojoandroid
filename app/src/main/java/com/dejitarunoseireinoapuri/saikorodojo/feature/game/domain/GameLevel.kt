@@ -119,17 +119,6 @@ data class ContainsValuesWithMultiplicityCondition(val values: List<Int>) : Obje
     }
 }
 
-data class CollectionPartialCondition(
-    val values: List<Int>,
-    val requiredCount: Int
-) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>): Boolean {
-        val diceSet = diceValues.toSet()
-        val presentCount = values.distinct().count { it in diceSet }
-        return presentCount >= requiredCount
-    }
-}
-
 data class ForbidValuesCondition(val values: List<Int>) : ObjectiveCondition {
     override fun isMet(diceValues: List<Int>): Boolean {
         val diceSet = diceValues.toSet()
@@ -245,13 +234,6 @@ class GenerateObjectiveUseCase {
                 until = (maxStraightLength + 1).coerceAtLeast(minStraightLength + 1)
             )
             candidates.add(StraightCondition(length = straightLength))
-            val collectionValues = randomValuesPool.shuffled(random).take(minOf(4, maxDieValue))
-            candidates.add(
-                CollectionPartialCondition(
-                    values = collectionValues,
-                    requiredCount = minOf(collectionValues.size, 2 + stage / 2)
-                )
-            )
         }
 
         if (stage >= 3) {
