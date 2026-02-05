@@ -27,6 +27,7 @@ private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_RESULT_DELAY_MS = 1_500L
 private const val DEFAULT_BUST_HIGHLIGHT_MS = 1_500L
 private const val DEFAULT_DEALER_STAND_TOTAL = 17
+private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_000L
 private const val BLACKJACK_LIMIT = 21
 
 data class BlackjackGameUiState(
@@ -70,6 +71,7 @@ class BlackjackGameViewModel(
     private val dealerStandTotal: Int = DEFAULT_DEALER_STAND_TOTAL,
     private val initialPlayerDice: Int = DEFAULT_INITIAL_PLAYER_DICE,
     private val initialDealerDice: Int = DEFAULT_INITIAL_DEALER_DICE,
+    private val rewardRevealDelayMs: Long = DEFAULT_REWARD_REVEAL_DELAY_MS,
     private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(BlackjackGameUiState())
@@ -310,20 +312,24 @@ class BlackjackGameViewModel(
                 isPlayerBust = isPlayerBust,
                 isDealerBust = isDealerBust
             )
-            if (outcome == BlackjackOutcome.PLAYER_WIN && delayMs > 0L) {
+            if (outcome != BlackjackOutcome.PLAYER_WIN && delayMs > 0L) {
                 delay(delayMs)
-            }
-            val rewardCards = if (outcome == BlackjackOutcome.PLAYER_WIN) {
-                resolveRewardCards()
-            } else {
-                emptyList()
             }
             _uiState.update {
                 it.copy(
                     result = outcome,
-                    rewardCards = rewardCards,
+                    rewardCards = emptyList(),
                     isComplete = true
                 )
+            }
+            if (outcome == BlackjackOutcome.PLAYER_WIN) {
+                if (rewardRevealDelayMs > 0L) {
+                    delay(rewardRevealDelayMs)
+                }
+                val rewardCards = resolveRewardCards()
+                _uiState.update {
+                    it.copy(rewardCards = rewardCards)
+                }
             }
         }
     }
