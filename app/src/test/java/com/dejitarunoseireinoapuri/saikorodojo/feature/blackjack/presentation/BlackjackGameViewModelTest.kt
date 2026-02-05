@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runCurrent
 import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -149,7 +150,7 @@ class BlackjackGameViewModelTest {
     }
 
     @Test
-    fun `loss outcome is reported without delay`() = runTest {
+    fun `win outcome highlights player mat before revealing rewards`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
                 TestDiceRoller(ArrayDeque(listOf(10, 1, 8, 9)))
@@ -175,14 +176,15 @@ class BlackjackGameViewModelTest {
 
         val immediateState = viewModel.uiState.value
         assertEquals(BlackjackOutcome.PLAYER_WIN, immediateState.result)
-        assertTrue(immediateState.isComplete)
         assertTrue(immediateState.rewardCards.isEmpty())
+        assertFalse(immediateState.isComplete)
 
         advanceTimeBy(1_000L)
         advanceUntilIdle()
 
         val revealedState = viewModel.uiState.value
         assertTrue(revealedState.rewardCards.isNotEmpty())
+        assertTrue(revealedState.isComplete)
     }
 }
 

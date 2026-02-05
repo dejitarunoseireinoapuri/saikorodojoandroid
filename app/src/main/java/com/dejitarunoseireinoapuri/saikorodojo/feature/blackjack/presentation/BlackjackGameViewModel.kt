@@ -311,18 +311,32 @@ class BlackjackGameViewModel(
             isPlayerBust = isPlayerBust,
             isDealerBust = isDealerBust
         )
-        if (outcome == BlackjackOutcome.PLAYER_WIN && delayMs > 0L) {
-            delay(delayMs)
+        if (outcome == BlackjackOutcome.PLAYER_WIN) {
+            _uiState.update {
+                it.copy(
+                    result = outcome,
+                    isComplete = false,
+                    rewardCards = emptyList()
+                )
+            }
+            if (rewardRevealDelayMs > 0L) {
+                delay(rewardRevealDelayMs)
+            }
+            _uiState.update {
+                it.copy(
+                    rewardCards = resolveRewardCards(),
+                    isComplete = true
+                )
+            }
+            return
         }
-        val rewardCards = if (outcome == BlackjackOutcome.PLAYER_WIN) {
-            resolveRewardCards()
-        } else {
-            emptyList()
+        if (delayMs > 0L) {
+            delay(delayMs)
         }
         _uiState.update {
             it.copy(
                 result = outcome,
-                rewardCards = rewardCards,
+                rewardCards = emptyList(),
                 isComplete = true
             )
         }
