@@ -37,7 +37,8 @@ class HigherLowerGameViewModelTest {
         val state = viewModel.uiState.value
         assertEquals(2, state.currentRound)
         assertEquals(listOf(4, 4), state.baseDiceValues)
-        assertTrue(state.currentDiceValues.isEmpty())
+        assertEquals(listOf(4, 4), state.currentDiceValues)
+        assertTrue(state.isCurrentDiceHidden)
         assertEquals(1, state.correctStreak)
         assertTrue(state.isChoiceVisible)
         assertFalse(state.isComplete)
