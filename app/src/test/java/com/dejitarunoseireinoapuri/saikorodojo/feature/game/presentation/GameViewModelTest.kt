@@ -401,6 +401,25 @@ class GameViewModelTest {
         assertTrue(effects.all { it is GameUiEffect.NavigateToMinigame })
     }
 
+
+    @Test
+    fun `level completion waits before moving to next level`() = runTest {
+        val viewModel = buildViewModel()
+
+        val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
+        method.isAccessible = true
+        method.invoke(viewModel)
+
+        assertEquals(1, viewModel.uiState.value.levelNumber)
+
+        testDispatcher.scheduler.advanceTimeBy(999)
+        assertEquals(1, viewModel.uiState.value.levelNumber)
+
+        testDispatcher.scheduler.advanceTimeBy(1)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(2, viewModel.uiState.value.levelNumber)
+    }
+
     @Test
     fun `level one starts without cards when inventory is empty`() = runTest {
         val viewModel = buildViewModel(cardUiModels = emptyList())
