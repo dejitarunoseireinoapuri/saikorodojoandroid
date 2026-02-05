@@ -125,6 +125,26 @@ class SequenceGameViewModelTest {
         assertEquals(4, immediateState.diceValue)
     }
 
+
+    @Test
+    fun `roll finishes without extra trailing delay after last animation tick`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 5, 7),
+            rollAnimationMs = 200L,
+            tickMs = 100L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isRolling)
+
+        dispatcher.scheduler.advanceTimeBy(100L)
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isAwaitingDecision)
+        assertTrue(viewModel.uiState.value.isRolling.not())
+    }
+
     @Test
     fun `discarding until the final round ends the game`() = runTest {
         val viewModel = buildViewModel(
