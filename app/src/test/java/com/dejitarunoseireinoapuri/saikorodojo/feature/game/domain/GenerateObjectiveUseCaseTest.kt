@@ -60,6 +60,34 @@ class GenerateObjectiveUseCaseTest {
         assertTrue(rangeCondition.min < rangeCondition.max)
     }
 
+
+    @Test
+    fun `sum exact target changes with different seeds`() {
+        val diceTypes = List(5) { DiceType.D10 }
+        val firstObjective = useCase.execute(
+            levelNumber = 20,
+            diceTypes = diceTypes,
+            seedBase = 31L
+        )
+        val secondObjective = useCase.execute(
+            levelNumber = 20,
+            diceTypes = diceTypes,
+            seedBase = 77L
+        )
+
+        val firstTarget = firstObjective.conditions.filterIsInstance<SumExactCondition>().single().target
+        val secondTarget = secondObjective.conditions.filterIsInstance<SumExactCondition>().single().target
+        val minimumSelection = minimumSelectionCountForLevel(
+            diceCount = diceTypes.size,
+            stage = stageForLevel(20)
+        )
+        val maximumPossibleSum = diceTypes.sumOf { it.sides }
+
+        assertTrue(firstTarget in minimumSelection..maximumPossibleSum)
+        assertTrue(secondTarget in minimumSelection..maximumPossibleSum)
+        assertTrue(firstTarget != secondTarget)
+    }
+
     @Test
     fun `sum at least threshold changes with different seeds`() {
         val diceTypes = List(5) { DiceType.D8 }
