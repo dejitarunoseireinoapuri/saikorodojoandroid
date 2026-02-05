@@ -1000,7 +1000,7 @@ internal fun objectiveLineText(
             R.string.objective_forbid_values to listOf(formatValues(condition.values))
         }
         is MinSelectedDiceCondition -> {
-            R.string.objective_min_selected to listOf(condition.minCount, selectedCount)
+            R.string.objective_selected_progress to listOf(selectedCount, condition.minCount)
         }
     }
 }
