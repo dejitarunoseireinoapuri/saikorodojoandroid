@@ -258,7 +258,7 @@ internal fun DiceBoard(
         if (uiState.isAwaitingRerollSelected || uiState.isAwaitingRerollSingle) {
             val buttonOffset = boardHeight / 2 + 48.dp
             val isEnabled = when {
-                uiState.isAwaitingRerollSelected -> uiState.selectedDice.isNotEmpty()
+                uiState.isAwaitingRerollSelected -> uiState.selectedRerollDice.isNotEmpty()
                 else -> uiState.selectedRerollSingleDieIndex != null
             }
             val onClick = if (uiState.isAwaitingRerollSelected) onRollSelectedDice else onRollSingleDie
@@ -312,7 +312,7 @@ internal fun DiceBoard(
                     isAwaitingRerollSingle = uiState.isAwaitingRerollSingle,
                     isAwaitingAdjustPlusMinus = uiState.isAwaitingAdjustPlusMinus,
                     isAwaitingSetValue = uiState.isAwaitingSetValue,
-                    isSelected = isSelected,
+                    isRerollSelected = uiState.selectedRerollDice.contains(index),
                     isAdjustmentSelected = isAdjustmentSelected,
                     isSetValueSelected = isSetValueSelected,
                     isRerollSingleSelected = isRerollSingleSelected
@@ -416,13 +416,13 @@ internal fun shouldShowDiceSelectionBorder(
     isAwaitingRerollSingle: Boolean,
     isAwaitingAdjustPlusMinus: Boolean,
     isAwaitingSetValue: Boolean,
-    isSelected: Boolean,
+    isRerollSelected: Boolean,
     isAdjustmentSelected: Boolean,
     isSetValueSelected: Boolean,
     isRerollSingleSelected: Boolean
 ): Boolean {
     return when {
-        isAwaitingRerollSelected -> isSelected
+        isAwaitingRerollSelected -> isRerollSelected
         isAwaitingRerollSingle -> isRerollSingleSelected
         isAwaitingAdjustPlusMinus -> isAdjustmentSelected
         isAwaitingSetValue -> isSetValueSelected
