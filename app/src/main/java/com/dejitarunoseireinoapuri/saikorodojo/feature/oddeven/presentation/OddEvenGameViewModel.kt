@@ -136,11 +136,24 @@ class OddEvenGameViewModel(
                     showFailure = !isCorrect
                 )
             }
-            delay(resultAnimationMs)
             val nextRound = state.currentRound + 1
             val hasWon = updatedCorrect >= targetCorrect
             val hasLost = updatedWrong >= targetCorrect
             val hasLossOutcome = hasLost || (!hasWon && nextRound > totalRounds)
+
+            if (!hasWon && !hasLossOutcome) {
+                _uiState.update {
+                    it.copy(
+                        selectedChoice = null,
+                        currentRound = nextRound
+                    )
+                }
+            }
+
+            if (resultAnimationMs > 0L && (hasWon || hasLossOutcome)) {
+                delay(resultAnimationMs)
+            }
+
             if (hasLossOutcome && lossMessageDelayMs > 0L) {
                 delay(lossMessageDelayMs)
             }
@@ -153,7 +166,6 @@ class OddEvenGameViewModel(
             _uiState.update {
                 it.copy(
                     selectedChoice = null,
-                    currentRound = if (isComplete) it.currentRound else nextRound,
                     isComplete = isComplete,
                     rewardCards = rewardCards
                 )
