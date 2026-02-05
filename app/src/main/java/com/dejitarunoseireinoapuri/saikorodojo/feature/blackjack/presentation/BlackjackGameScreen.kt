@@ -22,7 +22,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -45,6 +49,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import kotlinx.coroutines.delay
 
 internal const val BLACKJACK_HIT_BUTTON_TAG = "blackjack_hit_button"
 internal const val BLACKJACK_STAND_BUTTON_TAG = "blackjack_stand_button"
@@ -88,6 +93,19 @@ fun BlackjackGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(MaterialTheme.colorScheme.background)
+    var showMats by remember(uiState.isStarted) { mutableStateOf(uiState.isStarted) }
+    LaunchedEffect(uiState.rewardCards, uiState.isStarted) {
+        if (!uiState.isStarted) {
+            showMats = false
+            return@LaunchedEffect
+        }
+        if (uiState.rewardCards.isEmpty()) {
+            showMats = true
+        } else {
+            delay(1_000L)
+            showMats = false
+        }
+    }
     Box(modifier = containerModifier) {
         Column(
             modifier = Modifier
@@ -202,7 +220,7 @@ fun BlackjackGameScreen(
             }
         }
 
-        if (uiState.isStarted) {
+        if (showMats) {
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -221,16 +239,8 @@ fun BlackjackGameScreen(
                         .height(130.dp)
                         .testTag(BLACKJACK_DEALER_MAT_TAG),
                     contentAlignment = Alignment.Center,
-                    backgroundColor = when (uiState.result) {
-                        BlackjackOutcome.PLAYER_WIN -> VictoryMatBackground
-                        BlackjackOutcome.PLAYER_LOSE -> FailureMatBackground
-                        null -> SequenceSaveMatBackground
-                    },
-                    borderColor = when (uiState.result) {
-                        BlackjackOutcome.PLAYER_WIN -> VictoryMatBackground
-                        BlackjackOutcome.PLAYER_LOSE -> FailureMatBackground
-                        null -> SequenceSaveMatBorder
-                    }
+                    backgroundColor = SequenceSaveMatBackground,
+                    borderColor = SequenceSaveMatBorder
                 ) {
                     DiceRow(
                         values = uiState.dealerDice
