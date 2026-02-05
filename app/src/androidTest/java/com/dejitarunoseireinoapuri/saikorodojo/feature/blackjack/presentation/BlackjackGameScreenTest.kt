@@ -92,6 +92,59 @@ class BlackjackGameScreenTest {
         composeTestRule.onNodeWithText(subtitle).assertDoesNotExist()
     }
 
+
+    @Test
+    fun playerWinUsesVictoryMatBackgroundOnDealerMat() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                BlackjackGameScreen(
+                    uiState = BlackjackGameUiState(
+                        isStarted = true,
+                        playerDice = listOf(4, 5),
+                        dealerDice = listOf(6),
+                        result = BlackjackOutcome.PLAYER_WIN
+                    ),
+                    onStartClick = {},
+                    onHitClick = {},
+                    onStandClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(VictoryMatBackground, centerColor)
+    }
+
+    @Test
+    fun awaitingDecisionShowsStandOnLeftAndHitOnRightWithSameSize() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                BlackjackGameScreen(
+                    uiState = BlackjackGameUiState(
+                        isStarted = true,
+                        isAwaitingDecision = true,
+                        playerDice = listOf(4, 5),
+                        dealerDice = listOf(6)
+                    ),
+                    onStartClick = {},
+                    onHitClick = {},
+                    onStandClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val standNode = composeTestRule.onNodeWithTag(BLACKJACK_STAND_BUTTON_TAG).fetchSemanticsNode()
+        val hitNode = composeTestRule.onNodeWithTag(BLACKJACK_HIT_BUTTON_TAG).fetchSemanticsNode()
+
+        assertTrue(standNode.boundsInRoot.left < hitNode.boundsInRoot.left)
+        assertEquals(standNode.boundsInRoot.width, hitNode.boundsInRoot.width)
+        assertEquals(standNode.boundsInRoot.height, hitNode.boundsInRoot.height)
+    }
+
     @Test
     fun rewardStackIsOffsetDownward() {
         val rewardCard = CardUiModel(
