@@ -56,6 +56,16 @@ internal const val SEQUENCE_CONTINUE_BUTTON_TAG = "sequence_continue_button"
 internal const val SEQUENCE_SAVED_DIE_TAG_PREFIX = "sequence_saved_die"
 internal const val SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX = "sequence_saved_die_value"
 
+internal enum class SequenceDecisionAction {
+    Discard,
+    Save
+}
+
+internal fun sequenceDecisionActionOrder(): List<SequenceDecisionAction> = listOf(
+    SequenceDecisionAction.Discard,
+    SequenceDecisionAction.Save
+)
+
 internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
@@ -219,16 +229,21 @@ fun SequenceGameScreen(
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            SequenceChoiceButton(
-                                label = stringResource(R.string.sequence_save),
-                                testTag = SEQUENCE_SAVE_BUTTON_TAG,
-                                onClick = onSaveClick
-                            )
-                            SequenceChoiceButton(
-                                label = stringResource(R.string.sequence_discard),
-                                testTag = SEQUENCE_DISCARD_BUTTON_TAG,
-                                onClick = onDiscardClick
-                            )
+                            sequenceDecisionActionOrder().forEach { action ->
+                                when (action) {
+                                    SequenceDecisionAction.Discard -> SequenceChoiceButton(
+                                        label = stringResource(R.string.sequence_discard),
+                                        testTag = SEQUENCE_DISCARD_BUTTON_TAG,
+                                        onClick = onDiscardClick
+                                    )
+
+                                    SequenceDecisionAction.Save -> SequenceChoiceButton(
+                                        label = stringResource(R.string.sequence_save),
+                                        testTag = SEQUENCE_SAVE_BUTTON_TAG,
+                                        onClick = onSaveClick
+                                    )
+                                }
+                            }
                         }
                     }
                 }
