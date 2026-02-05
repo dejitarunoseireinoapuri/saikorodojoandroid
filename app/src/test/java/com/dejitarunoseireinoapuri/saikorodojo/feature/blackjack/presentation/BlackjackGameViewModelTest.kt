@@ -120,7 +120,36 @@ class BlackjackGameViewModelTest {
     }
 
     @Test
-    fun `player win is published before reward cards are revealed`() = runTest {
+    fun `player bust resolves loss immediately without waiting bust highlight`() = runTest {
+        val viewModel = BlackjackGameViewModel(
+            rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
+                TestDiceRoller(ArrayDeque(listOf(10, 10, 6)))
+            ),
+            calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
+            determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
+            selectMinigameRewardCardsUseCase = SelectMinigameRewardCardsUseCase(
+                TestRewardRandomProvider(listOf(0.4f, 0.2f, 0.3f))
+            ),
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollAnimationMs = 0L,
+            tickMs = 1L,
+            resultDelayMs = 0L,
+            bustHighlightMs = 1_500L
+        )
+
+        viewModel.onEvent(BlackjackGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(BlackjackGameUiEvent.Hit)
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertEquals(BlackjackOutcome.PLAYER_LOSE, state.result)
+        assertTrue(state.isComplete)
+    }
+
+    @Test
+    fun `loss outcome is reported without delay`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
                 TestDiceRoller(ArrayDeque(listOf(10, 1, 8, 9)))
