@@ -198,14 +198,15 @@ class SequenceGameViewModel(
         }
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollAnimationMs / tickMs).coerceAtLeast(1L).toInt()
-            var finalRoll = rollSequenceUseCase.execute().value
-            repeat(steps) {
+            var finalRoll = _uiState.value.diceValue ?: rollSequenceUseCase.execute().value
+            repeat(steps) { step ->
                 val roll = rollSequenceUseCase.execute().value
                 finalRoll = roll
                 _uiState.update { current ->
                     current.copy(diceValue = roll)
                 }
-                if (rollAnimationMs > 0L) {
+                val shouldDelay = rollAnimationMs > 0L && step < steps - 1
+                if (shouldDelay) {
                     delay(tickMs)
                 }
             }
