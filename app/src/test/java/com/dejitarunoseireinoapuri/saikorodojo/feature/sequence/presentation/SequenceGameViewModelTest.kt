@@ -84,13 +84,11 @@ class SequenceGameViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
         dispatcher.scheduler.advanceUntilIdle()
-        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
-        dispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
-        assertEquals(2, state.currentRoll)
-        assertEquals(2, state.discardCount)
+        assertEquals(1, state.currentRoll)
+        assertEquals(1, state.discardCount)
         assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
         assertTrue(state.rewardCards.isEmpty())
     }
