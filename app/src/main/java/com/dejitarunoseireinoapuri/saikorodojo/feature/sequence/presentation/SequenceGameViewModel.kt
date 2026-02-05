@@ -23,6 +23,7 @@ private const val DEFAULT_MAX_DISCARDS = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_500L
+private const val DEFAULT_SEQUENCE_DIE_MAX = 10
 
 data class SequenceGameUiState(
     val isStarted: Boolean = false,
@@ -67,7 +68,8 @@ class SequenceGameViewModel(
     private val totalRolls: Int = DEFAULT_TOTAL_ROLLS,
     private val targetSequence: Int = DEFAULT_TARGET_SEQUENCE,
     private val maxDiscards: Int = DEFAULT_MAX_DISCARDS,
-    private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
+    private val cardUiModels: List<CardUiModel> = defaultCardUiModels(),
+    private val sequenceDieMax: Int = DEFAULT_SEQUENCE_DIE_MAX
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         SequenceGameUiState(
@@ -156,7 +158,18 @@ class SequenceGameViewModel(
         discardCount: Int
     ) {
         val state = _uiState.value
-        if (state.currentRoll >= state.totalRolls) {
+        val remainingRolls = (state.totalRolls - nextRoll + 1).coerceAtLeast(0)
+        val maxSavesByRounds = savedValues.size + remainingRolls
+        val lastSaved = savedValues.lastOrNull()
+        val maxSavesByValue = if (lastSaved == null) {
+            state.targetSequence
+        } else {
+            savedValues.size + (sequenceDieMax - lastSaved).coerceAtLeast(0)
+        }
+        val canStillWin =
+            maxSavesByRounds >= state.targetSequence && maxSavesByValue >= state.targetSequence
+
+        if (nextRoll > state.totalRolls || !canStillWin) {
             completeFailure(
                 savedValues = savedValues,
                 discardCount = discardCount,

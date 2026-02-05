@@ -397,7 +397,7 @@ private fun SequenceDiceFace(
     ) {
         if (value != null) {
             Image(
-                painter = painterResource(id = R.drawable.eigth_sides),
+                painter = painterResource(id = R.drawable.ten_sides),
                 contentDescription = stringResource(R.string.cd_dice_face, value),
                 modifier = Modifier.fillMaxSize()
             )
@@ -418,7 +418,7 @@ private fun SequenceSavedDie(
     value: Int,
     size: Dp
 ) {
-    val diceRes = R.drawable.eigth_sides
+    val diceRes = R.drawable.ten_sides
     val textOffsetPx = with(LocalDensity.current) { 6.dp.toPx() }
     Box(
         modifier = Modifier
