@@ -25,7 +25,7 @@ class HigherLowerGameViewModelTest {
     @Test
     fun `correct guess advances round and moves dice`() = runTest {
         val viewModel = buildViewModel(
-            diceValues = listOf(1, 1, 2, 3, 4, 4)
+            diceValues = listOf(1, 1, 2, 3, 1, 1, 4, 4)
         )
 
         viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
