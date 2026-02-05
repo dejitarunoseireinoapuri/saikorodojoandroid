@@ -278,8 +278,34 @@ class GameViewModelTest {
         val stateAfterRoll = viewModel.uiState.value
         assertEquals(listOf(6, 1, 6), stateAfterRoll.diceValues)
         assertTrue(stateAfterRoll.selectedDice.isEmpty())
+        assertTrue(stateAfterRoll.selectedRerollDice.isEmpty())
         assertEquals(0, stateAfterRoll.selectedDiceSum)
         assertTrue(!stateAfterRoll.isAwaitingRerollSelected)
+    }
+
+    @Test
+    fun `reroll selection does not change objective selected dice`() = runTest {
+        val viewModel = buildViewModel(
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.REROLL_ALL,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        assertEquals(setOf(0), viewModel.uiState.value.selectedDice)
+
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(1))
+
+        val state = viewModel.uiState.value
+        assertEquals(setOf(0), state.selectedDice)
+        assertEquals(setOf(1), state.selectedRerollDice)
+        assertEquals(1, state.selectedDiceSum)
     }
 
     @Test

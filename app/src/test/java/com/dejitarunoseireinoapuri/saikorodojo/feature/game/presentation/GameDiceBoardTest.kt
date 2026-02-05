@@ -87,7 +87,7 @@ class GameDiceBoardTest {
                 isAwaitingRerollSingle = false,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
-                isSelected = true,
+                isRerollSelected = true,
                 isAdjustmentSelected = false,
                 isSetValueSelected = false,
                 isRerollSingleSelected = false
@@ -100,7 +100,7 @@ class GameDiceBoardTest {
                 isAwaitingRerollSingle = true,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
-                isSelected = true,
+                isRerollSelected = false,
                 isAdjustmentSelected = false,
                 isSetValueSelected = false,
                 isRerollSingleSelected = false
@@ -112,7 +112,7 @@ class GameDiceBoardTest {
                 isAwaitingRerollSingle = true,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
-                isSelected = false,
+                isRerollSelected = false,
                 isAdjustmentSelected = false,
                 isSetValueSelected = false,
                 isRerollSingleSelected = true
