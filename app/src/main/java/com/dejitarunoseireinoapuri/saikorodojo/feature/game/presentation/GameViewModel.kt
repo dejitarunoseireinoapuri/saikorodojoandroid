@@ -28,7 +28,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCo
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.StraightCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesWithMultiplicityCondition
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.CollectionPartialCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ForbidValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDiceCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
@@ -985,12 +984,6 @@ internal fun objectiveLineText(
         }
         is ContainsValuesWithMultiplicityCondition -> {
             R.string.objective_contains_values to listOf(formatMultiplicity(condition.values))
-        }
-        is CollectionPartialCondition -> {
-            R.string.objective_collection_partial to listOf(
-                formatValues(condition.values),
-                condition.requiredCount
-            )
         }
         is ForbidValuesCondition -> {
             R.string.objective_forbid_values to listOf(formatValues(condition.values))
