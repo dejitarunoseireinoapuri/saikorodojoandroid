@@ -1,8 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain
 
-import kotlin.random.Random
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -10,68 +8,125 @@ class GenerateObjectiveUseCaseTest {
     private val useCase = GenerateObjectiveUseCase()
 
     @Test
-    fun `generated objective is satisfied by full dice selection`() {
-        val diceValues = listOf(2, 2, 5, 6, 3)
-
+    fun `generated objective always includes minimum selected dice condition`() {
         val objective = useCase.execute(
             levelNumber = 1,
-            diceValues = diceValues,
+            diceTypes = List(5) { DiceType.D6 },
             seedBase = 4L
         )
 
-        val isSatisfied = objective.conditions.all { it.isMet(diceValues) }
+        val minimumSelectionCondition = objective.conditions.filterIsInstance<MinSelectedDiceCondition>()
 
-        assertTrue(isSatisfied)
+        assertEquals(1, minimumSelectionCondition.size)
+        assertEquals(3, minimumSelectionCondition.single().minCount)
     }
 
     @Test
-    fun `range objectives always have a span`() {
-        val diceValues = listOf(1, 3, 4, 6, 6)
+    fun `higher stages add more objective conditions`() {
+        val earlyObjective = useCase.execute(
+            levelNumber = 1,
+            diceTypes = List(5) { DiceType.D6 },
+            seedBase = 10L
+        )
+        val hardObjective = useCase.execute(
+            levelNumber = 70,
+            diceTypes = List(8) { DiceType.D10 },
+            seedBase = 10L
+        )
 
+        assertEquals(2, earlyObjective.conditions.size)
+        assertEquals(3, hardObjective.conditions.filterNot { it is MinSelectedDiceCondition }.size)
+    }
+
+
+    @Test
+    fun `sum range objective stays within achievable maximum sum`() {
+        val diceTypes = listOf(DiceType.D6, DiceType.D8, DiceType.D10, DiceType.D10)
         val objective = useCase.execute(
-            levelNumber = 2,
-            diceValues = diceValues,
-            seedBase = 12L
+            levelNumber = 35,
+            diceTypes = diceTypes,
+            seedBase = 51L
         )
 
-        val hasRange = objective.conditions.filterIsInstance<SumInRangeCondition>()
+        val rangeCondition = objective.conditions.filterIsInstance<SumInRangeCondition>().single()
+        val minimumSelection = minimumSelectionCountForLevel(
+            diceCount = diceTypes.size,
+            stage = stageForLevel(35)
+        )
+        val maximumPossibleSum = diceTypes.sumOf { it.sides }
 
-        assertTrue(hasRange.all { it.min < it.max })
+        assertTrue(rangeCondition.min >= minimumSelection)
+        assertTrue(rangeCondition.max <= maximumPossibleSum)
+        assertTrue(rangeCondition.min < rangeCondition.max)
+    }
+
+
+    @Test
+    fun `sum exact target changes with different seeds`() {
+        val diceTypes = List(5) { DiceType.D10 }
+        val firstObjective = useCase.execute(
+            levelNumber = 20,
+            diceTypes = diceTypes,
+            seedBase = 31L
+        )
+        val secondObjective = useCase.execute(
+            levelNumber = 20,
+            diceTypes = diceTypes,
+            seedBase = 77L
+        )
+
+        val firstTarget = firstObjective.conditions.filterIsInstance<SumExactCondition>().single().target
+        val secondTarget = secondObjective.conditions.filterIsInstance<SumExactCondition>().single().target
+        val minimumSelection = minimumSelectionCountForLevel(
+            diceCount = diceTypes.size,
+            stage = stageForLevel(20)
+        )
+        val maximumPossibleSum = diceTypes.sumOf { it.sides }
+
+        assertTrue(firstTarget in minimumSelection..maximumPossibleSum)
+        assertTrue(secondTarget in minimumSelection..maximumPossibleSum)
+        assertTrue(firstTarget != secondTarget)
     }
 
     @Test
-    fun `minimum selection keeps at least dice count minus two`() {
-        val minimum = minimumSelectionCountForLevel(
-            diceCount = 6,
-            stage = 2
+    fun `sum at least threshold changes with different seeds`() {
+        val diceTypes = List(5) { DiceType.D8 }
+        val firstObjective = useCase.execute(
+            levelNumber = 20,
+            diceTypes = diceTypes,
+            seedBase = 11L
+        )
+        val secondObjective = useCase.execute(
+            levelNumber = 20,
+            diceTypes = diceTypes,
+            seedBase = 99L
         )
 
-        assertEquals(4, minimum)
+        val firstThreshold = firstObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
+        val secondThreshold = secondObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
+        val maximumPossibleSum = diceTypes.sumOf { it.sides }
+
+        assertTrue(firstThreshold in 1..maximumPossibleSum)
+        assertTrue(secondThreshold in 1..maximumPossibleSum)
+        assertTrue(firstThreshold != secondThreshold)
     }
 
     @Test
-    fun `minimum selection requires all dice on hard stages`() {
-        val minimum = minimumSelectionCountForLevel(
-            diceCount = 5,
-            stage = 4
+    fun `sum at least threshold grows with stage`() {
+        val earlyObjective = useCase.execute(
+            levelNumber = 1,
+            diceTypes = List(5) { DiceType.D6 },
+            seedBase = 22L
+        )
+        val hardObjective = useCase.execute(
+            levelNumber = 70,
+            diceTypes = List(5) { DiceType.D6 },
+            seedBase = 22L
         )
 
-        assertEquals(5, minimum)
-    }
+        val earlyThreshold = earlyObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
+        val hardThreshold = hardObjective.conditions.filterIsInstance<SumAtLeastCondition>().single().threshold
 
-    @Test
-    fun `exact sum targets are reachable with minimum selection`() {
-        val diceValues = listOf(4, 4, 4, 4, 4)
-        val minimumSelectionCount = 3
-
-        val target = pickExactSumTarget(
-            diceValues = diceValues,
-            minimumSelectionCount = minimumSelectionCount,
-            random = Random(2L)
-        )
-        val reachableSums = possibleSumsAtLeastCount(diceValues, minimumSelectionCount)
-
-        assertFalse(reachableSums.isEmpty())
-        assertTrue(target in reachableSums)
+        assertTrue(hardThreshold > earlyThreshold)
     }
 }

@@ -16,8 +16,8 @@ class ObjectiveLineTextTest {
 
         val (textRes, args) = objectiveLineText(condition, selectedCount = 2)
 
-        assertEquals(R.string.objective_min_selected, textRes)
-        assertEquals(listOf(4, 2), args)
+        assertEquals(R.string.objective_selected_progress, textRes)
+        assertEquals(listOf(2, 4), args)
     }
 
     @Test

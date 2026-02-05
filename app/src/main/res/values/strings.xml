@@ -7,6 +7,7 @@
     <string name="cd_sound_off">Sound off</string>
     <string name="cd_settings">Settings</string>
     <string name="cd_dice_face">Dice face %1$d</string>
+    <string name="selected_dice_count">%1$d de %2$d seleccionados</string>
     <string name="selected_dice_sum">Selected sum: %1$d</string>
     <string name="select_die_to_reroll">Select a die to reroll</string>
     <string name="select_dice_to_reroll">Select dice to reroll</string>
@@ -78,7 +79,7 @@
     <string name="objective_contains_values">Contains: %1$s</string>
     <string name="objective_collection_partial">From %1$s, at least %2$d</string>
     <string name="objective_forbid_values">Do not select any %1$s</string>
-    <string name="objective_min_selected">Select at least %1$d dice (%2$d of %1$d selected)</string>
+    <string name="objective_selected_progress">%1$d de %2$d seleccionados</string>
     <string name="surrender_title">Surrender?</string>
     <string name="surrender_message">Do you want to surrender and return to the menu?</string>
     <string name="surrender_confirm">Surrender</string>
@@ -88,4 +89,5 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="cd_surrender">Surrender</string>
     <string name="cd_exit_home">Exit to menu</string>
+    <string name="cd_random_minigame">Open random minigame</string>
 </resources>

@@ -10,6 +10,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -367,6 +371,53 @@ class GameViewModelTest {
         assertEquals(4, updatedState.diceValues.size)
         assertEquals(4, updatedState.diceTypes.size)
         assertTrue(!updatedState.isAwaitingRerollSelected)
+    }
+
+
+    @Test
+    fun `open random minigame emits navigation effect`() = runTest {
+        val viewModel = buildViewModel()
+
+        val deferredEffect = async { viewModel.effects.first() }
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+
+        val effect = deferredEffect.await()
+        assertTrue(effect is GameUiEffect.NavigateToMinigame)
+    }
+
+
+    @Test
+    fun `open random minigame emits one effect per click`() = runTest {
+        val viewModel = buildViewModel()
+
+        val deferredEffects = async { viewModel.effects.take(2).toList() }
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+
+        val effects = deferredEffects.await()
+        assertEquals(2, effects.size)
+        assertTrue(effects.all { it is GameUiEffect.NavigateToMinigame })
+    }
+
+
+    @Test
+    fun `level completion waits before moving to next level`() = runTest {
+        val viewModel = buildViewModel()
+
+        val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
+        method.isAccessible = true
+        method.invoke(viewModel)
+
+        assertEquals(1, viewModel.uiState.value.levelNumber)
+
+        testDispatcher.scheduler.advanceTimeBy(999)
+        assertEquals(1, viewModel.uiState.value.levelNumber)
+
+        testDispatcher.scheduler.advanceTimeBy(1)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(2, viewModel.uiState.value.levelNumber)
     }
 
     @Test

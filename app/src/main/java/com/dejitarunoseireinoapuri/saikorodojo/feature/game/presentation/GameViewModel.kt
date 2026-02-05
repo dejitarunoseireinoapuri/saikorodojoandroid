@@ -47,7 +47,7 @@ import kotlin.random.Random
 private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
-private const val DEFAULT_COMPLETION_MESSAGE_MS = 1_000L
+private const val LEVEL_COMPLETE_DELAY_MS = 1_000L
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
@@ -88,6 +88,7 @@ sealed interface GameUiEvent {
     data object IncreaseDiceCount : GameUiEvent
     data object ConfirmSurrender : GameUiEvent
     data object ConfirmExit : GameUiEvent
+    data object OpenRandomMinigame : GameUiEvent
 }
 
 sealed interface GameUiEffect {
@@ -112,7 +113,6 @@ class GameViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
-    private val completionMessageMs: Long = DEFAULT_COMPLETION_MESSAGE_MS,
     private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() },
     private val baseSeedProvider: () -> Long = { Random.Default.nextLong() },
     private val initialLevelDefinition: LevelDefinition? = null,
@@ -172,6 +172,7 @@ class GameViewModel(
             GameUiEvent.IncreaseDiceCount -> increaseDiceCount()
             GameUiEvent.ConfirmSurrender -> confirmSurrender()
             GameUiEvent.ConfirmExit -> confirmExit()
+            GameUiEvent.OpenRandomMinigame -> openRandomMinigame()
         }
     }
 
@@ -181,6 +182,13 @@ class GameViewModel(
             _uiState.value.isAwaitingFlipFace ||
             _uiState.value.isAwaitingAdjustPlusMinus ||
             _uiState.value.isAwaitingSetValue
+    }
+
+
+    private fun openRandomMinigame() {
+        viewModelScope.launch(dispatcher) {
+            _effects.emit(GameUiEffect.NavigateToMinigame(pickMinigame()))
+        }
     }
 
     private fun confirmSurrender() {
@@ -246,7 +254,7 @@ class GameViewModel(
             if (currentObjective == null) {
                 currentObjective = generateObjectiveUseCase.execute(
                     levelNumber = currentLevelNumber,
-                    diceValues = _uiState.value.diceValues,
+                    diceTypes = _uiState.value.diceTypes,
                     seedBase = baseSeed
                 )
             }
@@ -898,26 +906,20 @@ class GameViewModel(
     private fun handleLevelComplete() {
         if (completionJob?.isActive == true) return
         completionJob = viewModelScope.launch(dispatcher) {
-            _uiState.update { it.copy(showLevelCompleteMessage = true) }
-            if (completionMessageMs > 0L) {
-                delay(completionMessageMs)
-            }
+            delay(LEVEL_COMPLETE_DELAY_MS)
             val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
             val nextDefinition = generateLevelUseCase.execute(
                 levelNumber = nextLevel,
                 seedBase = baseSeed
             )
-            val minigame = pickMinigame(nextDefinition.levelNumber)
-            _effects.emit(GameUiEffect.NavigateToMinigame(minigame))
             applyLevelDefinition(nextDefinition)
             startRolling()
         }
     }
 
-    private fun pickMinigame(levelNumber: Int): MinigameType {
-        val random = Random(baseSeed + levelNumber * 31L)
+    private fun pickMinigame(): MinigameType {
         val values = MinigameType.values()
-        return values[random.nextInt(values.size)]
+        return values[Random.Default.nextInt(values.size)]
     }
 
     private fun buildObjectiveLines(
@@ -994,7 +996,7 @@ internal fun objectiveLineText(
             R.string.objective_forbid_values to listOf(formatValues(condition.values))
         }
         is MinSelectedDiceCondition -> {
-            R.string.objective_min_selected to listOf(condition.minCount, selectedCount)
+            R.string.objective_selected_progress to listOf(selectedCount, condition.minCount)
         }
     }
 }

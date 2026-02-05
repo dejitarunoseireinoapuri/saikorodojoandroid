@@ -8,6 +8,7 @@
     <string name="cd_settings">Configuració</string>
     <string name="cd_dice_face">Cara del dau %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
+    <string name="selected_dice_count">%1$d de %2$d seleccionados</string>
     <string name="select_die_to_reroll">Selecciona un dau per tornar a tirar</string>
     <string name="select_dice_to_reroll">Selecciona els daus per tornar a tirar</string>
     <string name="select_die_to_flip">Selecciona un dau per girar</string>
@@ -78,7 +79,7 @@
     <string name="objective_contains_values">Conté: %1$s</string>
     <string name="objective_collection_partial">De %1$s, com a mínim %2$d</string>
     <string name="objective_forbid_values">No seleccionis cap %1$s</string>
-    <string name="objective_min_selected">Selecciona almenys %1$d daus (%2$d de %1$d seleccionats)</string>
+    <string name="objective_selected_progress">%1$d de %2$d seleccionados</string>
     <string name="surrender_title">Rendir-se?</string>
     <string name="surrender_message">Vols rendir-te i tornar al menú?</string>
     <string name="surrender_confirm">Rendir-se</string>
