@@ -122,7 +122,7 @@ fun BlackjackGameScreen(
                 hasReward -> {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = stringResource(R.string.minigame_win_cards_message),
+                        text = stringResource(R.string.minigame_win_message),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
                         color = VictoryMatBackground,
                         textAlign = TextAlign.Center
