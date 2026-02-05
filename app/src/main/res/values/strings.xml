@@ -78,6 +78,17 @@
     <string name="objective_sum_odd">The sum must be odd</string>
     <string name="objective_contains_values">The selection must contain: %1$s</string>
     <string name="objective_forbid_values">The selection must not contain %1$s</string>
+    <string name="objective_sum_at_most">The sum must be at most %1$d</string>
+    <string name="objective_sum_multiple">The sum must be a multiple of %1$d</string>
+    <string name="objective_sum_max_difference">The sum must be within %2$d of %1$d</string>
+    <string name="objective_exact_distinct_values">Select exactly %1$d distinct values</string>
+    <string name="objective_selected_exact">%1$d of %2$d selected (exact)</string>
+    <string name="objective_at_least_even_values">Select at least %1$d even dice</string>
+    <string name="objective_at_least_odd_values">Select at least %1$d odd dice</string>
+    <string name="objective_contains_high_and_low">Contain at least one low and one high value</string>
+    <string name="objective_two_pairs_exact">Get exactly two pairs</string>
+    <string name="objective_three_of_kind_with_value">Get three of a kind of %1$d</string>
+    <string name="objective_satisfy_and_avoid">Meet condition A and avoid condition B</string>
     <string name="objective_selected_progress">%1$d of %2$d selected</string>
     <string name="surrender_title">Surrender?</string>
     <string name="surrender_message">Do you want to surrender and return to the menu?</string>

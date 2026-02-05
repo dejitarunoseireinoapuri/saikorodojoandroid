@@ -78,6 +78,17 @@
     <string name="objective_sum_odd">La suma debe ser impar</string>
     <string name="objective_contains_values">La selección debe contener: %1$s</string>
     <string name="objective_forbid_values">La selección no debe contener %1$s</string>
+    <string name="objective_sum_at_most">La suma debe ser como máximo %1$d</string>
+    <string name="objective_sum_multiple">La suma debe ser múltiplo de %1$d</string>
+    <string name="objective_sum_max_difference">La suma debe estar a una distancia máxima de %2$d respecto a %1$d</string>
+    <string name="objective_exact_distinct_values">Selecciona exactamente %1$d valores distintos</string>
+    <string name="objective_selected_exact">%1$d de %2$d seleccionados (exacto)</string>
+    <string name="objective_at_least_even_values">Selecciona al menos %1$d dados pares</string>
+    <string name="objective_at_least_odd_values">Selecciona al menos %1$d dados impares</string>
+    <string name="objective_contains_high_and_low">Contén al menos un valor bajo y uno alto</string>
+    <string name="objective_two_pairs_exact">Consigue exactamente dos parejas</string>
+    <string name="objective_three_of_kind_with_value">Consigue un trío de %1$d</string>
+    <string name="objective_satisfy_and_avoid">Cumple A y evita B</string>
     <string name="objective_selected_progress">%1$d de %2$d seleccionados</string>
     <string name="surrender_title">¿Rendirse?</string>
     <string name="surrender_message">¿Quieres rendirte y volver al menú?</string>
