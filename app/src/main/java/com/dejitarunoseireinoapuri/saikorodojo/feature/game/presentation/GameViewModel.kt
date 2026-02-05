@@ -88,6 +88,7 @@ sealed interface GameUiEvent {
     data object IncreaseDiceCount : GameUiEvent
     data object ConfirmSurrender : GameUiEvent
     data object ConfirmExit : GameUiEvent
+    data object OpenRandomMinigame : GameUiEvent
 }
 
 sealed interface GameUiEffect {
@@ -172,6 +173,7 @@ class GameViewModel(
             GameUiEvent.IncreaseDiceCount -> increaseDiceCount()
             GameUiEvent.ConfirmSurrender -> confirmSurrender()
             GameUiEvent.ConfirmExit -> confirmExit()
+            GameUiEvent.OpenRandomMinigame -> openRandomMinigame()
         }
     }
 
@@ -181,6 +183,13 @@ class GameViewModel(
             _uiState.value.isAwaitingFlipFace ||
             _uiState.value.isAwaitingAdjustPlusMinus ||
             _uiState.value.isAwaitingSetValue
+    }
+
+
+    private fun openRandomMinigame() {
+        viewModelScope.launch(dispatcher) {
+            _effects.emit(GameUiEffect.NavigateToMinigame(pickMinigame(_uiState.value.levelNumber)))
+        }
     }
 
     private fun confirmSurrender() {
@@ -246,7 +255,7 @@ class GameViewModel(
             if (currentObjective == null) {
                 currentObjective = generateObjectiveUseCase.execute(
                     levelNumber = currentLevelNumber,
-                    diceValues = _uiState.value.diceValues,
+                    diceTypes = _uiState.value.diceTypes,
                     seedBase = baseSeed
                 )
             }

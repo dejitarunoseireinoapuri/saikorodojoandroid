@@ -10,6 +10,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -367,6 +369,19 @@ class GameViewModelTest {
         assertEquals(4, updatedState.diceValues.size)
         assertEquals(4, updatedState.diceTypes.size)
         assertTrue(!updatedState.isAwaitingRerollSelected)
+    }
+
+
+    @Test
+    fun `open random minigame emits navigation effect`() = runTest {
+        val viewModel = buildViewModel()
+
+        val deferredEffect = async { viewModel.effects.first() }
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+
+        val effect = deferredEffect.await()
+        assertTrue(effect is GameUiEffect.NavigateToMinigame)
     }
 
     @Test

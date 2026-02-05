@@ -88,4 +88,5 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="cd_surrender">Surrender</string>
     <string name="cd_exit_home">Exit to menu</string>
+    <string name="cd_random_minigame">Open random minigame</string>
 </resources>

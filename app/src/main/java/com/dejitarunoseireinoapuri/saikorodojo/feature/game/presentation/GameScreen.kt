@@ -51,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.Style
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
@@ -94,7 +95,8 @@ fun GameRoute(
         onRollSelectedDice = { viewModel.onEvent(GameUiEvent.RollSelectedDice) },
         onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) },
         onConfirmSurrender = { viewModel.onEvent(GameUiEvent.ConfirmSurrender) },
-        onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) }
+        onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) },
+        onOpenRandomMinigame = { viewModel.onEvent(GameUiEvent.OpenRandomMinigame) }
     )
 }
 
@@ -113,7 +115,8 @@ fun GameScreen(
     onRollSelectedDice: () -> Unit,
     onRollSingleDie: () -> Unit,
     onConfirmSurrender: () -> Unit,
-    onConfirmExit: () -> Unit
+    onConfirmExit: () -> Unit,
+    onOpenRandomMinigame: () -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -194,6 +197,13 @@ fun GameScreen(
                     )
                 }
                 Box(modifier = Modifier.weight(1f))
+                IconButton(onClick = onOpenRandomMinigame) {
+                    Icon(
+                        imageVector = Icons.Outlined.Style,
+                        contentDescription = stringResource(R.string.cd_random_minigame),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
                 IconButton(onClick = { showSurrenderDialog = true }) {
                     Icon(
                         imageVector = Icons.Outlined.Flag,
