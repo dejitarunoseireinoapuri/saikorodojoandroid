@@ -50,6 +50,25 @@ class OddEvenGameViewModelTest {
         assertEquals(2, state.diceValue)
     }
 
+
+    @Test
+    fun `non-terminal rounds do not wait for result animation to show choices again`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2),
+            resultAnimationMs = 1_500L
+        )
+
+        viewModel.onEvent(OddEvenGameUiEvent.StartGame)
+        viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.EVEN))
+        dispatcher.scheduler.runCurrent()
+
+        val state = viewModel.uiState.value
+        assertEquals(2, state.currentRound)
+        assertNull(state.selectedChoice)
+        assertTrue(!state.isComplete)
+        assertTrue(state.showFireworks)
+    }
+
     @Test
     fun `winning the game shows reward cards`() = runTest {
         val viewModel = buildViewModel(
@@ -195,6 +214,7 @@ class OddEvenGameViewModelTest {
         diceRolls: List<Int> = listOf(2),
         rewardRolls: List<Float> = listOf(0.4f, 0.2f, 0.3f),
         targetCorrect: Int = 3,
+        resultAnimationMs: Long = 0L,
         lossMessageDelayMs: Long? = 0L
     ): OddEvenGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
@@ -208,7 +228,7 @@ class OddEvenGameViewModelTest {
                 selectMinigameRewardCardsUseCase = rewardUseCase,
                 dispatcher = dispatcher,
                 rollAnimationMs = 0L,
-                resultAnimationMs = 0L,
+                resultAnimationMs = resultAnimationMs,
                 tickMs = 1L,
                 targetCorrect = targetCorrect,
                 cardUiModels = testCardUiModels()
@@ -219,7 +239,7 @@ class OddEvenGameViewModelTest {
                 selectMinigameRewardCardsUseCase = rewardUseCase,
                 dispatcher = dispatcher,
                 rollAnimationMs = 0L,
-                resultAnimationMs = 0L,
+                resultAnimationMs = resultAnimationMs,
                 tickMs = 1L,
                 targetCorrect = targetCorrect,
                 lossMessageDelayMs = lossMessageDelayMs,
