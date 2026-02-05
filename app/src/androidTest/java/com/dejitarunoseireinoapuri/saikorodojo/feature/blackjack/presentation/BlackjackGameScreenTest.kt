@@ -3,6 +3,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -12,6 +14,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.Blackjac
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
@@ -94,7 +97,7 @@ class BlackjackGameScreenTest {
 
 
     @Test
-    fun playerWinUsesVictoryMatBackgroundOnDealerMat() {
+    fun playerWinKeepsDealerMatDefaultBackground() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 BlackjackGameScreen(
@@ -115,7 +118,7 @@ class BlackjackGameScreenTest {
         val image = composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).captureToImage()
         val pixelMap = image.toPixelMap()
         val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
-        assertEquals(VictoryMatBackground, centerColor)
+        assertEquals(SequenceSaveMatBackground, centerColor)
     }
 
     @Test
@@ -143,6 +146,42 @@ class BlackjackGameScreenTest {
         assertTrue(standNode.boundsInRoot.left < hitNode.boundsInRoot.left)
         assertEquals(standNode.boundsInRoot.width, hitNode.boundsInRoot.width)
         assertEquals(standNode.boundsInRoot.height, hitNode.boundsInRoot.height)
+    }
+
+    @Test
+    fun rewardCardsHideMatsAfterOneSecond() {
+        val rewardCard = CardUiModel(
+            id = com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId.FLIP_FACE,
+            titleRes = 0,
+            descriptionRes = 0,
+            iconRes = 0
+        )
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                BlackjackGameScreen(
+                    uiState = BlackjackGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        playerDice = listOf(4, 5),
+                        dealerDice = listOf(6),
+                        rewardCards = listOf(rewardCard),
+                        result = BlackjackOutcome.PLAYER_WIN
+                    ),
+                    onStartClick = {},
+                    onHitClick = {},
+                    onStandClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertExists()
+        composeTestRule.mainClock.advanceTimeBy(1_001L)
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).assertDoesNotExist()
+        composeTestRule.mainClock.autoAdvance = true
     }
 
     @Test
