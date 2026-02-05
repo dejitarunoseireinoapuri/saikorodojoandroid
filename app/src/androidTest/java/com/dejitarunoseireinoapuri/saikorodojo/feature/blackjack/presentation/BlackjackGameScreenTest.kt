@@ -3,6 +3,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -12,6 +13,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.Blackjac
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
@@ -90,6 +92,59 @@ class BlackjackGameScreenTest {
         }
 
         composeTestRule.onNodeWithText(subtitle).assertDoesNotExist()
+    }
+
+
+    @Test
+    fun playerWinKeepsDealerMatDefaultBackground() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                BlackjackGameScreen(
+                    uiState = BlackjackGameUiState(
+                        isStarted = true,
+                        playerDice = listOf(4, 5),
+                        dealerDice = listOf(6),
+                        result = BlackjackOutcome.PLAYER_WIN
+                    ),
+                    onStartClick = {},
+                    onHitClick = {},
+                    onStandClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val image = composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).captureToImage()
+        val pixelMap = image.toPixelMap()
+        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
+        assertEquals(SequenceSaveMatBackground, centerColor)
+    }
+
+    @Test
+    fun awaitingDecisionShowsStandOnLeftAndHitOnRightWithSameSize() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                BlackjackGameScreen(
+                    uiState = BlackjackGameUiState(
+                        isStarted = true,
+                        isAwaitingDecision = true,
+                        playerDice = listOf(4, 5),
+                        dealerDice = listOf(6)
+                    ),
+                    onStartClick = {},
+                    onHitClick = {},
+                    onStandClick = {},
+                    onContinueClick = {}
+                )
+            }
+        }
+
+        val standNode = composeTestRule.onNodeWithTag(BLACKJACK_STAND_BUTTON_TAG).fetchSemanticsNode()
+        val hitNode = composeTestRule.onNodeWithTag(BLACKJACK_HIT_BUTTON_TAG).fetchSemanticsNode()
+
+        assertTrue(standNode.boundsInRoot.left < hitNode.boundsInRoot.left)
+        assertEquals(standNode.boundsInRoot.width, hitNode.boundsInRoot.width)
+        assertEquals(standNode.boundsInRoot.height, hitNode.boundsInRoot.height)
     }
 
     @Test
