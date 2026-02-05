@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runCurrent
 import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -38,8 +39,6 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            resultDelayMs = 0L,
-            bustHighlightMs = 0L
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -67,8 +66,6 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            resultDelayMs = 0L,
-            bustHighlightMs = 0L
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -100,8 +97,6 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 4L,
             tickMs = 2L,
-            resultDelayMs = 0L,
-            bustHighlightMs = 0L
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -120,7 +115,7 @@ class BlackjackGameViewModelTest {
     }
 
     @Test
-    fun `player bust resolves loss immediately without waiting bust highlight`() = runTest {
+    fun `player bust highlights loss before completing defeat state`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
                 TestDiceRoller(ArrayDeque(listOf(10, 10, 6)))
@@ -133,8 +128,7 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            resultDelayMs = 0L,
-            bustHighlightMs = 1_500L
+            rewardRevealDelayMs = 1_000L
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -143,13 +137,20 @@ class BlackjackGameViewModelTest {
         viewModel.onEvent(BlackjackGameUiEvent.Hit)
         runCurrent()
 
-        val state = viewModel.uiState.value
-        assertEquals(BlackjackOutcome.PLAYER_LOSE, state.result)
-        assertTrue(state.isComplete)
+        val immediateState = viewModel.uiState.value
+        assertEquals(BlackjackOutcome.PLAYER_LOSE, immediateState.result)
+        assertFalse(immediateState.isComplete)
+
+        advanceTimeBy(1_000L)
+        advanceUntilIdle()
+
+        val finalState = viewModel.uiState.value
+        assertEquals(BlackjackOutcome.PLAYER_LOSE, finalState.result)
+        assertTrue(finalState.isComplete)
     }
 
     @Test
-    fun `loss outcome is reported without delay`() = runTest {
+    fun `win outcome highlights player mat before revealing rewards`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
                 TestDiceRoller(ArrayDeque(listOf(10, 1, 8, 9)))
@@ -162,8 +163,6 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            resultDelayMs = 1_500L,
-            bustHighlightMs = 1_500L,
             rewardRevealDelayMs = 1_000L
         )
 
@@ -175,14 +174,15 @@ class BlackjackGameViewModelTest {
 
         val immediateState = viewModel.uiState.value
         assertEquals(BlackjackOutcome.PLAYER_WIN, immediateState.result)
-        assertTrue(immediateState.isComplete)
         assertTrue(immediateState.rewardCards.isEmpty())
+        assertFalse(immediateState.isComplete)
 
         advanceTimeBy(1_000L)
         advanceUntilIdle()
 
         val revealedState = viewModel.uiState.value
         assertTrue(revealedState.rewardCards.isNotEmpty())
+        assertTrue(revealedState.isComplete)
     }
 }
 
