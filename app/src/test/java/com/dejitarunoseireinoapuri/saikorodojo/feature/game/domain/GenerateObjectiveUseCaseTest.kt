@@ -1,5 +1,8 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain
 
+import kotlin.random.Random
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -34,5 +37,41 @@ class GenerateObjectiveUseCaseTest {
         val hasRange = objective.conditions.filterIsInstance<SumInRangeCondition>()
 
         assertTrue(hasRange.all { it.min < it.max })
+    }
+
+    @Test
+    fun `minimum selection keeps at least dice count minus two`() {
+        val minimum = minimumSelectionCountForLevel(
+            diceCount = 6,
+            stage = 2
+        )
+
+        assertEquals(4, minimum)
+    }
+
+    @Test
+    fun `minimum selection requires all dice on hard stages`() {
+        val minimum = minimumSelectionCountForLevel(
+            diceCount = 5,
+            stage = 4
+        )
+
+        assertEquals(5, minimum)
+    }
+
+    @Test
+    fun `exact sum targets are reachable with minimum selection`() {
+        val diceValues = listOf(4, 4, 4, 4, 4)
+        val minimumSelectionCount = 3
+
+        val target = pickExactSumTarget(
+            diceValues = diceValues,
+            minimumSelectionCount = minimumSelectionCount,
+            random = Random(2L)
+        )
+        val reachableSums = possibleSumsAtLeastCount(diceValues, minimumSelectionCount)
+
+        assertFalse(reachableSums.isEmpty())
+        assertTrue(target in reachableSums)
     }
 }

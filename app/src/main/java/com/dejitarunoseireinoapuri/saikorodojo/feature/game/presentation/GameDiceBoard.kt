@@ -88,6 +88,17 @@ internal fun DiceBoard(
     }
     val diceTextScale = calculateDiceTextScale(diceSize)
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        if (uiState.shouldShowSelectedSum) {
+            val sumOffset = -(boardHeight / 2 + 8.dp)
+            Text(
+                text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = sumOffset),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
         val promptOffset = -(boardHeight / 2 + 32.dp)
         when {
             uiState.isAwaitingRerollSingle -> {

@@ -30,6 +30,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValue
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesWithMultiplicityCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.CollectionPartialCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ForbidValuesCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDiceCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +65,7 @@ data class GameUiState(
     val selectedAdjustmentDieIndex: Int? = null,
     val selectedSetValueDieIndex: Int? = null,
     val selectedDiceSum: Int = 0,
+    val shouldShowSelectedSum: Boolean = false,
     val cardUiModels: List<CardUiModel> = emptyList(),
     val selectedCardIndex: Int? = null,
     val lastAppliedCardId: CardId? = null,
@@ -828,6 +830,7 @@ class GameViewModel(
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null,
                 selectedDiceSum = 0,
+                shouldShowSelectedSum = false,
                 cardUiModels = cardUiModels,
                 selectedCardIndex = null,
                 lastAppliedCardId = null,
@@ -860,6 +863,7 @@ class GameViewModel(
     private fun refreshObjectiveProgress() {
         val objective = currentObjective ?: return
         val state = _uiState.value
+        val showSelectedSum = shouldShowSelectedSum(objective.conditions)
         val selectedValues = state.selectedDice.mapNotNull { index ->
             state.diceValues.getOrNull(index)
         }
@@ -867,13 +871,25 @@ class GameViewModel(
             val lines = buildObjectiveLines(objective, emptyList()).map { line ->
                 line.copy(isMet = false)
             }
-            _uiState.update { it.copy(objectiveLines = lines, isLevelComplete = false) }
+            _uiState.update {
+                it.copy(
+                    objectiveLines = lines,
+                    isLevelComplete = false,
+                    shouldShowSelectedSum = showSelectedSum
+                )
+            }
             return
         }
         val lines = buildObjectiveLines(objective, selectedValues)
         val completed = lines.all { it.isMet }
         val wasComplete = _uiState.value.isLevelComplete
-        _uiState.update { it.copy(objectiveLines = lines, isLevelComplete = completed) }
+        _uiState.update {
+            it.copy(
+                objectiveLines = lines,
+                isLevelComplete = completed,
+                shouldShowSelectedSum = showSelectedSum
+            )
+        }
         if (completed && !wasComplete && !_uiState.value.isRolling) {
             handleLevelComplete()
         }
@@ -908,61 +924,15 @@ class GameViewModel(
         objective: LevelObjective,
         diceValues: List<Int>
     ): List<ObjectiveLineUiState> {
+        val selectedCount = diceValues.size
         return objective.conditions.map { condition ->
-            val (textRes, args) = objectiveLineText(condition)
+            val (textRes, args) = objectiveLineText(condition, selectedCount)
             ObjectiveLineUiState(
                 textRes = textRes,
                 formatArgs = args,
                 isMet = condition.isMet(diceValues)
             )
         }
-    }
-
-    private fun objectiveLineText(condition: ObjectiveCondition): Pair<Int, List<Any>> {
-        return when (condition) {
-            is SumAtLeastCondition -> R.string.objective_sum_at_least to listOf(condition.threshold)
-            is SumExactCondition -> R.string.objective_sum_exact to listOf(condition.target)
-            is SumInRangeCondition -> R.string.objective_sum_in_range to listOf(condition.min, condition.max)
-            is SumParityCondition -> if (condition.shouldBeEven) {
-                R.string.objective_sum_even to emptyList()
-            } else {
-                R.string.objective_sum_odd to emptyList()
-            }
-            is HasPairCondition -> if (condition.requiredPairs >= 2) {
-                R.string.objective_two_pairs to emptyList()
-            } else {
-                R.string.objective_pair to emptyList()
-            }
-            is HasThreeOfKindCondition -> R.string.objective_three_of_kind to emptyList()
-            is HasFourOfKindCondition -> R.string.objective_four_of_kind to emptyList()
-            is FullHouseCondition -> R.string.objective_full_house to emptyList()
-            is AllDistinctCondition -> R.string.objective_all_distinct to emptyList()
-            is StraightCondition -> R.string.objective_straight to listOf(condition.length)
-            is ContainsValuesCondition -> {
-                R.string.objective_contains_values to listOf(formatValues(condition.values))
-            }
-            is ContainsValuesWithMultiplicityCondition -> {
-                R.string.objective_contains_values to listOf(formatMultiplicity(condition.values))
-            }
-            is CollectionPartialCondition -> {
-                R.string.objective_collection_partial to listOf(
-                    formatValues(condition.values),
-                    condition.requiredCount
-                )
-            }
-            is ForbidValuesCondition -> {
-                R.string.objective_forbid_values to listOf(formatValues(condition.values))
-            }
-        }
-    }
-
-    private fun formatValues(values: List<Int>): String {
-        return values.distinct().sorted().joinToString(", ")
-    }
-
-    private fun formatMultiplicity(values: List<Int>): String {
-        val counts = values.groupingBy { it }.eachCount().toSortedMap()
-        return counts.entries.joinToString(", ") { (value, count) -> "${count}x$value" }
     }
 }
 
@@ -971,4 +941,69 @@ internal fun calculateSelectedDiceSum(
     selectedDice: Set<Int>
 ): Int {
     return selectedDice.sumOf { index -> diceValues.getOrNull(index) ?: 0 }
+}
+
+internal fun shouldShowSelectedSum(conditions: List<ObjectiveCondition>): Boolean {
+    return conditions.any { condition ->
+        condition is SumAtLeastCondition ||
+            condition is SumExactCondition ||
+            condition is SumInRangeCondition
+    }
+}
+
+internal fun objectiveLineText(
+    condition: ObjectiveCondition,
+    selectedCount: Int
+): Pair<Int, List<Any>> {
+    return when (condition) {
+        is SumAtLeastCondition -> R.string.objective_sum_at_least to listOf(condition.threshold)
+        is SumExactCondition -> R.string.objective_sum_exact to listOf(condition.target)
+        is SumInRangeCondition -> if (condition.min == condition.max) {
+            R.string.objective_sum_exact to listOf(condition.min)
+        } else {
+            R.string.objective_sum_in_range to listOf(condition.min, condition.max)
+        }
+        is SumParityCondition -> if (condition.shouldBeEven) {
+            R.string.objective_sum_even to emptyList()
+        } else {
+            R.string.objective_sum_odd to emptyList()
+        }
+        is HasPairCondition -> if (condition.requiredPairs >= 2) {
+            R.string.objective_two_pairs to emptyList()
+        } else {
+            R.string.objective_pair to emptyList()
+        }
+        is HasThreeOfKindCondition -> R.string.objective_three_of_kind to emptyList()
+        is HasFourOfKindCondition -> R.string.objective_four_of_kind to emptyList()
+        is FullHouseCondition -> R.string.objective_full_house to emptyList()
+        is AllDistinctCondition -> R.string.objective_all_distinct to emptyList()
+        is StraightCondition -> R.string.objective_straight to listOf(condition.length)
+        is ContainsValuesCondition -> {
+            R.string.objective_contains_values to listOf(formatValues(condition.values))
+        }
+        is ContainsValuesWithMultiplicityCondition -> {
+            R.string.objective_contains_values to listOf(formatMultiplicity(condition.values))
+        }
+        is CollectionPartialCondition -> {
+            R.string.objective_collection_partial to listOf(
+                formatValues(condition.values),
+                condition.requiredCount
+            )
+        }
+        is ForbidValuesCondition -> {
+            R.string.objective_forbid_values to listOf(formatValues(condition.values))
+        }
+        is MinSelectedDiceCondition -> {
+            R.string.objective_min_selected to listOf(condition.minCount, selectedCount)
+        }
+    }
+}
+
+internal fun formatValues(values: List<Int>): String {
+    return values.distinct().sorted().joinToString(", ")
+}
+
+internal fun formatMultiplicity(values: List<Int>): String {
+    val counts = values.groupingBy { it }.eachCount().toSortedMap()
+    return counts.entries.joinToString(", ") { (value, count) -> "${count}x$value" }
 }
