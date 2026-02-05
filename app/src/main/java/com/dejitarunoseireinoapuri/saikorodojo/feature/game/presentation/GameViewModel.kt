@@ -47,6 +47,7 @@ import kotlin.random.Random
 private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
+private const val LEVEL_COMPLETE_DELAY_MS = 1_000L
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
     val diceCount: Int = DEFAULT_DICE_COUNT,
@@ -905,6 +906,7 @@ class GameViewModel(
     private fun handleLevelComplete() {
         if (completionJob?.isActive == true) return
         completionJob = viewModelScope.launch(dispatcher) {
+            delay(LEVEL_COMPLETE_DELAY_MS)
             val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
             val nextDefinition = generateLevelUseCase.execute(
                 levelNumber = nextLevel,
