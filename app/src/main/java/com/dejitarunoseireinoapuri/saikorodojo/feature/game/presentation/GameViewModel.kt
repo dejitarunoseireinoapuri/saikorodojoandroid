@@ -71,6 +71,7 @@ data class GameUiState(
     val isAwaitingAdjustPlusMinus: Boolean = false,
     val isAwaitingSetValue: Boolean = false,
     val selectedDice: Set<Int> = emptySet(),
+    val selectedRerollDice: Set<Int> = emptySet(),
     val selectedRerollSingleDieIndex: Int? = null,
     val selectedAdjustmentDieIndex: Int? = null,
     val selectedSetValueDieIndex: Int? = null,
@@ -276,6 +277,8 @@ class GameViewModel(
         val state = _uiState.value
         if (state.isAwaitingRerollSingle) {
             selectRerollSingleDie(index)
+        } else if (state.isAwaitingRerollSelected) {
+            toggleRerollDiceSelection(index)
         } else if (state.isAwaitingFlipFace) {
             flipSelectedDie(index)
         } else if (state.isAwaitingAdjustPlusMinus) {
@@ -284,6 +287,21 @@ class GameViewModel(
             selectSetValueDie(index)
         } else {
             toggleDiceSelection(index)
+        }
+    }
+
+    private fun toggleRerollDiceSelection(index: Int) {
+        _uiState.update { state ->
+            if (index !in state.diceValues.indices) {
+                state
+            } else {
+                val updatedSelection = if (state.selectedRerollDice.contains(index)) {
+                    state.selectedRerollDice - index
+                } else {
+                    state.selectedRerollDice + index
+                }
+                state.copy(selectedRerollDice = updatedSelection)
+            }
         }
     }
 
@@ -742,6 +760,7 @@ class GameViewModel(
                 selectedRerollSingleDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null,
+                selectedRerollDice = emptySet(),
                 selectedDice = emptySet(),
                 selectedDiceSum = 0
             )
@@ -770,6 +789,7 @@ class GameViewModel(
             selectedRerollSingleDieIndex = null,
             selectedAdjustmentDieIndex = null,
             selectedSetValueDieIndex = null,
+            selectedRerollDice = emptySet(),
             selectedDice = emptySet(),
             selectedDiceSum = 0
         )
@@ -778,7 +798,7 @@ class GameViewModel(
     private fun rollSelectedDice() {
         val state = _uiState.value
         if (!state.isAwaitingRerollSelected || rollJob?.isActive == true) return
-        val selectedIndices = state.selectedDice.toList()
+        val selectedIndices = state.selectedRerollDice.toList()
         if (selectedIndices.isEmpty()) return
         val diceTypes = selectedIndices.map { index ->
             state.diceTypes.getOrElse(index) { state.diceType }
@@ -789,6 +809,7 @@ class GameViewModel(
                 it.copy(
                     isRolling = true,
                     isAwaitingRerollSelected = false,
+                    selectedRerollDice = emptySet(),
                     selectedDice = emptySet(),
                     selectedDiceSum = 0
                 )
@@ -844,6 +865,7 @@ class GameViewModel(
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
                 selectedDice = emptySet(),
+                selectedRerollDice = emptySet(),
                 selectedRerollSingleDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null,
