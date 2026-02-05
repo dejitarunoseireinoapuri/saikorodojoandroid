@@ -126,6 +126,27 @@ class SequenceGameViewModelTest {
     }
 
 
+
+    @Test
+    fun `save action hides latest saved die until next roll stops`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(3, 7),
+            rollAnimationMs = 200L,
+            tickMs = 100L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.runCurrent()
+
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
+    }
+
     @Test
     fun `roll finishes without extra trailing delay after last animation tick`() = runTest {
         val viewModel = buildViewModel(

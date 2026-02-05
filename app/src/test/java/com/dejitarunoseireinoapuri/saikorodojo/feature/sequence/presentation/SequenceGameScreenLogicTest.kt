@@ -14,6 +14,24 @@ class SequenceGameScreenLogicTest {
         assertFalse(shouldShowSequenceContinueButton(hasReward = false, hasLoss = false))
     }
 
+
+    @Test
+    fun `latest saved die stays hidden while transition is active`() {
+        val hidden = sequenceSavedDiceUiState(
+            savedValues = listOf(2, 5, 8),
+            isLatestSavedValueHidden = true
+        )
+
+        assertEquals(listOf(true, true, false), hidden.map { it.isVisible })
+
+        val shown = sequenceSavedDiceUiState(
+            savedValues = listOf(2, 5, 8),
+            isLatestSavedValueHidden = false
+        )
+
+        assertEquals(listOf(true, true, true), shown.map { it.isVisible })
+    }
+
     @Test
     fun `dice number y offset keeps values centered`() {
         assertEquals(0.dp, sequenceDiceNumberYOffset())

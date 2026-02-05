@@ -293,10 +293,14 @@ fun SequenceGameScreen(
                                 horizontalArrangement = Arrangement.spacedBy(spacing),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                uiState.savedValues.forEach { value ->
+                                sequenceSavedDiceUiState(
+                                    savedValues = uiState.savedValues,
+                                    isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
+                                ).forEach { savedDie ->
                                     SequenceSavedDie(
-                                        value = value,
-                                        size = dieSize
+                                        value = savedDie.value,
+                                        size = dieSize,
+                                        isVisible = savedDie.isVisible
                                     )
                                 }
                                 uiState.failureDieValue?.let { value ->
@@ -349,6 +353,28 @@ fun SequenceGameScreen(
                 )
             }
         }
+    }
+}
+
+
+internal data class SequenceSavedDieUi(
+    val value: Int,
+    val isVisible: Boolean
+)
+
+internal fun sequenceSavedDiceUiState(
+    savedValues: List<Int>,
+    isLatestSavedValueHidden: Boolean
+): List<SequenceSavedDieUi> {
+    if (savedValues.isEmpty()) {
+        return emptyList()
+    }
+    val hiddenIndex = if (isLatestSavedValueHidden) savedValues.lastIndex else -1
+    return savedValues.mapIndexed { index, value ->
+        SequenceSavedDieUi(
+            value = value,
+            isVisible = index != hiddenIndex
+        )
     }
 }
 
@@ -441,13 +467,15 @@ private fun SequenceDiceFace(
 @Composable
 private fun SequenceSavedDie(
     value: Int,
-    size: Dp
+    size: Dp,
+    isVisible: Boolean = true
 ) {
     val diceRes = R.drawable.ten_sides
     val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     Box(
         modifier = Modifier
             .size(size)
+            .alpha(if (isVisible) 1f else 0f)
             .testTag("${SEQUENCE_SAVED_DIE_TAG_PREFIX}_$value"),
         contentAlignment = Alignment.Center
     ) {
