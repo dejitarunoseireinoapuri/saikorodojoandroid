@@ -166,7 +166,7 @@ fun OddEvenGameScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(
                         modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(36.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         OddEvenChoiceButton(
