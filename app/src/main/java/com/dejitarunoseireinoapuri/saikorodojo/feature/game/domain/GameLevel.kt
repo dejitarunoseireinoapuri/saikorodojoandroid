@@ -295,7 +295,7 @@ class GenerateObjectiveUseCase {
         )
 
         val selectedConditionsCount = when {
-            stage <= 2 -> 1
+            stage <= 2 -> 2
             stage <= 4 -> 2
             else -> 3
         }
@@ -303,14 +303,26 @@ class GenerateObjectiveUseCase {
             it is SumExactCondition || it is SumAtLeastCondition || it is SumInRangeCondition
         }
         val primaryCondition = sumCandidates.random(random)
+        val priorityCandidates = when (stage) {
+            1 -> candidates.filter { candidate ->
+                candidate is HasPairCondition || candidate is ExactTwoPairsCondition
+            }
+            2 -> candidates.filter { candidate ->
+                candidate is HasPairCondition || candidate is ExactTwoPairsCondition || candidate is HasThreeOfKindCondition
+            }
+            else -> emptyList()
+        }
         val selectedConditions = buildList {
             add(primaryCondition)
-            addAll(
-                candidates
+            val extraCount = (selectedConditionsCount - 1).coerceAtLeast(0)
+            if (extraCount > 0) {
+                val prioritizedPool = priorityCandidates
                     .filterNot { it == primaryCondition }
-                    .shuffled(random)
-                    .take((selectedConditionsCount - 1).coerceAtLeast(0))
-            )
+                val fallbackPool = candidates
+                    .filterNot { it == primaryCondition }
+                val pool = if (prioritizedPool.isNotEmpty()) prioritizedPool else fallbackPool
+                addAll(pool.shuffled(random).take(extraCount))
+            }
         }
 
         val minimumSelectionCount = minimumSelectionCountForLevel(
