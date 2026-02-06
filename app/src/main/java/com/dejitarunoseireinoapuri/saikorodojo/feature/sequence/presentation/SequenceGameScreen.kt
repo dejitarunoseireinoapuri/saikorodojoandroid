@@ -67,6 +67,8 @@ internal const val SEQUENCE_DISCARD_BUTTON_TAG = "sequence_discard_button"
 internal const val SEQUENCE_CONTINUE_BUTTON_TAG = "sequence_continue_button"
 internal const val SEQUENCE_SAVED_DIE_TAG_PREFIX = "sequence_saved_die"
 internal const val SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX = "sequence_saved_die_value"
+internal const val SEQUENCE_ROUND_STATUS_TAG = "sequence_round_status"
+internal const val SEQUENCE_DECISION_ROW_TAG = "sequence_decision_row"
 
 internal enum class SequenceDecisionAction {
     Discard,
@@ -130,40 +132,44 @@ fun SequenceGameScreen(
     Box(
         modifier = containerModifier
     ) {
-        Row(
+        val hasReward = uiState.rewardCards.isNotEmpty()
+        val hasPendingReward = uiState.isComplete && uiState.pendingRewardCards.isNotEmpty()
+        val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
+
+        Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(top = 20.dp, start = 8.dp, end = 8.dp)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.Top
+            contentAlignment = Alignment.Center
         ) {
-            IconButton(onClick = { showExitDialog = true }) {
+            IconButton(
+                onClick = { showExitDialog = true },
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
                 Icon(
                     imageVector = Icons.Filled.Home,
                     contentDescription = stringResource(R.string.cd_exit_home),
                     tint = MaterialTheme.colorScheme.onBackground
                 )
             }
-        }
-        val hasReward = uiState.rewardCards.isNotEmpty()
-        val hasPendingReward = uiState.isComplete && uiState.pendingRewardCards.isNotEmpty()
-        val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
             Text(
                 text = stringResource(R.string.sequence_title),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 30.sp
+                    fontSize = 26.sp
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 32.dp, end = 32.dp, top = 80.dp, bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Spacer(modifier = Modifier.height(12.dp))
             val titleColor = MaterialTheme.colorScheme.onBackground
             val showRules = !uiState.isStarted
@@ -230,46 +236,23 @@ fun SequenceGameScreen(
                         uiState.totalRolls
                     ),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = titleColor
+                    color = titleColor,
+                    modifier = Modifier.testTag(SEQUENCE_ROUND_STATUS_TAG)
                 )
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
-        }
-
-        if (!uiState.isStarted) {
-            Button(
-                onClick = onStartClick,
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary
-                ),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .height(64.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.sequence_start),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
-                )
-            }
-        }
-
-        if (uiState.isStarted) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(72.dp))
+            if (uiState.isStarted) {
                 Box(
-                    modifier = Modifier.height(56.dp),
+                    modifier = Modifier
+                        .height(56.dp)
+                        .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     if (uiState.isAwaitingDecision) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag(SEQUENCE_DECISION_ROW_TAG),
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -359,6 +342,25 @@ fun SequenceGameScreen(
                         }
                     }
                 }
+            }
+        }
+
+        if (!uiState.isStarted) {
+            Button(
+                onClick = onStartClick,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
+                ),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .height(64.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.sequence_start),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+                )
             }
         }
 
@@ -497,7 +499,7 @@ private fun SequenceChoiceButton(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 18.sp
             )
         )
     }
