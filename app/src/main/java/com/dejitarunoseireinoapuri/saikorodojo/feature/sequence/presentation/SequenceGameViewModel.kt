@@ -22,7 +22,7 @@ private const val DEFAULT_TARGET_SEQUENCE = 3
 private const val DEFAULT_MAX_DISCARDS = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_TICK_MS = 120L
-private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_500L
+private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_000L
 private const val DEFAULT_SEQUENCE_DIE_MAX = 10
 
 data class SequenceGameUiState(
@@ -40,7 +40,8 @@ data class SequenceGameUiState(
     val rewardCards: List<CardUiModel> = emptyList(),
     val pendingRewardCards: List<CardUiModel> = emptyList(),
     val failureReason: SequenceFailureReason? = null,
-    val failureDieValue: Int? = null
+    val failureDieValue: Int? = null,
+    val isLatestSavedValueHidden: Boolean = false
 )
 
 enum class SequenceFailureReason {
@@ -105,7 +106,8 @@ class SequenceGameViewModel(
                 rewardCards = emptyList(),
                 pendingRewardCards = emptyList(),
                 failureReason = null,
-                failureDieValue = null
+                failureDieValue = null,
+                isLatestSavedValueHidden = false
             )
         }
         startRoll(nextRoll = 1, savedValues = emptyList(), discardCount = 0)
@@ -190,22 +192,24 @@ class SequenceGameViewModel(
                 discardCount = discardCount,
                 isRolling = true,
                 isAwaitingDecision = false,
-                diceValue = null,
+                diceValue = if (nextRoll == 1) null else it.diceValue,
                 pendingRewardCards = emptyList(),
                 failureReason = null,
-                failureDieValue = null
+                failureDieValue = null,
+                isLatestSavedValueHidden = savedValues.size > it.savedValues.size
             )
         }
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollAnimationMs / tickMs).coerceAtLeast(1L).toInt()
-            var finalRoll = rollSequenceUseCase.execute().value
-            repeat(steps) {
+            var finalRoll = _uiState.value.diceValue ?: rollSequenceUseCase.execute().value
+            repeat(steps) { step ->
                 val roll = rollSequenceUseCase.execute().value
                 finalRoll = roll
                 _uiState.update { current ->
                     current.copy(diceValue = roll)
                 }
-                if (rollAnimationMs > 0L) {
+                val shouldDelay = rollAnimationMs > 0L && step < steps - 1
+                if (shouldDelay) {
                     delay(tickMs)
                 }
             }
@@ -213,7 +217,8 @@ class SequenceGameViewModel(
                 it.copy(
                     isRolling = false,
                     isAwaitingDecision = true,
-                    diceValue = finalRoll
+                    diceValue = finalRoll,
+                    isLatestSavedValueHidden = false
                 )
             }
         }
@@ -232,7 +237,8 @@ class SequenceGameViewModel(
                 rewardCards = emptyList(),
                 pendingRewardCards = rewardCards,
                 failureReason = null,
-                failureDieValue = null
+                failureDieValue = null,
+                isLatestSavedValueHidden = false
             )
         }
         viewModelScope.launch(dispatcher) {
@@ -263,7 +269,8 @@ class SequenceGameViewModel(
                 rewardCards = emptyList(),
                 pendingRewardCards = emptyList(),
                 failureReason = reason,
-                failureDieValue = failureDieValue
+                failureDieValue = failureDieValue,
+                isLatestSavedValueHidden = false
             )
         }
     }
