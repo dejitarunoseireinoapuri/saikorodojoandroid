@@ -177,6 +177,7 @@ class OddEvenGameViewModelTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2),
             targetCorrect = 1,
+            totalRounds = 1,
             lossMessageDelayMs = 2_000L
         )
 
@@ -202,6 +203,7 @@ class OddEvenGameViewModelTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2),
             targetCorrect = 1,
+            totalRounds = 1,
             lossMessageDelayMs = null
         )
 
@@ -232,6 +234,7 @@ class OddEvenGameViewModelTest {
         diceRolls: List<Int> = listOf(2),
         rewardRolls: List<Float> = listOf(0.4f, 0.2f, 0.3f),
         targetCorrect: Int = 3,
+        totalRounds: Int = 7,
         resultAnimationMs: Long = 0L,
         lossMessageDelayMs: Long? = 0L
     ): OddEvenGameViewModel {
@@ -249,6 +252,7 @@ class OddEvenGameViewModelTest {
                 resultAnimationMs = resultAnimationMs,
                 tickMs = 1L,
                 targetCorrect = targetCorrect,
+                totalRounds = totalRounds,
                 cardUiModels = testCardUiModels()
             )
         } else {
@@ -260,6 +264,7 @@ class OddEvenGameViewModelTest {
                 resultAnimationMs = resultAnimationMs,
                 tickMs = 1L,
                 targetCorrect = targetCorrect,
+                totalRounds = totalRounds,
                 lossMessageDelayMs = lossMessageDelayMs,
                 cardUiModels = testCardUiModels()
             )
