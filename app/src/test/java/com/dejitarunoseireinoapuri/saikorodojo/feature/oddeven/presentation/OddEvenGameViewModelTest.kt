@@ -29,6 +29,7 @@ class OddEvenGameViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.isStarted)
         assertEquals(1, state.currentRound)
+        assertEquals(7, state.totalRounds)
         assertEquals(0, state.correctCount)
         assertNull(state.diceValue)
     }

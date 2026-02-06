@@ -108,6 +108,23 @@ class SequenceGameViewModelTest {
     }
 
     @Test
+    fun `saving an equal value keeps the sequence alive`() = runTest {
+        val viewModel = buildViewModel(diceRolls = listOf(4, 4, 5))
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete.not())
+        assertEquals(listOf(4, 4), state.savedValues)
+        assertTrue(state.isAwaitingDecision)
+    }
+
+    @Test
     fun `starting a new roll keeps previous dice visible before animation ticks`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(4, 7),
