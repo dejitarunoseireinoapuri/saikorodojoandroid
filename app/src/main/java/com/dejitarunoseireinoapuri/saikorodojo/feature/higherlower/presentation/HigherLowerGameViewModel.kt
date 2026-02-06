@@ -26,6 +26,8 @@ private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_RESULT_DELAY_MS = 1_500L
 private const val DEFAULT_TRANSITION_MS = 900L
 private const val DEFAULT_SUCCESS_HIGHLIGHT_MS = 1_000L
+private const val DEFAULT_SUCCESS_RESULT_DELAY_MS = 1_000L
+private const val DEFAULT_POST_TRANSITION_HOLD_MS = 250L
 
 @JvmInline
 value class DiceSum(val value: Int)
@@ -66,6 +68,8 @@ class HigherLowerGameViewModel(
     private val resultDelayMs: Long = DEFAULT_RESULT_DELAY_MS,
     private val transitionMs: Long = DEFAULT_TRANSITION_MS,
     private val successHighlightMs: Long = DEFAULT_SUCCESS_HIGHLIGHT_MS,
+    private val successResultDelayMs: Long = DEFAULT_SUCCESS_RESULT_DELAY_MS,
+    private val postTransitionHoldMs: Long = DEFAULT_POST_TRANSITION_HOLD_MS,
     private val totalRounds: Int = DEFAULT_TOTAL_ROUNDS,
     private val targetCorrect: Int = DEFAULT_TARGET_CORRECT,
     private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
@@ -214,8 +218,17 @@ class HigherLowerGameViewModel(
             _uiState.update {
                 it.copy(
                     baseDiceValues = finalCurrentDice.ifEmpty { newValues },
-                    isCurrentDiceHidden = true,
+                    isCurrentDiceHidden = false,
                     isTransitioning = false,
+                    isChoiceVisible = false
+                )
+            }
+            if (postTransitionHoldMs > 0L) {
+                delay(postTransitionHoldMs)
+            }
+            _uiState.update {
+                it.copy(
+                    isCurrentDiceHidden = true,
                     isChoiceVisible = true
                 )
             }
@@ -243,8 +256,8 @@ class HigherLowerGameViewModel(
 
     private fun resolveWin() {
         rollJob = viewModelScope.launch(dispatcher) {
-            if (resultDelayMs > 0L) {
-                delay(resultDelayMs)
+            if (successResultDelayMs > 0L) {
+                delay(successResultDelayMs)
             }
             val rewardCards = resolveRewardCards()
             _uiState.update {
