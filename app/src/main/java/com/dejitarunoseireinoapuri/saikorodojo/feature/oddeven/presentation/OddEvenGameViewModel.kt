@@ -175,8 +175,7 @@ class OddEvenGameViewModel(
             }
             val nextRound = state.currentRound + 1
             val hasWon = updatedCorrect >= targetCorrect
-            val hasLost = updatedWrong >= targetCorrect
-            val hasLossOutcome = hasLost || (!hasWon && nextRound > totalRounds)
+            val hasLossOutcome = !hasWon && nextRound > totalRounds
 
             if (!hasWon && !hasLossOutcome) {
                 _uiState.update {
