@@ -43,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -128,6 +130,7 @@ fun SequenceGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
+            val titleColor = MaterialTheme.colorScheme.onBackground
             val showRules = !uiState.isStarted
             val rulesModifier = if (showRules) {
                 Modifier
@@ -139,20 +142,29 @@ fun SequenceGameScreen(
                 Text(
                     text = stringResource(R.string.minigame_win_message),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = VictoryMatBackground
+                    color = minigameMessageColor(
+                        MinigameMessageType.Win,
+                        titleColor = titleColor
+                    )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.minigame_win_cards_message),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = VictoryMatBackground
+                    color = minigameMessageColor(
+                        MinigameMessageType.WinCards,
+                        titleColor = titleColor
+                    )
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.minigame_lose_message),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = FailureMatBackground,
+                    color = minigameMessageColor(
+                        MinigameMessageType.Lose,
+                        titleColor = titleColor
+                    ),
                     textAlign = TextAlign.Center
                 )
             } else if (hasPendingReward) {
@@ -160,26 +172,22 @@ fun SequenceGameScreen(
                 Text(
                     text = stringResource(R.string.minigame_win_message),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = VictoryMatBackground
+                    color = minigameMessageColor(
+                        MinigameMessageType.Win,
+                        titleColor = titleColor
+                    )
                 )
             } else {
                 Text(
                     text = stringResource(R.string.sequence_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
+                    color = titleColor,
                     textAlign = TextAlign.Center,
                     modifier = rulesModifier
                 )
             }
             if (uiState.isStarted && !hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
-                val roundColor = if (uiState.isComplete &&
-                    uiState.failureReason == SequenceFailureReason.ROUNDS
-                ) {
-                    MaterialTheme.colorScheme.tertiary
-                } else {
-                    MaterialTheme.colorScheme.onBackground
-                }
                 Text(
                     text = stringResource(
                         R.string.odd_even_round_status,
@@ -187,7 +195,7 @@ fun SequenceGameScreen(
                         uiState.totalRolls
                     ),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = roundColor
+                    color = titleColor
                 )
                 Spacer(modifier = Modifier.height(40.dp))
             }
