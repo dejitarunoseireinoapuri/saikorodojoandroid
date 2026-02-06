@@ -85,12 +85,14 @@ class GameDiceBoardTest {
             shouldShowDiceSelectionBorder(
                 isAwaitingRerollSelected = true,
                 isAwaitingRerollSingle = false,
+                isAwaitingFlipFace = false,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
                 isRerollSelected = true,
                 isAdjustmentSelected = false,
                 isSetValueSelected = false,
-                isRerollSingleSelected = false
+                isRerollSingleSelected = false,
+                isFlipSelected = false
             )
         )
         assertEquals(
@@ -98,24 +100,28 @@ class GameDiceBoardTest {
             shouldShowDiceSelectionBorder(
                 isAwaitingRerollSelected = false,
                 isAwaitingRerollSingle = true,
+                isAwaitingFlipFace = false,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
                 isRerollSelected = false,
                 isAdjustmentSelected = false,
                 isSetValueSelected = false,
-                isRerollSingleSelected = false
+                isRerollSingleSelected = false,
+                isFlipSelected = false
             )
         )
         assertTrue(
             shouldShowDiceSelectionBorder(
                 isAwaitingRerollSelected = false,
                 isAwaitingRerollSingle = true,
+                isAwaitingFlipFace = false,
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
                 isRerollSelected = false,
                 isAdjustmentSelected = false,
                 isSetValueSelected = false,
-                isRerollSingleSelected = true
+                isRerollSingleSelected = true,
+                isFlipSelected = false
             )
         )
     }
