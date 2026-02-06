@@ -226,6 +226,7 @@ fun SequenceGameScreen(
                 ) {
                     if (uiState.isAwaitingDecision) {
                         Row(
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -234,12 +235,14 @@ fun SequenceGameScreen(
                                     SequenceDecisionAction.Discard -> SequenceChoiceButton(
                                         label = stringResource(R.string.sequence_discard),
                                         testTag = SEQUENCE_DISCARD_BUTTON_TAG,
+                                        modifier = Modifier.weight(1f),
                                         onClick = onDiscardClick
                                     )
 
                                     SequenceDecisionAction.Save -> SequenceChoiceButton(
                                         label = stringResource(R.string.sequence_save),
                                         testTag = SEQUENCE_SAVE_BUTTON_TAG,
+                                        modifier = Modifier.weight(1f),
                                         onClick = onSaveClick
                                     )
                                 }
@@ -389,6 +392,7 @@ internal fun shouldShowSequenceContinueButton(
 private fun SequenceChoiceButton(
     label: String,
     testTag: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Button(
@@ -398,15 +402,15 @@ private fun SequenceChoiceButton(
             containerColor = MaterialTheme.colorScheme.tertiary,
             contentColor = MaterialTheme.colorScheme.onTertiary
         ),
-        modifier = Modifier
-            .height(56.dp)
+        modifier = modifier
+            .height(64.dp)
             .testTag(testTag)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 22.sp
             )
         )
     }
