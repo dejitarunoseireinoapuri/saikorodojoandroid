@@ -89,6 +89,7 @@ fun GameRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val rewardedAdState = remember { mutableStateOf<RewardedAd?>(null) }
+    val pendingRewardedAd = remember { mutableStateOf(false) }
     val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
 
     LaunchedEffect(Unit) {
@@ -98,7 +99,18 @@ fun GameRoute(
     }
 
     LaunchedEffect(Unit) {
-        loadRewardedAd(context, rewardedAdState)
+        loadRewardedAd(context, rewardedAdState) { rewardAd ->
+            if (pendingRewardedAd.value) {
+                pendingRewardedAd.value = false
+                showRewardedAd(
+                    activity = context.findActivity(),
+                    rewardedAd = rewardAd,
+                    onEarnedReward = onAdCompleted,
+                    onDismissed = { loadRewardedAd(context, rewardedAdState) },
+                    onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
+                )
+            }
+        }
     }
 
     LaunchedEffect(viewModel) {
@@ -108,20 +120,26 @@ fun GameRoute(
                 is GameUiEffect.NavigateToMenu -> onNavigateToMenu(effect.resetProgress)
                 GameUiEffect.ShowMinigamesRewardedAd -> {
                     val activity = context.findActivity()
-                    if (activity != null) {
-                        val shown = showRewardedAd(
-                            activity = activity,
-                            rewardedAd = rewardedAdState.value,
-                            onDismissed = {
-                                onAdCompleted()
-                                loadRewardedAd(context, rewardedAdState)
-                            },
-                            onFailedToShow = {
-                                loadRewardedAd(context, rewardedAdState)
+                    val shown = showRewardedAd(
+                        activity = activity,
+                        rewardedAd = rewardedAdState.value,
+                        onEarnedReward = onAdCompleted,
+                        onDismissed = { loadRewardedAd(context, rewardedAdState) },
+                        onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
+                    )
+                    if (!shown) {
+                        pendingRewardedAd.value = true
+                        loadRewardedAd(context, rewardedAdState) { rewardAd ->
+                            if (pendingRewardedAd.value) {
+                                pendingRewardedAd.value = false
+                                showRewardedAd(
+                                    activity = context.findActivity(),
+                                    rewardedAd = rewardAd,
+                                    onEarnedReward = onAdCompleted,
+                                    onDismissed = { loadRewardedAd(context, rewardedAdState) },
+                                    onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
+                                )
                             }
-                        )
-                        if (!shown) {
-                            loadRewardedAd(context, rewardedAdState)
                         }
                     }
                 }
@@ -155,7 +173,8 @@ private const val MINIGAMES_REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5
 
 private fun loadRewardedAd(
     context: Context,
-    rewardedAdState: androidx.compose.runtime.MutableState<RewardedAd?>
+    rewardedAdState: androidx.compose.runtime.MutableState<RewardedAd?>,
+    onLoaded: (RewardedAd) -> Unit = {}
 ) {
     val adRequest = AdRequest.Builder().build()
     RewardedAd.load(
@@ -165,6 +184,7 @@ private fun loadRewardedAd(
         object : RewardedAdLoadCallback() {
             override fun onAdLoaded(ad: RewardedAd) {
                 rewardedAdState.value = ad
+                onLoaded(ad)
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
@@ -175,12 +195,13 @@ private fun loadRewardedAd(
 }
 
 private fun showRewardedAd(
-    activity: Activity,
+    activity: Activity?,
     rewardedAd: RewardedAd?,
+    onEarnedReward: () -> Unit,
     onDismissed: () -> Unit,
     onFailedToShow: () -> Unit
 ): Boolean {
-    if (rewardedAd == null) return false
+    if (rewardedAd == null || activity == null) return false
     rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
         override fun onAdDismissedFullScreenContent() {
             onDismissed()
@@ -190,7 +211,7 @@ private fun showRewardedAd(
             onFailedToShow()
         }
     }
-    rewardedAd.show(activity) {}
+    rewardedAd.show(activity) { onEarnedReward() }
     return true
 }
 
