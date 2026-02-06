@@ -189,9 +189,6 @@ class HigherLowerGameViewModel(
             return
         }
         rollJob = viewModelScope.launch(dispatcher) {
-            if (resultDelayMs > 0L) {
-                delay(resultDelayMs)
-            }
             _uiState.update {
                 it.copy(
                     correctStreak = updatedStreak,
