@@ -40,6 +40,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
@@ -106,6 +108,7 @@ fun OddEvenGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
+            val titleColor = MaterialTheme.colorScheme.onBackground
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
             val showRules = !uiState.isStarted
@@ -119,26 +122,35 @@ fun OddEvenGameScreen(
                 Text(
                     text = stringResource(R.string.minigame_win_message),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = VictoryMatBackground
+                    color = minigameMessageColor(
+                        MinigameMessageType.Win,
+                        titleColor = titleColor
+                    )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.minigame_win_cards_message),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = VictoryMatBackground
+                    color = minigameMessageColor(
+                        MinigameMessageType.WinCards,
+                        titleColor = titleColor
+                    )
                 )
             } else if (hasLoss) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.minigame_lose_message),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = FailureMatBackground
+                    color = minigameMessageColor(
+                        MinigameMessageType.Lose,
+                        titleColor = titleColor
+                    )
                 )
             } else {
                 Text(
                     text = stringResource(R.string.odd_even_subtitle),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
+                    color = titleColor,
                     textAlign = TextAlign.Center,
                     modifier = rulesModifier
                 )
@@ -147,22 +159,22 @@ fun OddEvenGameScreen(
                     Text(
                         text = stringResource(
                             R.string.odd_even_round_status,
-                            uiState.currentRound,
-                            uiState.totalRounds
-                        ),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(
-                            R.string.odd_even_hits_status,
-                            uiState.correctCount,
-                            uiState.targetCorrect
-                        ),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f)
-                    )
+                        uiState.currentRound,
+                        uiState.totalRounds
+                    ),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                    color = titleColor
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(
+                        R.string.odd_even_hits_status,
+                        uiState.correctCount,
+                        uiState.targetCorrect
+                    ),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                    color = titleColor
+                )
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(
                         modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
