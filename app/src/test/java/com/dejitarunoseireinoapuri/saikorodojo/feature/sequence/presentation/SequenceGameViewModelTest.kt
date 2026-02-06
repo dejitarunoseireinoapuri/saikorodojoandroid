@@ -7,6 +7,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.rewardCardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.DiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.RollSequenceUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.SequenceFailureReason
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
