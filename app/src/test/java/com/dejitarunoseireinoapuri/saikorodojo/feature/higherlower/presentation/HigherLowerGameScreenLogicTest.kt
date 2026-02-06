@@ -21,21 +21,14 @@ class HigherLowerGameScreenLogicTest {
 
     @Test
     fun `choice row stays visible when a selection exists`() {
-        assertEquals(
-            HigherLowerChoiceButtonsMode.Both,
-            higherLowerChoiceButtonsMode(isChoiceVisible = true, selectedChoice = null)
-        )
-        assertEquals(
-            HigherLowerChoiceButtonsMode.SelectedOnly,
-            higherLowerChoiceButtonsMode(
+        assertTrue(shouldShowHigherLowerChoiceRow(isChoiceVisible = true, selectedChoice = null))
+        assertTrue(
+            shouldShowHigherLowerChoiceRow(
                 isChoiceVisible = false,
                 selectedChoice = HigherLowerChoice.HIGHER
             )
         )
-        assertEquals(
-            HigherLowerChoiceButtonsMode.Hidden,
-            higherLowerChoiceButtonsMode(isChoiceVisible = false, selectedChoice = null)
-        )
+        assertFalse(shouldShowHigherLowerChoiceRow(isChoiceVisible = false, selectedChoice = null))
     }
 
     @Test

@@ -181,51 +181,24 @@ fun HigherLowerGameScreen(
                     color = titleColor
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                when (higherLowerChoiceButtonsMode(uiState.isChoiceVisible, uiState.selectedChoice)) {
-                    HigherLowerChoiceButtonsMode.Hidden -> Unit
-                    HigherLowerChoiceButtonsMode.SelectedOnly -> {
-                        val selectedChoice = uiState.selectedChoice ?: return@when
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag(HIGHER_LOWER_BUTTON_ROW_TAG)
-                        ) {
-                            HigherLowerChoiceButton(
-                                label = stringResource(
-                                    if (selectedChoice == HigherLowerChoice.LOWER) {
-                                        R.string.higher_lower_lower
-                                    } else {
-                                        R.string.higher_lower_higher
-                                    }
-                                ),
-                                isEnabled = false,
-                                isVisible = true,
-                                onClick = {},
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-                    HigherLowerChoiceButtonsMode.Both -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag(HIGHER_LOWER_BUTTON_ROW_TAG)
+                if (shouldShowHigherLowerChoiceRow(uiState.isChoiceVisible, uiState.selectedChoice)) {
+                    Row(
+                        modifier = Modifier.testTag(HIGHER_LOWER_BUTTON_ROW_TAG),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_lower),
                             isEnabled = uiState.selectedChoice == null,
-                            isVisible = true,
-                            onClick = { onChoiceSelect(HigherLowerChoice.LOWER) },
-                            modifier = Modifier.align(Alignment.CenterStart)
+                            isVisible = uiState.selectedChoice != HigherLowerChoice.HIGHER,
+                            onClick = { onChoiceSelect(HigherLowerChoice.LOWER) }
                         )
                         HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_higher),
                             isEnabled = uiState.selectedChoice == null,
-                            isVisible = true,
-                            onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) },
-                            modifier = Modifier.align(Alignment.CenterEnd)
+                            isVisible = uiState.selectedChoice != HigherLowerChoice.LOWER,
+                            onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
                         )
-                    }
                     }
                 }
             }
@@ -447,21 +420,11 @@ internal fun shouldShowHigherLowerTotals(
     return !isRolling && !isTransitioning
 }
 
-internal enum class HigherLowerChoiceButtonsMode {
-    Hidden,
-    SelectedOnly,
-    Both
-}
-
-internal fun higherLowerChoiceButtonsMode(
+internal fun shouldShowHigherLowerChoiceRow(
     isChoiceVisible: Boolean,
     selectedChoice: HigherLowerChoice?
-): HigherLowerChoiceButtonsMode {
-    return when {
-        isChoiceVisible -> HigherLowerChoiceButtonsMode.Both
-        selectedChoice != null -> HigherLowerChoiceButtonsMode.SelectedOnly
-        else -> HigherLowerChoiceButtonsMode.Hidden
-    }
+): Boolean {
+    return isChoiceVisible || selectedChoice != null
 }
 
 internal data class HigherLowerMatColors(
