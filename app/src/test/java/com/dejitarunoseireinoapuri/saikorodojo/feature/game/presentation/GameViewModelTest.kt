@@ -25,7 +25,7 @@ class GameViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @Test
-    fun `reroll some clears selection and awaits selection`() = runTest {
+    fun `reroll some keeps objective selection and awaits selection`() = runTest {
         val viewModel = buildViewModel(
             cardUiModels = listOf(
                 CardUiModel(
@@ -47,8 +47,8 @@ class GameViewModelTest {
 
         val stateAfterApply = viewModel.uiState.value
         assertTrue(stateAfterApply.isAwaitingRerollSelected)
-        assertTrue(stateAfterApply.selectedDice.isEmpty())
-        assertEquals(0, stateAfterApply.selectedDiceSum)
+        assertEquals(setOf(0, 1), stateAfterApply.selectedDice)
+        assertEquals(2, stateAfterApply.selectedDiceSum)
         assertTrue(!stateAfterApply.isRolling)
     }
 
@@ -255,7 +255,7 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `roll selected dice updates only chosen indices and clears selection`() = runTest {
+    fun `roll selected dice updates only chosen indices and keeps objective selection`() = runTest {
         val viewModel = buildViewModel(
             rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)),
             cardUiModels = listOf(
@@ -268,6 +268,7 @@ class GameViewModelTest {
             )
         )
 
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
         viewModel.onEvent(GameUiEvent.DiceClicked(0))
         viewModel.onEvent(GameUiEvent.DiceClicked(2))
@@ -277,14 +278,14 @@ class GameViewModelTest {
 
         val stateAfterRoll = viewModel.uiState.value
         assertEquals(listOf(6, 1, 6), stateAfterRoll.diceValues)
-        assertTrue(stateAfterRoll.selectedDice.isEmpty())
+        assertEquals(setOf(0), stateAfterRoll.selectedDice)
         assertTrue(stateAfterRoll.selectedRerollDice.isEmpty())
-        assertEquals(0, stateAfterRoll.selectedDiceSum)
+        assertEquals(6, stateAfterRoll.selectedDiceSum)
         assertTrue(!stateAfterRoll.isAwaitingRerollSelected)
     }
 
     @Test
-    fun `reroll selection keeps objective selection cleared`() = runTest {
+    fun `reroll selection keeps objective selection while choosing dice`() = runTest {
         val viewModel = buildViewModel(
             cardUiModels = listOf(
                 CardUiModel(
@@ -303,9 +304,9 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.DiceClicked(1))
 
         val state = viewModel.uiState.value
-        assertTrue(state.selectedDice.isEmpty())
+        assertEquals(setOf(0), state.selectedDice)
         assertEquals(setOf(1), state.selectedRerollDice)
-        assertEquals(0, state.selectedDiceSum)
+        assertEquals(1, state.selectedDiceSum)
     }
 
     @Test
@@ -376,8 +377,8 @@ class GameViewModelTest {
 
         val stateAfterRepeat = viewModel.uiState.value
         assertTrue(stateAfterRepeat.isAwaitingRerollSelected)
-        assertTrue(stateAfterRepeat.selectedDice.isEmpty())
-        assertEquals(0, stateAfterRepeat.selectedDiceSum)
+        assertEquals(setOf(0, 1), stateAfterRepeat.selectedDice)
+        assertEquals(2, stateAfterRepeat.selectedDiceSum)
         assertEquals(CardId.REROLL_ALL, stateAfterRepeat.lastAppliedCardId)
         assertTrue(stateAfterRepeat.cardUiModels.isEmpty())
     }
