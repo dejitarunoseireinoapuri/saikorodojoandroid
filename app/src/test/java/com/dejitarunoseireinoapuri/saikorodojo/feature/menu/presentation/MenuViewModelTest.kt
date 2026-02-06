@@ -116,6 +116,7 @@ class MenuViewModelTest {
                 selectedDice = emptySet(),
                 selectedRerollDice = emptySet(),
                 selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null,
                 selectedDiceSum = 0,

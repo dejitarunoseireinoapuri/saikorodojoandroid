@@ -43,6 +43,11 @@ class GameViewModelFlipFaceTest {
         assertEquals(1, afterApply.cardUiModels.single().count)
 
         viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        val afterSelection = viewModel.uiState.value
+        assertEquals(0, afterSelection.selectedFlipDieIndex)
+        assertTrue(afterSelection.isAwaitingFlipFace)
+
+        viewModel.onEvent(GameUiEvent.FlipSelectedDie)
 
         val afterFlip = viewModel.uiState.value
         assertEquals(6, afterFlip.diceValues.first())

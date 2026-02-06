@@ -2,6 +2,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain
 
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.random.Random
 
 class GenerateObjectiveUseCaseTest {
     @Test
@@ -16,5 +17,42 @@ class GenerateObjectiveUseCaseTest {
             assertTrue(objective.conditions.any { it is MinSelectedDiceCondition })
             assertTrue(objective.conditions.none { it is ExactSelectedDiceCondition })
         }
+    }
+
+    @Test
+    fun `stage one objectives include pair and double pair candidates`() {
+        val candidates = buildObjectiveCandidates(
+            stage = 1,
+            maxSelectable = 5,
+            maxDieValue = 6,
+            randomValuesPool = (1..6).toList(),
+            exactTarget = 10,
+            atLeastThreshold = 12,
+            rangeCondition = SumInRangeCondition(min = 5, max = 9),
+            random = Random(1)
+        )
+
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
+        assertTrue(candidates.any { it is ExactTwoPairsCondition })
+    }
+
+    @Test
+    fun `stage two objectives include pair and three of a kind candidates`() {
+        val candidates = buildObjectiveCandidates(
+            stage = 2,
+            maxSelectable = 5,
+            maxDieValue = 6,
+            randomValuesPool = (1..6).toList(),
+            exactTarget = 10,
+            atLeastThreshold = 12,
+            rangeCondition = SumInRangeCondition(min = 5, max = 9),
+            random = Random(2)
+        )
+
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
+        assertTrue(candidates.any { it is ExactTwoPairsCondition })
+        assertTrue(candidates.any { it is HasThreeOfKindCondition && it.required })
     }
 }

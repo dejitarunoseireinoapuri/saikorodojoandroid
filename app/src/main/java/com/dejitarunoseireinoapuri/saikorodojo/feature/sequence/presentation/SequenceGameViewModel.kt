@@ -152,7 +152,7 @@ class SequenceGameViewModel(
         }
         val value = state.diceValue ?: return
         val lastSaved = state.savedValues.lastOrNull()
-        if (lastSaved != null && value <= lastSaved) {
+        if (lastSaved != null && value < lastSaved) {
             completeFailure(
                 savedValues = state.savedValues,
                 discardCount = state.discardCount,
