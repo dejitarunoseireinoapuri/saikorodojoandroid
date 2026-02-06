@@ -57,7 +57,8 @@ data class GameUiSnapshot(
     val lastAppliedCardId: CardId?,
     val levelNumber: Int,
     val isLevelComplete: Boolean,
-    val showLevelCompleteMessage: Boolean
+    val showLevelCompleteMessage: Boolean,
+    val minigamesAvailable: Int
 )
 
 sealed interface MinigameSnapshot {

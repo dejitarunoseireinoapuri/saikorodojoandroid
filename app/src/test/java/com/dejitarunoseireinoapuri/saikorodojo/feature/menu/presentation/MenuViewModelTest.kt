@@ -126,7 +126,8 @@ class MenuViewModelTest {
                 lastAppliedCardId = null,
                 levelNumber = 1,
                 isLevelComplete = false,
-                showLevelCompleteMessage = false
+                showLevelCompleteMessage = false,
+                minigamesAvailable = 2
             ),
             baseSeed = 7L,
             currentObjective = LevelObjective(emptyList()),

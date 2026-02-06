@@ -32,8 +32,8 @@
     <string name="card_repeat_last_title">Repeat card</string>
     <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target. Last card:</string>
     <string name="card_repeat_last_none">None</string>
-    <string name="card_retry_title">Retry</string>
-    <string name="card_retry_description">Restart the level</string>
+    <string name="card_minigames_title">Minigames</string>
+    <string name="card_minigames_description">Gain three minigames</string>
     <string name="odd_even_title">Odd or Even</string>
     <string name="odd_even_subtitle">Guess at least 3 out of 7 rounds if the result is even or odd</string>
     <string name="odd_even_start">Start</string>
@@ -105,4 +105,8 @@
     <string name="cd_surrender">Surrender</string>
     <string name="cd_exit_home">Exit to menu</string>
     <string name="cd_random_minigame">Open random minigame</string>
+    <string name="cd_minigames_available">Minigames available</string>
+    <string name="minigames_ad_title">No minigames available</string>
+    <string name="minigames_ad_message">Watch a rewarded ad to gain three minigames?</string>
+    <string name="minigames_ad_confirm">Watch ad</string>
 </resources>

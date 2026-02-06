@@ -147,18 +147,11 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `retry resets dice to the initial roll state`() = runTest {
+    fun `minigames card adds three minigames`() = runTest {
         val viewModel = buildViewModel(
-            rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)),
             cardUiModels = listOf(
                 CardUiModel(
-                    id = CardId.SET_VALUE,
-                    titleRes = 0,
-                    descriptionRes = 0,
-                    iconRes = 0
-                ),
-                CardUiModel(
-                    id = CardId.RETRY,
+                    id = CardId.MINIGAMES,
                     titleRes = 0,
                     descriptionRes = 0,
                     iconRes = 0
@@ -166,27 +159,13 @@ class GameViewModelTest {
             )
         )
 
-        viewModel.onEvent(GameUiEvent.StartRoll)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        val initialValues = viewModel.uiState.value.diceValues
-        assertEquals(listOf(6, 6, 6), initialValues)
-
-        viewModel.onEvent(GameUiEvent.ApplyCard(0))
-        viewModel.onEvent(GameUiEvent.DiceClicked(0))
-        viewModel.onEvent(GameUiEvent.SetSelectedDieValue(1))
-
-        assertEquals(1, viewModel.uiState.value.diceValues[0])
-
+        val initialMinigames = viewModel.uiState.value.minigamesAvailable
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
 
-        val afterRetry = viewModel.uiState.value
-        assertEquals(initialValues, afterRetry.diceValues)
-        assertTrue(afterRetry.selectedDice.isEmpty())
-        assertEquals(0, afterRetry.selectedDiceSum)
-        assertEquals(CardId.RETRY, afterRetry.lastAppliedCardId)
-        assertTrue(!afterRetry.isAwaitingSetValue)
-        assertTrue(!afterRetry.isAwaitingRerollSingle)
+        val afterApply = viewModel.uiState.value
+        assertEquals(initialMinigames + 3, afterApply.minigamesAvailable)
+        assertEquals(CardId.MINIGAMES, afterApply.lastAppliedCardId)
+        assertTrue(afterApply.cardUiModels.isEmpty())
     }
 
     @Test
@@ -409,11 +388,13 @@ class GameViewModelTest {
             viewModel.effects.take(1).toList(effects)
         }
 
+        val startingMinigames = viewModel.uiState.value.minigamesAvailable
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(1, effects.size)
         assertTrue(effects.single() is GameUiEffect.NavigateToMinigame)
+        assertEquals(startingMinigames - 1, viewModel.uiState.value.minigamesAvailable)
         collectorJob.cancel()
     }
 
@@ -432,9 +413,39 @@ class GameViewModelTest {
 
         assertEquals(2, effects.size)
         assertTrue(effects.all { it is GameUiEffect.NavigateToMinigame })
+        assertEquals(1, viewModel.uiState.value.minigamesAvailable)
         collectorJob.cancel()
     }
 
+    @Test
+    fun `open random minigame shows ad prompt when empty`() = runTest {
+        val viewModel = buildViewModel()
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+
+        assertEquals(0, viewModel.uiState.value.minigamesAvailable)
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+
+        assertTrue(viewModel.uiState.value.showMinigamesAdPrompt)
+    }
+
+    @Test
+    fun `confirm minigames ad grants three minigames`() = runTest {
+        val viewModel = buildViewModel()
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+
+        assertEquals(0, viewModel.uiState.value.minigamesAvailable)
+
+        viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd)
+
+        assertEquals(3, viewModel.uiState.value.minigamesAvailable)
+        assertTrue(!viewModel.uiState.value.showMinigamesAdPrompt)
+    }
 
     @Test
     fun `level completion waits before moving to next level`() = runTest {
@@ -452,6 +463,7 @@ class GameViewModelTest {
         testDispatcher.scheduler.advanceTimeBy(1)
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(2, viewModel.uiState.value.levelNumber)
+        assertEquals(6, viewModel.uiState.value.minigamesAvailable)
     }
 
     @Test

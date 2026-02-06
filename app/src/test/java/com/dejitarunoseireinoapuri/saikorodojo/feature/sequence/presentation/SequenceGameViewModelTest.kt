@@ -302,7 +302,7 @@ class SequenceGameViewModelTest {
     }
 
     private fun testCardUiModels(): List<CardUiModel> {
-        return (rewardCardIds() + CardId.RETRY).map { id ->
+        return (rewardCardIds() + CardId.MINIGAMES).map { id ->
             CardUiModel(
                 id = id,
                 titleRes = 0,
