@@ -263,6 +263,14 @@ class HigherLowerGameViewModel(
 
     private fun resolveWin() {
         rollJob = viewModelScope.launch(dispatcher) {
+            _uiState.update {
+                it.copy(
+                    isRolling = false,
+                    isChoiceVisible = false,
+                    isTransitioning = false,
+                    isSuccessHighlighting = true
+                )
+            }
             if (successResultDelayMs > 0L) {
                 delay(successResultDelayMs)
             }

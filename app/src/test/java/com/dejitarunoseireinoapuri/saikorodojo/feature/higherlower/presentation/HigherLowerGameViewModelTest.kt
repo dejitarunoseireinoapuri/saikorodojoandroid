@@ -233,6 +233,7 @@ class HigherLowerGameViewModelTest {
 
         val pendingState = viewModel.uiState.value
         assertFalse(pendingState.isComplete)
+        assertTrue(pendingState.isSuccessHighlighting)
         assertTrue(pendingState.rewardCards.isEmpty())
 
         advanceTimeBy(1_000L)
@@ -240,6 +241,7 @@ class HigherLowerGameViewModelTest {
 
         val finalState = viewModel.uiState.value
         assertTrue(finalState.isComplete)
+        assertFalse(finalState.isSuccessHighlighting)
         assertTrue(finalState.rewardCards.isNotEmpty())
     }
 
