@@ -143,7 +143,9 @@ fun SequenceGameScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
