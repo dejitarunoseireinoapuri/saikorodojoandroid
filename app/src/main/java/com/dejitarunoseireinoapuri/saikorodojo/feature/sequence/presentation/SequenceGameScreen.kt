@@ -226,9 +226,7 @@ fun SequenceGameScreen(
                 ) {
                     if (uiState.isAwaitingDecision) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -405,14 +403,14 @@ private fun SequenceChoiceButton(
             contentColor = MaterialTheme.colorScheme.onTertiary
         ),
         modifier = modifier
-            .height(56.dp)
+            .height(64.dp)
             .testTag(testTag)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 22.sp
             )
         )
     }
