@@ -38,7 +38,8 @@ class HigherLowerGameViewModelTest {
         assertEquals(2, state.currentRound)
         assertEquals(listOf(4, 4), state.baseDiceValues)
         assertEquals(listOf(4, 4), state.currentDiceValues)
-        assertTrue(state.isCurrentDiceHidden)
+        assertFalse(state.isCurrentDiceHidden)
+        assertTrue(state.isCurrentDiceAnchoredUp)
         assertEquals(1, state.correctStreak)
         assertTrue(state.isChoiceVisible)
         assertFalse(state.isComplete)
@@ -158,7 +159,8 @@ class HigherLowerGameViewModelTest {
         val viewModel = buildViewModel(
             diceValues = listOf(1, 1, 2, 3, 1, 1, 4, 4),
             successHighlightMs = 0L,
-            transitionMs = 1_000L
+            transitionMs = 1_000L,
+            postTransitionHoldMs = 0L
         )
 
         viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
@@ -178,14 +180,75 @@ class HigherLowerGameViewModelTest {
         val finalState = viewModel.uiState.value
         assertEquals(currentDice, finalState.baseDiceValues)
         assertEquals(currentDice, finalState.currentDiceValues)
-        assertTrue(finalState.isCurrentDiceHidden)
+        assertFalse(finalState.isCurrentDiceHidden)
+        assertTrue(finalState.isCurrentDiceAnchoredUp)
         assertFalse(finalState.isTransitioning)
+    }
+
+    @Test
+    fun `post transition hold keeps dice visible before showing buttons`() = runTest {
+        val viewModel = buildViewModel(
+            diceValues = listOf(1, 1, 2, 3, 1, 1, 4, 4),
+            successHighlightMs = 0L,
+            transitionMs = 1_000L,
+            postTransitionHoldMs = 500L
+        )
+
+        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
+        runCurrent()
+
+        advanceTimeBy(1_000L)
+        runCurrent()
+
+        val holdState = viewModel.uiState.value
+        assertFalse(holdState.isTransitioning)
+        assertFalse(holdState.isCurrentDiceHidden)
+        assertTrue(holdState.isCurrentDiceAnchoredUp)
+        assertFalse(holdState.isChoiceVisible)
+
+        advanceTimeBy(500L)
+        runCurrent()
+
+        val finalState = viewModel.uiState.value
+        assertFalse(finalState.isCurrentDiceHidden)
+        assertTrue(finalState.isCurrentDiceAnchoredUp)
+        assertTrue(finalState.isChoiceVisible)
+    }
+
+    @Test
+    fun `win waits before showing reward cards`() = runTest {
+        val viewModel = buildViewModel(
+            diceValues = listOf(1, 1, 1, 1, 1, 1, 1, 1),
+            successResultDelayMs = 1_000L
+        )
+
+        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
+        runCurrent()
+
+        val pendingState = viewModel.uiState.value
+        assertFalse(pendingState.isComplete)
+        assertTrue(pendingState.rewardCards.isEmpty())
+
+        advanceTimeBy(1_000L)
+        runCurrent()
+
+        val finalState = viewModel.uiState.value
+        assertTrue(finalState.isComplete)
+        assertTrue(finalState.rewardCards.isNotEmpty())
     }
 
     private fun buildViewModel(
         diceValues: List<Int>,
         successHighlightMs: Long = 0L,
-        transitionMs: Long = 0L
+        transitionMs: Long = 0L,
+        successResultDelayMs: Long = 0L,
+        postTransitionHoldMs: Long = 0L
     ): HigherLowerGameViewModel {
         val diceRoller = QueueDiceRoller(diceValues.toMutableList())
         return HigherLowerGameViewModel(
@@ -198,7 +261,9 @@ class HigherLowerGameViewModelTest {
             tickMs = 1L,
             resultDelayMs = 0L,
             transitionMs = transitionMs,
-            successHighlightMs = successHighlightMs
+            successHighlightMs = successHighlightMs,
+            successResultDelayMs = successResultDelayMs,
+            postTransitionHoldMs = postTransitionHoldMs
         )
     }
 
