@@ -45,8 +45,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 
 internal const val SEQUENCE_DICE_TAG = "sequence_dice"
 internal const val SEQUENCE_DICE_VALUE_TAG = "sequence_dice_value"
