@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-private const val DEFAULT_TOTAL_ROUNDS = 5
+private const val DEFAULT_TOTAL_ROUNDS = 7
 private const val DEFAULT_TARGET_CORRECT = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_RESULT_ANIMATION_MS = 1_500L

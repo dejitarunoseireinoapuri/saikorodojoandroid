@@ -264,12 +264,7 @@ class GenerateObjectiveUseCase {
         val minimumPossibleSum = minSelectable
         val maximumPossibleSum = maxSelectable * maxDieValue
         val randomValuesPool = List(maxDieValue) { it + 1 }
-        val minStraightLength = minOf(3, maxDieValue)
-        val maxStraightLength = minOf(maxDieValue, maxSelectable)
-
-        val candidates = mutableListOf<ObjectiveCondition>()
         val sumDifficultyFactor = (stage - 1).coerceAtLeast(0)
-
         val exactTarget = buildRandomExactTarget(
             minimumPossibleSum = minimumPossibleSum,
             maximumPossibleSum = maximumPossibleSum,
@@ -288,73 +283,16 @@ class GenerateObjectiveUseCase {
             sumDifficultyFactor = sumDifficultyFactor,
             random = random
         )
-
-        candidates.add(SumExactCondition(target = exactTarget))
-        candidates.add(SumAtLeastCondition(threshold = atLeastThreshold))
-        candidates.add(SumAtMostCondition(threshold = exactTarget + random.nextInt(0, 4)))
-        candidates.add(rangeCondition)
-        candidates.add(SumMultipleCondition(factor = listOf(3, 5).random(random)))
-        candidates.add(
-            SumMaxDifferenceCondition(
-                target = exactTarget,
-                maxDifference = (4 - stage.coerceAtMost(3)).coerceAtLeast(1)
-            )
+        val candidates = buildObjectiveCandidates(
+            stage = stage,
+            maxSelectable = maxSelectable,
+            maxDieValue = maxDieValue,
+            randomValuesPool = randomValuesPool,
+            exactTarget = exactTarget,
+            atLeastThreshold = atLeastThreshold,
+            rangeCondition = rangeCondition,
+            random = random
         )
-        candidates.add(SumParityCondition(shouldBeEven = random.nextBoolean()))
-
-        if (stage >= 1) {
-            candidates.add(AllDistinctCondition)
-            candidates.add(HasPairCondition(requiredPairs = 1))
-            candidates.add(ExactlyDistinctValuesCondition(distinctCount = minOf(3, maxSelectable)))
-            val containsCount = minOf(2 + stage / 2, maxSelectable).coerceAtLeast(1)
-            candidates.add(
-                ContainsValuesCondition(
-                    values = randomValuesPool.shuffled(random).take(containsCount)
-                )
-            )
-        }
-
-        if (stage >= 2 && maxDieValue >= 3) {
-            val straightLength = random.nextInt(
-                from = minStraightLength,
-                until = (maxStraightLength + 1).coerceAtLeast(minStraightLength + 1)
-            )
-            candidates.add(StraightCondition(length = straightLength))
-            candidates.add(AtLeastParityCountCondition(minCount = 2, even = random.nextBoolean()))
-        }
-
-        if (stage >= 3) {
-            candidates.add(HasPairCondition(requiredPairs = 2))
-            candidates.add(ExactTwoPairsCondition)
-            candidates.add(HasThreeOfKindCondition(required = true))
-            candidates.add(ThreeOfKindWithValueCondition(requiredValue = randomValuesPool.random(random)))
-            val multiplicityTargetValue = randomValuesPool.random(random)
-            val secondaryValue = randomValuesPool.random(random)
-            candidates.add(
-                ContainsValuesWithMultiplicityCondition(
-                    values = listOf(
-                        multiplicityTargetValue,
-                        multiplicityTargetValue,
-                        secondaryValue
-                    )
-                )
-            )
-        }
-
-        if (stage >= 4) {
-            candidates.add(HasFourOfKindCondition(required = true))
-            candidates.add(FullHouseCondition)
-            candidates.add(ContainsHighAndLowValueCondition)
-            val forbiddenCount = minOf(stage - 2, maxDieValue - 1).coerceAtLeast(1)
-            val forbiddenValues = randomValuesPool.shuffled(random).take(forbiddenCount)
-            candidates.add(ForbidValuesCondition(values = forbiddenValues))
-            candidates.add(
-                SatisfyAndAvoidCondition(
-                    required = SumAtLeastCondition(threshold = atLeastThreshold),
-                    forbidden = ForbidValuesCondition(values = listOf(randomValuesPool.random(random)))
-                )
-            )
-        }
 
         val selectedConditionsCount = when {
             stage <= 2 -> 1
@@ -384,6 +322,90 @@ class GenerateObjectiveUseCase {
         }
         return LevelObjective(conditions = enrichedConditions.distinct())
     }
+}
+
+internal fun buildObjectiveCandidates(
+    stage: Int,
+    maxSelectable: Int,
+    maxDieValue: Int,
+    randomValuesPool: List<Int>,
+    exactTarget: Int,
+    atLeastThreshold: Int,
+    rangeCondition: SumInRangeCondition,
+    random: Random
+): List<ObjectiveCondition> {
+    val minStraightLength = minOf(3, maxDieValue)
+    val maxStraightLength = minOf(maxDieValue, maxSelectable)
+
+    val candidates = mutableListOf<ObjectiveCondition>()
+    candidates.add(SumExactCondition(target = exactTarget))
+    candidates.add(SumAtLeastCondition(threshold = atLeastThreshold))
+    candidates.add(SumAtMostCondition(threshold = exactTarget + random.nextInt(0, 4)))
+    candidates.add(rangeCondition)
+    candidates.add(SumMultipleCondition(factor = listOf(3, 5).random(random)))
+    candidates.add(
+        SumMaxDifferenceCondition(
+            target = exactTarget,
+            maxDifference = (4 - stage.coerceAtMost(3)).coerceAtLeast(1)
+        )
+    )
+    candidates.add(SumParityCondition(shouldBeEven = random.nextBoolean()))
+
+    if (stage >= 1) {
+        candidates.add(AllDistinctCondition)
+        candidates.add(HasPairCondition(requiredPairs = 1))
+        candidates.add(HasPairCondition(requiredPairs = 2))
+        candidates.add(ExactTwoPairsCondition)
+        candidates.add(ExactlyDistinctValuesCondition(distinctCount = minOf(3, maxSelectable)))
+        val containsCount = minOf(2 + stage / 2, maxSelectable).coerceAtLeast(1)
+        candidates.add(
+            ContainsValuesCondition(
+                values = randomValuesPool.shuffled(random).take(containsCount)
+            )
+        )
+    }
+
+    if (stage >= 2 && maxDieValue >= 3) {
+        val straightLength = random.nextInt(
+            from = minStraightLength,
+            until = (maxStraightLength + 1).coerceAtLeast(minStraightLength + 1)
+        )
+        candidates.add(StraightCondition(length = straightLength))
+        candidates.add(AtLeastParityCountCondition(minCount = 2, even = random.nextBoolean()))
+        candidates.add(HasThreeOfKindCondition(required = true))
+    }
+
+    if (stage >= 3) {
+        candidates.add(ThreeOfKindWithValueCondition(requiredValue = randomValuesPool.random(random)))
+        val multiplicityTargetValue = randomValuesPool.random(random)
+        val secondaryValue = randomValuesPool.random(random)
+        candidates.add(
+            ContainsValuesWithMultiplicityCondition(
+                values = listOf(
+                    multiplicityTargetValue,
+                    multiplicityTargetValue,
+                    secondaryValue
+                )
+            )
+        )
+    }
+
+    if (stage >= 4) {
+        candidates.add(HasFourOfKindCondition(required = true))
+        candidates.add(FullHouseCondition)
+        candidates.add(ContainsHighAndLowValueCondition)
+        val forbiddenCount = minOf(stage - 2, maxDieValue - 1).coerceAtLeast(1)
+        val forbiddenValues = randomValuesPool.shuffled(random).take(forbiddenCount)
+        candidates.add(ForbidValuesCondition(values = forbiddenValues))
+        candidates.add(
+            SatisfyAndAvoidCondition(
+                required = SumAtLeastCondition(threshold = atLeastThreshold),
+                forbidden = ForbidValuesCondition(values = listOf(randomValuesPool.random(random)))
+            )
+        )
+    }
+
+    return candidates
 }
 
 
