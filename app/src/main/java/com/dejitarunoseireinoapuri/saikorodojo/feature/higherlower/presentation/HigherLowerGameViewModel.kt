@@ -219,7 +219,7 @@ class HigherLowerGameViewModel(
             _uiState.update {
                 it.copy(
                     baseDiceValues = finalCurrentDice.ifEmpty { newValues },
-                    isCurrentDiceHidden = false,
+                    isCurrentDiceHidden = true,
                     isTransitioning = false,
                     isChoiceVisible = false
                 )
