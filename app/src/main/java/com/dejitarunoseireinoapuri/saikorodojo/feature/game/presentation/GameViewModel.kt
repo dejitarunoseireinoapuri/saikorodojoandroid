@@ -760,9 +760,7 @@ class GameViewModel(
                 selectedRerollSingleDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null,
-                selectedRerollDice = emptySet(),
-                selectedDice = emptySet(),
-                selectedDiceSum = 0
+                selectedRerollDice = emptySet()
             )
             CardId.REPEAT_LAST,
             CardId.RETRY -> buildRetryState(state)
@@ -809,9 +807,7 @@ class GameViewModel(
                 it.copy(
                     isRolling = true,
                     isAwaitingRerollSelected = false,
-                    selectedRerollDice = emptySet(),
-                    selectedDice = emptySet(),
-                    selectedDiceSum = 0
+                    selectedRerollDice = emptySet()
                 )
             }
             repeat(steps) {
@@ -823,7 +819,10 @@ class GameViewModel(
                             updatedValues[dieIndex] = values.getOrNull(listIndex) ?: updatedValues[dieIndex]
                         }
                     }
-                    currentState.copy(diceValues = updatedValues)
+                    currentState.copy(
+                        diceValues = updatedValues,
+                        selectedDiceSum = calculateSelectedDiceSum(updatedValues, currentState.selectedDice)
+                    )
                 }
                 delay(tickMs)
             }
