@@ -147,6 +147,7 @@ fun GameScreen(
         val constraintsHeight = maxHeight
         val shouldHideCards = uiState.isAwaitingRerollSingle ||
             uiState.isAwaitingRerollSelected ||
+            uiState.isAwaitingFlipFace ||
             uiState.isAwaitingAdjustPlusMinus ||
             uiState.isAwaitingSetValue
         val stackOffset by animateDpAsState(
