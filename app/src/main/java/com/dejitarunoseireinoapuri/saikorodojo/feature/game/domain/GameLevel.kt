@@ -380,11 +380,7 @@ class GenerateObjectiveUseCase {
             stage = stage
         )
         val enrichedConditions = selectedConditions.toMutableList().apply {
-            if (stage >= 3 && random.nextBoolean()) {
-                add(ExactSelectedDiceCondition(count = minimumSelectionCount))
-            } else {
-                add(MinSelectedDiceCondition(minimumSelectionCount))
-            }
+            add(MinSelectedDiceCondition(minimumSelectionCount))
         }
         return LevelObjective(conditions = enrichedConditions.distinct())
     }

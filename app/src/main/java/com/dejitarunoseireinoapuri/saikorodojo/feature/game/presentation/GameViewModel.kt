@@ -1037,7 +1037,8 @@ internal fun objectiveLineText(
             R.string.objective_forbid_values to listOf(formatValues(condition.values))
         }
         is MinSelectedDiceCondition -> {
-            R.string.objective_selected_progress to listOf(selectedCount, condition.minCount)
+            val clampedCount = selectedCount.coerceAtMost(condition.minCount)
+            R.string.objective_selected_progress to listOf(clampedCount, condition.minCount)
         }
         is ExactSelectedDiceCondition -> {
             R.string.objective_selected_exact to listOf(selectedCount, condition.count)
