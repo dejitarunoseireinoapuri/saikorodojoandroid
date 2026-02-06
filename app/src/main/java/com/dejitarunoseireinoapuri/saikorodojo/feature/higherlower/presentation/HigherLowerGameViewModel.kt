@@ -218,7 +218,11 @@ class HigherLowerGameViewModel(
             val finalCurrentDice = _uiState.value.currentDiceValues
             _uiState.update {
                 it.copy(
-                    baseDiceValues = finalCurrentDice.ifEmpty { newValues },
+                    baseDiceValues = when {
+                        finalCurrentDice.isNotEmpty() -> finalCurrentDice
+                        newValues.isNotEmpty() -> newValues
+                        else -> it.baseDiceValues
+                    },
                     isCurrentDiceHidden = true,
                     isTransitioning = false,
                     isChoiceVisible = false
