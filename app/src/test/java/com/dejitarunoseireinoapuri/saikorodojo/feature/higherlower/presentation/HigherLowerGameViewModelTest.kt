@@ -203,7 +203,7 @@ class HigherLowerGameViewModelTest {
 
         val holdState = viewModel.uiState.value
         assertFalse(holdState.isTransitioning)
-        assertFalse(holdState.isCurrentDiceHidden)
+        assertTrue(holdState.isCurrentDiceHidden)
         assertFalse(holdState.isChoiceVisible)
 
         advanceTimeBy(500L)
