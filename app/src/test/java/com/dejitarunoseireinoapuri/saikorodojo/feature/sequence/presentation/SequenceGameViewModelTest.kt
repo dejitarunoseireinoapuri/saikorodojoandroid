@@ -9,6 +9,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.DiceRolle
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.RollSequenceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -58,6 +59,38 @@ class SequenceGameViewModelTest {
     }
 
     @Test
+    fun `success keeps pending rewards visible for one second before revealing cards`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(1, 1, 2, 2, 3, 3),
+            rewardRolls = listOf(0.4f, 0.2f, 0.3f),
+            rewardRevealDelayMs = 1_000L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+
+        dispatcher.scheduler.runCurrent()
+        val pendingState = viewModel.uiState.value
+        assertTrue(pendingState.isComplete)
+        assertTrue(pendingState.rewardCards.isEmpty())
+        assertEquals(2, pendingState.pendingRewardCards.size)
+
+        dispatcher.scheduler.advanceTimeBy(999L)
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
+
+        dispatcher.scheduler.advanceTimeBy(1L)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(2, viewModel.uiState.value.rewardCards.size)
+        assertTrue(viewModel.uiState.value.pendingRewardCards.isEmpty())
+    }
+
+    @Test
     fun `saving a lower value ends the game`() = runTest {
         val viewModel = buildViewModel(diceRolls = listOf(6, 4))
 
@@ -71,6 +104,66 @@ class SequenceGameViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
         assertTrue(state.rewardCards.isEmpty())
+    }
+
+    @Test
+    fun `starting a new roll keeps previous dice visible before animation ticks`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(4, 7),
+            rollAnimationMs = 1_000L,
+            tickMs = 100L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(4, viewModel.uiState.value.diceValue)
+
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+
+        val immediateState = viewModel.uiState.value
+        assertTrue(immediateState.isRolling)
+        assertEquals(4, immediateState.diceValue)
+    }
+
+
+
+    @Test
+    fun `save action hides latest saved die until next roll stops`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(3, 7),
+            rollAnimationMs = 200L,
+            tickMs = 100L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.runCurrent()
+
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
+    }
+
+    @Test
+    fun `roll finishes without extra trailing delay after last animation tick`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 5, 7),
+            rollAnimationMs = 200L,
+            tickMs = 100L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isRolling)
+
+        dispatcher.scheduler.advanceTimeBy(100L)
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isAwaitingDecision)
+        assertTrue(viewModel.uiState.value.isRolling.not())
     }
 
     @Test
@@ -167,7 +260,9 @@ class SequenceGameViewModelTest {
         totalRolls: Int = 5,
         maxDiscards: Int = 3,
         rewardRevealDelayMs: Long = 0L,
-        targetSequence: Int = 3
+        targetSequence: Int = 3,
+        rollAnimationMs: Long = 0L,
+        tickMs: Long = 1L
     ): SequenceGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
@@ -178,8 +273,8 @@ class SequenceGameViewModelTest {
             rollSequenceUseCase = rollUseCase,
             selectMinigameRewardCardsUseCase = rewardUseCase,
             dispatcher = dispatcher,
-            rollAnimationMs = 0L,
-            tickMs = 1L,
+            rollAnimationMs = rollAnimationMs,
+            tickMs = tickMs,
             rewardRevealDelayMs = rewardRevealDelayMs,
             totalRolls = totalRolls,
             targetSequence = targetSequence,
