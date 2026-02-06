@@ -95,7 +95,7 @@ class OddEvenGameViewModelTest {
     }
 
     @Test
-    fun `three wrong guesses end the game`() = runTest {
+    fun `three wrong guesses do not end the game early`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2, 4, 6)
         )
@@ -107,6 +107,23 @@ class OddEvenGameViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
         dispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete.not())
+        assertTrue(state.rewardCards.isEmpty())
+    }
+
+    @Test
+    fun `losing after seven rounds completes the game`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 4, 6, 2, 4, 6, 2)
+        )
+
+        viewModel.onEvent(OddEvenGameUiEvent.StartGame)
+        repeat(7) {
+            viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+            dispatcher.scheduler.advanceUntilIdle()
+        }
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
