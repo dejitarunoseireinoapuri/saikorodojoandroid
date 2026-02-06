@@ -272,7 +272,7 @@ fun HigherLowerGameScreen(
                     val shiftY = with(LocalDensity.current) {
                         ((maxHeight - spacing) / 2f + spacing).toPx()
                     }
-                    val transitionProgress by animateFloatAsState(
+                    val baseTransitionProgress by animateFloatAsState(
                         targetValue = if (uiState.isTransitioning) 1f else 0f,
                         animationSpec = if (uiState.isTransitioning) {
                             tween(durationMillis = HIGHER_LOWER_TRANSITION_MS)
@@ -280,6 +280,19 @@ fun HigherLowerGameScreen(
                             tween(durationMillis = 0)
                         },
                         label = "higherLowerTransition"
+                    )
+                    val currentTransitionProgress by animateFloatAsState(
+                        targetValue = if (uiState.isTransitioning || uiState.isCurrentDiceAnchoredUp) {
+                            1f
+                        } else {
+                            0f
+                        },
+                        animationSpec = if (uiState.isTransitioning) {
+                            tween(durationMillis = HIGHER_LOWER_TRANSITION_MS)
+                        } else {
+                            tween(durationMillis = 0)
+                        },
+                        label = "higherLowerCurrentTransition"
                     )
                     val baseSum = uiState.baseDiceValues.takeIf { it.isNotEmpty() }?.sum()
                     val currentSum = uiState.currentDiceValues.takeIf { it.isNotEmpty() }?.sum()
@@ -320,9 +333,11 @@ fun HigherLowerGameScreen(
                                 HigherLowerDiceRow(
                                     values = uiState.baseDiceValues,
                                     diceRes = R.drawable.ten_sides,
-                                    modifier = Modifier.graphicsLayer {
-                                        translationX = shiftX * transitionProgress
-                                    }
+                                    modifier = Modifier
+                                        .alpha(if (uiState.isCurrentDiceAnchoredUp) 0f else 1f)
+                                        .graphicsLayer {
+                                            translationX = shiftX * baseTransitionProgress
+                                        }
                                 )
                             }
                         }
@@ -353,7 +368,7 @@ fun HigherLowerGameScreen(
                                     diceRes = R.drawable.ten_sides,
                                     modifier = Modifier
                                         .graphicsLayer {
-                                            translationY = -shiftY * transitionProgress
+                                            translationY = -shiftY * currentTransitionProgress
                                         }
                                         .zIndex(2f)
                                 )

@@ -38,7 +38,8 @@ class HigherLowerGameViewModelTest {
         assertEquals(2, state.currentRound)
         assertEquals(listOf(4, 4), state.baseDiceValues)
         assertEquals(listOf(4, 4), state.currentDiceValues)
-        assertTrue(state.isCurrentDiceHidden)
+        assertFalse(state.isCurrentDiceHidden)
+        assertTrue(state.isCurrentDiceAnchoredUp)
         assertEquals(1, state.correctStreak)
         assertTrue(state.isChoiceVisible)
         assertFalse(state.isComplete)
@@ -179,7 +180,8 @@ class HigherLowerGameViewModelTest {
         val finalState = viewModel.uiState.value
         assertEquals(currentDice, finalState.baseDiceValues)
         assertEquals(currentDice, finalState.currentDiceValues)
-        assertTrue(finalState.isCurrentDiceHidden)
+        assertFalse(finalState.isCurrentDiceHidden)
+        assertTrue(finalState.isCurrentDiceAnchoredUp)
         assertFalse(finalState.isTransitioning)
     }
 
@@ -203,14 +205,16 @@ class HigherLowerGameViewModelTest {
 
         val holdState = viewModel.uiState.value
         assertFalse(holdState.isTransitioning)
-        assertTrue(holdState.isCurrentDiceHidden)
+        assertFalse(holdState.isCurrentDiceHidden)
+        assertTrue(holdState.isCurrentDiceAnchoredUp)
         assertFalse(holdState.isChoiceVisible)
 
         advanceTimeBy(500L)
         runCurrent()
 
         val finalState = viewModel.uiState.value
-        assertTrue(finalState.isCurrentDiceHidden)
+        assertFalse(finalState.isCurrentDiceHidden)
+        assertTrue(finalState.isCurrentDiceAnchoredUp)
         assertTrue(finalState.isChoiceVisible)
     }
 
