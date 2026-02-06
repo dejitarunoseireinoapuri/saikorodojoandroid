@@ -36,7 +36,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `saving three ascending dice awards cards`() = runTest {
         val viewModel = buildViewModel(
-            diceRolls = listOf(1, 1, 2, 2, 3, 3),
+            diceRolls = listOf(1, 2, 3),
             rewardRolls = listOf(0.4f, 0.2f, 0.3f)
         )
 
@@ -61,7 +61,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `success keeps pending rewards visible for one second before revealing cards`() = runTest {
         val viewModel = buildViewModel(
-            diceRolls = listOf(1, 1, 2, 2, 3, 3),
+            diceRolls = listOf(1, 2, 3),
             rewardRolls = listOf(0.4f, 0.2f, 0.3f),
             rewardRevealDelayMs = 1_000L
         )
@@ -116,13 +116,13 @@ class SequenceGameViewModelTest {
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
         dispatcher.scheduler.advanceUntilIdle()
-        assertEquals(4, viewModel.uiState.value.diceValue)
+        assertEquals(7, viewModel.uiState.value.diceValue)
 
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
 
         val immediateState = viewModel.uiState.value
         assertTrue(immediateState.isRolling)
-        assertEquals(4, immediateState.diceValue)
+        assertEquals(7, immediateState.diceValue)
     }
 
 
@@ -214,7 +214,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `saving ten with pending sequence target ends the game as unwinnable`() = runTest {
         val viewModel = buildViewModel(
-            diceRolls = listOf(1, 10),
+            diceRolls = listOf(10),
             totalRolls = 5,
             maxDiscards = 10
         )
