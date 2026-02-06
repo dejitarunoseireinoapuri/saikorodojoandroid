@@ -410,7 +410,7 @@ private fun SequenceChoiceButton(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
+                fontSize = 20.sp
             )
         )
     }
