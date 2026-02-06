@@ -388,6 +388,7 @@ class GameViewModelTest {
             viewModel.effects.take(1).toList(effects)
         }
 
+        viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
         val startingMinigames = viewModel.uiState.value.minigamesAvailable
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -407,6 +408,7 @@ class GameViewModelTest {
             viewModel.effects.take(2).toList(effects)
         }
 
+        viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -421,12 +423,6 @@ class GameViewModelTest {
     fun `open random minigame shows ad prompt when empty`() = runTest {
         val viewModel = buildViewModel()
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-
-        assertEquals(0, viewModel.uiState.value.minigamesAvailable)
-
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
 
         assertTrue(viewModel.uiState.value.showMinigamesAdPrompt)
     }
@@ -434,10 +430,6 @@ class GameViewModelTest {
     @Test
     fun `confirm minigames ad grants three minigames`() = runTest {
         val viewModel = buildViewModel()
-
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
 
         assertEquals(0, viewModel.uiState.value.minigamesAvailable)
 
@@ -476,7 +468,7 @@ class GameViewModelTest {
         testDispatcher.scheduler.advanceTimeBy(1)
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(2, viewModel.uiState.value.levelNumber)
-        assertEquals(6, viewModel.uiState.value.minigamesAvailable)
+        assertEquals(3, viewModel.uiState.value.minigamesAvailable)
     }
 
     @Test
