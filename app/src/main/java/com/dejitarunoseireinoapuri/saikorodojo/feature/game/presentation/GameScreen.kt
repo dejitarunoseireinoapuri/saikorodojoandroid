@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.draw.clipToBounds
@@ -289,14 +290,43 @@ fun GameScreen(
                     .widthIn(max = 280.dp)
             )
         } else {
-            Text(
-                text = stringResource(R.string.level_title, uiState.levelNumber),
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
-                color = MaterialTheme.colorScheme.onBackground,
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 20.dp)
-            )
+                    .padding(top = 20.dp, start = 8.dp, end = 8.dp)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.level_title, uiState.levelNumber),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { showExitDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.Home,
+                            contentDescription = stringResource(R.string.cd_exit_home),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    MinigamesAvailableBadge(
+                        minigamesAvailable = uiState.minigamesAvailable,
+                        onClick = onOpenRandomMinigame
+                    )
+                    IconButton(onClick = { showSurrenderDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Flag,
+                            contentDescription = stringResource(R.string.cd_surrender),
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
             Column(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -313,33 +343,6 @@ fun GameScreen(
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 20.dp, start = 8.dp, end = 8.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { showExitDialog = true }) {
-                    Icon(
-                        imageVector = Icons.Filled.Home,
-                        contentDescription = stringResource(R.string.cd_exit_home),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                Box(modifier = Modifier.weight(1f))
-                MinigamesAvailableBadge(
-                    minigamesAvailable = uiState.minigamesAvailable,
-                    onClick = onOpenRandomMinigame
-                )
-                IconButton(onClick = { showSurrenderDialog = true }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Flag,
-                        contentDescription = stringResource(R.string.cd_surrender),
-                        tint = Color.White
                     )
                 }
             }
