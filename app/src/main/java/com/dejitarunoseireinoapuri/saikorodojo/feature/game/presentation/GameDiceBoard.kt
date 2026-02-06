@@ -213,7 +213,7 @@ internal fun DiceBoard(
                     val textScale = if (diceSize.value == 0f) 1f else {
                         (optionSize.value / diceSize.value).coerceAtMost(1f)
                     }
-                    val setValueOffset = boardHeight / 2 + optionSize + 24.dp
+                    val setValueOffset = boardHeight / 2 + optionSize + 40.dp
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -258,7 +258,7 @@ internal fun DiceBoard(
             }
         }
         if (uiState.isAwaitingRerollSelected || uiState.isAwaitingRerollSingle) {
-            val buttonOffset = boardHeight / 2 + 48.dp
+            val buttonOffset = boardHeight / 2 + 64.dp
             val isEnabled = when {
                 uiState.isAwaitingRerollSelected -> uiState.selectedRerollDice.isNotEmpty()
                 else -> uiState.selectedRerollSingleDieIndex != null
@@ -285,7 +285,7 @@ internal fun DiceBoard(
             }
         }
         if (uiState.isAwaitingFlipFace) {
-            val buttonOffset = boardHeight / 2 + 48.dp
+            val buttonOffset = boardHeight / 2 + 64.dp
             Button(
                 onClick = onFlipSelectedDie,
                 enabled = uiState.selectedFlipDieIndex != null && !uiState.isRolling,
