@@ -217,7 +217,7 @@ class HigherLowerGameViewModelTest {
     @Test
     fun `win waits before showing reward cards`() = runTest {
         val viewModel = buildViewModel(
-            diceValues = listOf(1, 1, 1, 1),
+            diceValues = listOf(1, 1, 1, 1, 1, 1, 1, 1),
             successResultDelayMs = 1_000L
         )
 
