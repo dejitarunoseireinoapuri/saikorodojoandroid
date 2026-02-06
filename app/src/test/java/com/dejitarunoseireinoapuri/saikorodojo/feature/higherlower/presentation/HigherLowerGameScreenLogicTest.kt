@@ -20,6 +20,64 @@ class HigherLowerGameScreenLogicTest {
     }
 
     @Test
+    fun `current total shows only when current dice are visible`() {
+        assertFalse(
+            shouldShowHigherLowerCurrentTotal(
+                isRolling = true,
+                isTransitioning = false,
+                isCurrentDiceHidden = false,
+                isCurrentDiceAnchoredUp = false,
+                hasCurrentDice = true
+            )
+        )
+        assertFalse(
+            shouldShowHigherLowerCurrentTotal(
+                isRolling = false,
+                isTransitioning = true,
+                isCurrentDiceHidden = false,
+                isCurrentDiceAnchoredUp = false,
+                hasCurrentDice = true
+            )
+        )
+        assertFalse(
+            shouldShowHigherLowerCurrentTotal(
+                isRolling = false,
+                isTransitioning = false,
+                isCurrentDiceHidden = true,
+                isCurrentDiceAnchoredUp = false,
+                hasCurrentDice = true
+            )
+        )
+        assertFalse(
+            shouldShowHigherLowerCurrentTotal(
+                isRolling = false,
+                isTransitioning = false,
+                isCurrentDiceHidden = false,
+                isCurrentDiceAnchoredUp = true,
+                hasCurrentDice = true
+            )
+        )
+        assertFalse(
+            shouldShowHigherLowerCurrentTotal(
+                isRolling = false,
+                isTransitioning = false,
+                isCurrentDiceHidden = false,
+                isCurrentDiceAnchoredUp = false,
+                hasCurrentDice = false
+            )
+        )
+        assertTrue(
+            shouldShowHigherLowerCurrentTotal(
+                isRolling = false,
+                isTransitioning = false,
+                isCurrentDiceHidden = false,
+                isCurrentDiceAnchoredUp = false,
+                hasCurrentDice = true
+            )
+        )
+    }
+
+    @Test
     fun `choice row stays visible when a selection exists`() {
         assertEquals(
             HigherLowerChoiceButtonsMode.Both,
