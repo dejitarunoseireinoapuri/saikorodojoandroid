@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -247,47 +249,93 @@ fun GameScreen(
                 )
             }
             if (showSurrenderDialog) {
-                AlertDialog(
-                    onDismissRequest = { showSurrenderDialog = false },
-                    title = { Text(text = stringResource(R.string.surrender_title)) },
-                    text = { Text(text = stringResource(R.string.surrender_message)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showSurrenderDialog = false
-                            onConfirmSurrender()
-                        }) {
-                            Text(text = stringResource(R.string.surrender_confirm))
-                        }
+                GameAlertDialog(
+                    title = stringResource(R.string.surrender_title),
+                    message = stringResource(R.string.surrender_message),
+                    confirmLabel = stringResource(R.string.surrender_confirm),
+                    dismissLabel = stringResource(R.string.dialog_cancel),
+                    onConfirm = {
+                        showSurrenderDialog = false
+                        onConfirmSurrender()
                     },
-                    dismissButton = {
-                        TextButton(onClick = { showSurrenderDialog = false }) {
-                            Text(text = stringResource(R.string.dialog_cancel))
-                        }
-                    }
+                    onDismiss = { showSurrenderDialog = false }
                 )
             }
             if (showExitDialog) {
-                AlertDialog(
-                    onDismissRequest = { showExitDialog = false },
-                    title = { Text(text = stringResource(R.string.exit_title)) },
-                    text = { Text(text = stringResource(R.string.exit_message)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showExitDialog = false
-                            onConfirmExit()
-                        }) {
-                            Text(text = stringResource(R.string.exit_confirm))
-                        }
+                GameAlertDialog(
+                    title = stringResource(R.string.exit_title),
+                    message = stringResource(R.string.exit_message),
+                    confirmLabel = stringResource(R.string.exit_confirm),
+                    dismissLabel = stringResource(R.string.dialog_cancel),
+                    onConfirm = {
+                        showExitDialog = false
+                        onConfirmExit()
                     },
-                    dismissButton = {
-                        TextButton(onClick = { showExitDialog = false }) {
-                            Text(text = stringResource(R.string.dialog_cancel))
-                        }
-                    }
+                    onDismiss = { showExitDialog = false }
                 )
             }
         }
     }
+}
+
+@Composable
+private fun GameAlertDialog(
+    title: String,
+    message: String,
+    confirmLabel: String,
+    dismissLabel: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.background,
+        tonalElevation = 0.dp,
+        shape = MaterialTheme.shapes.extraLarge,
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.3.sp
+                ),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        },
+        text = {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    text = confirmLabel,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
+            ) {
+                Text(
+                    text = dismissLabel,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+    )
 }
 
 @Composable
