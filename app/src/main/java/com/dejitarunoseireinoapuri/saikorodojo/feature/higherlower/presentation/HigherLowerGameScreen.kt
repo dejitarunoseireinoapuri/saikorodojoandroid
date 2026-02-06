@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,7 +59,9 @@ internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
 internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
 private const val HIGHER_LOWER_TRANSITION_MS = 900
-private val HigherLowerButtonReserveHeight = 120.dp
+private val HigherLowerButtonReserveHeight = 140.dp
+private val HigherLowerChoiceButtonHeight = 64.dp
+private val HigherLowerChoiceButtonMinWidth = 160.dp
 
 @Composable
 fun HigherLowerGameRoute(
@@ -101,7 +104,7 @@ fun HigherLowerGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 32.dp, vertical = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -179,22 +182,24 @@ fun HigherLowerGameScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 if (shouldShowHigherLowerChoiceRow(uiState.isChoiceVisible, uiState.selectedChoice)) {
-                    Row(
-                        modifier = Modifier.testTag(HIGHER_LOWER_BUTTON_ROW_TAG),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(HIGHER_LOWER_BUTTON_ROW_TAG)
                     ) {
                         HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_lower),
                             isEnabled = uiState.selectedChoice == null,
                             isVisible = uiState.selectedChoice != HigherLowerChoice.HIGHER,
-                            onClick = { onChoiceSelect(HigherLowerChoice.LOWER) }
+                            onClick = { onChoiceSelect(HigherLowerChoice.LOWER) },
+                            modifier = Modifier.align(Alignment.CenterStart)
                         )
                         HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_higher),
                             isEnabled = uiState.selectedChoice == null,
                             isVisible = uiState.selectedChoice != HigherLowerChoice.LOWER,
-                            onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
+                            onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) },
+                            modifier = Modifier.align(Alignment.CenterEnd)
                         )
                     }
                 }
@@ -379,7 +384,8 @@ private fun HigherLowerChoiceButton(
     label: String,
     isEnabled: Boolean,
     isVisible: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     if (!isVisible) return
     Button(
@@ -391,14 +397,19 @@ private fun HigherLowerChoiceButton(
             contentColor = MaterialTheme.colorScheme.onTertiary,
             disabledContentColor = MaterialTheme.colorScheme.onTertiary
         ),
-        modifier = Modifier.height(56.dp)
+        contentPadding = PaddingValues(horizontal = 28.dp, vertical = 10.dp),
+        modifier = modifier
+            .height(HigherLowerChoiceButtonHeight)
+            .defaultMinSize(minWidth = HigherLowerChoiceButtonMinWidth)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
+                fontSize = 22.sp
+            ),
+            maxLines = 1,
+            textAlign = TextAlign.Center
         )
     }
 }
