@@ -128,7 +128,7 @@ class SequenceGameViewModelTest {
 
 
     @Test
-    fun `save action hides latest saved die until next roll stops`() = runTest {
+    fun `save action keeps latest saved die visible during the next roll`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(3, 7),
             rollAnimationMs = 200L,
@@ -141,7 +141,7 @@ class SequenceGameViewModelTest {
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
         dispatcher.scheduler.runCurrent()
 
-        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
 
         dispatcher.scheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
