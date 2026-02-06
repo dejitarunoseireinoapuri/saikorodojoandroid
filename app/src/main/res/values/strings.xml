@@ -3,6 +3,10 @@
     <string name="game_title">Saikoro Dojo</string>
     <string name="play">Play</string>
     <string name="rules">Rules</string>
+    <string name="menu_continue_title">Continue game?</string>
+    <string name="menu_continue_message">You have a saved game. Do you want to continue it or start a new one?</string>
+    <string name="menu_continue_confirm">Continue</string>
+    <string name="menu_continue_new_game">New game</string>
     <string name="cd_sound_on">Sound on</string>
     <string name="cd_sound_off">Sound off</string>
     <string name="cd_settings">Settings</string>

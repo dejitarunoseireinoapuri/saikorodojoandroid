@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
@@ -72,7 +73,9 @@ fun GameRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.onEvent(GameUiEvent.StartRoll)
+        if (viewModel.shouldStartRollOnLaunch()) {
+            viewModel.onEvent(GameUiEvent.StartRoll)
+        }
     }
 
     LaunchedEffect(viewModel) {
@@ -135,6 +138,9 @@ fun GameScreen(
     ) {
         var showSurrenderDialog by remember { mutableStateOf(false) }
         var showExitDialog by remember { mutableStateOf(false) }
+        BackHandler(enabled = !showExitDialog && !showSurrenderDialog) {
+            showExitDialog = true
+        }
         val constraintsWidth = maxWidth
         val constraintsHeight = maxHeight
         val shouldHideCards = uiState.isAwaitingRerollSingle ||

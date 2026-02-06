@@ -4,10 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.AddCardsToInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.RollSequenceUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.SequenceFailureReason
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MinigameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,12 +54,6 @@ data class SequenceGameUiState(
     val isLatestSavedValueHidden: Boolean = false
 )
 
-enum class SequenceFailureReason {
-    ORDER,
-    ROUNDS,
-    DISCARDS
-}
-
 sealed interface SequenceGameUiEvent {
     data object StartGame : SequenceGameUiEvent
     data object SaveRoll : SequenceGameUiEvent
@@ -62,6 +66,12 @@ class SequenceGameViewModel(
         SelectMinigameRewardCardsUseCase(),
     private val addCardsToInventoryUseCase: AddCardsToInventoryUseCase =
         AddCardsToInventoryUseCase(InMemoryCardInventoryRepository.shared),
+    private val loadGameSessionUseCase: LoadGameSessionUseCase =
+        LoadGameSessionUseCase(InMemoryGameSessionRepository.shared),
+    private val saveGameSessionUseCase: SaveGameSessionUseCase =
+        SaveGameSessionUseCase(InMemoryGameSessionRepository.shared),
+    private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
+        GetPendingMainGameSnapshotUseCase(InMemoryGameSessionRepository.shared),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -83,12 +93,34 @@ class SequenceGameViewModel(
 
     private var rollJob: Job? = null
 
+    init {
+        val session = loadGameSessionUseCase.execute()
+        val snapshot = (session as? SavedSession.Minigame)
+            ?.takeIf { it.minigameType == MinigameType.SEQUENCE }
+            ?.minigameSnapshot as? MinigameSnapshot.Sequence
+        if (snapshot != null) {
+            restoreFromSnapshot(snapshot)
+        }
+    }
+
     fun onEvent(event: SequenceGameUiEvent) {
         when (event) {
             SequenceGameUiEvent.StartGame -> startGame()
             SequenceGameUiEvent.SaveRoll -> handleSave()
             SequenceGameUiEvent.DiscardRoll -> handleDiscard()
         }
+    }
+
+    fun saveSession() {
+        val mainSnapshot = resolveMainGameSnapshot() ?: return
+        val snapshot = buildSnapshot()
+        saveGameSessionUseCase.execute(
+            SavedSession.Minigame(
+                minigameType = MinigameType.SEQUENCE,
+                minigameSnapshot = snapshot,
+                mainGameSnapshot = mainSnapshot
+            )
+        )
     }
 
     private fun startGame() {
@@ -281,5 +313,65 @@ class SequenceGameViewModel(
         return rewardIds.mapNotNull { rewardId ->
             cardUiModels.firstOrNull { it.id == rewardId }?.copy(count = 1)
         }
+    }
+
+    private fun restoreFromSnapshot(snapshot: MinigameSnapshot.Sequence) {
+        _uiState.update {
+            it.copy(
+                isStarted = snapshot.isStarted,
+                isRolling = snapshot.isRolling,
+                isAwaitingDecision = snapshot.isAwaitingDecision,
+                currentRoll = snapshot.currentRoll,
+                totalRolls = snapshot.totalRolls,
+                targetSequence = snapshot.targetSequence,
+                maxDiscards = snapshot.maxDiscards,
+                discardCount = snapshot.discardCount,
+                savedValues = snapshot.savedValues,
+                diceValue = snapshot.diceValue,
+                isComplete = snapshot.isComplete,
+                rewardCards = mapRewardCards(snapshot.rewardCardIds),
+                pendingRewardCards = mapRewardCards(snapshot.pendingRewardCardIds),
+                failureReason = snapshot.failureReason,
+                failureDieValue = snapshot.failureDieValue,
+                isLatestSavedValueHidden = snapshot.isLatestSavedValueHidden
+            )
+        }
+    }
+
+    private fun buildSnapshot(): MinigameSnapshot.Sequence {
+        val state = _uiState.value
+        return MinigameSnapshot.Sequence(
+            isStarted = state.isStarted,
+            isRolling = state.isRolling,
+            isAwaitingDecision = state.isAwaitingDecision,
+            currentRoll = state.currentRoll,
+            totalRolls = state.totalRolls,
+            targetSequence = state.targetSequence,
+            maxDiscards = state.maxDiscards,
+            discardCount = state.discardCount,
+            savedValues = state.savedValues,
+            diceValue = state.diceValue,
+            isComplete = state.isComplete,
+            rewardCardIds = state.rewardCards.map { it.id },
+            pendingRewardCardIds = state.pendingRewardCards.map { it.id },
+            failureReason = state.failureReason,
+            failureDieValue = state.failureDieValue,
+            isLatestSavedValueHidden = state.isLatestSavedValueHidden
+        )
+    }
+
+    private fun mapRewardCards(cardIds: List<CardId>): List<CardUiModel> {
+        return cardIds.mapNotNull { rewardId ->
+            cardUiModels.firstOrNull { it.id == rewardId }?.copy(count = 1)
+        }
+    }
+
+    private fun resolveMainGameSnapshot(): MainGameSnapshot? {
+        return getPendingMainGameSnapshotUseCase.execute()
+            ?: when (val session = loadGameSessionUseCase.execute()) {
+                is SavedSession.Minigame -> session.mainGameSnapshot
+                is SavedSession.MainGame -> session.snapshot
+                null -> null
+            }
     }
 }

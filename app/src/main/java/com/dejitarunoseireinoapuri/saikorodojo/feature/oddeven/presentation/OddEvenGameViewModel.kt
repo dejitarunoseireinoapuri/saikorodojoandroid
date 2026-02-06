@@ -4,11 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.AddCardsToInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.RollOddEvenUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MinigameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -52,6 +61,12 @@ class OddEvenGameViewModel(
         SelectMinigameRewardCardsUseCase(),
     private val addCardsToInventoryUseCase: AddCardsToInventoryUseCase =
         AddCardsToInventoryUseCase(InMemoryCardInventoryRepository.shared),
+    private val loadGameSessionUseCase: LoadGameSessionUseCase =
+        LoadGameSessionUseCase(InMemoryGameSessionRepository.shared),
+    private val saveGameSessionUseCase: SaveGameSessionUseCase =
+        SaveGameSessionUseCase(InMemoryGameSessionRepository.shared),
+    private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
+        GetPendingMainGameSnapshotUseCase(InMemoryGameSessionRepository.shared),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val resultAnimationMs: Long = DEFAULT_RESULT_ANIMATION_MS,
@@ -71,11 +86,33 @@ class OddEvenGameViewModel(
 
     private var roundJob: Job? = null
 
+    init {
+        val session = loadGameSessionUseCase.execute()
+        val snapshot = (session as? SavedSession.Minigame)
+            ?.takeIf { it.minigameType == MinigameType.ODD_EVEN }
+            ?.minigameSnapshot as? MinigameSnapshot.OddEven
+        if (snapshot != null) {
+            restoreFromSnapshot(snapshot)
+        }
+    }
+
     fun onEvent(event: OddEvenGameUiEvent) {
         when (event) {
             OddEvenGameUiEvent.StartGame -> startGame()
             is OddEvenGameUiEvent.SelectChoice -> handleChoice(event.choice)
         }
+    }
+
+    fun saveSession() {
+        val mainSnapshot = resolveMainGameSnapshot() ?: return
+        val snapshot = buildSnapshot()
+        saveGameSessionUseCase.execute(
+            SavedSession.Minigame(
+                minigameType = MinigameType.ODD_EVEN,
+                minigameSnapshot = snapshot,
+                mainGameSnapshot = mainSnapshot
+            )
+        )
     }
 
     private fun startGame() {
@@ -179,5 +216,59 @@ class OddEvenGameViewModel(
         return rewardIds.mapNotNull { rewardId ->
             cardUiModels.firstOrNull { it.id == rewardId }?.copy(count = 1)
         }
+    }
+
+    private fun restoreFromSnapshot(snapshot: MinigameSnapshot.OddEven) {
+        _uiState.update {
+            it.copy(
+                isStarted = snapshot.isStarted,
+                currentRound = snapshot.currentRound,
+                totalRounds = snapshot.totalRounds,
+                correctCount = snapshot.correctCount,
+                wrongCount = snapshot.wrongCount,
+                targetCorrect = snapshot.targetCorrect,
+                selectedChoice = snapshot.selectedChoice,
+                diceValue = snapshot.diceValue,
+                isRolling = snapshot.isRolling,
+                showFireworks = snapshot.showFireworks,
+                showFailure = snapshot.showFailure,
+                isComplete = snapshot.isComplete,
+                rewardCards = mapRewardCards(snapshot.rewardCardIds)
+            )
+        }
+    }
+
+    private fun buildSnapshot(): MinigameSnapshot.OddEven {
+        val state = _uiState.value
+        return MinigameSnapshot.OddEven(
+            isStarted = state.isStarted,
+            currentRound = state.currentRound,
+            totalRounds = state.totalRounds,
+            correctCount = state.correctCount,
+            wrongCount = state.wrongCount,
+            targetCorrect = state.targetCorrect,
+            selectedChoice = state.selectedChoice,
+            diceValue = state.diceValue,
+            isRolling = state.isRolling,
+            showFireworks = state.showFireworks,
+            showFailure = state.showFailure,
+            isComplete = state.isComplete,
+            rewardCardIds = state.rewardCards.map { it.id }
+        )
+    }
+
+    private fun mapRewardCards(cardIds: List<CardId>): List<CardUiModel> {
+        return cardIds.mapNotNull { rewardId ->
+            cardUiModels.firstOrNull { it.id == rewardId }?.copy(count = 1)
+        }
+    }
+
+    private fun resolveMainGameSnapshot(): MainGameSnapshot? {
+        return getPendingMainGameSnapshotUseCase.execute()
+            ?: when (val session = loadGameSessionUseCase.execute()) {
+                is SavedSession.Minigame -> session.mainGameSnapshot
+                is SavedSession.MainGame -> session.snapshot
+                null -> null
+            }
     }
 }
