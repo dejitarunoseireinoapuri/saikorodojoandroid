@@ -38,7 +38,7 @@ class GenerateObjectiveUseCaseTest {
     }
 
     @Test
-    fun `stage two objectives include three of a kind candidates`() {
+    fun `stage two objectives include pair and three of a kind candidates`() {
         val candidates = buildObjectiveCandidates(
             stage = 2,
             maxSelectable = 5,
@@ -50,37 +50,9 @@ class GenerateObjectiveUseCaseTest {
             random = Random(2)
         )
 
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
+        assertTrue(candidates.any { it is ExactTwoPairsCondition })
         assertTrue(candidates.any { it is HasThreeOfKindCondition && it.required })
-    }
-
-    @Test
-    fun `stage one objectives include pair or double pair conditions`() {
-        val useCase = GenerateObjectiveUseCase()
-        val diceTypes = List(5) { DiceType.D6 }
-
-        val objective = useCase.execute(levelNumber = 1, diceTypes = diceTypes, seedBase = 5L)
-
-        assertTrue(
-            objective.conditions.any { condition ->
-                condition is HasPairCondition ||
-                    condition is ExactTwoPairsCondition
-            }
-        )
-    }
-
-    @Test
-    fun `stage two objectives include pair or three of a kind conditions`() {
-        val useCase = GenerateObjectiveUseCase()
-        val diceTypes = List(5) { DiceType.D6 }
-
-        val objective = useCase.execute(levelNumber = 16, diceTypes = diceTypes, seedBase = 5L)
-
-        assertTrue(
-            objective.conditions.any { condition ->
-                condition is HasPairCondition ||
-                    condition is ExactTwoPairsCondition ||
-                    condition is HasThreeOfKindCondition
-            }
-        )
     }
 }
