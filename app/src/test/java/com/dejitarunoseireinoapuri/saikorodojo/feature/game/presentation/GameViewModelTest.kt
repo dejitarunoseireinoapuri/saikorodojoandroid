@@ -388,7 +388,6 @@ class GameViewModelTest {
             viewModel.effects.take(1).toList(effects)
         }
 
-        viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
         val startingMinigames = viewModel.uiState.value.minigamesAvailable
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -408,7 +407,6 @@ class GameViewModelTest {
             viewModel.effects.take(2).toList(effects)
         }
 
-        viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -422,14 +420,35 @@ class GameViewModelTest {
     @Test
     fun `open random minigame shows ad prompt when empty`() = runTest {
         val viewModel = buildViewModel()
+        val effects = mutableListOf<GameUiEffect>()
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(3).toList(effects)
+        }
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        testDispatcher.scheduler.advanceUntilIdle()
+
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
 
         assertTrue(viewModel.uiState.value.showMinigamesAdPrompt)
+        collectorJob.cancel()
     }
 
     @Test
     fun `confirm minigames ad grants three minigames`() = runTest {
         val viewModel = buildViewModel()
+
+        val navigationEffects = mutableListOf<GameUiEffect>()
+        val navigationCollector = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(3).toList(navigationEffects)
+        }
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(0, viewModel.uiState.value.minigamesAvailable)
 
@@ -449,6 +468,7 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
 
         assertEquals(3, viewModel.uiState.value.minigamesAvailable)
+        navigationCollector.cancel()
         collectorJob.cancel()
     }
 
@@ -468,7 +488,7 @@ class GameViewModelTest {
         testDispatcher.scheduler.advanceTimeBy(1)
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(2, viewModel.uiState.value.levelNumber)
-        assertEquals(3, viewModel.uiState.value.minigamesAvailable)
+        assertEquals(6, viewModel.uiState.value.minigamesAvailable)
     }
 
     @Test
