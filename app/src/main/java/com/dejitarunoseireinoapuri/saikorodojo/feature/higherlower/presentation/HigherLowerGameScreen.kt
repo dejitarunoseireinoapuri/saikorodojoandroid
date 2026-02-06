@@ -60,8 +60,8 @@ internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_but
 internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
 private const val HIGHER_LOWER_TRANSITION_MS = 900
 private val HigherLowerButtonReserveHeight = 140.dp
-private val HigherLowerChoiceButtonHeight = 64.dp
-private val HigherLowerChoiceButtonMinWidth = 160.dp
+private val HigherLowerChoiceButtonHeight = 56.dp
+private val HigherLowerChoiceButtonMinWidth = 140.dp
 
 @Composable
 fun HigherLowerGameRoute(
@@ -181,7 +181,31 @@ fun HigherLowerGameScreen(
                     color = titleColor
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                if (shouldShowHigherLowerChoiceRow(uiState.isChoiceVisible, uiState.selectedChoice)) {
+                when (higherLowerChoiceButtonsMode(uiState.isChoiceVisible, uiState.selectedChoice)) {
+                    HigherLowerChoiceButtonsMode.Hidden -> Unit
+                    HigherLowerChoiceButtonsMode.SelectedOnly -> {
+                        val selectedChoice = uiState.selectedChoice ?: return@when
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag(HIGHER_LOWER_BUTTON_ROW_TAG)
+                        ) {
+                            HigherLowerChoiceButton(
+                                label = stringResource(
+                                    if (selectedChoice == HigherLowerChoice.LOWER) {
+                                        R.string.higher_lower_lower
+                                    } else {
+                                        R.string.higher_lower_higher
+                                    }
+                                ),
+                                isEnabled = false,
+                                isVisible = true,
+                                onClick = {},
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                    HigherLowerChoiceButtonsMode.Both -> {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -190,17 +214,18 @@ fun HigherLowerGameScreen(
                         HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_lower),
                             isEnabled = uiState.selectedChoice == null,
-                            isVisible = uiState.selectedChoice != HigherLowerChoice.HIGHER,
+                            isVisible = true,
                             onClick = { onChoiceSelect(HigherLowerChoice.LOWER) },
                             modifier = Modifier.align(Alignment.CenterStart)
                         )
                         HigherLowerChoiceButton(
                             label = stringResource(R.string.higher_lower_higher),
                             isEnabled = uiState.selectedChoice == null,
-                            isVisible = uiState.selectedChoice != HigherLowerChoice.LOWER,
+                            isVisible = true,
                             onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) },
                             modifier = Modifier.align(Alignment.CenterEnd)
                         )
+                    }
                     }
                 }
             }
@@ -395,9 +420,10 @@ private fun HigherLowerChoiceButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.tertiary,
             contentColor = MaterialTheme.colorScheme.onTertiary,
+            disabledContainerColor = MaterialTheme.colorScheme.tertiary,
             disabledContentColor = MaterialTheme.colorScheme.onTertiary
         ),
-        contentPadding = PaddingValues(horizontal = 28.dp, vertical = 10.dp),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
         modifier = modifier
             .height(HigherLowerChoiceButtonHeight)
             .defaultMinSize(minWidth = HigherLowerChoiceButtonMinWidth)
@@ -421,11 +447,21 @@ internal fun shouldShowHigherLowerTotals(
     return !isRolling && !isTransitioning
 }
 
-internal fun shouldShowHigherLowerChoiceRow(
+internal enum class HigherLowerChoiceButtonsMode {
+    Hidden,
+    SelectedOnly,
+    Both
+}
+
+internal fun higherLowerChoiceButtonsMode(
     isChoiceVisible: Boolean,
     selectedChoice: HigherLowerChoice?
-): Boolean {
-    return isChoiceVisible || selectedChoice != null
+): HigherLowerChoiceButtonsMode {
+    return when {
+        isChoiceVisible -> HigherLowerChoiceButtonsMode.Both
+        selectedChoice != null -> HigherLowerChoiceButtonsMode.SelectedOnly
+        else -> HigherLowerChoiceButtonsMode.Hidden
+    }
 }
 
 internal data class HigherLowerMatColors(
