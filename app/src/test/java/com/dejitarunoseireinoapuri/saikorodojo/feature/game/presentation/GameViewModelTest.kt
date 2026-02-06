@@ -441,10 +441,23 @@ class GameViewModelTest {
 
         assertEquals(0, viewModel.uiState.value.minigamesAvailable)
 
+        val effects = mutableListOf<GameUiEffect>()
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(1).toList(effects)
+        }
+
         viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(1, effects.size)
+        assertEquals(GameUiEffect.ShowMinigamesRewardedAd, effects.single())
+        assertTrue(!viewModel.uiState.value.showMinigamesAdPrompt)
+        assertEquals(0, viewModel.uiState.value.minigamesAvailable)
+
+        viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
 
         assertEquals(3, viewModel.uiState.value.minigamesAvailable)
-        assertTrue(!viewModel.uiState.value.showMinigamesAdPrompt)
+        collectorJob.cancel()
     }
 
     @Test

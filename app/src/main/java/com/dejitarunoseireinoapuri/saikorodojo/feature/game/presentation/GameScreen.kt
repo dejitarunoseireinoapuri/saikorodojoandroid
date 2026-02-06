@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Alignment
@@ -61,12 +63,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.ui.platform.LocalContext
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 
 @Composable
 fun GameRoute(
@@ -76,6 +87,9 @@ fun GameRoute(
     onNavigateToMenu: (Boolean) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val rewardedAdState = remember { mutableStateOf<RewardedAd?>(null) }
+    val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
 
     LaunchedEffect(Unit) {
         if (viewModel.shouldStartRollOnLaunch()) {
@@ -83,11 +97,34 @@ fun GameRoute(
         }
     }
 
+    LaunchedEffect(Unit) {
+        loadRewardedAd(context, rewardedAdState)
+    }
+
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is GameUiEffect.NavigateToMinigame -> onNavigateToMinigame(effect.minigame)
                 is GameUiEffect.NavigateToMenu -> onNavigateToMenu(effect.resetProgress)
+                GameUiEffect.ShowMinigamesRewardedAd -> {
+                    val activity = context.findActivity()
+                    if (activity != null) {
+                        val shown = showRewardedAd(
+                            activity = activity,
+                            rewardedAd = rewardedAdState.value,
+                            onDismissed = {
+                                onAdCompleted()
+                                loadRewardedAd(context, rewardedAdState)
+                            },
+                            onFailedToShow = {
+                                loadRewardedAd(context, rewardedAdState)
+                            }
+                        )
+                        if (!shown) {
+                            loadRewardedAd(context, rewardedAdState)
+                        }
+                    }
+                }
             }
         }
     }
@@ -112,6 +149,57 @@ fun GameRoute(
         onConfirmMinigamesAd = { viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd) },
         onDismissMinigamesAdPrompt = { viewModel.onEvent(GameUiEvent.DismissMinigamesAdPrompt) }
     )
+}
+
+private const val MINIGAMES_REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
+
+private fun loadRewardedAd(
+    context: Context,
+    rewardedAdState: androidx.compose.runtime.MutableState<RewardedAd?>
+) {
+    val adRequest = AdRequest.Builder().build()
+    RewardedAd.load(
+        context,
+        MINIGAMES_REWARDED_AD_UNIT_ID,
+        adRequest,
+        object : RewardedAdLoadCallback() {
+            override fun onAdLoaded(ad: RewardedAd) {
+                rewardedAdState.value = ad
+            }
+
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                rewardedAdState.value = null
+            }
+        }
+    )
+}
+
+private fun showRewardedAd(
+    activity: Activity,
+    rewardedAd: RewardedAd?,
+    onDismissed: () -> Unit,
+    onFailedToShow: () -> Unit
+): Boolean {
+    if (rewardedAd == null) return false
+    rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+        override fun onAdDismissedFullScreenContent() {
+            onDismissed()
+        }
+
+        override fun onAdFailedToShowFullScreenContent(error: com.google.android.gms.ads.AdError) {
+            onFailedToShow()
+        }
+    }
+    rewardedAd.show(activity) {}
+    return true
+}
+
+private tailrec fun Context.findActivity(): Activity? {
+    return when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
 }
 
 @Composable
@@ -210,9 +298,9 @@ fun GameScreen(
             Row(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                    .padding(top = 20.dp, start = 8.dp, end = 8.dp)
                     .fillMaxWidth(),
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { showExitDialog = true }) {
                     Icon(
@@ -319,8 +407,9 @@ private fun MinigamesAvailableBadge(
             .defaultMinSize(minWidth = 36.dp)
             .animateContentSize()
             .semantics { contentDescription = badgeContentDescription }
-            .background(
-                color = MaterialTheme.colorScheme.primary,
+            .border(
+                width = 1.5.dp,
+                color = Color.White,
                 shape = RoundedCornerShape(percent = 50)
             )
             .clickable(
@@ -335,7 +424,7 @@ private fun MinigamesAvailableBadge(
         Text(
             text = minigamesAvailable.toString(),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onPrimary
+            color = Color.White
         )
     }
 }
