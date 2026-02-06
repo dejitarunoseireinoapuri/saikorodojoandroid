@@ -67,7 +67,7 @@ private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
 private const val LEVEL_COMPLETE_DELAY_MS = 1_000L
-private const val DEFAULT_MINIGAMES_AVAILABLE = 0
+private const val DEFAULT_MINIGAMES_AVAILABLE = 3
 private const val MINIGAMES_REWARD_AMOUNT = 3
 
 data class GameUiState(
