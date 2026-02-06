@@ -7,5 +7,5 @@ enum class CardId {
     REROLL_ALL,
     SET_VALUE,
     REPEAT_LAST,
-    RETRY
+    MINIGAMES
 }

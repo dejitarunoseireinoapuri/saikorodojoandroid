@@ -67,6 +67,8 @@ private const val DEFAULT_DICE_COUNT = 5
 private const val DEFAULT_ROLL_DURATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 150L
 private const val LEVEL_COMPLETE_DELAY_MS = 1_000L
+private const val DEFAULT_MINIGAMES_AVAILABLE = 3
+private const val MINIGAMES_REWARD_AMOUNT = 3
 
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
@@ -94,7 +96,9 @@ data class GameUiState(
     val levelNumber: Int = 1,
     val objectiveLines: List<ObjectiveLineUiState> = emptyList(),
     val isLevelComplete: Boolean = false,
-    val showLevelCompleteMessage: Boolean = false
+    val showLevelCompleteMessage: Boolean = false,
+    val minigamesAvailable: Int = DEFAULT_MINIGAMES_AVAILABLE,
+    val showMinigamesAdPrompt: Boolean = false
 )
 
 sealed interface GameUiEvent {
@@ -112,11 +116,15 @@ sealed interface GameUiEvent {
     data object ConfirmSurrender : GameUiEvent
     data object ConfirmExit : GameUiEvent
     data object OpenRandomMinigame : GameUiEvent
+    data object ConfirmMinigamesAd : GameUiEvent
+    data object DismissMinigamesAdPrompt : GameUiEvent
+    data object MinigamesAdCompleted : GameUiEvent
 }
 
 sealed interface GameUiEffect {
     data class NavigateToMinigame(val minigame: MinigameType) : GameUiEffect
     data class NavigateToMenu(val resetProgress: Boolean) : GameUiEffect
+    data object ShowMinigamesRewardedAd : GameUiEffect
 }
 
 data class ObjectiveLineUiState(
@@ -216,6 +224,9 @@ class GameViewModel(
             GameUiEvent.ConfirmSurrender -> confirmSurrender()
             GameUiEvent.ConfirmExit -> confirmExit()
             GameUiEvent.OpenRandomMinigame -> openRandomMinigame()
+            GameUiEvent.ConfirmMinigamesAd -> confirmMinigamesAd()
+            GameUiEvent.DismissMinigamesAdPrompt -> dismissMinigamesAdPrompt()
+            GameUiEvent.MinigamesAdCompleted -> grantMinigamesFromAd()
         }
     }
 
@@ -229,10 +240,38 @@ class GameViewModel(
 
 
     private fun openRandomMinigame() {
+        val currentState = _uiState.value
+        if (currentState.minigamesAvailable <= 0) {
+            _uiState.update { it.copy(showMinigamesAdPrompt = true) }
+            return
+        }
+        _uiState.update {
+            it.copy(
+                minigamesAvailable = (it.minigamesAvailable - 1).coerceAtLeast(0),
+                showMinigamesAdPrompt = false
+            )
+        }
         val snapshot = buildMainGameSnapshot()
         savePendingMainGameSnapshotUseCase.execute(snapshot)
         viewModelScope.launch(dispatcher) {
             _effects.emit(GameUiEffect.NavigateToMinigame(pickMinigame()))
+        }
+    }
+
+    private fun confirmMinigamesAd() {
+        _uiState.update { it.copy(showMinigamesAdPrompt = false) }
+        viewModelScope.launch(dispatcher) {
+            _effects.emit(GameUiEffect.ShowMinigamesRewardedAd)
+        }
+    }
+
+    private fun dismissMinigamesAdPrompt() {
+        _uiState.update { it.copy(showMinigamesAdPrompt = false) }
+    }
+
+    private fun grantMinigamesFromAd() {
+        _uiState.update {
+            it.copy(minigamesAvailable = it.minigamesAvailable + MINIGAMES_REWARD_AMOUNT)
         }
     }
 
@@ -423,7 +462,7 @@ class GameViewModel(
         if (applyAdjustPlusMinusCard(index)) {
             return
         }
-        if (applyRetryCard(index)) {
+        if (applyMinigamesCard(index)) {
             return
         }
         applySetValueCard(index)
@@ -450,9 +489,6 @@ class GameViewModel(
                     )
                 }
             }
-        }
-        if (repeatedCardId == CardId.RETRY) {
-            refreshObjectiveProgress()
         }
         return repeatedCardId
     }
@@ -529,7 +565,7 @@ class GameViewModel(
         return applied
     }
 
-    private fun applyRetryCard(index: Int): Boolean {
+    private fun applyMinigamesCard(index: Int): Boolean {
         var applied = false
         _uiState.update { state ->
             val cards = state.cardUiModels
@@ -537,21 +573,22 @@ class GameViewModel(
                 state
             } else {
                 val card = cards[index]
-                if (card.id != CardId.RETRY) {
+                if (card.id != CardId.MINIGAMES) {
                     state
                 } else {
                     applied = true
                     val updatedCards = consumeCard(cards, index)
-                    val updatedState = buildRetryState(state)
+                    val updatedState = state.copy(
+                        selectedCardIndex = null,
+                        minigamesAvailable = state.minigamesAvailable + MINIGAMES_REWARD_AMOUNT,
+                        showMinigamesAdPrompt = false
+                    )
                     updatedState.copy(
                         cardUiModels = updatedCards,
                         lastAppliedCardId = card.id
                     )
                 }
             }
-        }
-        if (applied) {
-            refreshObjectiveProgress()
         }
         return applied
     }
@@ -819,36 +856,13 @@ class GameViewModel(
                 selectedSetValueDieIndex = null,
                 selectedRerollDice = emptySet()
             )
-            CardId.REPEAT_LAST,
-            CardId.RETRY -> buildRetryState(state)
+            CardId.REPEAT_LAST -> state.copy(selectedCardIndex = null)
+            CardId.MINIGAMES -> state.copy(
+                selectedCardIndex = null,
+                minigamesAvailable = state.minigamesAvailable + MINIGAMES_REWARD_AMOUNT,
+                showMinigamesAdPrompt = false
+            )
         }
-    }
-
-    private fun buildRetryState(state: GameUiState): GameUiState {
-        val snapshot = initialRollSnapshot ?: GameRollSnapshot(
-            diceValues = state.diceValues.toList(),
-            diceTypes = state.diceTypes.toList(),
-            layoutSeed = state.layoutSeed
-        )
-        return state.copy(
-            diceValues = snapshot.diceValues,
-            diceTypes = snapshot.diceTypes,
-            layoutSeed = snapshot.layoutSeed,
-            isRolling = false,
-            selectedCardIndex = null,
-            isAwaitingRerollSingle = false,
-            isAwaitingRerollSelected = false,
-            isAwaitingFlipFace = false,
-            isAwaitingAdjustPlusMinus = false,
-            isAwaitingSetValue = false,
-            selectedRerollSingleDieIndex = null,
-            selectedFlipDieIndex = null,
-            selectedAdjustmentDieIndex = null,
-            selectedSetValueDieIndex = null,
-            selectedRerollDice = emptySet(),
-            selectedDice = emptySet(),
-            selectedDiceSum = 0
-        )
     }
 
     private fun rollSelectedDice() {
@@ -903,7 +917,8 @@ class GameViewModel(
 
     private fun applyLevelDefinition(
         levelDefinition: LevelDefinition,
-        cardUiModels: List<CardUiModel> = _uiState.value.cardUiModels
+        cardUiModels: List<CardUiModel> = _uiState.value.cardUiModels,
+        minigamesAvailable: Int = _uiState.value.minigamesAvailable
     ) {
         currentLevelNumber = levelDefinition.levelNumber
         currentObjective = null
@@ -935,7 +950,9 @@ class GameViewModel(
                 levelNumber = levelDefinition.levelNumber,
                 objectiveLines = emptyList(),
                 isLevelComplete = false,
-                showLevelCompleteMessage = false
+                showLevelCompleteMessage = false,
+                minigamesAvailable = minigamesAvailable,
+                showMinigamesAdPrompt = false
             )
         }
         initialRollSnapshot = null
@@ -1032,7 +1049,9 @@ class GameViewModel(
                 levelNumber = uiSnapshot.levelNumber,
                 objectiveLines = emptyList(),
                 isLevelComplete = uiSnapshot.isLevelComplete,
-                showLevelCompleteMessage = uiSnapshot.showLevelCompleteMessage
+                showLevelCompleteMessage = uiSnapshot.showLevelCompleteMessage,
+                minigamesAvailable = uiSnapshot.minigamesAvailable,
+                showMinigamesAdPrompt = false
             )
         }
         refreshObjectiveProgress()
@@ -1066,7 +1085,8 @@ class GameViewModel(
             lastAppliedCardId = state.lastAppliedCardId,
             levelNumber = state.levelNumber,
             isLevelComplete = state.isLevelComplete,
-            showLevelCompleteMessage = state.showLevelCompleteMessage
+            showLevelCompleteMessage = state.showLevelCompleteMessage,
+            minigamesAvailable = state.minigamesAvailable
         )
         return MainGameSnapshot(
             uiSnapshot = uiSnapshot,
@@ -1091,12 +1111,16 @@ class GameViewModel(
         if (completionJob?.isActive == true) return
         completionJob = viewModelScope.launch(dispatcher) {
             delay(LEVEL_COMPLETE_DELAY_MS)
+            val updatedMinigames = _uiState.value.minigamesAvailable + MINIGAMES_REWARD_AMOUNT
             val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
             val nextDefinition = generateLevelUseCase.execute(
                 levelNumber = nextLevel,
                 seedBase = baseSeed
             )
-            applyLevelDefinition(nextDefinition)
+            applyLevelDefinition(
+                levelDefinition = nextDefinition,
+                minigamesAvailable = updatedMinigames
+            )
             startRolling()
         }
     }

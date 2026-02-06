@@ -40,7 +40,8 @@ class InMemoryGameSessionRepositoryTest {
                 lastAppliedCardId = null,
                 levelNumber = 1,
                 isLevelComplete = false,
-                showLevelCompleteMessage = false
+                showLevelCompleteMessage = false,
+                minigamesAvailable = 3
             ),
             baseSeed = 7L,
             currentObjective = LevelObjective(emptyList()),
@@ -91,7 +92,8 @@ class InMemoryGameSessionRepositoryTest {
                 lastAppliedCardId = null,
                 levelNumber = 2,
                 isLevelComplete = false,
-                showLevelCompleteMessage = false
+                showLevelCompleteMessage = false,
+                minigamesAvailable = 1
             ),
             baseSeed = 11L,
             currentObjective = LevelObjective(emptyList()),

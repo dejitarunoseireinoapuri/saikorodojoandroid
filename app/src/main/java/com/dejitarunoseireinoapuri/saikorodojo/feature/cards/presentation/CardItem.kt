@@ -329,9 +329,9 @@ internal fun defaultCardUiModels(): List<CardUiModel> {
             iconRes = R.drawable.ic_card_repeat_last
         ),
         CardUiModel(
-            id = CardId.RETRY,
-            titleRes = R.string.card_retry_title,
-            descriptionRes = R.string.card_retry_description,
+            id = CardId.MINIGAMES,
+            titleRes = R.string.card_minigames_title,
+            descriptionRes = R.string.card_minigames_description,
             iconRes = R.drawable.ic_card_retry
         )
     )

@@ -3,7 +3,9 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -11,12 +13,15 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.draw.clipToBounds
@@ -33,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Alignment
@@ -50,18 +56,29 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
-import androidx.compose.material.icons.outlined.Style
+import androidx.compose.ui.platform.LocalContext
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 
 @Composable
 fun GameRoute(
@@ -71,10 +88,29 @@ fun GameRoute(
     onNavigateToMenu: (Boolean) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val rewardedAdState = remember { mutableStateOf<RewardedAd?>(null) }
+    val pendingRewardedAd = remember { mutableStateOf(false) }
+    val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
 
     LaunchedEffect(Unit) {
         if (viewModel.shouldStartRollOnLaunch()) {
             viewModel.onEvent(GameUiEvent.StartRoll)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        loadRewardedAd(context, rewardedAdState) { rewardAd ->
+            if (pendingRewardedAd.value) {
+                pendingRewardedAd.value = false
+                showRewardedAd(
+                    activity = context.findActivity(),
+                    rewardedAd = rewardAd,
+                    onEarnedReward = onAdCompleted,
+                    onDismissed = { loadRewardedAd(context, rewardedAdState) },
+                    onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
+                )
+            }
         }
     }
 
@@ -83,6 +119,31 @@ fun GameRoute(
             when (effect) {
                 is GameUiEffect.NavigateToMinigame -> onNavigateToMinigame(effect.minigame)
                 is GameUiEffect.NavigateToMenu -> onNavigateToMenu(effect.resetProgress)
+                GameUiEffect.ShowMinigamesRewardedAd -> {
+                    val activity = context.findActivity()
+                    val shown = showRewardedAd(
+                        activity = activity,
+                        rewardedAd = rewardedAdState.value,
+                        onEarnedReward = onAdCompleted,
+                        onDismissed = { loadRewardedAd(context, rewardedAdState) },
+                        onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
+                    )
+                    if (!shown) {
+                        pendingRewardedAd.value = true
+                        loadRewardedAd(context, rewardedAdState) { rewardAd ->
+                            if (pendingRewardedAd.value) {
+                                pendingRewardedAd.value = false
+                                showRewardedAd(
+                                    activity = context.findActivity(),
+                                    rewardedAd = rewardAd,
+                                    onEarnedReward = onAdCompleted,
+                                    onDismissed = { loadRewardedAd(context, rewardedAdState) },
+                                    onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -103,8 +164,64 @@ fun GameRoute(
         onFlipSelectedDie = { viewModel.onEvent(GameUiEvent.FlipSelectedDie) },
         onConfirmSurrender = { viewModel.onEvent(GameUiEvent.ConfirmSurrender) },
         onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) },
-        onOpenRandomMinigame = { viewModel.onEvent(GameUiEvent.OpenRandomMinigame) }
+        onOpenRandomMinigame = { viewModel.onEvent(GameUiEvent.OpenRandomMinigame) },
+        onConfirmMinigamesAd = { viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd) },
+        onDismissMinigamesAdPrompt = { viewModel.onEvent(GameUiEvent.DismissMinigamesAdPrompt) }
     )
+}
+
+private const val MINIGAMES_REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
+
+private fun loadRewardedAd(
+    context: Context,
+    rewardedAdState: androidx.compose.runtime.MutableState<RewardedAd?>,
+    onLoaded: (RewardedAd) -> Unit = {}
+) {
+    val adRequest = AdRequest.Builder().build()
+    RewardedAd.load(
+        context,
+        MINIGAMES_REWARDED_AD_UNIT_ID,
+        adRequest,
+        object : RewardedAdLoadCallback() {
+            override fun onAdLoaded(ad: RewardedAd) {
+                rewardedAdState.value = ad
+                onLoaded(ad)
+            }
+
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                rewardedAdState.value = null
+            }
+        }
+    )
+}
+
+private fun showRewardedAd(
+    activity: Activity?,
+    rewardedAd: RewardedAd?,
+    onEarnedReward: () -> Unit,
+    onDismissed: () -> Unit,
+    onFailedToShow: () -> Unit
+): Boolean {
+    if (rewardedAd == null || activity == null) return false
+    rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+        override fun onAdDismissedFullScreenContent() {
+            onDismissed()
+        }
+
+        override fun onAdFailedToShowFullScreenContent(error: com.google.android.gms.ads.AdError) {
+            onFailedToShow()
+        }
+    }
+    rewardedAd.show(activity) { onEarnedReward() }
+    return true
+}
+
+private tailrec fun Context.findActivity(): Activity? {
+    return when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
 }
 
 @Composable
@@ -124,7 +241,9 @@ fun GameScreen(
     onFlipSelectedDie: () -> Unit,
     onConfirmSurrender: () -> Unit,
     onConfirmExit: () -> Unit,
-    onOpenRandomMinigame: () -> Unit
+    onOpenRandomMinigame: () -> Unit,
+    onConfirmMinigamesAd: () -> Unit,
+    onDismissMinigamesAdPrompt: () -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -171,14 +290,43 @@ fun GameScreen(
                     .widthIn(max = 280.dp)
             )
         } else {
-            Text(
-                text = stringResource(R.string.level_title, uiState.levelNumber),
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
-                color = MaterialTheme.colorScheme.onBackground,
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 20.dp)
-            )
+                    .padding(top = 20.dp, start = 8.dp, end = 8.dp)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.level_title, uiState.levelNumber),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { showExitDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.Home,
+                            contentDescription = stringResource(R.string.cd_exit_home),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    MinigamesAvailableBadge(
+                        minigamesAvailable = uiState.minigamesAvailable,
+                        onClick = onOpenRandomMinigame
+                    )
+                    IconButton(onClick = { showSurrenderDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Flag,
+                            contentDescription = stringResource(R.string.cd_surrender),
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
             Column(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -195,36 +343,6 @@ fun GameScreen(
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp, start = 8.dp, end = 8.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.Top
-            ) {
-                IconButton(onClick = { showExitDialog = true }) {
-                    Icon(
-                        imageVector = Icons.Filled.Home,
-                        contentDescription = stringResource(R.string.cd_exit_home),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                Box(modifier = Modifier.weight(1f))
-                IconButton(onClick = onOpenRandomMinigame) {
-                    Icon(
-                        imageVector = Icons.Outlined.Style,
-                        contentDescription = stringResource(R.string.cd_random_minigame),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                IconButton(onClick = { showSurrenderDialog = true }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Flag,
-                        contentDescription = stringResource(R.string.cd_surrender),
-                        tint = Color.White
                     )
                 }
             }
@@ -286,7 +404,52 @@ fun GameScreen(
                     onDismiss = { showExitDialog = false }
                 )
             }
+            if (uiState.showMinigamesAdPrompt) {
+                GameAlertDialog(
+                    title = stringResource(R.string.minigames_ad_title),
+                    message = stringResource(R.string.minigames_ad_message),
+                    confirmLabel = stringResource(R.string.minigames_ad_confirm),
+                    dismissLabel = stringResource(R.string.dialog_cancel),
+                    onConfirm = onConfirmMinigamesAd,
+                    onDismiss = onDismissMinigamesAdPrompt
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun MinigamesAvailableBadge(
+    minigamesAvailable: Int,
+    onClick: () -> Unit
+) {
+    val badgeContentDescription = stringResource(R.string.cd_minigames_available)
+    Box(
+        modifier = Modifier
+            .padding(end = 4.dp)
+            .height(36.dp)
+            .defaultMinSize(minWidth = 36.dp)
+            .animateContentSize()
+            .semantics { contentDescription = badgeContentDescription }
+            .border(
+                width = 1.5.dp,
+                color = Color.White,
+                shape = RoundedCornerShape(percent = 50)
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                onClick()
+            }
+            .padding(horizontal = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = minigamesAvailable.toString(),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = Color.White
+        )
     }
 }
 
@@ -477,6 +640,6 @@ private fun cardTitleResForId(cardId: CardId): Int? {
         CardId.REROLL_ALL -> R.string.card_reroll_all_title
         CardId.SET_VALUE -> R.string.card_set_value_title
         CardId.REPEAT_LAST -> R.string.card_repeat_last_title
-        CardId.RETRY -> R.string.card_retry_title
+        CardId.MINIGAMES -> R.string.card_minigames_title
     }
 }
