@@ -196,12 +196,12 @@ class SequenceGameViewModel(
                 pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null,
-                isLatestSavedValueHidden = savedValues.size > it.savedValues.size
+                isLatestSavedValueHidden = false
             )
         }
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollAnimationMs / tickMs).coerceAtLeast(1L).toInt()
-            var finalRoll = _uiState.value.diceValue ?: rollSequenceUseCase.execute().value
+            var finalRoll: Int? = _uiState.value.diceValue
             repeat(steps) { step ->
                 val roll = rollSequenceUseCase.execute().value
                 finalRoll = roll
