@@ -101,7 +101,7 @@ class HigherLowerGameViewModel(
                 selectedChoice = null,
                 baseDiceValues = emptyList(),
                 currentDiceValues = emptyList(),
-                isCurrentDiceHidden = false,
+                isCurrentDiceHidden = true,
                 isRolling = true,
                 isChoiceVisible = false,
                 isTransitioning = false,
@@ -118,7 +118,8 @@ class HigherLowerGameViewModel(
                     state.copy(
                         baseDiceValues = roll.values,
                         isRolling = false,
-                        isChoiceVisible = true
+                        isChoiceVisible = true,
+                        isCurrentDiceHidden = true
                     )
                 }
             }
