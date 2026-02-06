@@ -12,14 +12,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
@@ -29,9 +30,12 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,8 +55,12 @@ fun MenuScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     applySystemBarsPadding: Boolean = true,
+    showContinueDialog: Boolean,
     onPlayClick: () -> Unit,
-    onRulesClick: () -> Unit
+    onRulesClick: () -> Unit,
+    onContinueGame: () -> Unit,
+    onStartNewGame: () -> Unit,
+    onDismissDialog: () -> Unit
 ) {
     var isSoundMuted by remember { mutableStateOf(false) }
     var scaffoldModifier = modifier
@@ -163,4 +171,75 @@ fun MenuScreen(
             }
         }
     }
+
+    if (showContinueDialog) {
+        AlertDialog(
+            onDismissRequest = onDismissDialog,
+            containerColor = MaterialTheme.colorScheme.background,
+            title = {
+                Text(
+                    text = stringResource(R.string.menu_continue_title),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.menu_continue_message),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = onContinueGame) {
+                    Text(
+                        text = stringResource(R.string.menu_continue_confirm),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onStartNewGame) {
+                    Text(
+                        text = stringResource(R.string.menu_continue_new_game),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun MenuRoute(
+    modifier: Modifier = Modifier,
+    viewModel: MenuViewModel = viewModel(),
+    onNavigateToDestination: (MenuDestination) -> Unit,
+    onRulesClick: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshSavedSession()
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is MenuUiEffect.NavigateTo -> onNavigateToDestination(effect.destination)
+            }
+        }
+    }
+
+    MenuScreen(
+        modifier = modifier,
+        showContinueDialog = uiState.showContinueDialog,
+        onPlayClick = { viewModel.onEvent(MenuUiEvent.PlayClicked) },
+        onRulesClick = onRulesClick,
+        onContinueGame = { viewModel.onEvent(MenuUiEvent.ContinueGame) },
+        onStartNewGame = { viewModel.onEvent(MenuUiEvent.StartNewGame) },
+        onDismissDialog = { viewModel.onEvent(MenuUiEvent.DismissDialog) }
+    )
 }

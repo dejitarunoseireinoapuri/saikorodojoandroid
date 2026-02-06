@@ -11,7 +11,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.Bl
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation.HigherLowerGameRoute
-import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuScreen
+import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuRoute
+import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuDestination
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddEvenGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation.SequenceGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.navigation.AppRoutes
@@ -29,14 +30,36 @@ class MainActivity : ComponentActivity() {
                     startDestination = AppRoutes.StartDestination
                 ) {
                     composable(AppRoutes.Menu) {
-                        MenuScreen(
-                            onPlayClick = {
-                                val returned = navController.popBackStack(
-                                    route = AppRoutes.Game,
-                                    inclusive = false
-                                )
-                                if (!returned) {
-                                    navController.navigate(AppRoutes.PlayDestination)
+                        MenuRoute(
+                            onNavigateToDestination = { destination ->
+                                when (destination) {
+                                    is MenuDestination.MainGame -> {
+                                        if (destination.resetSession) {
+                                            navController.popBackStack(
+                                                route = AppRoutes.Game,
+                                                inclusive = true
+                                            )
+                                            navController.navigate(AppRoutes.PlayDestination)
+                                        } else {
+                                            val returned = navController.popBackStack(
+                                                route = AppRoutes.Game,
+                                                inclusive = false
+                                            )
+                                            if (!returned) {
+                                                navController.navigate(AppRoutes.PlayDestination)
+                                            }
+                                        }
+                                    }
+                                    is MenuDestination.Minigame -> {
+                                        val returned = navController.popBackStack(
+                                            route = AppRoutes.Game,
+                                            inclusive = false
+                                        )
+                                        if (!returned) {
+                                            navController.navigate(AppRoutes.PlayDestination)
+                                        }
+                                        navController.navigate(minigameRoute(destination.minigameType))
+                                    }
                                 }
                             },
                             onRulesClick = {}
@@ -65,6 +88,11 @@ class MainActivity : ComponentActivity() {
                         OddEvenGameRoute(
                             onContinueClick = {
                                 navController.popBackStack(AppRoutes.Game, inclusive = false)
+                            },
+                            onNavigateToMenu = {
+                                navController.navigate(AppRoutes.Menu) {
+                                    launchSingleTop = true
+                                }
                             }
                         )
                     }
@@ -72,6 +100,11 @@ class MainActivity : ComponentActivity() {
                         SequenceGameRoute(
                             onContinueClick = {
                                 navController.popBackStack(AppRoutes.Game, inclusive = false)
+                            },
+                            onNavigateToMenu = {
+                                navController.navigate(AppRoutes.Menu) {
+                                    launchSingleTop = true
+                                }
                             }
                         )
                     }
@@ -79,6 +112,11 @@ class MainActivity : ComponentActivity() {
                         BlackjackGameRoute(
                             onContinueClick = {
                                 navController.popBackStack(AppRoutes.Game, inclusive = false)
+                            },
+                            onNavigateToMenu = {
+                                navController.navigate(AppRoutes.Menu) {
+                                    launchSingleTop = true
+                                }
                             }
                         )
                     }
@@ -86,6 +124,11 @@ class MainActivity : ComponentActivity() {
                         HigherLowerGameRoute(
                             onContinueClick = {
                                 navController.popBackStack(AppRoutes.Game, inclusive = false)
+                            },
+                            onNavigateToMenu = {
+                                navController.navigate(AppRoutes.Menu) {
+                                    launchSingleTop = true
+                                }
                             }
                         )
                     }

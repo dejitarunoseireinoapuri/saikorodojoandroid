@@ -27,6 +27,11 @@ class InMemoryCardInventoryRepository(
         }
     }
 
+    override fun setCounts(counts: Map<CardId, Int>) {
+        this.counts.clear()
+        this.counts.putAll(counts)
+    }
+
     companion object {
         val shared = InMemoryCardInventoryRepository()
     }

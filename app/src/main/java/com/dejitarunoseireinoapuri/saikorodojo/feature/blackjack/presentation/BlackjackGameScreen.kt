@@ -19,10 +19,15 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -39,6 +44,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.activity.compose.BackHandler
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
@@ -60,7 +70,8 @@ internal const val BLACKJACK_REWARD_STACK_TAG = "blackjack_reward_stack"
 fun BlackjackGameRoute(
     modifier: Modifier = Modifier,
     viewModel: BlackjackGameViewModel = viewModel(),
-    onContinueClick: () -> Unit
+    onContinueClick: () -> Unit,
+    onNavigateToMenu: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     BlackjackGameScreen(
@@ -69,7 +80,11 @@ fun BlackjackGameRoute(
         onStartClick = { viewModel.onEvent(BlackjackGameUiEvent.StartGame) },
         onHitClick = { viewModel.onEvent(BlackjackGameUiEvent.Hit) },
         onStandClick = { viewModel.onEvent(BlackjackGameUiEvent.Stand) },
-        onContinueClick = onContinueClick
+        onContinueClick = onContinueClick,
+        onExitToMenu = {
+            viewModel.saveSession()
+            onNavigateToMenu()
+        }
     )
 }
 
@@ -82,8 +97,13 @@ fun BlackjackGameScreen(
     onStartClick: () -> Unit,
     onHitClick: () -> Unit,
     onStandClick: () -> Unit,
-    onContinueClick: () -> Unit
+    onContinueClick: () -> Unit,
+    onExitToMenu: () -> Unit
 ) {
+    var showExitDialog by remember { mutableStateOf(false) }
+    BackHandler(enabled = !showExitDialog) {
+        showExitDialog = true
+    }
     var containerModifier = modifier.fillMaxSize()
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
@@ -92,6 +112,21 @@ fun BlackjackGameScreen(
         .padding(contentPadding)
         .background(MaterialTheme.colorScheme.background)
     Box(modifier = containerModifier) {
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            IconButton(onClick = { showExitDialog = true }) {
+                Icon(
+                    imageVector = Icons.Filled.Home,
+                    contentDescription = stringResource(R.string.cd_exit_home),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -331,6 +366,50 @@ fun BlackjackGameScreen(
                     )
                 )
             }
+        }
+
+        if (showExitDialog) {
+            AlertDialog(
+                onDismissRequest = { showExitDialog = false },
+                containerColor = MaterialTheme.colorScheme.background,
+                title = {
+                    Text(
+                        text = stringResource(R.string.exit_title),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(R.string.exit_message),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showExitDialog = false
+                            onExitToMenu()
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.exit_confirm),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showExitDialog = false }) {
+                        Text(
+                            text = stringResource(R.string.dialog_cancel),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                }
+            )
         }
     }
 }

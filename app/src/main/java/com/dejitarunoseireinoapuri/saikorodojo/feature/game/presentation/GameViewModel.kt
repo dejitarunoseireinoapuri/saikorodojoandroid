@@ -7,6 +7,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardIn
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.ConsumeCardFromInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.GetCardInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SetCardInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
@@ -41,6 +42,15 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDi
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SatisfyAndAvoidCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ThreeOfKindWithValueCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameRollSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameUiSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavePendingMainGameSnapshotUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -121,6 +131,16 @@ class GameViewModel(
         GetCardInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val consumeCardFromInventoryUseCase: ConsumeCardFromInventoryUseCase =
         ConsumeCardFromInventoryUseCase(InMemoryCardInventoryRepository.shared),
+    private val setCardInventoryUseCase: SetCardInventoryUseCase =
+        SetCardInventoryUseCase(InMemoryCardInventoryRepository.shared),
+    private val loadGameSessionUseCase: LoadGameSessionUseCase =
+        LoadGameSessionUseCase(InMemoryGameSessionRepository.shared),
+    private val saveGameSessionUseCase: SaveGameSessionUseCase =
+        SaveGameSessionUseCase(InMemoryGameSessionRepository.shared),
+    private val clearGameSessionUseCase: ClearGameSessionUseCase =
+        ClearGameSessionUseCase(InMemoryGameSessionRepository.shared),
+    private val savePendingMainGameSnapshotUseCase: SavePendingMainGameSnapshotUseCase =
+        SavePendingMainGameSnapshotUseCase(InMemoryGameSessionRepository.shared),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -129,13 +149,7 @@ class GameViewModel(
     private val initialLevelDefinition: LevelDefinition? = null,
     cardUiModels: List<CardUiModel> = emptyList()
 ) : ViewModel() {
-    private data class RollSnapshot(
-        val diceValues: List<Int>,
-        val diceTypes: List<DiceType>,
-        val layoutSeed: Long
-    )
-
-    private val baseSeed = baseSeedProvider()
+    private var baseSeed = baseSeedProvider()
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState
 
@@ -143,18 +157,33 @@ class GameViewModel(
     val effects: SharedFlow<GameUiEffect> = _effects
 
     private var rollJob: Job? = null
-    private var initialRollSnapshot: RollSnapshot? = null
+    private var initialRollSnapshot: GameRollSnapshot? = null
     private var completionJob: Job? = null
     private var currentObjective: LevelObjective? = null
     private var currentLevelNumber: Int = 1
+    private var shouldAutoStartRoll = true
 
     init {
-        val initialCards = cardUiModels.ifEmpty { loadInventoryCardModels() }
-        applyLevelDefinition(
-            levelDefinition = initialLevelDefinition
-                ?: generateLevelUseCase.execute(levelNumber = 1, seedBase = baseSeed),
-            cardUiModels = initialCards
-        )
+        val restoredSession = loadGameSessionUseCase.execute()
+        val restoredSnapshot = when (restoredSession) {
+            is SavedSession.MainGame -> restoredSession.snapshot
+            is SavedSession.Minigame -> restoredSession.mainGameSnapshot
+            null -> null
+        }
+        if (restoredSnapshot != null) {
+            restoreFromSnapshot(restoredSnapshot)
+            if (restoredSession is SavedSession.Minigame) {
+                savePendingMainGameSnapshotUseCase.execute(restoredSnapshot)
+            }
+            shouldAutoStartRoll = false
+        } else {
+            val initialCards = cardUiModels.ifEmpty { loadInventoryCardModels() }
+            applyLevelDefinition(
+                levelDefinition = initialLevelDefinition
+                    ?: generateLevelUseCase.execute(levelNumber = 1, seedBase = baseSeed),
+                cardUiModels = initialCards
+            )
+        }
     }
 
     fun onEvent(event: GameUiEvent) {
@@ -197,18 +226,23 @@ class GameViewModel(
 
 
     private fun openRandomMinigame() {
+        val snapshot = buildMainGameSnapshot()
+        savePendingMainGameSnapshotUseCase.execute(snapshot)
         viewModelScope.launch(dispatcher) {
             _effects.emit(GameUiEffect.NavigateToMinigame(pickMinigame()))
         }
     }
 
     private fun confirmSurrender() {
+        clearGameSessionUseCase.execute()
         viewModelScope.launch(dispatcher) {
             _effects.emit(GameUiEffect.NavigateToMenu(resetProgress = true))
         }
     }
 
     private fun confirmExit() {
+        val snapshot = buildMainGameSnapshot()
+        saveGameSessionUseCase.execute(SavedSession.MainGame(snapshot))
         viewModelScope.launch(dispatcher) {
             _effects.emit(GameUiEffect.NavigateToMenu(resetProgress = false))
         }
@@ -256,7 +290,7 @@ class GameViewModel(
             _uiState.update { it.copy(isRolling = false) }
             if (initialRollSnapshot == null) {
                 val snapshotState = _uiState.value
-                initialRollSnapshot = RollSnapshot(
+                initialRollSnapshot = GameRollSnapshot(
                     diceValues = snapshotState.diceValues.toList(),
                     diceTypes = snapshotState.diceTypes.toList(),
                     layoutSeed = snapshotState.layoutSeed
@@ -768,7 +802,7 @@ class GameViewModel(
     }
 
     private fun buildRetryState(state: GameUiState): GameUiState {
-        val snapshot = initialRollSnapshot ?: RollSnapshot(
+        val snapshot = initialRollSnapshot ?: GameRollSnapshot(
             diceValues = state.diceValues.toList(),
             diceTypes = state.diceTypes.toList(),
             layoutSeed = state.layoutSeed
@@ -931,6 +965,98 @@ class GameViewModel(
         }
         if (completed && !wasComplete && !_uiState.value.isRolling) {
             handleLevelComplete()
+        }
+    }
+
+    internal fun shouldStartRollOnLaunch(): Boolean {
+        return shouldAutoStartRoll
+    }
+
+    private fun restoreFromSnapshot(snapshot: MainGameSnapshot) {
+        val uiSnapshot = snapshot.uiSnapshot
+        baseSeed = snapshot.baseSeed
+        currentObjective = snapshot.currentObjective
+        initialRollSnapshot = snapshot.initialRollSnapshot
+        currentLevelNumber = uiSnapshot.levelNumber
+        setCardInventoryUseCase.execute(uiSnapshot.cardCounts)
+        val restoredCards = buildCardUiModels(uiSnapshot.cardCounts)
+        _uiState.update {
+            it.copy(
+                diceValues = uiSnapshot.diceValues,
+                diceCount = uiSnapshot.diceCount,
+                diceType = uiSnapshot.diceType,
+                diceTypes = uiSnapshot.diceTypes,
+                layoutSeed = uiSnapshot.layoutSeed,
+                isRolling = uiSnapshot.isRolling,
+                isAwaitingRerollSingle = uiSnapshot.isAwaitingRerollSingle,
+                isAwaitingRerollSelected = uiSnapshot.isAwaitingRerollSelected,
+                isAwaitingFlipFace = uiSnapshot.isAwaitingFlipFace,
+                isAwaitingAdjustPlusMinus = uiSnapshot.isAwaitingAdjustPlusMinus,
+                isAwaitingSetValue = uiSnapshot.isAwaitingSetValue,
+                selectedDice = uiSnapshot.selectedDice,
+                selectedRerollDice = uiSnapshot.selectedRerollDice,
+                selectedRerollSingleDieIndex = uiSnapshot.selectedRerollSingleDieIndex,
+                selectedAdjustmentDieIndex = uiSnapshot.selectedAdjustmentDieIndex,
+                selectedSetValueDieIndex = uiSnapshot.selectedSetValueDieIndex,
+                selectedDiceSum = uiSnapshot.selectedDiceSum,
+                shouldShowSelectedSum = uiSnapshot.shouldShowSelectedSum,
+                cardUiModels = restoredCards,
+                selectedCardIndex = uiSnapshot.selectedCardIndex,
+                lastAppliedCardId = uiSnapshot.lastAppliedCardId,
+                levelNumber = uiSnapshot.levelNumber,
+                objectiveLines = emptyList(),
+                isLevelComplete = uiSnapshot.isLevelComplete,
+                showLevelCompleteMessage = uiSnapshot.showLevelCompleteMessage
+            )
+        }
+        refreshObjectiveProgress()
+    }
+
+    private fun buildMainGameSnapshot(): MainGameSnapshot {
+        val state = _uiState.value
+        val cardCounts = getCardInventoryUseCase.execute()
+        val uiSnapshot = GameUiSnapshot(
+            diceValues = state.diceValues,
+            diceCount = state.diceCount,
+            diceType = state.diceType,
+            diceTypes = state.diceTypes,
+            layoutSeed = state.layoutSeed,
+            isRolling = state.isRolling,
+            isAwaitingRerollSingle = state.isAwaitingRerollSingle,
+            isAwaitingRerollSelected = state.isAwaitingRerollSelected,
+            isAwaitingFlipFace = state.isAwaitingFlipFace,
+            isAwaitingAdjustPlusMinus = state.isAwaitingAdjustPlusMinus,
+            isAwaitingSetValue = state.isAwaitingSetValue,
+            selectedDice = state.selectedDice,
+            selectedRerollDice = state.selectedRerollDice,
+            selectedRerollSingleDieIndex = state.selectedRerollSingleDieIndex,
+            selectedAdjustmentDieIndex = state.selectedAdjustmentDieIndex,
+            selectedSetValueDieIndex = state.selectedSetValueDieIndex,
+            selectedDiceSum = state.selectedDiceSum,
+            shouldShowSelectedSum = state.shouldShowSelectedSum,
+            cardCounts = cardCounts,
+            selectedCardIndex = state.selectedCardIndex,
+            lastAppliedCardId = state.lastAppliedCardId,
+            levelNumber = state.levelNumber,
+            isLevelComplete = state.isLevelComplete,
+            showLevelCompleteMessage = state.showLevelCompleteMessage
+        )
+        return MainGameSnapshot(
+            uiSnapshot = uiSnapshot,
+            baseSeed = baseSeed,
+            currentObjective = currentObjective,
+            initialRollSnapshot = initialRollSnapshot
+        )
+    }
+
+    private fun buildCardUiModels(cardCounts: Map<CardId, Int>): List<CardUiModel> {
+        return defaultCardUiModels().mapNotNull { card ->
+            val count = cardCounts[card.id] ?: 0
+            if (count > 0) {
+                card.copy(count = count)
+            } else {
+                null
+            }
         }
     }
 
