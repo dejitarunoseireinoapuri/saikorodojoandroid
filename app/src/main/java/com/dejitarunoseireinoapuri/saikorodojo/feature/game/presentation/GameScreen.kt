@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -310,13 +311,14 @@ private fun MinigamesAvailableBadge(
     minigamesAvailable: Int,
     onClick: () -> Unit
 ) {
+    val badgeContentDescription = stringResource(R.string.cd_minigames_available)
     Box(
         modifier = Modifier
             .padding(end = 4.dp)
             .height(36.dp)
             .defaultMinSize(minWidth = 36.dp)
             .animateContentSize()
-            .semantics { contentDescription = stringResource(R.string.cd_minigames_available) }
+            .semantics { contentDescription = badgeContentDescription }
             .background(
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(percent = 50)
