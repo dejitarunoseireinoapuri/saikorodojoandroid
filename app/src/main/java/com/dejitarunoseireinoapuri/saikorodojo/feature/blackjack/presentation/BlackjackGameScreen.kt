@@ -42,6 +42,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -106,6 +108,7 @@ fun BlackjackGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
+            val titleColor = MaterialTheme.colorScheme.onBackground
             val showEndState = uiState.isComplete
             val resultTextRes = when (uiState.result) {
                 BlackjackOutcome.PLAYER_WIN -> R.string.minigame_win_message
@@ -114,7 +117,7 @@ fun BlackjackGameScreen(
             }
             val resultTextColor = blackjackResultTextColor(
                 result = uiState.result,
-                defaultColor = MaterialTheme.colorScheme.primary
+                defaultColor = titleColor
             )
             val hasReward = uiState.rewardCards.isNotEmpty()
             val showRules = !uiState.isStarted
@@ -129,7 +132,10 @@ fun BlackjackGameScreen(
                     Text(
                         text = stringResource(R.string.minigame_win_message),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = VictoryMatBackground,
+                        color = minigameMessageColor(
+                            MinigameMessageType.Win,
+                            titleColor = titleColor
+                        ),
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -164,7 +170,10 @@ fun BlackjackGameScreen(
                     Text(
                         text = stringResource(R.string.minigame_win_cards_message),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = minigameMessageColor(
+                            MinigameMessageType.WinCards,
+                            titleColor = titleColor
+                        )
                     )
                 }
                 resultTextRes != null && showEndState -> {
@@ -180,7 +189,7 @@ fun BlackjackGameScreen(
                     Text(
                         text = stringResource(R.string.blackjack_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
+                        color = titleColor,
                         textAlign = TextAlign.Center,
                         modifier = rulesModifier
                     )
@@ -331,8 +340,14 @@ internal fun blackjackResultTextColor(
     defaultColor: Color
 ): Color {
     return when (result) {
-        BlackjackOutcome.PLAYER_LOSE -> FailureMatBackground
-        BlackjackOutcome.PLAYER_WIN -> VictoryMatBackground
+        BlackjackOutcome.PLAYER_LOSE -> minigameMessageColor(
+            MinigameMessageType.Lose,
+            titleColor = defaultColor
+        )
+        BlackjackOutcome.PLAYER_WIN -> minigameMessageColor(
+            MinigameMessageType.Win,
+            titleColor = defaultColor
+        )
         null -> defaultColor
     }
 }

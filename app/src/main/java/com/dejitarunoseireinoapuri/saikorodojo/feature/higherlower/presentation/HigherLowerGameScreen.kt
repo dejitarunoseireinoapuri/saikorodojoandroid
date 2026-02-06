@@ -46,10 +46,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 
 internal const val HIGHER_LOWER_BUTTON_ROW_TAG = "higher_lower_button_row"
 internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
@@ -112,6 +112,7 @@ fun HigherLowerGameScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
+            val titleColor = MaterialTheme.colorScheme.onBackground
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.hasLoss && uiState.isComplete
             val showRules = !uiState.isStarted
@@ -126,13 +127,19 @@ fun HigherLowerGameScreen(
                     Text(
                         text = stringResource(R.string.minigame_win_message),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = VictoryMatBackground
+                        color = minigameMessageColor(
+                            MinigameMessageType.Win,
+                            titleColor = titleColor
+                        )
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.minigame_win_cards_message),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = VictoryMatBackground
+                        color = minigameMessageColor(
+                            MinigameMessageType.WinCards,
+                            titleColor = titleColor
+                        )
                     )
                 }
                 hasLoss -> {
@@ -140,7 +147,10 @@ fun HigherLowerGameScreen(
                     Text(
                         text = stringResource(R.string.minigame_lose_message),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                        color = FailureMatBackground,
+                        color = minigameMessageColor(
+                            MinigameMessageType.Lose,
+                            titleColor = titleColor
+                        ),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -148,7 +158,7 @@ fun HigherLowerGameScreen(
                     Text(
                         text = stringResource(R.string.higher_lower_subtitle),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
+                        color = titleColor,
                         textAlign = TextAlign.Center,
                         modifier = rulesModifier
                     )
@@ -163,7 +173,7 @@ fun HigherLowerGameScreen(
                         uiState.totalRounds
                     ),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = titleColor
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 if (shouldShowHigherLowerChoiceRow(uiState.isChoiceVisible, uiState.selectedChoice)) {
