@@ -83,6 +83,7 @@ data class GameUiState(
     val selectedDice: Set<Int> = emptySet(),
     val selectedRerollDice: Set<Int> = emptySet(),
     val selectedRerollSingleDieIndex: Int? = null,
+    val selectedFlipDieIndex: Int? = null,
     val selectedAdjustmentDieIndex: Int? = null,
     val selectedSetValueDieIndex: Int? = null,
     val selectedDiceSum: Int = 0,
@@ -105,6 +106,7 @@ sealed interface GameUiEvent {
     data class SetSelectedDieValue(val value: Int) : GameUiEvent
     data object RollSelectedDice : GameUiEvent
     data object RollSingleDie : GameUiEvent
+    data object FlipSelectedDie : GameUiEvent
     data object DismissSelectedCard : GameUiEvent
     data object IncreaseDiceCount : GameUiEvent
     data object ConfirmSurrender : GameUiEvent
@@ -204,6 +206,7 @@ class GameViewModel(
             is GameUiEvent.SetSelectedDieValue -> setSelectedDieValue(event.value)
             GameUiEvent.RollSelectedDice -> rollSelectedDice()
             GameUiEvent.RollSingleDie -> rollSingleDie()
+            GameUiEvent.FlipSelectedDie -> flipSelectedDie()
             GameUiEvent.DismissSelectedCard -> {
                 if (!isCardInteractionBlocked()) {
                     dismissSelectedCard()
@@ -271,6 +274,7 @@ class GameViewModel(
                     isAwaitingAdjustPlusMinus = false,
                     isAwaitingSetValue = false,
                     selectedRerollSingleDieIndex = null,
+                    selectedFlipDieIndex = null,
                     selectedAdjustmentDieIndex = null,
                     selectedSetValueDieIndex = null
                 )
@@ -314,7 +318,7 @@ class GameViewModel(
         } else if (state.isAwaitingRerollSelected) {
             toggleRerollDiceSelection(index)
         } else if (state.isAwaitingFlipFace) {
-            flipSelectedDie(index)
+            selectFlipDie(index)
         } else if (state.isAwaitingAdjustPlusMinus) {
             selectAdjustmentDie(index)
         } else if (state.isAwaitingSetValue) {
@@ -392,6 +396,7 @@ class GameViewModel(
                 selectedDice = updatedSelection,
                 selectedDiceSum = calculateSelectedDiceSum(newDiceValues, updatedSelection),
                 selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null
             )
@@ -594,9 +599,21 @@ class GameViewModel(
         }
     }
 
-    private fun flipSelectedDie(index: Int) {
+    private fun selectFlipDie(index: Int) {
         _uiState.update { state ->
             if (index !in state.diceValues.indices) {
+                state
+            } else {
+                val updatedIndex = if (state.selectedFlipDieIndex == index) null else index
+                state.copy(selectedFlipDieIndex = updatedIndex)
+            }
+        }
+    }
+
+    private fun flipSelectedDie() {
+        _uiState.update { state ->
+            val index = state.selectedFlipDieIndex
+            if (!state.isAwaitingFlipFace || index == null || index !in state.diceValues.indices) {
                 state
             } else {
                 val currentValue = state.diceValues[index]
@@ -608,7 +625,8 @@ class GameViewModel(
                 state.copy(
                     diceValues = updatedValues,
                     selectedDiceSum = calculateSelectedDiceSum(updatedValues, state.selectedDice),
-                    isAwaitingFlipFace = false
+                    isAwaitingFlipFace = false,
+                    selectedFlipDieIndex = null
                 )
             }
         }
@@ -748,6 +766,7 @@ class GameViewModel(
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
                 selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null
             )
@@ -759,6 +778,7 @@ class GameViewModel(
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
                 selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null
             )
@@ -770,6 +790,7 @@ class GameViewModel(
                 isAwaitingFlipFace = false,
                 isAwaitingSetValue = false,
                 selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null
             )
@@ -781,6 +802,7 @@ class GameViewModel(
                 isAwaitingFlipFace = false,
                 isAwaitingAdjustPlusMinus = false,
                 selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null
             )
@@ -792,6 +814,7 @@ class GameViewModel(
                 isAwaitingAdjustPlusMinus = false,
                 isAwaitingSetValue = false,
                 selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null,
                 selectedRerollDice = emptySet()
@@ -819,6 +842,7 @@ class GameViewModel(
             isAwaitingAdjustPlusMinus = false,
             isAwaitingSetValue = false,
             selectedRerollSingleDieIndex = null,
+            selectedFlipDieIndex = null,
             selectedAdjustmentDieIndex = null,
             selectedSetValueDieIndex = null,
             selectedRerollDice = emptySet(),
@@ -900,6 +924,7 @@ class GameViewModel(
                 selectedDice = emptySet(),
                 selectedRerollDice = emptySet(),
                 selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
                 selectedAdjustmentDieIndex = null,
                 selectedSetValueDieIndex = null,
                 selectedDiceSum = 0,
@@ -996,6 +1021,7 @@ class GameViewModel(
                 selectedDice = uiSnapshot.selectedDice,
                 selectedRerollDice = uiSnapshot.selectedRerollDice,
                 selectedRerollSingleDieIndex = uiSnapshot.selectedRerollSingleDieIndex,
+                selectedFlipDieIndex = uiSnapshot.selectedFlipDieIndex,
                 selectedAdjustmentDieIndex = uiSnapshot.selectedAdjustmentDieIndex,
                 selectedSetValueDieIndex = uiSnapshot.selectedSetValueDieIndex,
                 selectedDiceSum = uiSnapshot.selectedDiceSum,
@@ -1030,6 +1056,7 @@ class GameViewModel(
             selectedDice = state.selectedDice,
             selectedRerollDice = state.selectedRerollDice,
             selectedRerollSingleDieIndex = state.selectedRerollSingleDieIndex,
+            selectedFlipDieIndex = state.selectedFlipDieIndex,
             selectedAdjustmentDieIndex = state.selectedAdjustmentDieIndex,
             selectedSetValueDieIndex = state.selectedSetValueDieIndex,
             selectedDiceSum = state.selectedDiceSum,

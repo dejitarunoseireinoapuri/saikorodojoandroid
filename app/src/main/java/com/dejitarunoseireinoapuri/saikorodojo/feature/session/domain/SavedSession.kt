@@ -47,6 +47,7 @@ data class GameUiSnapshot(
     val selectedDice: Set<Int>,
     val selectedRerollDice: Set<Int>,
     val selectedRerollSingleDieIndex: Int?,
+    val selectedFlipDieIndex: Int?,
     val selectedAdjustmentDieIndex: Int?,
     val selectedSetValueDieIndex: Int?,
     val selectedDiceSum: Int,
