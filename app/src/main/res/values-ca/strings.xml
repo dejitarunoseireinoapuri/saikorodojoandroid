@@ -31,7 +31,7 @@
     <string name="card_retry_title">Reintenta</string>
     <string name="card_retry_description">Reinicia el nivell</string>
     <string name="odd_even_title">Parell o Senar</string>
-    <string name="odd_even_subtitle">Encerta almenys 3 de 5 rondes si el resultat és parell o senar</string>
+    <string name="odd_even_subtitle">Encerta almenys 3 de 7 rondes si el resultat és parell o senar</string>
     <string name="odd_even_start">Començar</string>
     <string name="odd_even_round_status">Ronda %1$d de %2$d</string>
     <string name="odd_even_hits_status">Encerts: %1$d de %2$d</string>
@@ -47,7 +47,8 @@
     <string name="higher_lower_lower">Inferior</string>
     <string name="higher_lower_total">Total: %1$d</string>
     <string name="sequence_title">Seqüència</string>
-    <string name="sequence_subtitle">Queda\'t amb el resultat del dau o descarta\'l, però al final de la cinquena ronda hauràs de tenir una seqüència ascendent de 3 daus</string>
+    <string name="sequence_subtitle">Queda\'t amb el resultat del dau o descarta\'l, però al final de la cinquena ronda hauràs de tenir una seqüència no decreixent de 3 daus</string>
+    <string name="flip_selected_die">Girar</string>
     <string name="sequence_start">Començar</string>
     <string name="sequence_save">Desar</string>
     <string name="sequence_discard">Descartar</string>

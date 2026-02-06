@@ -46,7 +46,8 @@ internal fun DiceBoard(
     onAdjustSelectedDie: (Int) -> Unit,
     onSetSelectedDieValue: (Int) -> Unit,
     onRollSelectedDice: () -> Unit,
-    onRollSingleDie: () -> Unit
+    onRollSingleDie: () -> Unit,
+    onFlipSelectedDie: () -> Unit
 ) {
     val diceCount = uiState.diceValues.size
     val boardHeight = 276.dp
@@ -86,10 +87,11 @@ internal fun DiceBoard(
             diceTypeDrawable(uiState.diceTypes.getOrElse(index) { DiceType.D6 })
         }
     }
+    val boardYOffset = 24.dp
     val diceTextScale = calculateDiceTextScale(diceSize)
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         if (uiState.selectedDice.isNotEmpty()) {
-            val sumOffset = -(boardHeight / 2 + 62.dp)
+            val sumOffset = -(boardHeight / 2 + 42.dp)
             val selectionText = if (uiState.shouldShowSelectedSum) {
                 stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum)
             } else {
@@ -108,7 +110,7 @@ internal fun DiceBoard(
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
-        val promptOffset = -(boardHeight / 2 + 30.dp)
+        val promptOffset = -(boardHeight / 2 + 10.dp)
         when {
             uiState.isAwaitingRerollSingle -> {
                 Text(
@@ -211,7 +213,7 @@ internal fun DiceBoard(
                     val textScale = if (diceSize.value == 0f) 1f else {
                         (optionSize.value / diceSize.value).coerceAtMost(1f)
                     }
-                    val setValueOffset = boardHeight / 2 + optionSize + 24.dp
+                    val setValueOffset = boardHeight / 2 + optionSize + 40.dp
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -256,7 +258,7 @@ internal fun DiceBoard(
             }
         }
         if (uiState.isAwaitingRerollSelected || uiState.isAwaitingRerollSingle) {
-            val buttonOffset = boardHeight / 2 + 48.dp
+            val buttonOffset = boardHeight / 2 + 64.dp
             val isEnabled = when {
                 uiState.isAwaitingRerollSelected -> uiState.selectedRerollDice.isNotEmpty()
                 else -> uiState.selectedRerollSingleDieIndex != null
@@ -282,10 +284,33 @@ internal fun DiceBoard(
                 )
             }
         }
+        if (uiState.isAwaitingFlipFace) {
+            val buttonOffset = boardHeight / 2 + 64.dp
+            Button(
+                onClick = onFlipSelectedDie,
+                enabled = uiState.selectedFlipDieIndex != null && !uiState.isRolling,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
+                ),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = buttonOffset)
+                    .padding(top = 8.dp)
+                    .height(48.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.flip_selected_die),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+        }
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
                 .padding(start = horizontalMargin, end = horizontalMargin)
+                .offset(y = boardYOffset)
                 .height(boardHeight)
                 .fillMaxWidth()
                 .background(
@@ -307,15 +332,18 @@ internal fun DiceBoard(
                 val isAdjustmentSelected = uiState.selectedAdjustmentDieIndex == index
                 val isSetValueSelected = uiState.selectedSetValueDieIndex == index
                 val isRerollSingleSelected = uiState.selectedRerollSingleDieIndex == index
+                val isFlipSelected = uiState.selectedFlipDieIndex == index
                 val showSelectionBorder = shouldShowDiceSelectionBorder(
                     isAwaitingRerollSelected = uiState.isAwaitingRerollSelected,
                     isAwaitingRerollSingle = uiState.isAwaitingRerollSingle,
+                    isAwaitingFlipFace = uiState.isAwaitingFlipFace,
                     isAwaitingAdjustPlusMinus = uiState.isAwaitingAdjustPlusMinus,
                     isAwaitingSetValue = uiState.isAwaitingSetValue,
                     isRerollSelected = uiState.selectedRerollDice.contains(index),
                     isAdjustmentSelected = isAdjustmentSelected,
                     isSetValueSelected = isSetValueSelected,
-                    isRerollSingleSelected = isRerollSingleSelected
+                    isRerollSingleSelected = isRerollSingleSelected,
+                    isFlipSelected = isFlipSelected
                 )
                 Box(
                     modifier = Modifier
@@ -414,16 +442,19 @@ internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
 internal fun shouldShowDiceSelectionBorder(
     isAwaitingRerollSelected: Boolean,
     isAwaitingRerollSingle: Boolean,
+    isAwaitingFlipFace: Boolean,
     isAwaitingAdjustPlusMinus: Boolean,
     isAwaitingSetValue: Boolean,
     isRerollSelected: Boolean,
     isAdjustmentSelected: Boolean,
     isSetValueSelected: Boolean,
-    isRerollSingleSelected: Boolean
+    isRerollSingleSelected: Boolean,
+    isFlipSelected: Boolean
 ): Boolean {
     return when {
         isAwaitingRerollSelected -> isRerollSelected
         isAwaitingRerollSingle -> isRerollSingleSelected
+        isAwaitingFlipFace -> isFlipSelected
         isAwaitingAdjustPlusMinus -> isAdjustmentSelected
         isAwaitingSetValue -> isSetValueSelected
         else -> false

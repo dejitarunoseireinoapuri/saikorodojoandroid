@@ -29,6 +29,7 @@ class OddEvenGameViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.isStarted)
         assertEquals(1, state.currentRound)
+        assertEquals(7, state.totalRounds)
         assertEquals(0, state.correctCount)
         assertNull(state.diceValue)
     }
@@ -94,7 +95,7 @@ class OddEvenGameViewModelTest {
     }
 
     @Test
-    fun `three wrong guesses end the game`() = runTest {
+    fun `three wrong guesses do not end the game early`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2, 4, 6)
         )
@@ -106,6 +107,23 @@ class OddEvenGameViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
         dispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete.not())
+        assertTrue(state.rewardCards.isEmpty())
+    }
+
+    @Test
+    fun `losing after seven rounds completes the game`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 4, 6, 2, 4, 6, 2)
+        )
+
+        viewModel.onEvent(OddEvenGameUiEvent.StartGame)
+        repeat(7) {
+            viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.ODD))
+            dispatcher.scheduler.advanceUntilIdle()
+        }
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
@@ -159,6 +177,7 @@ class OddEvenGameViewModelTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2),
             targetCorrect = 1,
+            totalRounds = 1,
             lossMessageDelayMs = 2_000L
         )
 
@@ -184,6 +203,7 @@ class OddEvenGameViewModelTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2),
             targetCorrect = 1,
+            totalRounds = 1,
             lossMessageDelayMs = null
         )
 
@@ -214,6 +234,7 @@ class OddEvenGameViewModelTest {
         diceRolls: List<Int> = listOf(2),
         rewardRolls: List<Float> = listOf(0.4f, 0.2f, 0.3f),
         targetCorrect: Int = 3,
+        totalRounds: Int = 7,
         resultAnimationMs: Long = 0L,
         lossMessageDelayMs: Long? = 0L
     ): OddEvenGameViewModel {
@@ -231,6 +252,7 @@ class OddEvenGameViewModelTest {
                 resultAnimationMs = resultAnimationMs,
                 tickMs = 1L,
                 targetCorrect = targetCorrect,
+                totalRounds = totalRounds,
                 cardUiModels = testCardUiModels()
             )
         } else {
@@ -242,6 +264,7 @@ class OddEvenGameViewModelTest {
                 resultAnimationMs = resultAnimationMs,
                 tickMs = 1L,
                 targetCorrect = targetCorrect,
+                totalRounds = totalRounds,
                 lossMessageDelayMs = lossMessageDelayMs,
                 cardUiModels = testCardUiModels()
             )

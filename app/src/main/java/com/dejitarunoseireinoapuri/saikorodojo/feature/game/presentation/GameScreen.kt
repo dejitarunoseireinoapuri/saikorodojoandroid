@@ -100,6 +100,7 @@ fun GameRoute(
         },
         onRollSelectedDice = { viewModel.onEvent(GameUiEvent.RollSelectedDice) },
         onRollSingleDie = { viewModel.onEvent(GameUiEvent.RollSingleDie) },
+        onFlipSelectedDie = { viewModel.onEvent(GameUiEvent.FlipSelectedDie) },
         onConfirmSurrender = { viewModel.onEvent(GameUiEvent.ConfirmSurrender) },
         onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) },
         onOpenRandomMinigame = { viewModel.onEvent(GameUiEvent.OpenRandomMinigame) }
@@ -120,6 +121,7 @@ fun GameScreen(
     onSetSelectedDieValue: (Int) -> Unit,
     onRollSelectedDice: () -> Unit,
     onRollSingleDie: () -> Unit,
+    onFlipSelectedDie: () -> Unit,
     onConfirmSurrender: () -> Unit,
     onConfirmExit: () -> Unit,
     onOpenRandomMinigame: () -> Unit
@@ -145,6 +147,7 @@ fun GameScreen(
         val constraintsHeight = maxHeight
         val shouldHideCards = uiState.isAwaitingRerollSingle ||
             uiState.isAwaitingRerollSelected ||
+            uiState.isAwaitingFlipFace ||
             uiState.isAwaitingAdjustPlusMinus ||
             uiState.isAwaitingSetValue
         val stackOffset by animateDpAsState(
@@ -233,7 +236,8 @@ fun GameScreen(
                 onAdjustSelectedDie = onAdjustSelectedDie,
                 onSetSelectedDieValue = onSetSelectedDieValue,
                 onRollSelectedDice = onRollSelectedDice,
-                onRollSingleDie = onRollSingleDie
+                onRollSingleDie = onRollSingleDie,
+                onFlipSelectedDie = onFlipSelectedDie
             )
             Box(
                 modifier = Modifier
