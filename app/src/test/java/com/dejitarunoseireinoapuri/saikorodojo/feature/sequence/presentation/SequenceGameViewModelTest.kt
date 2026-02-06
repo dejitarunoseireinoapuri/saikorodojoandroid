@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -59,7 +60,7 @@ class SequenceGameViewModelTest {
     }
 
     @Test
-    fun `success keeps pending rewards visible for one second before revealing cards`() = runTest {
+    fun `success waits before showing reward cards`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(1, 2, 3),
             rewardRolls = listOf(0.4f, 0.2f, 0.3f),
@@ -76,9 +77,9 @@ class SequenceGameViewModelTest {
 
         dispatcher.scheduler.runCurrent()
         val pendingState = viewModel.uiState.value
-        assertTrue(pendingState.isComplete)
+        assertFalse(pendingState.isComplete)
         assertTrue(pendingState.rewardCards.isEmpty())
-        assertEquals(2, pendingState.pendingRewardCards.size)
+        assertTrue(pendingState.pendingRewardCards.isEmpty())
 
         dispatcher.scheduler.advanceTimeBy(999L)
         dispatcher.scheduler.runCurrent()
@@ -87,7 +88,7 @@ class SequenceGameViewModelTest {
         dispatcher.scheduler.advanceTimeBy(1L)
         dispatcher.scheduler.runCurrent()
         assertEquals(2, viewModel.uiState.value.rewardCards.size)
-        assertTrue(viewModel.uiState.value.pendingRewardCards.isEmpty())
+        assertTrue(viewModel.uiState.value.isComplete)
     }
 
     @Test
@@ -124,8 +125,6 @@ class SequenceGameViewModelTest {
         assertTrue(immediateState.isRolling)
         assertEquals(7, immediateState.diceValue)
     }
-
-
 
     @Test
     fun `save action keeps latest saved die visible during the next roll`() = runTest {
@@ -186,7 +185,6 @@ class SequenceGameViewModelTest {
         assertTrue(state.rewardCards.isEmpty())
     }
 
-
     @Test
     fun `game ends before round four when target is no longer reachable`() = runTest {
         val viewModel = buildViewModel(
@@ -230,6 +228,7 @@ class SequenceGameViewModelTest {
         assertEquals(1, state.currentRoll)
         assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
     }
+
     @Test
     fun `reaching the maximum rolls without success ends the game`() = runTest {
         val viewModel = buildViewModel(
@@ -254,6 +253,24 @@ class SequenceGameViewModelTest {
         assertTrue(state.rewardCards.isEmpty())
     }
 
+    @Test
+    fun `post roll hold delays the decision state`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(8),
+            postRollHoldMs = 300L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.runCurrent()
+
+        assertFalse(viewModel.uiState.value.isAwaitingDecision)
+
+        dispatcher.scheduler.advanceTimeBy(300L)
+        dispatcher.scheduler.runCurrent()
+
+        assertTrue(viewModel.uiState.value.isAwaitingDecision)
+    }
+
     private fun buildViewModel(
         diceRolls: List<Int>,
         rewardRolls: List<Float> = listOf(0.4f, 0.2f, 0.3f),
@@ -262,7 +279,8 @@ class SequenceGameViewModelTest {
         rewardRevealDelayMs: Long = 0L,
         targetSequence: Int = 3,
         rollAnimationMs: Long = 0L,
-        tickMs: Long = 1L
+        tickMs: Long = 1L,
+        postRollHoldMs: Long = 0L
     ): SequenceGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
@@ -275,6 +293,7 @@ class SequenceGameViewModelTest {
             dispatcher = dispatcher,
             rollAnimationMs = rollAnimationMs,
             tickMs = tickMs,
+            postRollHoldMs = postRollHoldMs,
             rewardRevealDelayMs = rewardRevealDelayMs,
             totalRolls = totalRolls,
             targetSequence = targetSequence,

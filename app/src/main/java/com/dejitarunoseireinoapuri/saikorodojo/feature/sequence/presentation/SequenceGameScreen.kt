@@ -58,16 +58,6 @@ internal const val SEQUENCE_CONTINUE_BUTTON_TAG = "sequence_continue_button"
 internal const val SEQUENCE_SAVED_DIE_TAG_PREFIX = "sequence_saved_die"
 internal const val SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX = "sequence_saved_die_value"
 
-internal enum class SequenceDecisionAction {
-    Discard,
-    Save
-}
-
-internal fun sequenceDecisionActionOrder(): List<SequenceDecisionAction> = listOf(
-    SequenceDecisionAction.Discard,
-    SequenceDecisionAction.Save
-)
-
 internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
@@ -229,32 +219,33 @@ fun SequenceGameScreen(
             ) {
                 Spacer(modifier = Modifier.height(72.dp))
                 Box(
-                    modifier = Modifier.height(56.dp),
+                    modifier = Modifier.height(184.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     if (uiState.isAwaitingDecision) {
-                        Row(
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(24.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            sequenceDecisionActionOrder().forEach { action ->
-                                when (action) {
-                                    SequenceDecisionAction.Discard -> SequenceChoiceButton(
-                                        label = stringResource(R.string.sequence_discard),
-                                        testTag = SEQUENCE_DISCARD_BUTTON_TAG,
-                                        modifier = Modifier.weight(1f),
-                                        onClick = onDiscardClick
-                                    )
-
-                                    SequenceDecisionAction.Save -> SequenceChoiceButton(
-                                        label = stringResource(R.string.sequence_save),
-                                        testTag = SEQUENCE_SAVE_BUTTON_TAG,
-                                        modifier = Modifier.weight(1f),
-                                        onClick = onSaveClick
-                                    )
-                                }
-                            }
+                            SequenceChoiceButton(
+                                label = stringResource(R.string.sequence_discard),
+                                testTag = SEQUENCE_DISCARD_BUTTON_TAG,
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .widthIn(min = 200.dp)
+                                    .height(72.dp),
+                                onClick = onDiscardClick
+                            )
+                            SequenceChoiceButton(
+                                label = stringResource(R.string.sequence_save),
+                                testTag = SEQUENCE_SAVE_BUTTON_TAG,
+                                modifier = Modifier
+                                    .align(Alignment.Start)
+                                    .widthIn(min = 200.dp)
+                                    .height(72.dp),
+                                onClick = onSaveClick
+                            )
                         }
                     }
                 }
@@ -275,12 +266,14 @@ fun SequenceGameScreen(
                 if (uiState.rewardCards.isEmpty()) {
                     val matBackground = when {
                         uiState.failureReason != null -> FailureMatBackground
-                        uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
+                        uiState.pendingRewardCards.isNotEmpty() || uiState.rewardCards.isNotEmpty() ->
+                            VictoryMatBackground
                         else -> SequenceSaveMatBackground
                     }
                     val matBorder = when {
                         uiState.failureReason != null -> FailureMatBackground
-                        uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
+                        uiState.pendingRewardCards.isNotEmpty() || uiState.rewardCards.isNotEmpty() ->
+                            VictoryMatBackground
                         else -> SequenceSaveMatBorder
                     }
                     SequenceMat(
@@ -349,9 +342,10 @@ fun SequenceGameScreen(
                     contentColor = MaterialTheme.colorScheme.onSecondary
                 ),
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 24.dp)
-                    .height(56.dp)
+                    .align(Alignment.BottomStart)
+                    .padding(start = 24.dp, bottom = 24.dp)
+                    .widthIn(min = 220.dp)
+                    .height(64.dp)
                     .zIndex(4f)
                     .testTag(SEQUENCE_CONTINUE_BUTTON_TAG)
             ) {
@@ -410,15 +404,13 @@ private fun SequenceChoiceButton(
             containerColor = MaterialTheme.colorScheme.tertiary,
             contentColor = MaterialTheme.colorScheme.onTertiary
         ),
-        modifier = modifier
-            .height(64.dp)
-            .testTag(testTag)
+        modifier = modifier.testTag(testTag)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 22.sp
             )
         )
     }

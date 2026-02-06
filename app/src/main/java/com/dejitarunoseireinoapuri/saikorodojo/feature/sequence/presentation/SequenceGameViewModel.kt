@@ -22,6 +22,7 @@ private const val DEFAULT_TARGET_SEQUENCE = 3
 private const val DEFAULT_MAX_DISCARDS = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 2_000L
 private const val DEFAULT_TICK_MS = 120L
+private const val DEFAULT_POST_ROLL_HOLD_MS = 200L
 private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_000L
 private const val DEFAULT_SEQUENCE_DIE_MAX = 10
 
@@ -65,6 +66,7 @@ class SequenceGameViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
+    private val postRollHoldMs: Long = DEFAULT_POST_ROLL_HOLD_MS,
     private val rewardRevealDelayMs: Long = DEFAULT_REWARD_REVEAL_DELAY_MS,
     private val totalRolls: Int = DEFAULT_TOTAL_ROLLS,
     private val targetSequence: Int = DEFAULT_TARGET_SEQUENCE,
@@ -216,10 +218,16 @@ class SequenceGameViewModel(
             _uiState.update {
                 it.copy(
                     isRolling = false,
-                    isAwaitingDecision = true,
+                    isAwaitingDecision = false,
                     diceValue = finalRoll,
                     isLatestSavedValueHidden = false
                 )
+            }
+            if (postRollHoldMs > 0L) {
+                delay(postRollHoldMs)
+            }
+            _uiState.update {
+                it.copy(isAwaitingDecision = true)
             }
         }
     }
@@ -231,11 +239,11 @@ class SequenceGameViewModel(
             it.copy(
                 savedValues = savedValues,
                 discardCount = discardCount,
-                isComplete = true,
+                isComplete = false,
                 isAwaitingDecision = false,
                 isRolling = false,
                 rewardCards = emptyList(),
-                pendingRewardCards = rewardCards,
+                pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null,
                 isLatestSavedValueHidden = false
@@ -245,8 +253,9 @@ class SequenceGameViewModel(
             delay(rewardRevealDelayMs)
             _uiState.update { current ->
                 current.copy(
-                    rewardCards = current.pendingRewardCards,
-                    pendingRewardCards = emptyList()
+                    rewardCards = rewardCards,
+                    pendingRewardCards = emptyList(),
+                    isComplete = true
                 )
             }
         }
