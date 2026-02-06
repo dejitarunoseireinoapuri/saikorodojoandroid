@@ -107,6 +107,6 @@
     <string name="cd_random_minigame">Open random minigame</string>
     <string name="cd_minigames_available">Minigames available</string>
     <string name="minigames_ad_title">No minigames available</string>
-    <string name="minigames_ad_message">Watch a rewarded ad to gain three minigames?</string>
+    <string name="minigames_ad_message">Watch an ad to gain three minigames?</string>
     <string name="minigames_ad_confirm">Watch ad</string>
 </resources>

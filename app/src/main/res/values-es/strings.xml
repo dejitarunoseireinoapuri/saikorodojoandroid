@@ -65,7 +65,7 @@
     <string name="minigame_win_cards_message">Has ganado cartas</string>
     <string name="cd_minigames_available">Minijuegos disponibles</string>
     <string name="minigames_ad_title">No quedan minijuegos</string>
-    <string name="minigames_ad_message">¿Quieres ver un anuncio bonificado para ganar tres minijuegos?</string>
+    <string name="minigames_ad_message">¿Quieres ver un anuncio para ganar tres minijuegos?</string>
     <string name="minigames_ad_confirm">Ver anuncio</string>
     <string name="level_title">Nivel %1$d</string>
     <string name="level_complete_message">¡Enhorabuena!</string>

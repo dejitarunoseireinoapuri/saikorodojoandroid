@@ -118,11 +118,13 @@ sealed interface GameUiEvent {
     data object OpenRandomMinigame : GameUiEvent
     data object ConfirmMinigamesAd : GameUiEvent
     data object DismissMinigamesAdPrompt : GameUiEvent
+    data object MinigamesAdCompleted : GameUiEvent
 }
 
 sealed interface GameUiEffect {
     data class NavigateToMinigame(val minigame: MinigameType) : GameUiEffect
     data class NavigateToMenu(val resetProgress: Boolean) : GameUiEffect
+    data object ShowMinigamesRewardedAd : GameUiEffect
 }
 
 data class ObjectiveLineUiState(
@@ -224,6 +226,7 @@ class GameViewModel(
             GameUiEvent.OpenRandomMinigame -> openRandomMinigame()
             GameUiEvent.ConfirmMinigamesAd -> confirmMinigamesAd()
             GameUiEvent.DismissMinigamesAdPrompt -> dismissMinigamesAdPrompt()
+            GameUiEvent.MinigamesAdCompleted -> grantMinigamesFromAd()
         }
     }
 
@@ -256,16 +259,20 @@ class GameViewModel(
     }
 
     private fun confirmMinigamesAd() {
-        _uiState.update {
-            it.copy(
-                minigamesAvailable = it.minigamesAvailable + MINIGAMES_REWARD_AMOUNT,
-                showMinigamesAdPrompt = false
-            )
+        _uiState.update { it.copy(showMinigamesAdPrompt = false) }
+        viewModelScope.launch(dispatcher) {
+            _effects.emit(GameUiEffect.ShowMinigamesRewardedAd)
         }
     }
 
     private fun dismissMinigamesAdPrompt() {
         _uiState.update { it.copy(showMinigamesAdPrompt = false) }
+    }
+
+    private fun grantMinigamesFromAd() {
+        _uiState.update {
+            it.copy(minigamesAvailable = it.minigamesAvailable + MINIGAMES_REWARD_AMOUNT)
+        }
     }
 
     private fun confirmSurrender() {
