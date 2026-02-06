@@ -3,6 +3,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -50,12 +52,14 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
-import androidx.compose.material.icons.outlined.Style
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
@@ -103,7 +107,9 @@ fun GameRoute(
         onFlipSelectedDie = { viewModel.onEvent(GameUiEvent.FlipSelectedDie) },
         onConfirmSurrender = { viewModel.onEvent(GameUiEvent.ConfirmSurrender) },
         onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) },
-        onOpenRandomMinigame = { viewModel.onEvent(GameUiEvent.OpenRandomMinigame) }
+        onOpenRandomMinigame = { viewModel.onEvent(GameUiEvent.OpenRandomMinigame) },
+        onConfirmMinigamesAd = { viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd) },
+        onDismissMinigamesAdPrompt = { viewModel.onEvent(GameUiEvent.DismissMinigamesAdPrompt) }
     )
 }
 
@@ -124,7 +130,9 @@ fun GameScreen(
     onFlipSelectedDie: () -> Unit,
     onConfirmSurrender: () -> Unit,
     onConfirmExit: () -> Unit,
-    onOpenRandomMinigame: () -> Unit
+    onOpenRandomMinigame: () -> Unit,
+    onConfirmMinigamesAd: () -> Unit,
+    onDismissMinigamesAdPrompt: () -> Unit
 ) {
     var containerModifier = modifier
         .fillMaxSize()
@@ -213,13 +221,10 @@ fun GameScreen(
                     )
                 }
                 Box(modifier = Modifier.weight(1f))
-                IconButton(onClick = onOpenRandomMinigame) {
-                    Icon(
-                        imageVector = Icons.Outlined.Style,
-                        contentDescription = stringResource(R.string.cd_random_minigame),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+                MinigamesAvailableBadge(
+                    minigamesAvailable = uiState.minigamesAvailable,
+                    onClick = onOpenRandomMinigame
+                )
                 IconButton(onClick = { showSurrenderDialog = true }) {
                     Icon(
                         imageVector = Icons.Outlined.Flag,
@@ -286,7 +291,50 @@ fun GameScreen(
                     onDismiss = { showExitDialog = false }
                 )
             }
+            if (uiState.showMinigamesAdPrompt) {
+                GameAlertDialog(
+                    title = stringResource(R.string.minigames_ad_title),
+                    message = stringResource(R.string.minigames_ad_message),
+                    confirmLabel = stringResource(R.string.minigames_ad_confirm),
+                    dismissLabel = stringResource(R.string.dialog_cancel),
+                    onConfirm = onConfirmMinigamesAd,
+                    onDismiss = onDismissMinigamesAdPrompt
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun MinigamesAvailableBadge(
+    minigamesAvailable: Int,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(end = 4.dp)
+            .height(36.dp)
+            .defaultMinSize(minWidth = 36.dp)
+            .animateContentSize()
+            .semantics { contentDescription = stringResource(R.string.cd_minigames_available) }
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(percent = 50)
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                onClick()
+            }
+            .padding(horizontal = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = minigamesAvailable.toString(),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onPrimary
+        )
     }
 }
 
@@ -477,6 +525,6 @@ private fun cardTitleResForId(cardId: CardId): Int? {
         CardId.REROLL_ALL -> R.string.card_reroll_all_title
         CardId.SET_VALUE -> R.string.card_set_value_title
         CardId.REPEAT_LAST -> R.string.card_repeat_last_title
-        CardId.RETRY -> R.string.card_retry_title
+        CardId.MINIGAMES -> R.string.card_minigames_title
     }
 }

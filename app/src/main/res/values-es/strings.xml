@@ -28,8 +28,8 @@
     <string name="card_repeat_last_title">Repetir carta</string>
     <string name="card_repeat_last_description">Repite el efecto de la última carta usada, eligiendo cualquier objetivo. Última carta:</string>
     <string name="card_repeat_last_none">Ninguna</string>
-    <string name="card_retry_title">Reintentar</string>
-    <string name="card_retry_description">Reinicia el nivel</string>
+    <string name="card_minigames_title">Minijuegos</string>
+    <string name="card_minigames_description">Gana tres minijuegos</string>
     <string name="odd_even_title">Par o Impar</string>
     <string name="odd_even_subtitle">Acierta al menos 3 veces de 7 rondas si el resultado es par o impar</string>
     <string name="odd_even_start">Empezar</string>
@@ -63,6 +63,10 @@
     <string name="minigame_win_message">¡Enhorabuena!</string>
     <string name="minigame_lose_message">¡Otra vez lo conseguirás!</string>
     <string name="minigame_win_cards_message">Has ganado cartas</string>
+    <string name="cd_minigames_available">Minijuegos disponibles</string>
+    <string name="minigames_ad_title">No quedan minijuegos</string>
+    <string name="minigames_ad_message">¿Quieres ver un anuncio bonificado para ganar tres minijuegos?</string>
+    <string name="minigames_ad_confirm">Ver anuncio</string>
     <string name="level_title">Nivel %1$d</string>
     <string name="level_complete_message">¡Enhorabuena!</string>
     <string name="objective_pair">Consigue una pareja</string>
