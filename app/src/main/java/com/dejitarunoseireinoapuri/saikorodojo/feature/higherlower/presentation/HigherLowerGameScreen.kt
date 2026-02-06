@@ -301,7 +301,13 @@ fun HigherLowerGameScreen(
                         isTransitioning = uiState.isTransitioning
                     )
                     val showBaseTotal = showTotals
-                    val showCurrentTotal = showTotals
+                    val showCurrentTotal = shouldShowHigherLowerCurrentTotal(
+                        isRolling = uiState.isRolling,
+                        isTransitioning = uiState.isTransitioning,
+                        isCurrentDiceHidden = uiState.isCurrentDiceHidden,
+                        isCurrentDiceAnchoredUp = uiState.isCurrentDiceAnchoredUp,
+                        hasCurrentDice = uiState.currentDiceValues.isNotEmpty()
+                    )
                     val lowerMatColors = higherLowerBottomMatColors(
                         isSuccessHighlighting = uiState.isSuccessHighlighting,
                         isComplete = uiState.isComplete,
@@ -459,6 +465,19 @@ internal fun shouldShowHigherLowerTotals(
     isTransitioning: Boolean
 ): Boolean {
     return !isRolling && !isTransitioning
+}
+
+internal fun shouldShowHigherLowerCurrentTotal(
+    isRolling: Boolean,
+    isTransitioning: Boolean,
+    isCurrentDiceHidden: Boolean,
+    isCurrentDiceAnchoredUp: Boolean,
+    hasCurrentDice: Boolean
+): Boolean {
+    return shouldShowHigherLowerTotals(
+        isRolling = isRolling,
+        isTransitioning = isTransitioning
+    ) && !isCurrentDiceHidden && !isCurrentDiceAnchoredUp && hasCurrentDice
 }
 
 internal enum class HigherLowerChoiceButtonsMode {
