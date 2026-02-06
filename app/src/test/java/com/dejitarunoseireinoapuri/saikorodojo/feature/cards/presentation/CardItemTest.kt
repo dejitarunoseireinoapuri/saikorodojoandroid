@@ -24,7 +24,7 @@ class CardItemTest {
         assertEquals(R.drawable.ic_card_repeat_last, cards[5].iconRes)
         assertEquals(CardId.REPEAT_LAST, cards[5].id)
         assertEquals(R.drawable.ic_card_retry, cards[6].iconRes)
-        assertEquals(CardId.RETRY, cards[6].id)
+        assertEquals(CardId.MINIGAMES, cards[6].id)
     }
 
     @Test

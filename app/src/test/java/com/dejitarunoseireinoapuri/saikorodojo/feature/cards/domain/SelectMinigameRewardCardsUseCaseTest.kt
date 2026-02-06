@@ -27,7 +27,7 @@ class SelectMinigameRewardCardsUseCaseTest {
     }
 
     @Test
-    fun `retry card appears only once`() {
+    fun `minigames card appears only once`() {
         val useCase = SelectMinigameRewardCardsUseCase(
             randomProvider = TestRewardRandomProvider(listOf(0.6f, 0.01f, 0.01f, 0.01f))
         )
@@ -35,11 +35,11 @@ class SelectMinigameRewardCardsUseCaseTest {
         val rewards = useCase.execute()
 
         assertEquals(3, rewards.size)
-        assertEquals(1, rewards.count { it == CardId.RETRY })
+        assertEquals(1, rewards.count { it == CardId.MINIGAMES })
     }
 
     @Test
-    fun `rolls under retry weight select retry when available`() {
+    fun `rolls under minigames weight select minigames when available`() {
         val useCase = SelectMinigameRewardCardsUseCase(
             randomProvider = TestRewardRandomProvider(listOf(0.4f, 0.06f, 0.2f))
         )
@@ -47,7 +47,7 @@ class SelectMinigameRewardCardsUseCaseTest {
         val rewards = useCase.execute()
 
         assertEquals(
-            listOf(CardId.RETRY, CardId.FLIP_FACE),
+            listOf(CardId.MINIGAMES, CardId.FLIP_FACE),
             rewards
         )
     }

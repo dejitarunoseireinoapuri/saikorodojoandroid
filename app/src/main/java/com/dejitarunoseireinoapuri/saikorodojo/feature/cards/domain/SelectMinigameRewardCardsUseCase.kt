@@ -16,7 +16,7 @@ class SelectMinigameRewardCardsUseCase(
     private val randomProvider: RewardCardsRandomProvider = DefaultRewardCardsRandomProvider()
 ) {
     private val standardRewards = rewardCardIds()
-    private val standardWeight = (1f - RETRY_WEIGHT) / standardRewards.size
+    private val standardWeight = (1f - MINIGAMES_WEIGHT) / standardRewards.size
 
     fun execute(): List<CardId> {
         val rewardCount = if (randomProvider.nextFloat() < TWO_CARD_THRESHOLD) {
@@ -25,21 +25,21 @@ class SelectMinigameRewardCardsUseCase(
             MAX_REWARD_CARDS
         }
         val rewards = mutableListOf<CardId>()
-        var retryAvailable = true
+        var minigamesAvailable = true
         repeat(rewardCount) {
-            val reward = selectReward(retryAvailable)
+            val reward = selectReward(minigamesAvailable)
             rewards.add(reward)
-            if (reward == CardId.RETRY) {
-                retryAvailable = false
+            if (reward == CardId.MINIGAMES) {
+                minigamesAvailable = false
             }
         }
         return rewards
     }
 
-    private fun selectReward(retryAvailable: Boolean): CardId {
-        val weightedRewards = if (retryAvailable) {
+    private fun selectReward(minigamesAvailable: Boolean): CardId {
+        val weightedRewards = if (minigamesAvailable) {
             buildList {
-                add(WeightedReward(CardId.RETRY, RETRY_WEIGHT))
+                add(WeightedReward(CardId.MINIGAMES, MINIGAMES_WEIGHT))
                 standardRewards.forEach { id ->
                     add(WeightedReward(id, standardWeight))
                 }
@@ -68,7 +68,7 @@ class SelectMinigameRewardCardsUseCase(
         private const val MIN_REWARD_CARDS = 2
         private const val MAX_REWARD_CARDS = 3
         private const val TWO_CARD_THRESHOLD = 0.5f
-        private const val RETRY_WEIGHT = 0.07f
+        private const val MINIGAMES_WEIGHT = 0.07f
     }
 }
 
