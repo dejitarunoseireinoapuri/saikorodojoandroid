@@ -494,7 +494,7 @@ class GameViewModelTest {
         testDispatcher.scheduler.advanceTimeBy(1)
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(2, viewModel.uiState.value.levelNumber)
-        assertEquals(6, viewModel.uiState.value.minigamesAvailable)
+        assertEquals(5, viewModel.uiState.value.minigamesAvailable)
     }
 
     @Test
