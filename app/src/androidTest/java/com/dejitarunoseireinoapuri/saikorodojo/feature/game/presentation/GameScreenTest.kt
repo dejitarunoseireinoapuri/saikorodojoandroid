@@ -102,4 +102,99 @@ class GameScreenTest {
 
         composeRule.onAllNodesWithText(sumText).assertCountEquals(0)
     }
+
+    @Test
+    fun selectedDiceCountIsNotDisplayedWhenSumIsHidden() {
+        val selectedDice = setOf(0, 1)
+        val uiState = GameUiState(
+            diceValues = listOf(1, 2, 3, 4, 5),
+            diceCount = 5,
+            diceType = DiceType.D6,
+            diceTypes = listOf(
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6
+            ),
+            selectedDice = selectedDice,
+            selectedDiceSum = 3
+        )
+        val countText = composeRule.activity.resources.getQuantityString(
+            R.plurals.selected_dice_count,
+            selectedDice.size,
+            selectedDice.size,
+            uiState.diceValues.size
+        )
+
+        composeRule.setContent {
+            SaikoroDojoTheme {
+                GameScreen(
+                    applySystemBarsPadding = false,
+                    uiState = uiState,
+                    onDiceClick = {},
+                    onCardSelect = {},
+                    onCardDismiss = {},
+                    onCardApply = {},
+                    onAdjustSelectedDie = {},
+                    onSetSelectedDieValue = {},
+                    onRollSelectedDice = {},
+                    onRollSingleDie = {},
+                    onFlipSelectedDie = {},
+                    onConfirmSurrender = {},
+                    onConfirmExit = {},
+                    onOpenRandomMinigame = {},
+                    onConfirmMinigamesAd = {},
+                    onDismissMinigamesAdPrompt = {}
+                )
+            }
+        }
+
+        composeRule.onAllNodesWithText(countText).assertCountEquals(0)
+    }
+
+    @Test
+    fun selectedDiceSumIsDisplayedWhenEnabled() {
+        val uiState = GameUiState(
+            diceValues = listOf(2, 4, 6, 1, 3),
+            diceCount = 5,
+            diceType = DiceType.D6,
+            diceTypes = listOf(
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6
+            ),
+            selectedDice = setOf(0, 1, 2),
+            selectedDiceSum = 12,
+            shouldShowSelectedSum = true
+        )
+        val sumText = composeRule.activity.getString(R.string.selected_dice_sum, 12)
+
+        composeRule.setContent {
+            SaikoroDojoTheme {
+                GameScreen(
+                    applySystemBarsPadding = false,
+                    uiState = uiState,
+                    onDiceClick = {},
+                    onCardSelect = {},
+                    onCardDismiss = {},
+                    onCardApply = {},
+                    onAdjustSelectedDie = {},
+                    onSetSelectedDieValue = {},
+                    onRollSelectedDice = {},
+                    onRollSingleDie = {},
+                    onFlipSelectedDie = {},
+                    onConfirmSurrender = {},
+                    onConfirmExit = {},
+                    onOpenRandomMinigame = {},
+                    onConfirmMinigamesAd = {},
+                    onDismissMinigamesAdPrompt = {}
+                )
+            }
+        }
+
+        composeRule.onAllNodesWithText(sumText).assertCountEquals(1)
+    }
 }
