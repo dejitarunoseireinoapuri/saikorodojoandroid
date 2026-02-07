@@ -541,12 +541,12 @@ private fun DiceRow(
             verticalArrangement = Arrangement.spacedBy(rowSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            rows.forEach { rowValues ->
+            for (rowValues in rows) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(spacing),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    rowValues.forEach { value ->
+                    for (value in rowValues) {
                         BlackjackDieFace(
                             value = value,
                             size = diceSize.coerceAtMost(96.dp)

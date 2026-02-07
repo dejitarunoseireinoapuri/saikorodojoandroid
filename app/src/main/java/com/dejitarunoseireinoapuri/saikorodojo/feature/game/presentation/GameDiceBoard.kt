@@ -239,7 +239,7 @@ internal fun DiceBoard(
                                     rowIndex = rowIndex,
                                     currentValue = currentValue
                                 )
-                                values.forEach { value ->
+                                for (value in values) {
                                     if (value == null) {
                                         Box(modifier = Modifier.size(optionSize))
                                     } else {
@@ -327,7 +327,8 @@ internal fun DiceBoard(
                 .padding(contentPadding),
             contentAlignment = Alignment.TopStart
         ) {
-            uiState.diceValues.forEachIndexed { index, value ->
+            for (index in uiState.diceValues.indices) {
+                val value = uiState.diceValues[index]
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
                 val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
                 val isSelected = uiState.selectedDice.contains(index)

@@ -31,7 +31,8 @@ fun RewardCardStack(
         val totalWidth = cardSize.width + stackSpacing * (cards.size - 1).coerceAtLeast(0)
         val startX = (maxWidth - totalWidth) / 2f
         val centerY = (maxHeight - cardSize.height) / 2f
-        cards.forEachIndexed { index, card ->
+        for (index in cards.indices) {
+            val card = cards[index]
             val isExpanded = expandedIndex == index
             val positionX = startX + stackSpacing * index.toFloat()
             val positionY = centerY - stackRise * index.toFloat()

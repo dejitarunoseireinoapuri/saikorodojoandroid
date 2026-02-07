@@ -354,7 +354,7 @@ fun GameScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                uiState.objectiveLines.forEach { line ->
+                for (line in uiState.objectiveLines) {
                     val objectiveText = when (val text = line.text) {
                         is ObjectiveLineText.StringRes -> {
                             stringResource(text.resId, *text.formatArgs.toTypedArray())
@@ -575,7 +575,8 @@ private fun GameCardStack(
     )
     val stackRise = 8.dp
 
-    cards.forEachIndexed { index, card ->
+    for (index in cards.indices) {
+        val card = cards[index]
         val baseX = startX + stackSpacing * index.toFloat()
         val baseY = bottomY - stackRise * index.toFloat()
         val isSelected = selectedCardIndex == index

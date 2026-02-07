@@ -348,7 +348,7 @@ private fun CardItemPreview() {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            defaultCardUiModels().forEach { card ->
+            for (card in defaultCardUiModels()) {
                 CardItem(card = card, onApplyClick = {})
             }
         }

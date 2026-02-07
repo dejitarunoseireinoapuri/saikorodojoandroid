@@ -648,7 +648,7 @@ private fun HigherLowerDiceRow(
             horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            values.take(2).forEach { value ->
+            for (value in values.take(2)) {
                 HigherLowerDieFace(
                     value = value,
                     size = diceSize,

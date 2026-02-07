@@ -272,7 +272,7 @@ fun SequenceGameScreen(
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            sequenceDecisionActionOrder().forEach { action ->
+                            for (action in sequenceDecisionActionOrder()) {
                                 when (action) {
                                     SequenceDecisionAction.Discard -> SequenceChoiceButton(
                                         label = stringResource(R.string.sequence_discard),
@@ -338,10 +338,10 @@ fun SequenceGameScreen(
                                 horizontalArrangement = Arrangement.spacedBy(spacing),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                sequenceSavedDiceUiState(
+                                for (savedDie in sequenceSavedDiceUiState(
                                     savedValues = uiState.savedValues,
                                     isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
-                                ).forEach { savedDie ->
+                                )) {
                                     SequenceSavedDie(
                                         value = savedDie.value,
                                         size = dieSize,
