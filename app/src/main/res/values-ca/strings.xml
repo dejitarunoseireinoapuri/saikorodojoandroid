@@ -15,6 +15,7 @@
     <plurals name="selected_dice_count">
         <item quantity="one">%1$d de %2$d seleccionat</item>
         <item quantity="other">%1$d de %2$d seleccionats</item>
+        <item quantity="many">%1$d de %2$d seleccionats</item>
     </plurals>
     <string name="select_die_to_reroll">Selecciona un dau per tornar a tirar</string>
     <string name="select_dice_to_reroll">Selecciona els daus per tornar a tirar</string>
@@ -83,6 +84,7 @@
     <plurals name="objective_straight">
         <item quantity="one">Aconsegueix una escala de %1$d dau</item>
         <item quantity="other">Aconsegueix una escala de %1$d daus</item>
+        <item quantity="many">Aconsegueix una escala de %1$d daus</item>
     </plurals>
     <string name="objective_sum_at_least">La suma ha de ser com a mínim %1$d</string>
     <string name="objective_sum_exact">La suma ha de ser %1$d</string>
@@ -97,18 +99,22 @@
     <plurals name="objective_exact_distinct_values">
         <item quantity="one">Selecciona exactament %1$d valor diferent</item>
         <item quantity="other">Selecciona exactament %1$d valors diferents</item>
+        <item quantity="many">Selecciona exactament %1$d valors diferents</item>
     </plurals>
     <plurals name="objective_selected_exact">
         <item quantity="one">%1$d de %2$d seleccionat (exacte)</item>
         <item quantity="other">%1$d de %2$d seleccionats (exacte)</item>
+        <item quantity="many">%1$d de %2$d seleccionats (exacte)</item>
     </plurals>
     <plurals name="objective_at_least_even_values">
         <item quantity="one">Selecciona almenys %1$d dau parell</item>
         <item quantity="other">Selecciona almenys %1$d daus parells</item>
+        <item quantity="many">Selecciona almenys %1$d daus parells</item>
     </plurals>
     <plurals name="objective_at_least_odd_values">
         <item quantity="one">Selecciona almenys %1$d dau senar</item>
         <item quantity="other">Selecciona almenys %1$d daus senars</item>
+        <item quantity="many">Selecciona almenys %1$d daus senars</item>
     </plurals>
     <string name="objective_contains_high_and_low">Conté almenys un valor baix i un d\'alt</string>
     <string name="objective_two_pairs_exact">Aconsegueix exactament dues parelles</string>
@@ -117,6 +123,7 @@
     <plurals name="objective_selected_progress">
         <item quantity="one">%1$d de %2$d seleccionat</item>
         <item quantity="other">%1$d de %2$d seleccionats</item>
+        <item quantity="many">%1$d de %2$d seleccionats</item>
     </plurals>
     <string name="surrender_title">Rendir-se?</string>
     <string name="surrender_message">Vols rendir-te i tornar al menú?</string>

@@ -15,6 +15,7 @@
     <plurals name="selected_dice_count">
         <item quantity="one">%1$d de %2$d seleccionado</item>
         <item quantity="other">%1$d de %2$d seleccionados</item>
+        <item quantity="many">%1$d de %2$d seleccionados</item>
     </plurals>
     <string name="select_die_to_reroll">Selecciona un dado para volver a tirar</string>
     <string name="select_dice_to_reroll">Selecciona los dados a relanzar</string>
@@ -83,6 +84,7 @@
     <plurals name="objective_straight">
         <item quantity="one">Consigue una escalera de %1$d dado</item>
         <item quantity="other">Consigue una escalera de %1$d dados</item>
+        <item quantity="many">Consigue una escalera de %1$d dados</item>
     </plurals>
     <string name="objective_sum_at_least">La suma debe ser al menos %1$d</string>
     <string name="objective_sum_exact">La suma debe ser %1$d</string>
@@ -97,18 +99,22 @@
     <plurals name="objective_exact_distinct_values">
         <item quantity="one">Selecciona exactamente %1$d valor distinto</item>
         <item quantity="other">Selecciona exactamente %1$d valores distintos</item>
+        <item quantity="many">Selecciona exactamente %1$d valores distintos</item>
     </plurals>
     <plurals name="objective_selected_exact">
         <item quantity="one">%1$d de %2$d seleccionado (exacto)</item>
         <item quantity="other">%1$d de %2$d seleccionados (exacto)</item>
+        <item quantity="many">%1$d de %2$d seleccionados (exacto)</item>
     </plurals>
     <plurals name="objective_at_least_even_values">
         <item quantity="one">Selecciona al menos %1$d dado par</item>
         <item quantity="other">Selecciona al menos %1$d dados pares</item>
+        <item quantity="many">Selecciona al menos %1$d dados pares</item>
     </plurals>
     <plurals name="objective_at_least_odd_values">
         <item quantity="one">Selecciona al menos %1$d dado impar</item>
         <item quantity="other">Selecciona al menos %1$d dados impares</item>
+        <item quantity="many">Selecciona al menos %1$d dados impares</item>
     </plurals>
     <string name="objective_contains_high_and_low">Contén al menos un valor bajo y uno alto</string>
     <string name="objective_two_pairs_exact">Consigue exactamente dos parejas</string>
@@ -117,6 +123,7 @@
     <plurals name="objective_selected_progress">
         <item quantity="one">%1$d de %2$d seleccionado</item>
         <item quantity="other">%1$d de %2$d seleccionados</item>
+        <item quantity="many">%1$d de %2$d seleccionados</item>
     </plurals>
     <string name="surrender_title">¿Rendirse?</string>
     <string name="surrender_message">¿Quieres rendirte y volver al menú?</string>
