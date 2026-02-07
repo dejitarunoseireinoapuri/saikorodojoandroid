@@ -13,7 +13,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMiniga
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
-import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
@@ -71,11 +71,11 @@ class BlackjackGameViewModel(
     private val addCardsToInventoryUseCase: AddCardsToInventoryUseCase =
         AddCardsToInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val loadGameSessionUseCase: LoadGameSessionUseCase =
-        LoadGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        LoadGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val saveGameSessionUseCase: SaveGameSessionUseCase =
-        SaveGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
-        GetPendingMainGameSnapshotUseCase(InMemoryGameSessionRepository.shared),
+        GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
