@@ -3,11 +3,11 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
@@ -39,7 +39,8 @@ class BlackjackGameScreenTest {
                     onStartClick = {},
                     onHitClick = {},
                     onStandClick = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
@@ -64,7 +65,8 @@ class BlackjackGameScreenTest {
                     onStartClick = {},
                     onHitClick = {},
                     onStandClick = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
@@ -87,12 +89,13 @@ class BlackjackGameScreenTest {
                     onStartClick = {},
                     onHitClick = {},
                     onStandClick = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
 
-        composeTestRule.onNodeWithText(subtitle).assertDoesNotExist()
+        composeTestRule.onAllNodesWithText(subtitle).assertCountEquals(0)
     }
 
 
@@ -110,7 +113,8 @@ class BlackjackGameScreenTest {
                     onStartClick = {},
                     onHitClick = {},
                     onStandClick = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
@@ -137,13 +141,14 @@ class BlackjackGameScreenTest {
                     onStartClick = {},
                     onHitClick = {},
                     onStandClick = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
 
-        composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).assertExists()
-        composeTestRule.onNodeWithTag(BLACKJACK_PLAYER_MAT_TAG).assertExists()
+        composeTestRule.onAllNodesWithTag(BLACKJACK_DEALER_MAT_TAG).assertCountEquals(1)
+        composeTestRule.onAllNodesWithTag(BLACKJACK_PLAYER_MAT_TAG).assertCountEquals(1)
     }
 
     @Test
@@ -160,7 +165,8 @@ class BlackjackGameScreenTest {
                     onStartClick = {},
                     onHitClick = {},
                     onStandClick = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
@@ -192,7 +198,8 @@ class BlackjackGameScreenTest {
                     onStartClick = {},
                     onHitClick = {},
                     onStandClick = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
