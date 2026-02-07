@@ -45,6 +45,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -351,8 +352,20 @@ fun GameScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 uiState.objectiveLines.forEach { line ->
+                    val objectiveText = when (val text = line.text) {
+                        is ObjectiveLineText.StringRes -> {
+                            stringResource(text.resId, *text.formatArgs.toTypedArray())
+                        }
+                        is ObjectiveLineText.PluralRes -> {
+                            pluralStringResource(
+                                text.resId,
+                                text.quantity,
+                                *text.formatArgs.toTypedArray()
+                            )
+                        }
+                    }
                     Text(
-                        text = stringResource(line.textRes, *line.formatArgs.toTypedArray()),
+                        text = objectiveText,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
                         ),
@@ -378,7 +391,7 @@ fun GameScreen(
                     .navigationBarsPadding()
                     .clipToBounds()
                     .zIndex(1f)
-                    .offset(y = stackOffset)
+                    .offset { IntOffset(0, stackOffset.roundToPx()) }
                     .alpha(stackAlpha)
             ) {
                 GameCardStack(
