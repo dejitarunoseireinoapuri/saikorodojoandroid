@@ -8,7 +8,7 @@ import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SourceCodeProFontFamily
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OxaniunFontFamily
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Assert.assertNotNull
@@ -23,8 +23,8 @@ class MenuScreenTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun themeUsesSourceCodeProFontFamily() {
-        var typographyFontFamily = SourceCodeProFontFamily
+    fun themeUsesOxaniunFontFamily() {
+        var typographyFontFamily = OxaniunFontFamily
 
         composeRule.setContent {
             SaikoroDojoTheme {
@@ -34,7 +34,7 @@ class MenuScreenTest {
 
         composeRule.runOnIdle {
             assertNotNull(typographyFontFamily)
-            assertEquals(SourceCodeProFontFamily, typographyFontFamily)
+            assertEquals(OxaniunFontFamily, typographyFontFamily)
         }
     }
 

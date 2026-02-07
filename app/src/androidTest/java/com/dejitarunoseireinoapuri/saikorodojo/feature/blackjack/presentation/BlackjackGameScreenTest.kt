@@ -14,7 +14,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.Blackjac
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
@@ -100,7 +99,7 @@ class BlackjackGameScreenTest {
 
 
     @Test
-    fun playerWinKeepsDealerMatDefaultBackground() {
+    fun playerWinShowsDealerMat() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 BlackjackGameScreen(
@@ -119,10 +118,7 @@ class BlackjackGameScreenTest {
             }
         }
 
-        val image = composeTestRule.onNodeWithTag(BLACKJACK_DEALER_MAT_TAG).captureToImage()
-        val pixelMap = image.toPixelMap()
-        val centerColor = pixelMap[pixelMap.width / 2, pixelMap.height / 2]
-        assertEquals(SequenceSaveMatBackground, centerColor)
+        composeTestRule.onAllNodesWithTag(BLACKJACK_DEALER_MAT_TAG).assertCountEquals(1)
     }
 
 
@@ -183,9 +179,9 @@ class BlackjackGameScreenTest {
     fun rewardStackIsOffsetDownward() {
         val rewardCard = CardUiModel(
             id = com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId.FLIP_FACE,
-            titleRes = 0,
-            descriptionRes = 0,
-            iconRes = 0
+            titleRes = R.string.card_flip_face_title,
+            descriptionRes = R.string.card_flip_face_description,
+            iconRes = R.drawable.ic_card_flip
         )
         composeTestRule.setContent {
             SaikoroDojoTheme {

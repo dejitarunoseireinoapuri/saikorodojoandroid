@@ -41,9 +41,9 @@ class HigherLowerGameScreenTest {
     fun rewardStackIsOffsetDownward() {
         val rewardCard = CardUiModel(
             id = com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId.FLIP_FACE,
-            titleRes = 0,
-            descriptionRes = 0,
-            iconRes = 0
+            titleRes = R.string.card_flip_face_title,
+            descriptionRes = R.string.card_flip_face_description,
+            iconRes = R.drawable.ic_card_flip
         )
         composeTestRule.setContent {
             SaikoroDojoTheme {
