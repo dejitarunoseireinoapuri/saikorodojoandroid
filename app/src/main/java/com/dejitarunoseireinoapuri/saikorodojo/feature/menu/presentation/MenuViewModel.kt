@@ -7,7 +7,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.AddCardsToIn
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.ResetCardInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectStartingCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
-import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.HasSavedGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
@@ -42,11 +42,11 @@ sealed interface MenuUiEffect {
 
 class MenuViewModel(
     private val hasSavedGameSessionUseCase: HasSavedGameSessionUseCase =
-        HasSavedGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        HasSavedGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val loadGameSessionUseCase: LoadGameSessionUseCase =
-        LoadGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        LoadGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val clearGameSessionUseCase: ClearGameSessionUseCase =
-        ClearGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val resetCardInventoryUseCase: ResetCardInventoryUseCase =
         ResetCardInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val addCardsToInventoryUseCase: AddCardsToInventoryUseCase =

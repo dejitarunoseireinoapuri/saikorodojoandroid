@@ -16,12 +16,14 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuRou
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuDestination
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddEvenGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation.SequenceGameRoute
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.navigation.AppRoutes
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GameSessionRepositoryProvider.initialize(this)
         enableEdgeToEdge()
         MobileAds.initialize(this)
         setContent {
