@@ -281,8 +281,6 @@ fun GameScreen(
         BackHandler(enabled = !showExitDialog && !showSurrenderDialog) {
             showExitDialog = true
         }
-        val constraintsWidth = maxWidth
-        val constraintsHeight = maxHeight
         val shouldHideCards = uiState.isAwaitingRerollSingle ||
             uiState.isAwaitingRerollSelected ||
             uiState.isAwaitingFlipFace ||
@@ -401,8 +399,8 @@ fun GameScreen(
                     cards = uiState.cardUiModels,
                     selectedCardIndex = uiState.selectedCardIndex,
                     lastAppliedCardId = uiState.lastAppliedCardId,
-                    maxWidth = constraintsWidth,
-                    maxHeight = constraintsHeight,
+                    maxWidth = maxWidth,
+                    maxHeight = maxHeight,
                     isInteractionEnabled = !shouldHideCards,
                     onCardSelect = onCardSelect,
                     onCardDismiss = onCardDismiss,
