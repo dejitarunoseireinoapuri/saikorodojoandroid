@@ -260,32 +260,30 @@ class GenerateObjectiveUseCase {
             diceCount = diceCount,
             stage = stage
         ).coerceIn(1, diceCount)
-        val maxSelectable = diceCount
-        val minimumPossibleSum = minSelectable
-        val maximumPossibleSum = maxSelectable * maxDieValue
+        val maximumPossibleSum = diceCount * maxDieValue
         val randomValuesPool = List(maxDieValue) { it + 1 }
         val sumDifficultyFactor = (stage - 1).coerceAtLeast(0)
         val exactTarget = buildRandomExactTarget(
-            minimumPossibleSum = minimumPossibleSum,
+            minimumPossibleSum = minSelectable,
             maximumPossibleSum = maximumPossibleSum,
             sumDifficultyFactor = sumDifficultyFactor,
             random = random
         )
         val atLeastThreshold = buildRandomAtLeastThreshold(
-            minimumPossibleSum = minimumPossibleSum,
+            minimumPossibleSum = minSelectable,
             maximumPossibleSum = maximumPossibleSum,
             sumDifficultyFactor = sumDifficultyFactor,
             random = random
         )
         val rangeCondition = buildRandomRangeCondition(
-            minimumPossibleSum = minimumPossibleSum,
+            minimumPossibleSum = minSelectable,
             maximumPossibleSum = maximumPossibleSum,
             sumDifficultyFactor = sumDifficultyFactor,
             random = random
         )
         val candidates = buildObjectiveCandidates(
             stage = stage,
-            maxSelectable = maxSelectable,
+            maxSelectable = diceCount,
             maxDieValue = maxDieValue,
             randomValuesPool = randomValuesPool,
             exactTarget = exactTarget,
@@ -491,70 +489,6 @@ private const val MIN_DICE = 5
 private const val DICE_INCREMENT = 3
 private const val MAX_DICE = 20
 
-private fun canFormStraight(values: List<Int>, length: Int): Boolean {
-    if (values.size < length) return false
-    var streak = 1
-    for (index in 1 until values.size) {
-        if (values[index] == values[index - 1] + 1) {
-            streak += 1
-            if (streak >= length) return true
-        } else {
-            streak = 1
-        }
-    }
-    return false
-}
-
-private fun canFullHouse(counts: Map<Int, Int>): Boolean {
-    val sorted = counts.values.sortedDescending()
-    return sorted.size >= 2 && sorted[0] >= 3 && sorted[1] >= 2
-}
-
-private fun buildMultiplicityValues(counts: Map<Int, Int>, random: Random): List<Int> {
-    val pairValue = counts.entries.firstOrNull { it.value >= 2 }?.key ?: return emptyList()
-    val otherValue = counts.keys.filterNot { it == pairValue }.ifEmpty { listOf(pairValue) }
-        .random(random)
-    return listOf(pairValue, pairValue, otherValue)
-}
-
-private fun pickExactSumTarget(
-    diceValues: List<Int>,
-    minimumSelectionCount: Int,
-    random: Random
-): Int {
-    val candidates = possibleSumsAtLeastCount(diceValues, minimumSelectionCount)
-    return candidates.random(random)
-}
-
-private fun buildSumRange(
-    diceValues: List<Int>,
-    minimumSelectionCount: Int,
-    random: Random
-): SumInRangeCondition {
-    val totalSum = diceValues.sum()
-    val minSum = minimumSelectionSum(diceValues, minimumSelectionCount)
-    val maxSum = totalSum
-    val spread = maxOf(2, (maxSum - minSum) / 2)
-    val base = (totalSum - spread).coerceAtLeast(minSum)
-    val top = (totalSum + spread).coerceAtMost(maxSum)
-    val start = minOf(base, top - 1)
-    val end = maxOf(start + 1, top)
-    return SumInRangeCondition(min = start, max = end)
-}
-
-private fun buildForbiddenValues(values: List<Int>, maxValue: Int, random: Random): List<Int> {
-    val candidates = (1..maxValue).filterNot { it in values }
-    return if (candidates.isNotEmpty()) {
-        listOf(candidates.random(random))
-    } else {
-        values.shuffled(random).take(1)
-    }
-}
-
-private fun hasValueOutside(diceValues: List<Int>, forbidden: List<Int>): Boolean {
-    return diceValues.any { it !in forbidden }
-}
-
 private fun valueCounts(values: List<Int>): Map<Int, Int> {
     return values.groupingBy { it }.eachCount()
 }
@@ -569,14 +503,6 @@ internal fun minimumSelectionCountForLevel(
     } else {
         baseMinimum
     }
-}
-
-private fun minimumSelectionSum(
-    diceValues: List<Int>,
-    minimumSelectionCount: Int
-): Int {
-    val sorted = diceValues.sorted()
-    return sorted.take(minimumSelectionCount.coerceAtMost(sorted.size)).sum()
 }
 
 internal fun possibleSumsAtLeastCount(

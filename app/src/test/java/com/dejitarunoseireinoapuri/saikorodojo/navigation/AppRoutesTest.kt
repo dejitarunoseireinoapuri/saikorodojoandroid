@@ -6,6 +6,6 @@ import org.junit.Test
 class AppRoutesTest {
     @Test
     fun `play destination points to main game`() {
-        assertEquals(AppRoutes.Game, AppRoutes.PlayDestination)
+        assertEquals(AppRoutes.GAME, AppRoutes.PLAY_DESTINATION)
     }
 }

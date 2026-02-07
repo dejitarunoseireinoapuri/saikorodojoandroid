@@ -85,8 +85,7 @@ class MenuViewModel(
     }
 
     private fun handleContinue() {
-        val session = loadGameSessionUseCase.execute()
-        val destination = when (session) {
+        val destination = when (val session = loadGameSessionUseCase.execute()) {
             is SavedSession.MainGame -> MenuDestination.MainGame(resetSession = false)
             is SavedSession.Minigame -> MenuDestination.Minigame(session.minigameType)
             null -> {

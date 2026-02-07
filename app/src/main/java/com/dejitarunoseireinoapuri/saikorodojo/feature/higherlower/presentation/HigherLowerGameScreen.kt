@@ -255,7 +255,6 @@ fun HigherLowerGameScreen(
                                         }
                                     ),
                                     isEnabled = false,
-                                    isVisible = true,
                                     onClick = {},
                                     modifier = Modifier.align(Alignment.Center)
                                 )
@@ -271,13 +270,11 @@ fun HigherLowerGameScreen(
                             HigherLowerChoiceButton(
                                 label = stringResource(R.string.higher_lower_lower),
                                 isEnabled = uiState.selectedChoice == null,
-                                isVisible = true,
                                 onClick = { onChoiceSelect(HigherLowerChoice.LOWER) }
                             )
                             HigherLowerChoiceButton(
                                 label = stringResource(R.string.higher_lower_higher),
                                 isEnabled = uiState.selectedChoice == null,
-                                isVisible = true,
                                 onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
                             )
                         }
@@ -355,7 +352,6 @@ fun HigherLowerGameScreen(
                         isRolling = uiState.isRolling,
                         isTransitioning = uiState.isTransitioning
                     )
-                    val showBaseTotal = showTotals
                     val showCurrentTotal = shouldShowHigherLowerCurrentTotal(
                         isRolling = uiState.isRolling,
                         isTransitioning = uiState.isTransitioning,
@@ -382,7 +378,7 @@ fun HigherLowerGameScreen(
                         ) {
                             HigherLowerSumLabel(
                                 sum = baseSum,
-                                isVisible = showBaseTotal && baseSum != null
+                                isVisible = showTotals && baseSum != null
                             )
                             HigherLowerMat(
                                 modifier = Modifier
@@ -528,11 +524,9 @@ fun HigherLowerGameScreen(
 private fun HigherLowerChoiceButton(
     label: String,
     isEnabled: Boolean,
-    isVisible: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (!isVisible) return
     Button(
         onClick = onClick,
         enabled = isEnabled,

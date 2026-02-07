@@ -33,7 +33,7 @@ class GameViewModelFlipFaceTest {
             getCardInventoryUseCase = GetCardInventoryUseCase(repository),
             consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(repository),
             initialLevelDefinition = levelDefinition,
-            cardUiModels = listOf(flipFaceCard(count = 2))
+            cardUiModels = listOf(flipFaceCard())
         )
 
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
@@ -54,13 +54,13 @@ class GameViewModelFlipFaceTest {
         assertTrue(!afterFlip.isAwaitingFlipFace)
     }
 
-    private fun flipFaceCard(count: Int = 1): CardUiModel {
+    private fun flipFaceCard(): CardUiModel {
         return CardUiModel(
             id = CardId.FLIP_FACE,
             titleRes = R.string.card_flip_face_title,
             descriptionRes = R.string.card_flip_face_description,
             iconRes = R.drawable.ic_card_flip,
-            count = count
+            count = 2
         )
     }
 }
