@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 
 private val AppColorScheme = darkColorScheme(
@@ -41,7 +42,7 @@ internal val LocalGradientColors = staticCompositionLocalOf { AppGradientColors 
 
 @Composable
 fun SaikoroDojoTheme(
-    content: @Composable () -> Unit
+    content: @Composable @UiComposable () -> Unit
 ) {
     val colorScheme = AppColorScheme
 

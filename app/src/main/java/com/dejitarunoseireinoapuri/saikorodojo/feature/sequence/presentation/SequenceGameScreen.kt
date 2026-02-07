@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -527,7 +528,7 @@ private fun SequenceMat(
     backgroundColor: Color,
     borderColor: Color,
     contentAlignment: Alignment = Alignment.Center,
-    content: @Composable () -> Unit
+    content: @Composable @UiComposable () -> Unit
 ) {
     Box(
         modifier = modifier

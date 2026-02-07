@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -612,7 +613,7 @@ private fun HigherLowerMat(
     modifier: Modifier,
     backgroundColor: Color,
     borderColor: Color,
-    content: @Composable () -> Unit
+    content: @Composable @UiComposable () -> Unit
 ) {
     Box(
         modifier = modifier
