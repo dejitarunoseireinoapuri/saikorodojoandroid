@@ -155,7 +155,7 @@ class GameViewModel(
         ConsumeCardFromInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val setCardInventoryUseCase: SetCardInventoryUseCase =
         SetCardInventoryUseCase(InMemoryCardInventoryRepository.shared),
-    private val loadGameSessionUseCase: LoadGameSessionUseCase =
+    loadGameSessionUseCase: LoadGameSessionUseCase =
         LoadGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val saveGameSessionUseCase: SaveGameSessionUseCase =
         SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
@@ -166,12 +166,12 @@ class GameViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
-    private val layoutSeedProvider: () -> Long = { Random.Default.nextLong() },
-    private val baseSeedProvider: () -> Long = { Random.Default.nextLong() },
-    private val initialLevelDefinition: LevelDefinition? = null,
+    private val layoutSeedProvider: () -> Long = { Random.nextLong() },
+    baseSeedProvider: () -> Long = { Random.nextLong() },
+    initialLevelDefinition: LevelDefinition? = null,
     cardUiModels: List<CardUiModel> = emptyList()
 ) : ViewModel() {
-    private var baseSeed = baseSeedProvider()
+    private var baseSeed = 0L
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState
 
@@ -186,6 +186,7 @@ class GameViewModel(
     private var shouldAutoStartRoll = true
 
     init {
+        baseSeed = baseSeedProvider()
         val restoredSession = loadGameSessionUseCase.execute()
         val restoredSnapshot = when (restoredSession) {
             is SavedSession.MainGame -> restoredSession.snapshot
@@ -1144,7 +1145,7 @@ class GameViewModel(
 
     private fun pickMinigame(): MinigameType {
         val values = MinigameType.entries
-        return values[Random.Default.nextInt(values.size)]
+        return values[Random.nextInt(values.size)]
     }
 
     private fun buildObjectiveLines(
