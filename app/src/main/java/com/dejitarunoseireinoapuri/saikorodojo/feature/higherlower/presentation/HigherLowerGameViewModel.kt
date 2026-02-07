@@ -12,7 +12,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.Higher
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerRoll
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.RollHigherLowerUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
@@ -73,11 +73,11 @@ class HigherLowerGameViewModel(
     private val addCardsToInventoryUseCase: AddCardsToInventoryUseCase =
         AddCardsToInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val loadGameSessionUseCase: LoadGameSessionUseCase =
-        LoadGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        LoadGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val saveGameSessionUseCase: SaveGameSessionUseCase =
-        SaveGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
-        GetPendingMainGameSnapshotUseCase(InMemoryGameSessionRepository.shared),
+        GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
