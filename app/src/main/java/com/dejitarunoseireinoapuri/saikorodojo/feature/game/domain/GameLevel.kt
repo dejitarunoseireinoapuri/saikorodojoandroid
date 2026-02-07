@@ -504,31 +504,3 @@ internal fun minimumSelectionCountForLevel(
         baseMinimum
     }
 }
-
-internal fun possibleSumsAtLeastCount(
-    diceValues: List<Int>,
-    minimumSelectionCount: Int
-): List<Int> {
-    val maxSum = diceValues.sum()
-    val maxCount = diceValues.size
-    val dp = Array(maxCount + 1) { BooleanArray(maxSum + 1) }
-    dp[0][0] = true
-    diceValues.forEach { value ->
-        for (count in maxCount downTo 1) {
-            for (sum in maxSum downTo value) {
-                if (dp[count - 1][sum - value]) {
-                    dp[count][sum] = true
-                }
-            }
-        }
-    }
-    val sums = mutableSetOf<Int>()
-    for (count in minimumSelectionCount..maxCount) {
-        for (sum in 0..maxSum) {
-            if (dp[count][sum]) {
-                sums.add(sum)
-            }
-        }
-    }
-    return sums.ifEmpty { setOf(maxSum) }.toList()
-}

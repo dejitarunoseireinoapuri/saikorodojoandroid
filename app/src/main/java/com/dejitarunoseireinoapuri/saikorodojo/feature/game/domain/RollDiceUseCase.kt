@@ -19,7 +19,7 @@ fun interface DiceRandomProvider {
 
 class DefaultDiceRandomProvider : DiceRandomProvider {
     override fun nextInt(from: Int, until: Int): Int {
-        return Random.Default.nextInt(from, until)
+        return Random.nextInt(from, until)
     }
 }
 
