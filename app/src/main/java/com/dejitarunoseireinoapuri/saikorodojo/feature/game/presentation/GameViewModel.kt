@@ -42,7 +42,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDi
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SatisfyAndAvoidCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ThreeOfKindWithValueCondition
-import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameRollSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameUiSnapshot
@@ -144,13 +144,13 @@ class GameViewModel(
     private val setCardInventoryUseCase: SetCardInventoryUseCase =
         SetCardInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val loadGameSessionUseCase: LoadGameSessionUseCase =
-        LoadGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        LoadGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val saveGameSessionUseCase: SaveGameSessionUseCase =
-        SaveGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val clearGameSessionUseCase: ClearGameSessionUseCase =
-        ClearGameSessionUseCase(InMemoryGameSessionRepository.shared),
+        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val savePendingMainGameSnapshotUseCase: SavePendingMainGameSnapshotUseCase =
-        SavePendingMainGameSnapshotUseCase(InMemoryGameSessionRepository.shared),
+        SavePendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -228,6 +228,11 @@ class GameViewModel(
             GameUiEvent.DismissMinigamesAdPrompt -> dismissMinigamesAdPrompt()
             GameUiEvent.MinigamesAdCompleted -> grantMinigamesFromAd()
         }
+    }
+
+    fun saveSession() {
+        val snapshot = buildMainGameSnapshot()
+        saveGameSessionUseCase.execute(SavedSession.MainGame(snapshot))
     }
 
     private fun isCardInteractionBlocked(): Boolean {
