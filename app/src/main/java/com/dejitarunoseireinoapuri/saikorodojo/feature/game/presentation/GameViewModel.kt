@@ -184,6 +184,7 @@ class GameViewModel(
     private var currentObjective: LevelObjective? = null
     private var currentLevelNumber: Int = 1
     private var shouldAutoStartRoll = true
+    private var allowSessionSaving = true
 
     init {
         baseSeed = baseSeedProvider()
@@ -244,6 +245,7 @@ class GameViewModel(
     }
 
     fun saveSession() {
+        if (!allowSessionSaving) return
         val snapshot = buildMainGameSnapshot()
         saveGameSessionUseCase.execute(SavedSession.MainGame(snapshot))
     }
@@ -294,6 +296,7 @@ class GameViewModel(
     }
 
     private fun confirmSurrender() {
+        allowSessionSaving = false
         clearGameSessionUseCase.execute()
         viewModelScope.launch(dispatcher) {
             _effects.emit(GameUiEffect.NavigateToMenu(resetProgress = true))

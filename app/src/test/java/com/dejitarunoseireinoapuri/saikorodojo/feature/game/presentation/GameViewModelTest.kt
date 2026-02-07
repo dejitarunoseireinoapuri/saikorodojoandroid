@@ -9,6 +9,12 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceRandomPro
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.take
@@ -498,6 +504,20 @@ class GameViewModelTest {
         assertTrue(viewModel.uiState.value.cardUiModels.isEmpty())
     }
 
+    @Test
+    fun `surrender clears saved session and blocks later saves`() = runTest {
+        val sessionRepository = InMemoryGameSessionRepository()
+        val viewModel = buildViewModel(sessionRepository = sessionRepository)
+
+        viewModel.saveSession()
+        assertTrue(sessionRepository.loadSession() is SavedSession.MainGame)
+
+        viewModel.onEvent(GameUiEvent.ConfirmSurrender)
+        viewModel.saveSession()
+
+        assertEquals(null, sessionRepository.loadSession())
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(
@@ -507,7 +527,8 @@ class GameViewModelTest {
                 descriptionRes = 0,
                 iconRes = 0
             )
-        )
+        ),
+        sessionRepository: GameSessionRepository = InMemoryGameSessionRepository()
     ): GameViewModel {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
@@ -519,6 +540,9 @@ class GameViewModelTest {
             rollDiceUseCase = rollDiceUseCase,
             getCardInventoryUseCase = GetCardInventoryUseCase(repository),
             consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(repository),
+            loadGameSessionUseCase = LoadGameSessionUseCase(sessionRepository),
+            saveGameSessionUseCase = SaveGameSessionUseCase(sessionRepository),
+            clearGameSessionUseCase = ClearGameSessionUseCase(sessionRepository),
             dispatcher = testDispatcher,
             rollDurationMs = 1L,
             tickMs = 1L,
