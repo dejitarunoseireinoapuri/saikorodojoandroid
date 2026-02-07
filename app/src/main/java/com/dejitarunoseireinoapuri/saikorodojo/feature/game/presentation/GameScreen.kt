@@ -261,12 +261,15 @@ fun GameScreen(
     onConfirmMinigamesAd: () -> Unit,
     onDismissMinigamesAdPrompt: () -> Unit
 ) {
-    var containerModifier = modifier
+    val containerModifier = modifier
         .fillMaxSize()
-    if (applySystemBarsPadding) {
-        containerModifier = containerModifier.systemBarsPadding()
-    }
-    containerModifier = containerModifier
+        .let { baseModifier ->
+            if (applySystemBarsPadding) {
+                baseModifier.systemBarsPadding()
+            } else {
+                baseModifier
+            }
+        }
         .padding(contentPadding)
         .background(MaterialTheme.colorScheme.background)
     BoxWithConstraints(

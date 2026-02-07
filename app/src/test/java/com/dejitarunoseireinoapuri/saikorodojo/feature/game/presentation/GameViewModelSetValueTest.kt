@@ -33,7 +33,15 @@ class GameViewModelSetValueTest {
             getCardInventoryUseCase = GetCardInventoryUseCase(repository),
             consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(repository),
             initialLevelDefinition = levelDefinition,
-            cardUiModels = listOf(setValueCard())
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.SET_VALUE,
+                    titleRes = R.string.card_set_value_title,
+                    descriptionRes = R.string.card_set_value_description,
+                    iconRes = R.drawable.ic_card_set_value,
+                    count = 1
+                )
+            )
         )
 
         viewModel.onEvent(GameUiEvent.DiceClicked(0))
@@ -59,7 +67,15 @@ class GameViewModelSetValueTest {
             getCardInventoryUseCase = GetCardInventoryUseCase(repository),
             consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(repository),
             initialLevelDefinition = levelDefinition,
-            cardUiModels = listOf(setValueCard(count = 2))
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.SET_VALUE,
+                    titleRes = R.string.card_set_value_title,
+                    descriptionRes = R.string.card_set_value_description,
+                    iconRes = R.drawable.ic_card_set_value,
+                    count = 2
+                )
+            )
         )
 
         viewModel.onEvent(GameUiEvent.ApplyCard(0))
@@ -76,13 +92,4 @@ class GameViewModelSetValueTest {
         assertTrue(!afterSet.isAwaitingSetValue)
     }
 
-    private fun setValueCard(count: Int = 1): CardUiModel {
-        return CardUiModel(
-            id = CardId.SET_VALUE,
-            titleRes = R.string.card_set_value_title,
-            descriptionRes = R.string.card_set_value_description,
-            iconRes = R.drawable.ic_card_set_value,
-            count = count
-        )
-    }
 }

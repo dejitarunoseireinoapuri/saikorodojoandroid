@@ -3,7 +3,6 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation
 import com.dejitarunoseireinoapuri.saikorodojo.MainDispatcherRule
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardInventoryRepository
-import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.RewardCardsRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectStartingCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.AddCardsToInventoryUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.ResetCardInventoryUseCase
@@ -43,7 +42,7 @@ class MenuViewModelTest {
             resetCardInventoryUseCase = ResetCardInventoryUseCase(cardRepo),
             addCardsToInventoryUseCase = AddCardsToInventoryUseCase(cardRepo),
             selectStartingCardsUseCase = SelectStartingCardsUseCase(
-                randomProvider = RewardCardsRandomProvider { 0f }
+                randomProvider = { 0f }
             )
         )
 
@@ -67,7 +66,7 @@ class MenuViewModelTest {
             resetCardInventoryUseCase = ResetCardInventoryUseCase(cardRepo),
             addCardsToInventoryUseCase = AddCardsToInventoryUseCase(cardRepo),
             selectStartingCardsUseCase = SelectStartingCardsUseCase(
-                randomProvider = RewardCardsRandomProvider { 0f }
+                randomProvider = { 0f }
             )
         )
 
@@ -89,7 +88,7 @@ class MenuViewModelTest {
             resetCardInventoryUseCase = ResetCardInventoryUseCase(cardRepo),
             addCardsToInventoryUseCase = AddCardsToInventoryUseCase(cardRepo),
             selectStartingCardsUseCase = SelectStartingCardsUseCase(
-                randomProvider = RewardCardsRandomProvider { 0f }
+                randomProvider = { 0f }
             )
         )
 
