@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -91,20 +90,10 @@ internal fun DiceBoard(
     val boardYOffset = 24.dp
     val diceTextScale = calculateDiceTextScale(diceSize)
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        if (uiState.selectedDice.isNotEmpty()) {
+        if (uiState.selectedDice.isNotEmpty() && uiState.shouldShowSelectedSum) {
             val sumOffset = -(boardHeight / 2 + 42.dp)
-            val selectionText = if (uiState.shouldShowSelectedSum) {
-                stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum)
-            } else {
-                pluralStringResource(
-                    R.plurals.selected_dice_count,
-                    uiState.selectedDice.size,
-                    uiState.selectedDice.size,
-                    uiState.diceValues.size
-                )
-            }
             Text(
-                text = selectionText,
+                text = stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum),
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(y = sumOffset),
