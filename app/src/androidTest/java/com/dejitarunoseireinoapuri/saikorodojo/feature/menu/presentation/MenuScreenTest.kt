@@ -47,8 +47,12 @@ class MenuScreenTest {
                 MenuScreen(
                     contentPadding = PaddingValues(top = topPadding),
                     applySystemBarsPadding = false,
+                    showContinueDialog = false,
                     onPlayClick = {},
-                    onRulesClick = {}
+                    onRulesClick = {},
+                    onContinueGame = {},
+                    onStartNewGame = {},
+                    onDismissDialog = {}
                 )
             }
         }
@@ -65,8 +69,12 @@ class MenuScreenTest {
             SaikoroDojoTheme {
                 MenuScreen(
                     applySystemBarsPadding = false,
+                    showContinueDialog = false,
                     onPlayClick = {},
-                    onRulesClick = {}
+                    onRulesClick = {},
+                    onContinueGame = {},
+                    onStartNewGame = {},
+                    onDismissDialog = {}
                 )
             }
         }

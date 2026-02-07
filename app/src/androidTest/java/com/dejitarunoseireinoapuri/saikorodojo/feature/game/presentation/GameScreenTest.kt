@@ -2,8 +2,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
@@ -35,20 +35,29 @@ class GameScreenTest {
         val titleText = composeRule.activity.getString(R.string.game_title)
 
         composeRule.setContent {
-            SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
+            SaikoroDojoTheme {
                 GameScreen(
                     applySystemBarsPadding = false,
                     uiState = uiState,
                     onDiceClick = {},
                     onCardSelect = {},
                     onCardDismiss = {},
-                    onCardApply = {}
+                    onCardApply = {},
+                    onAdjustSelectedDie = {},
+                    onSetSelectedDieValue = {},
+                    onRollSelectedDice = {},
+                    onRollSingleDie = {},
+                    onFlipSelectedDie = {},
+                    onConfirmSurrender = {},
+                    onConfirmExit = {},
+                    onOpenRandomMinigame = {},
+                    onConfirmMinigamesAd = {},
+                    onDismissMinigamesAdPrompt = {}
                 )
             }
         }
 
-        composeRule.onNodeWithText(titleText)
-            .assertDoesNotExist()
+        composeRule.onAllNodesWithText(titleText).assertCountEquals(0)
     }
 
     @Test
@@ -69,19 +78,28 @@ class GameScreenTest {
         val sumText = composeRule.activity.getString(R.string.selected_dice_sum, 12)
 
         composeRule.setContent {
-            SaikoroDojoTheme(darkTheme = false, dynamicColor = false) {
+            SaikoroDojoTheme {
                 GameScreen(
                     applySystemBarsPadding = false,
                     uiState = uiState,
                     onDiceClick = {},
                     onCardSelect = {},
                     onCardDismiss = {},
-                    onCardApply = {}
+                    onCardApply = {},
+                    onAdjustSelectedDie = {},
+                    onSetSelectedDieValue = {},
+                    onRollSelectedDice = {},
+                    onRollSingleDie = {},
+                    onFlipSelectedDie = {},
+                    onConfirmSurrender = {},
+                    onConfirmExit = {},
+                    onOpenRandomMinigame = {},
+                    onConfirmMinigamesAd = {},
+                    onDismissMinigamesAdPrompt = {}
                 )
             }
         }
 
-        composeRule.onNodeWithText(sumText)
-            .assertDoesNotExist()
+        composeRule.onAllNodesWithText(sumText).assertCountEquals(0)
     }
 }
