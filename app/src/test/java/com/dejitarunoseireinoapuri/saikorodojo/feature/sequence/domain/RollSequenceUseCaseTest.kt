@@ -8,7 +8,7 @@ class RollSequenceUseCaseTest {
     fun `execute uses ten-sided die range by default`() {
         var capturedRange: IntRange? = null
         val useCase = RollSequenceUseCase(
-            diceRoller = DiceRoller { range ->
+            diceRoller = { range ->
                 capturedRange = range
                 7
             }

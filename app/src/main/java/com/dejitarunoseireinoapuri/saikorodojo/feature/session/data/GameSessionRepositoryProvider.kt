@@ -17,8 +17,4 @@ object GameSessionRepositoryProvider {
             file = File(context.filesDir, STORE_FILE_NAME)
         )
     }
-
-    fun configure(repository: GameSessionRepository) {
-        this.repository = repository
-    }
 }

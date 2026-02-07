@@ -494,8 +494,8 @@ private fun BlackjackActionButton(
 private fun BlackjackMat(
     modifier: Modifier,
     contentAlignment: Alignment,
-    backgroundColor: androidx.compose.ui.graphics.Color,
-    borderColor: androidx.compose.ui.graphics.Color,
+    backgroundColor: Color,
+    borderColor: Color,
     content: @Composable () -> Unit
 ) {
     Box(

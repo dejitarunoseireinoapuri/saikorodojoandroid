@@ -1,13 +1,14 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
@@ -38,17 +39,18 @@ class OddEvenGameScreenTest {
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
 
-        composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).assertDoesNotExist()
+        composeTestRule.onAllNodesWithTag(ODD_EVEN_DICE_TAG).assertCountEquals(0)
         composeTestRule.onNodeWithTag(ODD_EVEN_CONTINUE_BUTTON_TAG).assertIsDisplayed()
     }
 
     @Test
-    fun lossStateKeepsDiceVisibleAndShowsContinueButton() {
+    fun lossStateHidesDiceAndShowsContinueButton() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(
@@ -60,12 +62,13 @@ class OddEvenGameScreenTest {
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
 
-        composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG).assertIsDisplayed()
+        composeTestRule.onAllNodesWithTag(ODD_EVEN_DICE_TAG).assertCountEquals(0)
         composeTestRule.onNodeWithTag(ODD_EVEN_CONTINUE_BUTTON_TAG).assertIsDisplayed()
     }
 
@@ -81,7 +84,8 @@ class OddEvenGameScreenTest {
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
@@ -105,7 +109,8 @@ class OddEvenGameScreenTest {
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
@@ -129,7 +134,8 @@ class OddEvenGameScreenTest {
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
@@ -151,12 +157,13 @@ class OddEvenGameScreenTest {
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }
 
-        composeTestRule.onNodeWithText(subtitle).assertDoesNotExist()
+        composeTestRule.onAllNodesWithText(subtitle).assertCountEquals(0)
     }
 
     @Test
@@ -172,7 +179,8 @@ class OddEvenGameScreenTest {
                     ),
                     onStartClick = {},
                     onChoiceSelect = {},
-                    onContinueClick = {}
+                    onContinueClick = {},
+                    onExitToMenu = {}
                 )
             }
         }

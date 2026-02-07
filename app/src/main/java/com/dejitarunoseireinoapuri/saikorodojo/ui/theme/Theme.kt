@@ -37,25 +37,15 @@ private val AppGradientColors = SaikoroDojoGradientColors(
     menuGameBottom = LightMenuGameGradientBottom
 )
 
-internal fun gradientColors(): SaikoroDojoGradientColors {
-    return AppGradientColors
-}
-
 internal val LocalGradientColors = staticCompositionLocalOf { AppGradientColors }
-
-object SaikoroDojoThemeColors {
-    val gradientColors: SaikoroDojoGradientColors
-        @Composable get() = LocalGradientColors.current
-}
 
 @Composable
 fun SaikoroDojoTheme(
     content: @Composable () -> Unit
 ) {
-    val gradientColors = gradientColors()
     val colorScheme = AppColorScheme
 
-    CompositionLocalProvider(LocalGradientColors provides gradientColors) {
+    CompositionLocalProvider(LocalGradientColors provides AppGradientColors) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
