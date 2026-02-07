@@ -13,11 +13,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 
 @Composable
+@UiComposable
 fun RewardCardStack(
     cards: List<CardUiModel>,
     modifier: Modifier = Modifier

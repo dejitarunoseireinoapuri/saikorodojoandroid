@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -71,6 +72,7 @@ internal const val BLACKJACK_PLAYER_MAT_TAG = "blackjack_player_mat"
 internal const val BLACKJACK_REWARD_STACK_TAG = "blackjack_reward_stack"
 
 @Composable
+@UiComposable
 fun BlackjackGameRoute(
     modifier: Modifier = Modifier,
     viewModel: BlackjackGameViewModel = viewModel(),
@@ -105,6 +107,7 @@ fun BlackjackGameRoute(
 }
 
 @Composable
+@UiComposable
 fun BlackjackGameScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -452,6 +455,7 @@ internal fun blackjackResultTextColor(
 }
 
 @Composable
+@UiComposable
 private fun ScoreLabel(text: String) {
     Text(
         text = text,
@@ -463,6 +467,7 @@ private fun ScoreLabel(text: String) {
 }
 
 @Composable
+@UiComposable
 private fun BlackjackActionButton(
     label: String,
     testTag: String,
@@ -491,6 +496,7 @@ private fun BlackjackActionButton(
 }
 
 @Composable
+@UiComposable
 private fun BlackjackMat(
     modifier: Modifier,
     contentAlignment: Alignment,
@@ -510,6 +516,7 @@ private fun BlackjackMat(
 }
 
 @Composable
+@UiComposable
 private fun DiceRow(
     values: List<Int>
 ) {
@@ -559,6 +566,7 @@ private fun DiceRow(
 }
 
 @Composable
+@UiComposable
 private fun BlackjackDieFace(
     value: Int,
     size: Dp

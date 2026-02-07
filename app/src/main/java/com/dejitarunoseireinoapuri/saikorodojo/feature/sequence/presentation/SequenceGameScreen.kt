@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -89,6 +90,7 @@ internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 
 @Composable
+@UiComposable
 fun SequenceGameRoute(
     modifier: Modifier = Modifier,
     viewModel: SequenceGameViewModel = viewModel(),
@@ -123,6 +125,7 @@ fun SequenceGameRoute(
 }
 
 @Composable
+@UiComposable
 fun SequenceGameScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -494,6 +497,7 @@ internal fun shouldShowSequenceContinueButton(
 }
 
 @Composable
+@UiComposable
 private fun SequenceChoiceButton(
     label: String,
     testTag: String,
@@ -522,6 +526,7 @@ private fun SequenceChoiceButton(
 }
 
 @Composable
+@UiComposable
 private fun SequenceMat(
     modifier: Modifier,
     backgroundColor: Color,
@@ -541,6 +546,7 @@ private fun SequenceMat(
 }
 
 @Composable
+@UiComposable
 private fun SequenceDiceFace(
     value: Int?,
     size: Dp,
@@ -574,6 +580,7 @@ private fun SequenceDiceFace(
 }
 
 @Composable
+@UiComposable
 private fun SequenceSavedDie(
     value: Int,
     size: Dp,

@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -86,6 +87,7 @@ import android.content.Context
 import android.content.ContextWrapper
 
 @Composable
+@UiComposable
 fun GameRoute(
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = viewModel(),
@@ -241,6 +243,7 @@ private tailrec fun Context.findActivity(): Activity? {
 }
 
 @Composable
+@UiComposable
 fun GameScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -450,6 +453,7 @@ fun GameScreen(
 }
 
 @Composable
+@UiComposable
 private fun MinigamesAvailableBadge(
     minigamesAvailable: Int,
     onClick: () -> Unit
@@ -485,6 +489,7 @@ private fun MinigamesAvailableBadge(
 }
 
 @Composable
+@UiComposable
 private fun GameAlertDialog(
     title: String,
     message: String,
@@ -545,6 +550,7 @@ private fun GameAlertDialog(
 }
 
 @Composable
+@UiComposable
 private fun GameCardStack(
     cards: List<CardUiModel>,
     selectedCardIndex: Int?,
