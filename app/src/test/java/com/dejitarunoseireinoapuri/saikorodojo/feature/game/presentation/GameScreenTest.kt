@@ -16,7 +16,7 @@ class GameScreenTest {
             availableHeight = 100.dp,
             diceCount = 0,
             spacing = 4.dp,
-            columns = 2
+            columns = 3
         )
 
         assertEquals(0.dp, result)

@@ -7,7 +7,7 @@ class SelectStartingCardsUseCaseTest {
     @Test
     fun `selects three cards by default`() {
         val useCase = SelectStartingCardsUseCase(
-            randomProvider = RewardCardsRandomProvider { 0f }
+            randomProvider = { 0f }
         )
 
         val cards = useCase.execute()
@@ -19,7 +19,7 @@ class SelectStartingCardsUseCaseTest {
     @Test
     fun `returns empty list for non-positive count`() {
         val useCase = SelectStartingCardsUseCase(
-            randomProvider = RewardCardsRandomProvider { 0.5f }
+            randomProvider = { 0.5f }
         )
 
         val cards = useCase.execute(count = 0)

@@ -307,9 +307,9 @@ class GameViewModel(
         }
     }
 
-    private fun startRolling(keepLayout: Boolean = false) {
+    private fun startRolling() {
         if (rollJob?.isActive == true) return
-        if (!keepLayout && initialRollSnapshot != null && currentObjective != null) {
+        if (initialRollSnapshot != null && currentObjective != null) {
             refreshCardInventory()
             return
         }
@@ -317,7 +317,7 @@ class GameViewModel(
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollDurationMs / tickMs).coerceAtLeast(1L).toInt()
             val currentState = _uiState.value
-            val seed = if (keepLayout) currentState.layoutSeed else layoutSeedProvider()
+            val seed = layoutSeedProvider()
             val diceTypes = currentState.diceTypes
             _uiState.update {
                 it.copy(
@@ -458,7 +458,7 @@ class GameViewModel(
             )
         }
         initialRollSnapshot = null
-        startRolling(keepLayout = false)
+        startRolling()
     }
 
     private fun applyCard(index: Int) {
@@ -1143,7 +1143,7 @@ class GameViewModel(
     }
 
     private fun pickMinigame(): MinigameType {
-        val values = MinigameType.values()
+        val values = MinigameType.entries
         return values[Random.Default.nextInt(values.size)]
     }
 

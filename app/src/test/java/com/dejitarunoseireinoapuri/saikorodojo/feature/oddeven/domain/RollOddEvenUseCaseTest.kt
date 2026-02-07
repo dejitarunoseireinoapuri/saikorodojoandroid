@@ -9,7 +9,7 @@ class RollOddEvenUseCaseTest {
     @Test
     fun `roll use case returns even parity`() {
         val useCase = RollOddEvenUseCase(
-            diceRoller = DiceRoller { 4 }
+            diceRoller = { 4 }
         )
 
         val result = useCase.execute()
@@ -21,7 +21,7 @@ class RollOddEvenUseCaseTest {
     @Test
     fun `roll use case returns odd parity`() {
         val useCase = RollOddEvenUseCase(
-            diceRoller = DiceRoller { 5 }
+            diceRoller = { 5 }
         )
 
         val result = useCase.execute()

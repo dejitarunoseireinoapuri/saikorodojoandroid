@@ -38,17 +38,16 @@ class CardItemTest {
         val sampleY = (pixelMap.height * 0.5f).toInt().coerceAtLeast(0)
         val sampledColor = pixelMap[sampleX, sampleY]
 
-        assertColorApproximatelyEquals(Color.White, sampledColor)
+        assertWhiteColorApproximatelyEquals(sampledColor)
     }
 
-    private fun assertColorApproximatelyEquals(
-        expected: Color,
+    private fun assertWhiteColorApproximatelyEquals(
         actual: Color,
         tolerance: Float = 0.08f
     ) {
-        val matches = abs(expected.red - actual.red) <= tolerance &&
-            abs(expected.green - actual.green) <= tolerance &&
-            abs(expected.blue - actual.blue) <= tolerance
-        assertTrue("Expected $expected but was $actual", matches)
+        val matches = abs(Color.White.red - actual.red) <= tolerance &&
+            abs(Color.White.green - actual.green) <= tolerance &&
+            abs(Color.White.blue - actual.blue) <= tolerance
+        assertTrue("Expected ${Color.White} but was $actual", matches)
     }
 }

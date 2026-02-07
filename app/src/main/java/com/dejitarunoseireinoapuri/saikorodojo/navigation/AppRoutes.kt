@@ -1,12 +1,12 @@
 package com.dejitarunoseireinoapuri.saikorodojo.navigation
 
 object AppRoutes {
-    const val Menu = "menu"
-    const val Game = "game"
-    const val OddEvenGame = "odd_even_game"
-    const val SequenceGame = "sequence_game"
-    const val BlackjackGame = "blackjack_game"
-    const val HigherLowerGame = "higher_lower_game"
-    const val StartDestination = Menu
-    const val PlayDestination = Game
+    const val MENU = "menu"
+    const val GAME = "game"
+    const val ODD_EVEN_GAME = "odd_even_game"
+    const val SEQUENCE_GAME = "sequence_game"
+    const val BLACKJACK_GAME = "blackjack_game"
+    const val HIGHER_LOWER_GAME = "higher_lower_game"
+    const val START_DESTINATION = MENU
+    const val PLAY_DESTINATION = GAME
 }
