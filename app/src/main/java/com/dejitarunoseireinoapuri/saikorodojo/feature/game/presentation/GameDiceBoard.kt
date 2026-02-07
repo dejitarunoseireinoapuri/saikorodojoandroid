@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -95,8 +96,9 @@ internal fun DiceBoard(
             val selectionText = if (uiState.shouldShowSelectedSum) {
                 stringResource(R.string.selected_dice_sum, uiState.selectedDiceSum)
             } else {
-                stringResource(
-                    R.string.selected_dice_count,
+                pluralStringResource(
+                    R.plurals.selected_dice_count,
+                    uiState.selectedDice.size,
                     uiState.selectedDice.size,
                     uiState.diceValues.size
                 )

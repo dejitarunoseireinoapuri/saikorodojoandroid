@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -23,7 +23,7 @@ fun RewardCardStack(
     modifier: Modifier = Modifier
 ) {
     if (cards.isEmpty()) return
-    var expandedIndex by remember(cards) { mutableStateOf(cards.lastIndex) }
+    var expandedIndex by remember(cards) { mutableIntStateOf(cards.lastIndex) }
     val cardSize = DpSize(width = 208.dp, height = 278.dp)
     val stackSpacing = 40.dp
     val stackRise = 32.dp
