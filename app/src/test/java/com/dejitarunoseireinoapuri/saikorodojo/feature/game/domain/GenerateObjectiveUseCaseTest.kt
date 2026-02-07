@@ -55,4 +55,28 @@ class GenerateObjectiveUseCaseTest {
         assertTrue(candidates.any { it is ExactTwoPairsCondition })
         assertTrue(candidates.any { it is HasThreeOfKindCondition && it.required })
     }
+
+    @Test
+    fun `primary objective can be a non-sum condition`() {
+        val candidates = listOf(
+            SumExactCondition(target = 10),
+            HasPairCondition(requiredPairs = 1),
+            SumInRangeCondition(min = 4, max = 8)
+        )
+
+        val selected = selectPrimaryCondition(
+            candidates = candidates,
+            random = FixedIndexRandom(fixedIndex = 1)
+        )
+
+        assertTrue(selected is HasPairCondition)
+    }
+}
+
+private class FixedIndexRandom(
+    private val fixedIndex: Int
+) : Random() {
+    override fun nextBits(bitCount: Int): Int = fixedIndex
+
+    override fun nextInt(until: Int): Int = fixedIndex
 }

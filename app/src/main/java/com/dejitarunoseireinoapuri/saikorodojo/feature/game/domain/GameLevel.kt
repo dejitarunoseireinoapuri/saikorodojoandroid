@@ -297,10 +297,7 @@ class GenerateObjectiveUseCase {
             stage <= 4 -> 2
             else -> 3
         }
-        val sumCandidates = candidates.filter {
-            it is SumExactCondition || it is SumAtLeastCondition || it is SumInRangeCondition
-        }
-        val primaryCondition = sumCandidates.random(random)
+        val primaryCondition = selectPrimaryCondition(candidates, random)
         val selectedConditions = buildList {
             add(primaryCondition)
             addAll(
@@ -320,6 +317,13 @@ class GenerateObjectiveUseCase {
         }
         return LevelObjective(conditions = enrichedConditions.distinct())
     }
+}
+
+internal fun selectPrimaryCondition(
+    candidates: List<ObjectiveCondition>,
+    random: Random
+): ObjectiveCondition {
+    return candidates.random(random)
 }
 
 internal fun buildObjectiveCandidates(
