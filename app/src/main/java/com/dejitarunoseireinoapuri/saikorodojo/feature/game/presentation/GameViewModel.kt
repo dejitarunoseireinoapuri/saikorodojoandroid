@@ -69,6 +69,7 @@ private const val DEFAULT_TICK_MS = 150L
 private const val LEVEL_COMPLETE_DELAY_MS = 1_000L
 private const val DEFAULT_MINIGAMES_AVAILABLE = 3
 private const val MINIGAMES_REWARD_AMOUNT = 3
+private const val LEVEL_MINIGAMES_REWARD_AMOUNT = 2
 
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
@@ -1132,7 +1133,7 @@ class GameViewModel(
         if (completionJob?.isActive == true) return
         completionJob = viewModelScope.launch(dispatcher) {
             delay(LEVEL_COMPLETE_DELAY_MS)
-            val updatedMinigames = _uiState.value.minigamesAvailable + MINIGAMES_REWARD_AMOUNT
+            val updatedMinigames = _uiState.value.minigamesAvailable + LEVEL_MINIGAMES_REWARD_AMOUNT
             val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
             val nextDefinition = generateLevelUseCase.execute(
                 levelNumber = nextLevel,
@@ -1181,7 +1182,8 @@ internal fun shouldShowSelectedSum(conditions: List<ObjectiveCondition>): Boolea
             condition is SumExactCondition ||
             condition is SumInRangeCondition ||
             condition is SumMultipleCondition ||
-            condition is SumMaxDifferenceCondition
+            condition is SumMaxDifferenceCondition ||
+            condition is SumParityCondition
     }
 }
 
