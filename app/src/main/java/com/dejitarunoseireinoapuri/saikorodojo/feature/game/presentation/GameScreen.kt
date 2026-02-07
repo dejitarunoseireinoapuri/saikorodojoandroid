@@ -583,11 +583,12 @@ private fun GameCardStack(
         val isRightmostExpanded = index == cards.lastIndex && !isSelected
         val isRepeatLast = card.id == CardId.REPEAT_LAST
         val repeatDescription = if (isRepeatLast) {
+            val descriptionText = stringResource(card.descriptionRes)
             val lastCardTitleRes = lastAppliedCardId?.let { cardTitleResForId(it) }
             val lastCardName = lastCardTitleRes?.let { stringResource(it) }
                 ?: stringResource(R.string.card_repeat_last_none)
             buildAnnotatedString {
-                append(stringResource(card.descriptionRes))
+                append(descriptionText)
                 append(" ")
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append(lastCardName)
