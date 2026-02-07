@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -40,7 +39,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import kotlin.random.Random
 
 @Composable
-@UiComposable
 internal fun DiceBoard(
     modifier: Modifier = Modifier,
     maxWidth: Dp,
@@ -374,7 +372,6 @@ internal fun DiceBoard(
 }
 
 @Composable
-@UiComposable
 private fun DiceFace(
     number: Int,
     size: Dp,
@@ -417,7 +414,6 @@ private fun DiceFace(
 }
 
 @Composable
-@UiComposable
 private fun DiceOption(
     value: Int,
     faceDrawable: Int,

@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -79,7 +78,6 @@ private val HigherLowerChoiceButtonHeight = 56.dp
 private val HigherLowerChoiceButtonMinWidth = 140.dp
 
 @Composable
-@UiComposable
 fun HigherLowerGameRoute(
     modifier: Modifier = Modifier,
     viewModel: HigherLowerGameViewModel = viewModel(),
@@ -115,7 +113,6 @@ fun HigherLowerGameRoute(
 }
 
 @Composable
-@UiComposable
 fun HigherLowerGameScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -524,7 +521,6 @@ fun HigherLowerGameScreen(
 }
 
 @Composable
-@UiComposable
 private fun HigherLowerChoiceButton(
     label: String,
     isEnabled: Boolean,
@@ -612,7 +608,6 @@ internal fun higherLowerBottomMatColors(
 }
 
 @Composable
-@UiComposable
 private fun HigherLowerMat(
     modifier: Modifier,
     backgroundColor: Color,
@@ -631,7 +626,6 @@ private fun HigherLowerMat(
 }
 
 @Composable
-@UiComposable
 private fun HigherLowerDiceRow(
     values: List<Int>,
     diceRes: Int,
@@ -666,7 +660,6 @@ private fun HigherLowerDiceRow(
 }
 
 @Composable
-@UiComposable
 private fun HigherLowerSumLabel(
     sum: Int?,
     isVisible: Boolean
@@ -689,7 +682,6 @@ private fun HigherLowerSumLabel(
 }
 
 @Composable
-@UiComposable
 private fun HigherLowerDieFace(
     value: Int,
     size: Dp,
