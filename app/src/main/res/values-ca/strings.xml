@@ -3,12 +3,19 @@
     <string name="game_title">Saikoro Dojo</string>
     <string name="play">Jugar</string>
     <string name="rules">Regles</string>
+    <string name="menu_continue_title">Continuar la partida?</string>
+    <string name="menu_continue_message">Tens una partida desada. Vols continuar-la o començar-ne una de nova?</string>
+    <string name="menu_continue_confirm">Continuar</string>
+    <string name="menu_continue_new_game">Nova partida</string>
     <string name="cd_sound_on">So activat</string>
     <string name="cd_sound_off">So desactivat</string>
     <string name="cd_settings">Configuració</string>
     <string name="cd_dice_face">Cara del dau %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
-    <string name="selected_dice_count">%1$d de %2$d seleccionados</string>
+    <plurals name="selected_dice_count">
+        <item quantity="one">%1$d de %2$d seleccionat</item>
+        <item quantity="other">%1$d de %2$d seleccionats</item>
+    </plurals>
     <string name="select_die_to_reroll">Selecciona un dau per tornar a tirar</string>
     <string name="select_dice_to_reroll">Selecciona els daus per tornar a tirar</string>
     <string name="select_die_to_flip">Selecciona un dau per girar</string>
@@ -37,8 +44,6 @@
     <string name="odd_even_hits_status">Encerts: %1$d de %2$d</string>
     <string name="odd_even_even">Parell</string>
     <string name="odd_even_odd">Senar</string>
-    <string name="odd_even_correct">Has encertat!</string>
-    <string name="odd_even_wrong">Has fallat</string>
     <string name="odd_even_continue">Continuar</string>
     <string name="higher_lower_title">Superior o Inferior</string>
     <string name="higher_lower_subtitle">Has de dir si la següent tirada tindrà un resultat superior o inferior a l\'actual. Guanyes si l\'encertes tres vegades seguides o la suma dels dos daus és la mateixa dues vegades seguides.</string>
@@ -75,7 +80,10 @@
     <string name="objective_four_of_kind">Aconsegueix un pòquer</string>
     <string name="objective_full_house">Aconsegueix un full</string>
     <string name="objective_all_distinct">Selecciona daus diferents</string>
-    <string name="objective_straight">Aconsegueix una escala de %1$d daus</string>
+    <plurals name="objective_straight">
+        <item quantity="one">Aconsegueix una escala de %1$d dau</item>
+        <item quantity="other">Aconsegueix una escala de %1$d daus</item>
+    </plurals>
     <string name="objective_sum_at_least">La suma ha de ser com a mínim %1$d</string>
     <string name="objective_sum_exact">La suma ha de ser %1$d</string>
     <string name="objective_sum_in_range">La suma ha d\'estar entre %1$d i %2$d</string>
@@ -86,15 +94,30 @@
     <string name="objective_sum_at_most">La suma ha de ser com a màxim %1$d</string>
     <string name="objective_sum_multiple">La suma ha de ser múltiple de %1$d</string>
     <string name="objective_sum_max_difference">La suma ha d\'estar a una diferència màxima de %2$d respecte de %1$d</string>
-    <string name="objective_exact_distinct_values">Selecciona exactament %1$d valors diferents</string>
-    <string name="objective_selected_exact">%1$d de %2$d seleccionats (exacte)</string>
-    <string name="objective_at_least_even_values">Selecciona almenys %1$d daus parells</string>
-    <string name="objective_at_least_odd_values">Selecciona almenys %1$d daus senars</string>
+    <plurals name="objective_exact_distinct_values">
+        <item quantity="one">Selecciona exactament %1$d valor diferent</item>
+        <item quantity="other">Selecciona exactament %1$d valors diferents</item>
+    </plurals>
+    <plurals name="objective_selected_exact">
+        <item quantity="one">%1$d de %2$d seleccionat (exacte)</item>
+        <item quantity="other">%1$d de %2$d seleccionats (exacte)</item>
+    </plurals>
+    <plurals name="objective_at_least_even_values">
+        <item quantity="one">Selecciona almenys %1$d dau parell</item>
+        <item quantity="other">Selecciona almenys %1$d daus parells</item>
+    </plurals>
+    <plurals name="objective_at_least_odd_values">
+        <item quantity="one">Selecciona almenys %1$d dau senar</item>
+        <item quantity="other">Selecciona almenys %1$d daus senars</item>
+    </plurals>
     <string name="objective_contains_high_and_low">Conté almenys un valor baix i un d\'alt</string>
     <string name="objective_two_pairs_exact">Aconsegueix exactament dues parelles</string>
     <string name="objective_three_of_kind_with_value">Aconsegueix un trío de %1$d</string>
     <string name="objective_satisfy_and_avoid">Compleix A i evita B</string>
-    <string name="objective_selected_progress">%1$d de %2$d seleccionats</string>
+    <plurals name="objective_selected_progress">
+        <item quantity="one">%1$d de %2$d seleccionat</item>
+        <item quantity="other">%1$d de %2$d seleccionats</item>
+    </plurals>
     <string name="surrender_title">Rendir-se?</string>
     <string name="surrender_message">Vols rendir-te i tornar al menú?</string>
     <string name="surrender_confirm">Rendir-se</string>
