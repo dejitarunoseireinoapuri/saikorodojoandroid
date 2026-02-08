@@ -122,6 +122,7 @@ fun OddEvenGameScreen(
     var wasRolling by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
     var previousCorrectCount by remember { mutableStateOf(0) }
+    var previousWrongCount by remember { mutableStateOf(0) }
     var previousHasLoss by remember { mutableStateOf(false) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
@@ -135,11 +136,12 @@ fun OddEvenGameScreen(
         }
         previousCorrectCount = uiState.correctCount
     }
-    LaunchedEffect(uiState.isComplete, uiState.rewardCards) {
+    LaunchedEffect(uiState.wrongCount, uiState.isComplete, uiState.rewardCards) {
         val hasLoss = uiState.isComplete && uiState.rewardCards.isEmpty() && uiState.isStarted
-        if (shouldPlayOddEvenLoss(previousHasLoss, hasLoss)) {
+        if (shouldPlayOddEvenLoss(previousWrongCount, uiState.wrongCount, previousHasLoss, hasLoss)) {
             soundPlayer.play(SoundEffect.LOSS)
         }
+        previousWrongCount = uiState.wrongCount
         previousHasLoss = hasLoss
     }
     LaunchedEffect(uiState.rewardCards) {
@@ -508,6 +510,11 @@ internal fun shouldPlayOddEvenSuccess(previousCorrect: Int, currentCorrect: Int)
     return currentCorrect > previousCorrect
 }
 
-internal fun shouldPlayOddEvenLoss(previousHasLoss: Boolean, currentHasLoss: Boolean): Boolean {
-    return currentHasLoss && !previousHasLoss
+internal fun shouldPlayOddEvenLoss(
+    previousWrong: Int,
+    currentWrong: Int,
+    previousHasLoss: Boolean,
+    currentHasLoss: Boolean
+): Boolean {
+    return currentWrong > previousWrong || (currentHasLoss && !previousHasLoss)
 }

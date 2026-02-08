@@ -16,12 +16,38 @@ class OddEvenSoundTest {
     }
 
     @Test
-    fun `play loss when loss screen first appears`() {
-        assertTrue(shouldPlayOddEvenLoss(previousHasLoss = false, currentHasLoss = true))
+    fun `play loss when wrong count increases`() {
+        assertTrue(
+            shouldPlayOddEvenLoss(
+                previousWrong = 0,
+                currentWrong = 1,
+                previousHasLoss = false,
+                currentHasLoss = false
+            )
+        )
     }
 
     @Test
-    fun `do not play loss when loss state does not change`() {
-        assertFalse(shouldPlayOddEvenLoss(previousHasLoss = true, currentHasLoss = true))
+    fun `play loss when loss screen first appears without new wrong count`() {
+        assertTrue(
+            shouldPlayOddEvenLoss(
+                previousWrong = 1,
+                currentWrong = 1,
+                previousHasLoss = false,
+                currentHasLoss = true
+            )
+        )
+    }
+
+    @Test
+    fun `do not play loss when neither wrong count nor loss state changes`() {
+        assertFalse(
+            shouldPlayOddEvenLoss(
+                previousWrong = 1,
+                currentWrong = 1,
+                previousHasLoss = true,
+                currentHasLoss = true
+            )
+        )
     }
 }
