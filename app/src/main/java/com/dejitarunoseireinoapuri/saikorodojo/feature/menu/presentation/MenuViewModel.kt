@@ -12,6 +12,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameS
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.HasSavedGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundSettingsRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.GetSoundEnabledUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.ObserveSoundEnabledUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.ToggleSoundEnabledUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,7 +30,8 @@ sealed interface MenuDestination {
 
 data class MenuUiState(
     val hasSavedSession: Boolean = false,
-    val showContinueDialog: Boolean = false
+    val showContinueDialog: Boolean = false,
+    val isSoundEnabled: Boolean = true
 )
 
 sealed interface MenuUiEvent {
@@ -34,6 +39,7 @@ sealed interface MenuUiEvent {
     data object ContinueGame : MenuUiEvent
     data object StartNewGame : MenuUiEvent
     data object DismissDialog : MenuUiEvent
+    data object SoundToggleClicked : MenuUiEvent
 }
 
 sealed interface MenuUiEffect {
@@ -51,7 +57,13 @@ class MenuViewModel(
         ResetCardInventoryUseCase(InMemoryCardInventoryRepository.shared),
     private val addCardsToInventoryUseCase: AddCardsToInventoryUseCase =
         AddCardsToInventoryUseCase(InMemoryCardInventoryRepository.shared),
-    private val selectStartingCardsUseCase: SelectStartingCardsUseCase = SelectStartingCardsUseCase()
+    private val selectStartingCardsUseCase: SelectStartingCardsUseCase = SelectStartingCardsUseCase(),
+    private val getSoundEnabledUseCase: GetSoundEnabledUseCase =
+        GetSoundEnabledUseCase(SoundSettingsRepositoryProvider.provide()),
+    private val observeSoundEnabledUseCase: ObserveSoundEnabledUseCase =
+        ObserveSoundEnabledUseCase(SoundSettingsRepositoryProvider.provide()),
+    private val toggleSoundEnabledUseCase: ToggleSoundEnabledUseCase =
+        ToggleSoundEnabledUseCase(SoundSettingsRepositoryProvider.provide())
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MenuUiState())
     val uiState: StateFlow<MenuUiState> = _uiState
@@ -61,6 +73,12 @@ class MenuViewModel(
 
     init {
         refreshSavedSession()
+        _uiState.update { it.copy(isSoundEnabled = getSoundEnabledUseCase.execute()) }
+        viewModelScope.launch {
+            observeSoundEnabledUseCase.execute().collect { isEnabled ->
+                _uiState.update { it.copy(isSoundEnabled = isEnabled) }
+            }
+        }
     }
 
     fun onEvent(event: MenuUiEvent) {
@@ -69,6 +87,7 @@ class MenuViewModel(
             MenuUiEvent.ContinueGame -> handleContinue()
             MenuUiEvent.StartNewGame -> startNewGame()
             MenuUiEvent.DismissDialog -> _uiState.update { it.copy(showContinueDialog = false) }
+            MenuUiEvent.SoundToggleClicked -> handleSoundToggle()
         }
     }
 
@@ -97,6 +116,11 @@ class MenuViewModel(
         viewModelScope.launch {
             _effects.emit(MenuUiEffect.NavigateTo(destination))
         }
+    }
+
+    private fun handleSoundToggle() {
+        val isEnabled = toggleSoundEnabledUseCase.execute()
+        _uiState.update { it.copy(isSoundEnabled = isEnabled) }
     }
 
     private fun startNewGame() {

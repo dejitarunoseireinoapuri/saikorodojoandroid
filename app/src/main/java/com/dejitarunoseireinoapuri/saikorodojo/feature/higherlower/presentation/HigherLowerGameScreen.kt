@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -63,6 +64,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.Reward
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -72,7 +75,7 @@ internal const val HIGHER_LOWER_BUTTON_ROW_TAG = "higher_lower_button_row"
 internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
 internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
-private const val HIGHER_LOWER_TRANSITION_MS = 900
+private const val HIGHER_LOWER_TRANSITION_MS = 750
 private val HigherLowerButtonReserveHeight = 140.dp
 private val HigherLowerChoiceButtonHeight = 56.dp
 private val HigherLowerChoiceButtonMinWidth = 140.dp
@@ -123,6 +126,36 @@ fun HigherLowerGameScreen(
     onContinueClick: () -> Unit,
     onExitToMenu: () -> Unit
 ) {
+    val soundPlayer = rememberSoundPlayer()
+    var wasRolling by remember { mutableStateOf(false) }
+    var wasTransitioning by remember { mutableStateOf(false) }
+    var wasComplete by remember { mutableStateOf(false) }
+    var hadRewardCards by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.isRolling) {
+        if (uiState.isRolling && !wasRolling) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        wasRolling = uiState.isRolling
+    }
+    LaunchedEffect(uiState.isTransitioning) {
+        if (uiState.isTransitioning && !wasTransitioning) {
+            soundPlayer.play(SoundEffect.MOVE_DICE)
+        }
+        wasTransitioning = uiState.isTransitioning
+    }
+    LaunchedEffect(uiState.isComplete, uiState.hasLoss) {
+        if (uiState.isComplete && !wasComplete) {
+            soundPlayer.play(if (uiState.hasLoss) SoundEffect.LOSS else SoundEffect.SUCCESS)
+        }
+        wasComplete = uiState.isComplete
+    }
+    LaunchedEffect(uiState.rewardCards) {
+        val hasRewards = uiState.rewardCards.isNotEmpty()
+        if (hasRewards && !hadRewardCards) {
+            soundPlayer.play(SoundEffect.CARD_DRAW)
+        }
+        hadRewardCards = hasRewards
+    }
     var showExitDialog by remember { mutableStateOf(false) }
     BackHandler(enabled = !showExitDialog) {
         showExitDialog = true
@@ -145,7 +178,10 @@ fun HigherLowerGameScreen(
             contentAlignment = Alignment.Center
         ) {
             IconButton(
-                onClick = { showExitDialog = true },
+                onClick = {
+                    soundPlayer.play(SoundEffect.QUESTION)
+                    showExitDialog = true
+                },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
@@ -270,12 +306,18 @@ fun HigherLowerGameScreen(
                             HigherLowerChoiceButton(
                                 label = stringResource(R.string.higher_lower_lower),
                                 isEnabled = uiState.selectedChoice == null,
-                                onClick = { onChoiceSelect(HigherLowerChoice.LOWER) }
+                                onClick = {
+                                    soundPlayer.play(SoundEffect.USE)
+                                    onChoiceSelect(HigherLowerChoice.LOWER)
+                                }
                             )
                             HigherLowerChoiceButton(
                                 label = stringResource(R.string.higher_lower_higher),
                                 isEnabled = uiState.selectedChoice == null,
-                                onClick = { onChoiceSelect(HigherLowerChoice.HIGHER) }
+                                onClick = {
+                                    soundPlayer.play(SoundEffect.USE)
+                                    onChoiceSelect(HigherLowerChoice.HIGHER)
+                                }
                             )
                         }
                     }
@@ -285,7 +327,10 @@ fun HigherLowerGameScreen(
 
         if (!uiState.isStarted) {
             Button(
-                onClick = onStartClick,
+                onClick = {
+                    soundPlayer.play(SoundEffect.USE)
+                    onStartClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
@@ -451,7 +496,10 @@ fun HigherLowerGameScreen(
 
         if (uiState.isComplete && uiState.isStarted) {
             Button(
-                onClick = onContinueClick,
+                onClick = {
+                    soundPlayer.play(SoundEffect.USE)
+                    onContinueClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
@@ -495,6 +543,7 @@ fun HigherLowerGameScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
+                            soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
                             onExitToMenu()
                         }
@@ -507,7 +556,12 @@ fun HigherLowerGameScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showExitDialog = false }) {
+                    TextButton(
+                        onClick = {
+                            soundPlayer.play(SoundEffect.USE)
+                            showExitDialog = false
+                        }
+                    ) {
                         Text(
                             text = stringResource(R.string.dialog_cancel),
                             style = MaterialTheme.typography.titleMedium,

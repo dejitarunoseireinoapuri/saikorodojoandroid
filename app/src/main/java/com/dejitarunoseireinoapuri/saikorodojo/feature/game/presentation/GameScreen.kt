@@ -76,6 +76,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardIt
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -261,6 +263,21 @@ fun GameScreen(
     onConfirmMinigamesAd: () -> Unit,
     onDismissMinigamesAdPrompt: () -> Unit
 ) {
+    val soundPlayer = rememberSoundPlayer()
+    var wasRolling by remember { mutableStateOf(false) }
+    var wasLevelComplete by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.isRolling) {
+        if (uiState.isRolling && !wasRolling) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        wasRolling = uiState.isRolling
+    }
+    LaunchedEffect(uiState.isLevelComplete) {
+        if (uiState.isLevelComplete && !wasLevelComplete) {
+            soundPlayer.play(SoundEffect.SUCCESS)
+        }
+        wasLevelComplete = uiState.isLevelComplete
+    }
     val containerModifier = modifier
         .fillMaxSize()
         .let { baseModifier ->
@@ -325,7 +342,12 @@ fun GameScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { showExitDialog = true }) {
+                    IconButton(
+                        onClick = {
+                            soundPlayer.play(SoundEffect.QUESTION)
+                            showExitDialog = true
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Home,
                             contentDescription = stringResource(R.string.cd_exit_home),
@@ -335,9 +357,17 @@ fun GameScreen(
                     Spacer(modifier = Modifier.weight(1f))
                     MinigamesAvailableBadge(
                         minigamesAvailable = uiState.minigamesAvailable,
-                        onClick = onOpenRandomMinigame
+                        onClick = {
+                            soundPlayer.play(SoundEffect.USE)
+                            onOpenRandomMinigame()
+                        }
                     )
-                    IconButton(onClick = { showSurrenderDialog = true }) {
+                    IconButton(
+                        onClick = {
+                            soundPlayer.play(SoundEffect.QUESTION)
+                            showSurrenderDialog = true
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Flag,
                             contentDescription = stringResource(R.string.cd_surrender),
@@ -415,6 +445,7 @@ fun GameScreen(
                     message = stringResource(R.string.surrender_message),
                     confirmLabel = stringResource(R.string.surrender_confirm),
                     dismissLabel = stringResource(R.string.dialog_cancel),
+                    confirmSoundEffect = SoundEffect.LOSS,
                     onConfirm = {
                         showSurrenderDialog = false
                         onConfirmSurrender()
@@ -490,9 +521,12 @@ private fun GameAlertDialog(
     message: String,
     confirmLabel: String,
     dismissLabel: String,
+    confirmSoundEffect: SoundEffect = SoundEffect.USE,
+    dismissSoundEffect: SoundEffect = SoundEffect.USE,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val soundPlayer = rememberSoundPlayer()
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.background,
@@ -517,7 +551,10 @@ private fun GameAlertDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = onConfirm,
+                onClick = {
+                    soundPlayer.play(confirmSoundEffect)
+                    onConfirm()
+                },
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.primary
                 )
@@ -530,7 +567,10 @@ private fun GameAlertDialog(
         },
         dismissButton = {
             TextButton(
-                onClick = onDismiss,
+                onClick = {
+                    soundPlayer.play(dismissSoundEffect)
+                    onDismiss()
+                },
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onBackground
                 )
@@ -556,6 +596,7 @@ private fun GameCardStack(
     onCardDismiss: () -> Unit,
     onCardApply: (Int) -> Unit
 ) {
+    val soundPlayer = rememberSoundPlayer()
     if (cards.isEmpty()) return
     val cardSize = DpSize(width = 220.dp, height = 300.dp)
     val peekHeight = 136.dp
@@ -623,7 +664,7 @@ private fun GameCardStack(
                         onCardSelect(index)
                     }
                 }
-        ) {
+                ) {
             CardItem(
                 card = card,
                 cardSize = cardSize,
@@ -639,7 +680,10 @@ private fun GameCardStack(
                 isEnabled = isInteractionEnabled,
                 description = repeatDescription,
                 descriptionTextAlign = if (isRepeatLast) TextAlign.Center else TextAlign.Start,
-                onApplyClick = { onCardApply(index) }
+                onApplyClick = {
+                    soundPlayer.play(SoundEffect.USE)
+                    onCardApply(index)
+                }
             )
         }
     }
