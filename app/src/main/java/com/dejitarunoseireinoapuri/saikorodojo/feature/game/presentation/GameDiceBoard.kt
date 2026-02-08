@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -49,6 +51,7 @@ internal fun DiceBoard(
     onRollSingleDie: () -> Unit,
     onFlipSelectedDie: () -> Unit
 ) {
+    val soundPlayer = rememberSoundPlayer()
     val diceCount = uiState.diceValues.size
     val boardHeight = 276.dp
     val horizontalMargin = 20.dp
@@ -166,7 +169,10 @@ internal fun DiceBoard(
                                 size = diceSize,
                                 numberTextScale = 1f,
                                 numberTextColor = diceOptionNumberColor(),
-                                onClick = { onAdjustSelectedDie(-1) }
+                                onClick = {
+                                    soundPlayer.play(SoundEffect.USE)
+                                    onAdjustSelectedDie(-1)
+                                }
                             )
                         }
                         if (availability.canIncrease) {
@@ -176,7 +182,10 @@ internal fun DiceBoard(
                                 size = diceSize,
                                 numberTextScale = 1f,
                                 numberTextColor = diceOptionNumberColor(),
-                                onClick = { onAdjustSelectedDie(1) }
+                                onClick = {
+                                    soundPlayer.play(SoundEffect.USE)
+                                    onAdjustSelectedDie(1)
+                                }
                             )
                         }
                     }
@@ -238,7 +247,10 @@ internal fun DiceBoard(
                                             size = optionSize,
                                             numberTextScale = textScale,
                                             numberTextColor = diceOptionNumberColor(),
-                                            onClick = { onSetSelectedDieValue(value) }
+                                            onClick = {
+                                                soundPlayer.play(SoundEffect.USE)
+                                                onSetSelectedDieValue(value)
+                                            }
                                         )
                                     }
                                 }
@@ -256,7 +268,9 @@ internal fun DiceBoard(
             }
             val onClick = if (uiState.isAwaitingRerollSelected) onRollSelectedDice else onRollSingleDie
             Button(
-                onClick = onClick,
+                onClick = {
+                    onClick()
+                },
                 enabled = isEnabled && !uiState.isRolling,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -278,7 +292,10 @@ internal fun DiceBoard(
         if (uiState.isAwaitingFlipFace) {
             val buttonOffset = boardHeight / 2 + 64.dp
             Button(
-                onClick = onFlipSelectedDie,
+                onClick = {
+                    soundPlayer.play(SoundEffect.USE)
+                    onFlipSelectedDie()
+                },
                 enabled = uiState.selectedFlipDieIndex != null && !uiState.isRolling,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -343,7 +360,12 @@ internal fun DiceBoard(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
-                        ) { onDiceClick(index) }
+                        ) {
+                            if (shouldPlayMoveSound(uiState.isRolling)) {
+                                soundPlayer.play(SoundEffect.MOVE)
+                            }
+                            onDiceClick(index)
+                        }
                 ) {
                     DiceFace(
                         number = value,
@@ -429,6 +451,8 @@ private fun DiceOption(
 }
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
+
+internal fun shouldPlayMoveSound(isRolling: Boolean): Boolean = !isRolling
 
 internal fun shouldShowDiceSelectionBorder(
     isAwaitingRerollSelected: Boolean,

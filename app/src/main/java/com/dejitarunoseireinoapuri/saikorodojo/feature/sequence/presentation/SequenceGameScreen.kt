@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -59,6 +60,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -134,6 +137,37 @@ fun SequenceGameScreen(
     onContinueClick: () -> Unit,
     onExitToMenu: () -> Unit
 ) {
+    val soundPlayer = rememberSoundPlayer()
+    var wasRolling by remember { mutableStateOf(false) }
+    var hadRewardCards by remember { mutableStateOf(false) }
+    var previousSavedCount by remember { mutableStateOf(0) }
+    var previousHasFailure by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.isRolling) {
+        if (uiState.isRolling && !wasRolling) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        wasRolling = uiState.isRolling
+    }
+    LaunchedEffect(uiState.savedValues.size) {
+        if (shouldPlaySequenceSuccess(previousSavedCount, uiState.savedValues.size)) {
+            soundPlayer.play(SoundEffect.SUCCESS)
+        }
+        previousSavedCount = uiState.savedValues.size
+    }
+    LaunchedEffect(uiState.failureReason) {
+        val hasFailure = uiState.failureReason != null
+        if (shouldPlaySequenceLoss(previousHasFailure, hasFailure)) {
+            soundPlayer.play(SoundEffect.LOSS)
+        }
+        previousHasFailure = hasFailure
+    }
+    LaunchedEffect(uiState.rewardCards) {
+        val hasRewards = uiState.rewardCards.isNotEmpty()
+        if (hasRewards && !hadRewardCards) {
+            soundPlayer.play(SoundEffect.CARD_DRAW)
+        }
+        hadRewardCards = hasRewards
+    }
     var showExitDialog by remember { mutableStateOf(false) }
     BackHandler(enabled = !showExitDialog) {
         showExitDialog = true
@@ -160,7 +194,10 @@ fun SequenceGameScreen(
             contentAlignment = Alignment.Center
         ) {
             IconButton(
-                onClick = { showExitDialog = true },
+                onClick = {
+                    soundPlayer.play(SoundEffect.QUESTION)
+                    showExitDialog = true
+                },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
@@ -278,14 +315,18 @@ fun SequenceGameScreen(
                                         label = stringResource(R.string.sequence_discard),
                                         testTag = SEQUENCE_DISCARD_BUTTON_TAG,
                                         modifier = Modifier.weight(1f),
-                                        onClick = onDiscardClick
+                                        onClick = {
+                                            onDiscardClick()
+                                        }
                                     )
 
                                     SequenceDecisionAction.Save -> SequenceChoiceButton(
                                         label = stringResource(R.string.sequence_save),
                                         testTag = SEQUENCE_SAVE_BUTTON_TAG,
                                         modifier = Modifier.weight(1f),
-                                        onClick = onSaveClick
+                                        onClick = {
+                                            onSaveClick()
+                                        }
                                     )
                                 }
                             }
@@ -363,7 +404,9 @@ fun SequenceGameScreen(
 
         if (!uiState.isStarted) {
             Button(
-                onClick = onStartClick,
+                onClick = {
+                    onStartClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
@@ -395,7 +438,10 @@ fun SequenceGameScreen(
 
         if (shouldShowSequenceContinueButton(hasReward = hasReward, hasLoss = hasLoss)) {
             Button(
-                onClick = onContinueClick,
+                onClick = {
+                    soundPlayer.play(SoundEffect.USE)
+                    onContinueClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
@@ -439,6 +485,7 @@ fun SequenceGameScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
+                            soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
                             onExitToMenu()
                         }
@@ -451,7 +498,12 @@ fun SequenceGameScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showExitDialog = false }) {
+                    TextButton(
+                        onClick = {
+                            soundPlayer.play(SoundEffect.USE)
+                            showExitDialog = false
+                        }
+                    ) {
                         Text(
                             text = stringResource(R.string.dialog_cancel),
                             style = MaterialTheme.typography.titleMedium,
@@ -491,6 +543,14 @@ internal fun shouldShowSequenceContinueButton(
     hasLoss: Boolean
 ): Boolean {
     return hasReward || hasLoss
+}
+
+internal fun shouldPlaySequenceSuccess(previousSavedCount: Int, currentSavedCount: Int): Boolean {
+    return currentSavedCount > previousSavedCount
+}
+
+internal fun shouldPlaySequenceLoss(previousHasFailure: Boolean, currentHasFailure: Boolean): Boolean {
+    return !previousHasFailure && currentHasFailure
 }
 
 @Composable

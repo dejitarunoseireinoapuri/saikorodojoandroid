@@ -14,6 +14,11 @@ class ResourcesTest {
     }
 
     @Test
+    fun `move sound effect resource is available`() {
+        assertNotEquals(0, R.raw.move)
+    }
+
+    @Test
     fun `selected dice drawables use app primary color`() {
         val expectedColor = "#FF56BD88"
         val drawablePaths = listOf(

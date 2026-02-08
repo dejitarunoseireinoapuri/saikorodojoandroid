@@ -31,9 +31,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
@@ -44,6 +41,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 
 internal const val MENU_TOP_APP_BAR_TAG = "menu_top_app_bar"
 internal const val MENU_PLAY_BUTTON_TAG = "menu_play_button"
@@ -56,13 +55,15 @@ fun MenuScreen(
     contentPadding: PaddingValues = PaddingValues(),
     applySystemBarsPadding: Boolean = true,
     showContinueDialog: Boolean,
+    isSoundEnabled: Boolean,
     onPlayClick: () -> Unit,
     onRulesClick: () -> Unit,
     onContinueGame: () -> Unit,
     onStartNewGame: () -> Unit,
-    onDismissDialog: () -> Unit
+    onDismissDialog: () -> Unit,
+    onSoundToggleClick: () -> Unit
 ) {
-    var isSoundMuted by remember { mutableStateOf(false) }
+    val soundPlayer = rememberSoundPlayer()
     var scaffoldModifier = modifier
     if (applySystemBarsPadding) {
         scaffoldModifier = scaffoldModifier.systemBarsPadding()
@@ -85,14 +86,22 @@ fun MenuScreen(
                 ),
                 title = { },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(
+                        onClick = {
+                            val shouldPlayActivationSound = !isSoundEnabled
+                            onSoundToggleClick()
+                            if (shouldPlayActivationSound) {
+                                soundPlayer.play(SoundEffect.USE)
+                            }
+                        }
+                    ) {
                         Icon(
-                            imageVector = if (isSoundMuted) {
+                            imageVector = if (!isSoundEnabled) {
                                 Icons.AutoMirrored.Filled.VolumeOff
                             } else {
                                 Icons.AutoMirrored.Filled.VolumeUp
                             },
-                            contentDescription = if (isSoundMuted) {
+                            contentDescription = if (!isSoundEnabled) {
                                 stringResource(R.string.cd_sound_off)
                             } else {
                                 stringResource(R.string.cd_sound_on)
@@ -100,7 +109,7 @@ fun MenuScreen(
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { soundPlayer.play(SoundEffect.QUESTION) }) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(R.string.cd_settings),
@@ -131,7 +140,10 @@ fun MenuScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedButton(
-                    onClick = onPlayClick,
+                    onClick = {
+                        soundPlayer.play(SoundEffect.USE)
+                        onPlayClick()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.onBackground
@@ -150,7 +162,10 @@ fun MenuScreen(
                     )
                 }
                 OutlinedButton(
-                    onClick = onRulesClick,
+                    onClick = {
+                        soundPlayer.play(SoundEffect.USE)
+                        onRulesClick()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.onBackground
@@ -191,7 +206,12 @@ fun MenuScreen(
                 )
             },
             confirmButton = {
-                TextButton(onClick = onContinueGame) {
+                TextButton(
+                    onClick = {
+                        soundPlayer.play(SoundEffect.USE)
+                        onContinueGame()
+                    }
+                ) {
                     Text(
                         text = stringResource(R.string.menu_continue_confirm),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -200,7 +220,12 @@ fun MenuScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = onStartNewGame) {
+                TextButton(
+                    onClick = {
+                        soundPlayer.play(SoundEffect.USE)
+                        onStartNewGame()
+                    }
+                ) {
                     Text(
                         text = stringResource(R.string.menu_continue_new_game),
                         style = MaterialTheme.typography.titleMedium,
@@ -236,10 +261,12 @@ fun MenuRoute(
     MenuScreen(
         modifier = modifier,
         showContinueDialog = uiState.showContinueDialog,
+        isSoundEnabled = uiState.isSoundEnabled,
         onPlayClick = { viewModel.onEvent(MenuUiEvent.PlayClicked) },
         onRulesClick = onRulesClick,
         onContinueGame = { viewModel.onEvent(MenuUiEvent.ContinueGame) },
         onStartNewGame = { viewModel.onEvent(MenuUiEvent.StartNewGame) },
-        onDismissDialog = { viewModel.onEvent(MenuUiEvent.DismissDialog) }
+        onDismissDialog = { viewModel.onEvent(MenuUiEvent.DismissDialog) },
+        onSoundToggleClick = { viewModel.onEvent(MenuUiEvent.SoundToggleClicked) }
     )
 }

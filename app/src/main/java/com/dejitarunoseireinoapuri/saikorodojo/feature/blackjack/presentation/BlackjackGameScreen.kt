@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -58,6 +59,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.Blackjac
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -116,6 +119,44 @@ fun BlackjackGameScreen(
     onContinueClick: () -> Unit,
     onExitToMenu: () -> Unit
 ) {
+    val soundPlayer = rememberSoundPlayer()
+    var wasRolling by remember { mutableStateOf(false) }
+    var wasComplete by remember { mutableStateOf(false) }
+    var hadRewardCards by remember { mutableStateOf(false) }
+    var previousPlayerDiceCount by remember { mutableStateOf(0) }
+    var previousDealerDiceCount by remember { mutableStateOf(0) }
+    LaunchedEffect(uiState.isRolling) {
+        if (uiState.isRolling && !wasRolling) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        wasRolling = uiState.isRolling
+    }
+    LaunchedEffect(uiState.playerDice.size) {
+        if (shouldPlayDiceRollForNewDie(previousPlayerDiceCount, uiState.playerDice.size)) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        previousPlayerDiceCount = uiState.playerDice.size
+    }
+    LaunchedEffect(uiState.dealerDice.size) {
+        if (shouldPlayDiceRollForNewDie(previousDealerDiceCount, uiState.dealerDice.size)) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        previousDealerDiceCount = uiState.dealerDice.size
+    }
+    LaunchedEffect(uiState.isComplete, uiState.rewardCards) {
+        val hasLoss = uiState.isComplete && uiState.rewardCards.isEmpty() && uiState.isStarted
+        if (uiState.isComplete && !wasComplete) {
+            soundPlayer.play(if (hasLoss) SoundEffect.LOSS else SoundEffect.SUCCESS)
+        }
+        wasComplete = uiState.isComplete
+    }
+    LaunchedEffect(uiState.rewardCards) {
+        val hasRewards = uiState.rewardCards.isNotEmpty()
+        if (hasRewards && !hadRewardCards) {
+            soundPlayer.play(SoundEffect.CARD_DRAW)
+        }
+        hadRewardCards = hasRewards
+    }
     var showExitDialog by remember { mutableStateOf(false) }
     BackHandler(enabled = !showExitDialog) {
         showExitDialog = true
@@ -136,7 +177,10 @@ fun BlackjackGameScreen(
             contentAlignment = Alignment.Center
         ) {
             IconButton(
-                onClick = { showExitDialog = true },
+                onClick = {
+                    soundPlayer.play(SoundEffect.QUESTION)
+                    showExitDialog = true
+                },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
@@ -254,7 +298,9 @@ fun BlackjackGameScreen(
 
         if (!uiState.isStarted) {
             Button(
-                onClick = onStartClick,
+                onClick = {
+                    onStartClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
@@ -308,13 +354,17 @@ fun BlackjackGameScreen(
                         BlackjackActionButton(
                             label = stringResource(R.string.blackjack_stand),
                             testTag = BLACKJACK_STAND_BUTTON_TAG,
-                            onClick = onStandClick,
+                            onClick = {
+                                onStandClick()
+                            },
                             modifier = Modifier.weight(1f)
                         )
                         BlackjackActionButton(
                             label = stringResource(R.string.blackjack_hit),
                             testTag = BLACKJACK_HIT_BUTTON_TAG,
-                            onClick = onHitClick,
+                            onClick = {
+                                onHitClick()
+                            },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -366,7 +416,10 @@ fun BlackjackGameScreen(
 
         if (uiState.isComplete && uiState.isStarted) {
             Button(
-                onClick = onContinueClick,
+                onClick = {
+                    soundPlayer.play(SoundEffect.USE)
+                    onContinueClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
@@ -409,6 +462,7 @@ fun BlackjackGameScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
+                            soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
                             onExitToMenu()
                         }
@@ -421,7 +475,12 @@ fun BlackjackGameScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showExitDialog = false }) {
+                    TextButton(
+                        onClick = {
+                            soundPlayer.play(SoundEffect.USE)
+                            showExitDialog = false
+                        }
+                    ) {
                         Text(
                             text = stringResource(R.string.dialog_cancel),
                             style = MaterialTheme.typography.titleMedium,
@@ -449,6 +508,10 @@ internal fun blackjackResultTextColor(
         )
         null -> defaultColor
     }
+}
+
+internal fun shouldPlayDiceRollForNewDie(previousCount: Int, currentCount: Int): Boolean {
+    return currentCount > previousCount
 }
 
 @Composable

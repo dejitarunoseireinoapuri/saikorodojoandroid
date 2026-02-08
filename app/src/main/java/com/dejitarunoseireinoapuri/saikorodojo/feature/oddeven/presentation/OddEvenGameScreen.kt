@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -58,6 +59,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.Reward
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -115,6 +118,36 @@ fun OddEvenGameScreen(
     onContinueClick: () -> Unit,
     onExitToMenu: () -> Unit
 ) {
+    val soundPlayer = rememberSoundPlayer()
+    var wasRolling by remember { mutableStateOf(false) }
+    var hadRewardCards by remember { mutableStateOf(false) }
+    var previousCorrectCount by remember { mutableStateOf(0) }
+    var previousWrongCount by remember { mutableStateOf(0) }
+    LaunchedEffect(uiState.isRolling) {
+        if (uiState.isRolling && !wasRolling) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        wasRolling = uiState.isRolling
+    }
+    LaunchedEffect(uiState.correctCount) {
+        if (shouldPlayOddEvenSuccess(previousCorrectCount, uiState.correctCount)) {
+            soundPlayer.play(SoundEffect.SUCCESS)
+        }
+        previousCorrectCount = uiState.correctCount
+    }
+    LaunchedEffect(uiState.wrongCount) {
+        if (shouldPlayOddEvenLoss(previousWrongCount, uiState.wrongCount)) {
+            soundPlayer.play(SoundEffect.LOSS)
+        }
+        previousWrongCount = uiState.wrongCount
+    }
+    LaunchedEffect(uiState.rewardCards) {
+        val hasRewards = uiState.rewardCards.isNotEmpty()
+        if (hasRewards && !hadRewardCards) {
+            soundPlayer.play(SoundEffect.CARD_DRAW)
+        }
+        hadRewardCards = hasRewards
+    }
     var showExitDialog by remember { mutableStateOf(false) }
     BackHandler(enabled = !showExitDialog) {
         showExitDialog = true
@@ -137,7 +170,10 @@ fun OddEvenGameScreen(
             contentAlignment = Alignment.Center
         ) {
             IconButton(
-                onClick = { showExitDialog = true },
+                onClick = {
+                    soundPlayer.play(SoundEffect.QUESTION)
+                    showExitDialog = true
+                },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
@@ -241,13 +277,17 @@ fun OddEvenGameScreen(
                             visible = uiState.selectedChoice != OddEvenChoice.ODD,
                             label = stringResource(R.string.odd_even_even),
                             isEnabled = uiState.selectedChoice == null,
-                            onClick = { onChoiceSelect(OddEvenChoice.EVEN) }
+                            onClick = {
+                                onChoiceSelect(OddEvenChoice.EVEN)
+                            }
                         )
                         OddEvenChoiceButton(
                             visible = uiState.selectedChoice != OddEvenChoice.EVEN,
                             label = stringResource(R.string.odd_even_odd),
                             isEnabled = uiState.selectedChoice == null,
-                            onClick = { onChoiceSelect(OddEvenChoice.ODD) }
+                            onClick = {
+                                onChoiceSelect(OddEvenChoice.ODD)
+                            }
                         )
                     }
                 }
@@ -256,7 +296,10 @@ fun OddEvenGameScreen(
 
         if (!uiState.isStarted) {
             Button(
-                onClick = onStartClick,
+                onClick = {
+                    soundPlayer.play(SoundEffect.USE)
+                    onStartClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
@@ -306,7 +349,10 @@ fun OddEvenGameScreen(
 
         if (uiState.isComplete && uiState.isStarted) {
             Button(
-                onClick = onContinueClick,
+                onClick = {
+                    soundPlayer.play(SoundEffect.USE)
+                    onContinueClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
@@ -350,6 +396,7 @@ fun OddEvenGameScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
+                            soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
                             onExitToMenu()
                         }
@@ -362,7 +409,12 @@ fun OddEvenGameScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showExitDialog = false }) {
+                    TextButton(
+                        onClick = {
+                            soundPlayer.play(SoundEffect.USE)
+                            showExitDialog = false
+                        }
+                    ) {
                         Text(
                             text = stringResource(R.string.dialog_cancel),
                             style = MaterialTheme.typography.titleMedium,
@@ -449,4 +501,12 @@ private fun OddEvenDiceFace(
             )
         }
     }
+}
+
+internal fun shouldPlayOddEvenSuccess(previousCorrect: Int, currentCorrect: Int): Boolean {
+    return currentCorrect > previousCorrect
+}
+
+internal fun shouldPlayOddEvenLoss(previousWrong: Int, currentWrong: Int): Boolean {
+    return currentWrong > previousWrong
 }
