@@ -230,7 +230,7 @@ class SequenceGameViewModelTest {
     }
 
     @Test
-    fun `saving ten with pending sequence target ends the game as unwinnable`() = runTest {
+    fun `saving ten keeps the game alive while rolls remain`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(10),
             totalRolls = 5,
@@ -243,10 +243,10 @@ class SequenceGameViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertTrue(state.isComplete)
+        assertTrue(state.isComplete.not())
         assertEquals(listOf(10), state.savedValues)
-        assertEquals(1, state.currentRoll)
-        assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
+        assertEquals(2, state.currentRoll)
+        assertTrue(state.isAwaitingDecision)
     }
     @Test
     fun `reaching the maximum rolls without success ends the game`() = runTest {

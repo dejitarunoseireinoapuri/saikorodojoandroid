@@ -94,6 +94,25 @@ class HigherLowerGameViewModelTest {
     }
 
     @Test
+    fun `win updates the correct streak to the target`() = runTest {
+        val viewModel = buildViewModel(
+            diceValues = listOf(1, 1, 2, 2),
+            targetCorrect = 1
+        )
+
+        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete)
+        assertEquals(1, state.correctStreak)
+        assertTrue(state.rewardCards.isNotEmpty())
+    }
+
+    @Test
     fun `matching sums trigger a win`() = runTest {
         val viewModel = buildViewModel(
             diceValues = listOf(1, 1, 3, 3, 2, 2, 2, 4)
@@ -109,6 +128,7 @@ class HigherLowerGameViewModelTest {
         assertTrue(state.isComplete)
         assertTrue(state.rewardCards.isNotEmpty())
         assertFalse(state.hasLoss)
+        assertEquals(1, state.correctStreak)
     }
 
     @Test
@@ -247,6 +267,7 @@ class HigherLowerGameViewModelTest {
 
     private fun buildViewModel(
         diceValues: List<Int>,
+        targetCorrect: Int = 3,
         successHighlightMs: Long = 0L,
         transitionMs: Long = 0L,
         successResultDelayMs: Long = 0L,
@@ -265,7 +286,8 @@ class HigherLowerGameViewModelTest {
             transitionMs = transitionMs,
             successHighlightMs = successHighlightMs,
             successResultDelayMs = successResultDelayMs,
-            postTransitionHoldMs = postTransitionHoldMs
+            postTransitionHoldMs = postTransitionHoldMs,
+            targetCorrect = targetCorrect
         )
     }
 

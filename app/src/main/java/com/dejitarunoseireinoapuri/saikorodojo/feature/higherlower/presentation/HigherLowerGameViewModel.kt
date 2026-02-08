@@ -188,6 +188,7 @@ class HigherLowerGameViewModel(
                 val baseSum = DiceSum(state.baseDiceValues.sum())
                 val newSum = DiceSum(roll.sum)
                 if (newSum.value == baseSum.value) {
+                    _uiState.update { it.copy(correctStreak = state.correctStreak + 1) }
                     resolveWin()
                 } else if (isCorrectGuess(choice, baseSum, newSum)) {
                     resolveCorrectGuess(roll.values)
@@ -225,6 +226,7 @@ class HigherLowerGameViewModel(
         val state = _uiState.value
         val updatedStreak = state.correctStreak + 1
         if (updatedStreak >= targetCorrect) {
+            _uiState.update { it.copy(correctStreak = updatedStreak) }
             resolveWin()
             return
         }

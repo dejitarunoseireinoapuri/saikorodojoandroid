@@ -203,10 +203,10 @@ fun BlackjackGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 32.dp, end = 32.dp, top = 80.dp, bottom = 24.dp),
+                .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             val titleColor = MaterialTheme.colorScheme.onBackground
             val showEndState = uiState.isComplete
             val resultTextRes = when (uiState.result) {
@@ -405,7 +405,7 @@ fun BlackjackGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 64.dp)
+                    .padding(top = 96.dp)
                     .testTag(BLACKJACK_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center

@@ -211,10 +211,10 @@ fun HigherLowerGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 24.dp, end = 24.dp, top = 80.dp, bottom = 24.dp),
+                .padding(start = 24.dp, end = 24.dp, top = 64.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             val titleColor = MaterialTheme.colorScheme.onBackground
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.hasLoss && uiState.isComplete
@@ -489,7 +489,7 @@ fun HigherLowerGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 32.dp)
+                    .padding(top = 64.dp)
                     .testTag(HIGHER_LOWER_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
