@@ -7,5 +7,6 @@ enum class SoundEffect {
     SUCCESS,
     LOSS,
     MOVE_DICE,
+    MOVE,
     QUESTION
 }

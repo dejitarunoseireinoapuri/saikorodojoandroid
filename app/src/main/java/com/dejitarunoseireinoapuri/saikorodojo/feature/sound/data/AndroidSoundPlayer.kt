@@ -23,6 +23,7 @@ class AndroidSoundPlayer(
         SoundEffect.SUCCESS to soundPool.load(context, R.raw.success, 1),
         SoundEffect.LOSS to soundPool.load(context, R.raw.loss, 1),
         SoundEffect.MOVE_DICE to soundPool.load(context, R.raw.move_dice, 1),
+        SoundEffect.MOVE to soundPool.load(context, R.raw.move, 1),
         SoundEffect.QUESTION to soundPool.load(context, R.raw.question, 1)
     )
 
