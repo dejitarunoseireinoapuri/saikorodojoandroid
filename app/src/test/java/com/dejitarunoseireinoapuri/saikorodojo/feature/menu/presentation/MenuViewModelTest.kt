@@ -18,7 +18,13 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSe
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MinigameSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.GetSoundEnabledUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.ObserveSoundEnabledUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundSettingsRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.ToggleSoundEnabledUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -35,6 +41,7 @@ class MenuViewModelTest {
     fun `play starts new game when no save exists`() = runTest {
         val cardRepo = FakeCardInventoryRepository()
         val sessionRepo = FakeGameSessionRepository()
+        val soundRepo = FakeSoundSettingsRepository(isEnabled = true)
         val viewModel = MenuViewModel(
             hasSavedGameSessionUseCase = HasSavedGameSessionUseCase(sessionRepo),
             loadGameSessionUseCase = LoadGameSessionUseCase(sessionRepo),
@@ -43,7 +50,10 @@ class MenuViewModelTest {
             addCardsToInventoryUseCase = AddCardsToInventoryUseCase(cardRepo),
             selectStartingCardsUseCase = SelectStartingCardsUseCase(
                 randomProvider = { 0f }
-            )
+            ),
+            getSoundEnabledUseCase = GetSoundEnabledUseCase(soundRepo),
+            observeSoundEnabledUseCase = ObserveSoundEnabledUseCase(soundRepo),
+            toggleSoundEnabledUseCase = ToggleSoundEnabledUseCase(soundRepo)
         )
 
         viewModel.onEvent(MenuUiEvent.PlayClicked)
@@ -56,6 +66,7 @@ class MenuViewModelTest {
     @Test
     fun `play shows continue dialog when save exists`() = runTest {
         val cardRepo = FakeCardInventoryRepository()
+        val soundRepo = FakeSoundSettingsRepository(isEnabled = true)
         val sessionRepo = FakeGameSessionRepository().apply {
             saveSession(SavedSession.Minigame(MinigameType.ODD_EVEN, buildOddEvenSnapshot(), buildMainSnapshot()))
         }
@@ -67,7 +78,10 @@ class MenuViewModelTest {
             addCardsToInventoryUseCase = AddCardsToInventoryUseCase(cardRepo),
             selectStartingCardsUseCase = SelectStartingCardsUseCase(
                 randomProvider = { 0f }
-            )
+            ),
+            getSoundEnabledUseCase = GetSoundEnabledUseCase(soundRepo),
+            observeSoundEnabledUseCase = ObserveSoundEnabledUseCase(soundRepo),
+            toggleSoundEnabledUseCase = ToggleSoundEnabledUseCase(soundRepo)
         )
 
         viewModel.onEvent(MenuUiEvent.PlayClicked)
@@ -78,6 +92,7 @@ class MenuViewModelTest {
     @Test
     fun `continue navigates to saved minigame`() = runTest {
         val cardRepo = FakeCardInventoryRepository()
+        val soundRepo = FakeSoundSettingsRepository(isEnabled = true)
         val sessionRepo = FakeGameSessionRepository().apply {
             saveSession(SavedSession.Minigame(MinigameType.SEQUENCE, buildSequenceSnapshot(), buildMainSnapshot()))
         }
@@ -89,7 +104,10 @@ class MenuViewModelTest {
             addCardsToInventoryUseCase = AddCardsToInventoryUseCase(cardRepo),
             selectStartingCardsUseCase = SelectStartingCardsUseCase(
                 randomProvider = { 0f }
-            )
+            ),
+            getSoundEnabledUseCase = GetSoundEnabledUseCase(soundRepo),
+            observeSoundEnabledUseCase = ObserveSoundEnabledUseCase(soundRepo),
+            toggleSoundEnabledUseCase = ToggleSoundEnabledUseCase(soundRepo)
         )
 
         viewModel.onEvent(MenuUiEvent.ContinueGame)
@@ -226,4 +244,18 @@ private class FakeGameSessionRepository : GameSessionRepository {
     override fun savePendingMainGameSnapshot(snapshot: MainGameSnapshot) = Unit
 
     override fun getPendingMainGameSnapshot(): MainGameSnapshot? = null
+}
+
+private class FakeSoundSettingsRepository(
+    isEnabled: Boolean
+) : SoundSettingsRepository {
+    private val enabledFlow = MutableStateFlow(isEnabled)
+
+    override fun isSoundEnabled(): Boolean = enabledFlow.value
+
+    override fun observeSoundEnabled(): Flow<Boolean> = enabledFlow
+
+    override fun setSoundEnabled(enabled: Boolean) {
+        enabledFlow.value = enabled
+    }
 }

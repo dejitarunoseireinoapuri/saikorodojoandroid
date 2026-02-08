@@ -48,11 +48,13 @@ class MenuScreenTest {
                     contentPadding = PaddingValues(top = topPadding),
                     applySystemBarsPadding = false,
                     showContinueDialog = false,
+                    isSoundEnabled = true,
                     onPlayClick = {},
                     onRulesClick = {},
                     onContinueGame = {},
                     onStartNewGame = {},
-                    onDismissDialog = {}
+                    onDismissDialog = {},
+                    onSoundToggleClick = {}
                 )
             }
         }
@@ -70,11 +72,13 @@ class MenuScreenTest {
                 MenuScreen(
                     applySystemBarsPadding = false,
                     showContinueDialog = false,
+                    isSoundEnabled = true,
                     onPlayClick = {},
                     onRulesClick = {},
                     onContinueGame = {},
                     onStartNewGame = {},
-                    onDismissDialog = {}
+                    onDismissDialog = {},
+                    onSoundToggleClick = {}
                 )
             }
         }

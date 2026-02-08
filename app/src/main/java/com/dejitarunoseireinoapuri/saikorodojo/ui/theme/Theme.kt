@@ -31,7 +31,7 @@ data class SaikoroDojoGradientColors(
     val menuGameBottom: Color
 )
 
-private val AppGradientColors = SaikoroDojoGradientColors(
+internal val AppGradientColors = SaikoroDojoGradientColors(
     menuGameTop = LightMenuGameGradientTop,
     menuGameMiddle = LightMenuGameGradientMiddle,
     menuGameBottom = LightMenuGameGradientBottom

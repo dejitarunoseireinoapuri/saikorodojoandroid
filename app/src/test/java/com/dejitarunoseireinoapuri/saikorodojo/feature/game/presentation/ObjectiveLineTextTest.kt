@@ -10,18 +10,29 @@ class ObjectiveLineTextTest {
     fun `selected dice progress clamps to minimum`() {
         val condition = MinSelectedDiceCondition(minCount = 3)
 
-        val (textRes, args) = objectiveLineText(condition, selectedCount = 5)
+        val result = objectiveLineText(condition, selectedCount = 5)
 
-        assertEquals(R.string.objective_selected_progress, textRes)
-        assertEquals(listOf(3, 3), args)
+        val expected = ObjectiveLineText.PluralRes(
+            resId = R.plurals.objective_selected_progress,
+            quantity = 3,
+            formatArgs = listOf(3, 3)
+        )
+
+        assertEquals(expected, result)
     }
 
     @Test
     fun `selected dice progress keeps current count when below minimum`() {
         val condition = MinSelectedDiceCondition(minCount = 3)
 
-        val (_, args) = objectiveLineText(condition, selectedCount = 2)
+        val result = objectiveLineText(condition, selectedCount = 2)
 
-        assertEquals(listOf(2, 3), args)
+        val expected = ObjectiveLineText.PluralRes(
+            resId = R.plurals.objective_selected_progress,
+            quantity = 2,
+            formatArgs = listOf(2, 3)
+        )
+
+        assertEquals(expected, result)
     }
 }
