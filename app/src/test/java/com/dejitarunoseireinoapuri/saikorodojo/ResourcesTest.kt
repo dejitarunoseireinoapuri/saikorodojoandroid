@@ -34,7 +34,10 @@ class ResourcesTest {
     }
 
     private fun resolveProjectPath(path: String): File {
-        val projectDir = File(System.getProperty("user.dir"))
+        val projectRoot = requireNotNull(System.getProperty("user.dir")) {
+            "user.dir is required to resolve project paths"
+        }
+        val projectDir = File(projectRoot)
         val direct = File(projectDir, path)
         if (direct.exists()) return direct
         val parent = projectDir.parentFile ?: projectDir
