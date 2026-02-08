@@ -104,6 +104,7 @@ data class GameUiState(
 
 sealed interface GameUiEvent {
     data object StartRoll : GameUiEvent
+    data object RefreshInventory : GameUiEvent
     data class DiceClicked(val index: Int) : GameUiEvent
     data class SelectCard(val index: Int) : GameUiEvent
     data class ApplyCard(val index: Int) : GameUiEvent
@@ -214,6 +215,7 @@ class GameViewModel(
     fun onEvent(event: GameUiEvent) {
         when (event) {
             GameUiEvent.StartRoll -> startRolling()
+            GameUiEvent.RefreshInventory -> refreshCardInventory()
             is GameUiEvent.DiceClicked -> handleDiceClick(event.index)
             is GameUiEvent.SelectCard -> {
                 if (!isCardInteractionBlocked()) {

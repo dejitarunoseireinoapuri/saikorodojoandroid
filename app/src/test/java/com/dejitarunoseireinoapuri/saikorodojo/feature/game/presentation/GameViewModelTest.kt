@@ -518,6 +518,26 @@ class GameViewModelTest {
         assertEquals(null, sessionRepository.loadSession())
     }
 
+    @Test
+    fun `refresh inventory loads cards from repository`() = runTest {
+        val repository = InMemoryCardInventoryRepository()
+        val viewModel = buildViewModel(
+            cardUiModels = emptyList(),
+            cardInventoryRepository = repository
+        )
+
+        assertTrue(viewModel.uiState.value.cardUiModels.isEmpty())
+
+        repository.addCards(listOf(CardId.REROLL_ALL))
+
+        viewModel.onEvent(GameUiEvent.RefreshInventory)
+
+        val updatedCards = viewModel.uiState.value.cardUiModels
+        assertEquals(1, updatedCards.size)
+        assertEquals(CardId.REROLL_ALL, updatedCards.first().id)
+        assertEquals(1, updatedCards.first().count)
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(
@@ -528,6 +548,7 @@ class GameViewModelTest {
                 iconRes = 0
             )
         ),
+        cardInventoryRepository: InMemoryCardInventoryRepository = InMemoryCardInventoryRepository(),
         sessionRepository: GameSessionRepository = InMemoryGameSessionRepository()
     ): GameViewModel {
         val levelDefinition = LevelDefinition(
@@ -535,11 +556,10 @@ class GameViewModelTest {
             diceCount = 3,
             diceTypes = List(3) { DiceType.D6 }
         )
-        val repository = InMemoryCardInventoryRepository()
         return GameViewModel(
             rollDiceUseCase = rollDiceUseCase,
-            getCardInventoryUseCase = GetCardInventoryUseCase(repository),
-            consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(repository),
+            getCardInventoryUseCase = GetCardInventoryUseCase(cardInventoryRepository),
+            consumeCardFromInventoryUseCase = ConsumeCardFromInventoryUseCase(cardInventoryRepository),
             loadGameSessionUseCase = LoadGameSessionUseCase(sessionRepository),
             saveGameSessionUseCase = SaveGameSessionUseCase(sessionRepository),
             clearGameSessionUseCase = ClearGameSessionUseCase(sessionRepository),
