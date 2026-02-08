@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -87,5 +88,27 @@ class MenuScreenTest {
             .assertHeightIsEqualTo(expectedHeight)
         composeRule.onNodeWithTag(MENU_RULES_BUTTON_TAG)
             .assertHeightIsEqualTo(expectedHeight)
+    }
+
+    @Test
+    fun menuShowsSaikoroDojoDieImage() {
+        composeRule.setContent {
+            SaikoroDojoTheme {
+                MenuScreen(
+                    applySystemBarsPadding = false,
+                    showContinueDialog = false,
+                    isSoundEnabled = true,
+                    onPlayClick = {},
+                    onRulesClick = {},
+                    onContinueGame = {},
+                    onStartNewGame = {},
+                    onDismissDialog = {},
+                    onSoundToggleClick = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag(MENU_DIE_IMAGE_TAG)
+            .assertIsDisplayed()
     }
 }
