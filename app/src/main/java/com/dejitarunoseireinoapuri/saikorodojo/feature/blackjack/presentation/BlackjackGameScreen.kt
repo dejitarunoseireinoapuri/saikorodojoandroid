@@ -131,14 +131,14 @@ fun BlackjackGameScreen(
         }
         wasRolling = uiState.isRolling
     }
-    LaunchedEffect(uiState.playerDice.size) {
-        if (shouldPlayDiceRollForNewDie(previousPlayerDiceCount, uiState.playerDice.size)) {
+    LaunchedEffect(uiState.playerDice.size, uiState.isRolling) {
+        if (shouldPlayDiceRollForNewDie(previousPlayerDiceCount, uiState.playerDice.size, uiState.isRolling)) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
         }
         previousPlayerDiceCount = uiState.playerDice.size
     }
-    LaunchedEffect(uiState.dealerDice.size) {
-        if (shouldPlayDiceRollForNewDie(previousDealerDiceCount, uiState.dealerDice.size)) {
+    LaunchedEffect(uiState.dealerDice.size, uiState.isRolling) {
+        if (shouldPlayDiceRollForNewDie(previousDealerDiceCount, uiState.dealerDice.size, uiState.isRolling)) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
         }
         previousDealerDiceCount = uiState.dealerDice.size
@@ -510,8 +510,12 @@ internal fun blackjackResultTextColor(
     }
 }
 
-internal fun shouldPlayDiceRollForNewDie(previousCount: Int, currentCount: Int): Boolean {
-    return currentCount > previousCount
+internal fun shouldPlayDiceRollForNewDie(
+    previousCount: Int,
+    currentCount: Int,
+    isRolling: Boolean
+): Boolean {
+    return isRolling && currentCount > previousCount
 }
 
 @Composable
