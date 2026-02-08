@@ -299,7 +299,6 @@ fun BlackjackGameScreen(
         if (!uiState.isStarted) {
             Button(
                 onClick = {
-                    soundPlayer.play(SoundEffect.USE)
                     onStartClick()
                 },
                 shape = RoundedCornerShape(20.dp),
@@ -356,7 +355,6 @@ fun BlackjackGameScreen(
                             label = stringResource(R.string.blackjack_stand),
                             testTag = BLACKJACK_STAND_BUTTON_TAG,
                             onClick = {
-                                soundPlayer.play(SoundEffect.USE)
                                 onStandClick()
                             },
                             modifier = Modifier.weight(1f)
@@ -365,7 +363,6 @@ fun BlackjackGameScreen(
                             label = stringResource(R.string.blackjack_hit),
                             testTag = BLACKJACK_HIT_BUTTON_TAG,
                             onClick = {
-                                soundPlayer.play(SoundEffect.USE)
                                 onHitClick()
                             },
                             modifier = Modifier.weight(1f)

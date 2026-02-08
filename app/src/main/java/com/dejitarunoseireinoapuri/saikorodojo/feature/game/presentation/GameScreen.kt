@@ -661,6 +661,9 @@ private fun GameCardStack(
                     if (isSelected) {
                         onCardDismiss()
                     } else {
+                        if (shouldPlayCardDrawSound(isSelected, isInteractionEnabled)) {
+                            soundPlayer.play(SoundEffect.CARD_DRAW)
+                        }
                         onCardSelect(index)
                     }
                 }
@@ -717,4 +720,11 @@ private fun cardTitleResForId(cardId: CardId): Int? {
         CardId.REPEAT_LAST -> R.string.card_repeat_last_title
         CardId.MINIGAMES -> R.string.card_minigames_title
     }
+}
+
+internal fun shouldPlayCardDrawSound(
+    isSelected: Boolean,
+    isInteractionEnabled: Boolean
+): Boolean {
+    return !isSelected && isInteractionEnabled
 }

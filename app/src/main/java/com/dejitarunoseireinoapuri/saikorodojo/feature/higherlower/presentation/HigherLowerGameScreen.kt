@@ -307,7 +307,6 @@ fun HigherLowerGameScreen(
                                 label = stringResource(R.string.higher_lower_lower),
                                 isEnabled = uiState.selectedChoice == null,
                                 onClick = {
-                                    soundPlayer.play(SoundEffect.USE)
                                     onChoiceSelect(HigherLowerChoice.LOWER)
                                 }
                             )
@@ -315,7 +314,6 @@ fun HigherLowerGameScreen(
                                 label = stringResource(R.string.higher_lower_higher),
                                 isEnabled = uiState.selectedChoice == null,
                                 onClick = {
-                                    soundPlayer.play(SoundEffect.USE)
                                     onChoiceSelect(HigherLowerChoice.HIGHER)
                                 }
                             )
@@ -328,7 +326,6 @@ fun HigherLowerGameScreen(
         if (!uiState.isStarted) {
             Button(
                 onClick = {
-                    soundPlayer.play(SoundEffect.USE)
                     onStartClick()
                 },
                 shape = RoundedCornerShape(20.dp),

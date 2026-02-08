@@ -272,7 +272,6 @@ fun OddEvenGameScreen(
                             label = stringResource(R.string.odd_even_even),
                             isEnabled = uiState.selectedChoice == null,
                             onClick = {
-                                soundPlayer.play(SoundEffect.USE)
                                 onChoiceSelect(OddEvenChoice.EVEN)
                             }
                         )
@@ -281,7 +280,6 @@ fun OddEvenGameScreen(
                             label = stringResource(R.string.odd_even_odd),
                             isEnabled = uiState.selectedChoice == null,
                             onClick = {
-                                soundPlayer.play(SoundEffect.USE)
                                 onChoiceSelect(OddEvenChoice.ODD)
                             }
                         )

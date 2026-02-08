@@ -138,7 +138,6 @@ fun MenuScreen(
             ) {
                 OutlinedButton(
                     onClick = {
-                        soundPlayer.play(SoundEffect.USE)
                         onPlayClick()
                     },
                     colors = ButtonDefaults.buttonColors(

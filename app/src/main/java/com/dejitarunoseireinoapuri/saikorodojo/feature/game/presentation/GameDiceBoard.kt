@@ -269,7 +269,6 @@ internal fun DiceBoard(
             val onClick = if (uiState.isAwaitingRerollSelected) onRollSelectedDice else onRollSingleDie
             Button(
                 onClick = {
-                    soundPlayer.play(SoundEffect.USE)
                     onClick()
                 },
                 enabled = isEnabled && !uiState.isRolling,

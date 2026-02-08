@@ -310,7 +310,6 @@ fun SequenceGameScreen(
                                         testTag = SEQUENCE_DISCARD_BUTTON_TAG,
                                         modifier = Modifier.weight(1f),
                                         onClick = {
-                                            soundPlayer.play(SoundEffect.USE)
                                             onDiscardClick()
                                         }
                                     )
@@ -320,7 +319,6 @@ fun SequenceGameScreen(
                                         testTag = SEQUENCE_SAVE_BUTTON_TAG,
                                         modifier = Modifier.weight(1f),
                                         onClick = {
-                                            soundPlayer.play(SoundEffect.USE)
                                             onSaveClick()
                                         }
                                     )
@@ -401,7 +399,6 @@ fun SequenceGameScreen(
         if (!uiState.isStarted) {
             Button(
                 onClick = {
-                    soundPlayer.play(SoundEffect.USE)
                     onStartClick()
                 },
                 shape = RoundedCornerShape(20.dp),
