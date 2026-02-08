@@ -492,7 +492,7 @@ private fun OddEvenDiceFace(
     ) {
         if (value != null) {
             Image(
-                painter = painterResource(id = R.drawable.saikoro_dojo_die),
+                painter = painterResource(id = R.drawable.six_sides),
                 contentDescription = stringResource(R.string.cd_dice_face, value),
                 modifier = Modifier.fillMaxSize()
             )

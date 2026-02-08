@@ -5,35 +5,40 @@
     android:viewportWidth="1024"
     android:viewportHeight="1024">
 
-  <!-- Shadow (fake, thicker) -->
+  <!-- Outer glow -->
+  <path
+      android:pathData="M204,156L820,156A92,92 0,0 1,912 248L912,856A92,92 0,0 1,820 948L204,948A92,92 0,0 1,112 856L112,248A92,92 0,0 1,204 156Z"
+      android:fillColor="#337CDBFF"/>
+
+  <!-- Shadow -->
   <group
-      android:translateX="18"
-      android:translateY="18"
-      android:scaleX="1.03"
-      android:scaleY="1.03"
+      android:translateX="16"
+      android:translateY="16"
+      android:scaleX="1.02"
+      android:scaleY="1.02"
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
-            android:fillColor="#33000000"/>
+        android:pathData="M220,176L804,176A72,72 0,0 1,876 248L876,832A72,72 0,0 1,804 904L220,904A72,72 0,0 1,148 832L148,248A72,72 0,0 1,220 176Z"
+        android:fillColor="#33000000"/>
   </group>
 
-  <!-- Main shape -->
+  <!-- Main body -->
   <path
-      android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
+      android:pathData="M220,176L804,176A72,72 0,0 1,876 248L876,832A72,72 0,0 1,804 904L220,904A72,72 0,0 1,148 832L148,248A72,72 0,0 1,220 176Z"
       android:strokeLineJoin="round"
-      android:strokeWidth="8"
-      android:strokeColor="#FF56BD88"
+      android:strokeWidth="10"
+      android:strokeColor="#9CE2FF"
       android:strokeLineCap="round">
     <aapt:attr name="android:fillColor">
       <gradient
           android:type="linear"
-          android:startX="184"
-          android:startY="184"
-          android:endX="840"
-          android:endY="840"
-          android:startColor="#FF56BD88"
-          android:endColor="#FF56BD88"/>
+          android:startX="160"
+          android:startY="176"
+          android:endX="876"
+          android:endY="904"
+          android:startColor="#FFFFFF"
+          android:endColor="#C3E4FF"/>
     </aapt:attr>
   </path>
 </vector>
