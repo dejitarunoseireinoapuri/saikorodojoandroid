@@ -360,7 +360,12 @@ internal fun DiceBoard(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
-                        ) { onDiceClick(index) }
+                        ) {
+                            if (shouldPlayMoveSound(uiState.isRolling)) {
+                                soundPlayer.play(SoundEffect.MOVE)
+                            }
+                            onDiceClick(index)
+                        }
                 ) {
                     DiceFace(
                         number = value,
@@ -446,6 +451,8 @@ private fun DiceOption(
 }
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
+
+internal fun shouldPlayMoveSound(isRolling: Boolean): Boolean = !isRolling
 
 internal fun shouldShowDiceSelectionBorder(
     isAwaitingRerollSelected: Boolean,

@@ -80,6 +80,12 @@ class GameDiceBoardTest {
     }
 
     @Test
+    fun `move sound is suppressed during roll`() {
+        assertEquals(false, shouldPlayMoveSound(isRolling = true))
+        assertEquals(true, shouldPlayMoveSound(isRolling = false))
+    }
+
+    @Test
     fun `selection border ignores preselected dice outside reroll selection`() {
         assertTrue(
             shouldShowDiceSelectionBorder(
