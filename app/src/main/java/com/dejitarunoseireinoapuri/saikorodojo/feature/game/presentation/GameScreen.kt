@@ -106,6 +106,9 @@ fun GameRoute(
             if (event == Lifecycle.Event.ON_PAUSE) {
                 viewModel.saveSession()
             }
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onEvent(GameUiEvent.RefreshInventory)
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
