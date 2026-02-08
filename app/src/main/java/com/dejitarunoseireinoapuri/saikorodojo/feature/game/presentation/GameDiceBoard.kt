@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -24,12 +27,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import android.graphics.Matrix
+import android.graphics.Path as AndroidPath
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
@@ -408,10 +421,29 @@ private fun DiceFace(
             ),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected && showSelectedFace)),
-            contentDescription = stringResource(R.string.cd_dice_face, number)
-        )
+        val useBackgroundDie = shouldUseBackgroundDie(faceDrawable, isSelected)
+        val dieShape = remember(faceDrawable) { diceFaceShape(faceDrawable) }
+        if (useBackgroundDie && dieShape != null) {
+            Box(
+                modifier = Modifier
+                    .size(size)
+                    .clip(dieShape)
+                    .border(width = 2.dp, color = DiceOutlineColor, shape = dieShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.background_die),
+                    contentDescription = stringResource(R.string.cd_dice_face, number),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.matchParentSize()
+                )
+            }
+        } else {
+            Image(
+                painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected && showSelectedFace)),
+                contentDescription = stringResource(R.string.cd_dice_face, number)
+            )
+        }
         Text(
             text = number.toString(),
             modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
@@ -702,5 +734,55 @@ internal fun diceFaceDrawable(faceDrawable: Int, isSelected: Boolean): Int {
         R.drawable.eigth_sides -> R.drawable.eigth_sides_selected
         R.drawable.ten_sides -> R.drawable.ten_sides_selected
         else -> faceDrawable
+    }
+}
+
+private const val DiceViewportSize = 1024f
+private const val D6PathData =
+    "M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
+private const val D8PathData = "M512,151.2L872.8,872.8L151.2,872.8Z"
+private const val D10PathData =
+    "M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
+
+private val DiceOutlineColor = Color(0xFF3A4663)
+
+private fun shouldUseBackgroundDie(faceDrawable: Int, isSelected: Boolean): Boolean {
+    if (isSelected) return false
+    return when (faceDrawable) {
+        R.drawable.six_sides,
+        R.drawable.eigth_sides,
+        R.drawable.ten_sides -> true
+        else -> false
+    }
+}
+
+private fun diceFaceShape(faceDrawable: Int): Shape? {
+    return when (faceDrawable) {
+        R.drawable.six_sides -> DicePathShape(D6PathData)
+        R.drawable.eigth_sides -> DicePathShape(D8PathData)
+        R.drawable.ten_sides -> DicePathShape(D10PathData)
+        else -> null
+    }
+}
+
+private class DicePathShape(pathData: String) : Shape {
+    private val basePath = PathParser().parsePathString(pathData).toPath()
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        if (size.width == 0f || size.height == 0f) {
+            return Outline.Generic(android.graphics.Path().asComposePath())
+        }
+        val scaledPath = AndroidPath().apply {
+            set(basePath.asAndroidPath())
+            val matrix = Matrix().apply {
+                setScale(size.width / DiceViewportSize, size.height / DiceViewportSize)
+            }
+            transform(matrix)
+        }
+        return Outline.Generic(scaledPath.asComposePath())
     }
 }
