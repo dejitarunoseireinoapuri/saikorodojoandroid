@@ -659,9 +659,12 @@ private fun GameCardStack(
                     enabled = isInteractionEnabled
                 ) {
                     if (isSelected) {
+                        if (shouldPlayCardDrawSound(isInteractionEnabled)) {
+                            soundPlayer.play(SoundEffect.CARD_DRAW)
+                        }
                         onCardDismiss()
                     } else {
-                        if (shouldPlayCardDrawSound(isSelected, isInteractionEnabled)) {
+                        if (shouldPlayCardDrawSound(isInteractionEnabled)) {
                             soundPlayer.play(SoundEffect.CARD_DRAW)
                         }
                         onCardSelect(index)
@@ -722,9 +725,6 @@ private fun cardTitleResForId(cardId: CardId): Int? {
     }
 }
 
-internal fun shouldPlayCardDrawSound(
-    isSelected: Boolean,
-    isInteractionEnabled: Boolean
-): Boolean {
-    return !isSelected && isInteractionEnabled
+internal fun shouldPlayCardDrawSound(isInteractionEnabled: Boolean): Boolean {
+    return isInteractionEnabled
 }

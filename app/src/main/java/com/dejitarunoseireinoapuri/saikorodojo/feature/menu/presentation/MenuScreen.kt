@@ -88,8 +88,11 @@ fun MenuScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            soundPlayer.play(SoundEffect.QUESTION)
+                            val shouldPlayActivationSound = !isSoundEnabled
                             onSoundToggleClick()
+                            if (shouldPlayActivationSound) {
+                                soundPlayer.play(SoundEffect.USE)
+                            }
                         }
                     ) {
                         Icon(
@@ -138,6 +141,7 @@ fun MenuScreen(
             ) {
                 OutlinedButton(
                     onClick = {
+                        soundPlayer.play(SoundEffect.USE)
                         onPlayClick()
                     },
                     colors = ButtonDefaults.buttonColors(

@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 
 private const val DEFAULT_TOTAL_ROUNDS = 3
 private const val DEFAULT_TARGET_CORRECT = 3
-private const val DEFAULT_ROLL_ANIMATION_MS = 1_000L
+private const val DEFAULT_ROLL_ANIMATION_MS = 1_500L
 private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_RESULT_DELAY_MS = 1_500L
 private const val DEFAULT_TRANSITION_MS = 750L
