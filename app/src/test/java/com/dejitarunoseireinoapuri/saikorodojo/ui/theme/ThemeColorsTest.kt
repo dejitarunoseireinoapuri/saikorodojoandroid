@@ -5,8 +5,8 @@ import org.junit.Test
 
 class ThemeColorsTest {
     @Test
-    fun gradientColorsUsesAppPalette() {
-        val colors = gradientColors()
+    fun appGradientColorsUsesAppPalette() {
+        val colors = AppGradientColors
 
         assertEquals(LightMenuGameGradientTop, colors.menuGameTop)
         assertEquals(LightMenuGameGradientMiddle, colors.menuGameMiddle)

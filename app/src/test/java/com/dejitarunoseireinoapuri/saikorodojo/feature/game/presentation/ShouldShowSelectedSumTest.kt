@@ -18,7 +18,7 @@ class ShouldShowSelectedSumTest {
 
     @Test
     fun `non sum objective does not enable selected sum`() {
-        val conditions = listOf(AllDistinctCondition())
+        val conditions = listOf(AllDistinctCondition)
 
         val result = shouldShowSelectedSum(conditions)
 
