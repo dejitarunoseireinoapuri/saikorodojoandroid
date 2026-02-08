@@ -139,21 +139,27 @@ fun SequenceGameScreen(
 ) {
     val soundPlayer = rememberSoundPlayer()
     var wasRolling by remember { mutableStateOf(false) }
-    var wasComplete by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
+    var previousSavedCount by remember { mutableStateOf(0) }
+    var previousHasFailure by remember { mutableStateOf(false) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
         }
         wasRolling = uiState.isRolling
     }
-    LaunchedEffect(uiState.isComplete, uiState.rewardCards, uiState.pendingRewardCards) {
-        val hasReward = uiState.rewardCards.isNotEmpty() || uiState.pendingRewardCards.isNotEmpty()
-        val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
-        if (uiState.isComplete && !wasComplete) {
-            soundPlayer.play(if (hasLoss) SoundEffect.LOSS else SoundEffect.SUCCESS)
+    LaunchedEffect(uiState.savedValues.size) {
+        if (shouldPlaySequenceSuccess(previousSavedCount, uiState.savedValues.size)) {
+            soundPlayer.play(SoundEffect.SUCCESS)
         }
-        wasComplete = uiState.isComplete
+        previousSavedCount = uiState.savedValues.size
+    }
+    LaunchedEffect(uiState.failureReason) {
+        val hasFailure = uiState.failureReason != null
+        if (shouldPlaySequenceLoss(previousHasFailure, hasFailure)) {
+            soundPlayer.play(SoundEffect.LOSS)
+        }
+        previousHasFailure = hasFailure
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
@@ -537,6 +543,14 @@ internal fun shouldShowSequenceContinueButton(
     hasLoss: Boolean
 ): Boolean {
     return hasReward || hasLoss
+}
+
+internal fun shouldPlaySequenceSuccess(previousSavedCount: Int, currentSavedCount: Int): Boolean {
+    return currentSavedCount > previousSavedCount
+}
+
+internal fun shouldPlaySequenceLoss(previousHasFailure: Boolean, currentHasFailure: Boolean): Boolean {
+    return !previousHasFailure && currentHasFailure
 }
 
 @Composable

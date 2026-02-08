@@ -129,8 +129,9 @@ fun HigherLowerGameScreen(
     val soundPlayer = rememberSoundPlayer()
     var wasRolling by remember { mutableStateOf(false) }
     var wasTransitioning by remember { mutableStateOf(false) }
-    var wasComplete by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
+    var previousCorrectStreak by remember { mutableStateOf(0) }
+    var previousHasLoss by remember { mutableStateOf(false) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
@@ -143,11 +144,17 @@ fun HigherLowerGameScreen(
         }
         wasTransitioning = uiState.isTransitioning
     }
-    LaunchedEffect(uiState.isComplete, uiState.hasLoss) {
-        if (uiState.isComplete && !wasComplete) {
-            soundPlayer.play(if (uiState.hasLoss) SoundEffect.LOSS else SoundEffect.SUCCESS)
+    LaunchedEffect(uiState.correctStreak) {
+        if (shouldPlayHigherLowerSuccess(previousCorrectStreak, uiState.correctStreak)) {
+            soundPlayer.play(SoundEffect.SUCCESS)
         }
-        wasComplete = uiState.isComplete
+        previousCorrectStreak = uiState.correctStreak
+    }
+    LaunchedEffect(uiState.hasLoss) {
+        if (shouldPlayHigherLowerLoss(previousHasLoss, uiState.hasLoss)) {
+            soundPlayer.play(SoundEffect.LOSS)
+        }
+        previousHasLoss = uiState.hasLoss
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
@@ -656,6 +663,14 @@ internal fun higherLowerBottomMatColors(
         isSuccessHighlighting -> HigherLowerMatColors(VictoryMatBackground, VictoryMatBackground)
         else -> HigherLowerMatColors(SequenceSaveMatBackground, SequenceSaveMatBorder)
     }
+}
+
+internal fun shouldPlayHigherLowerSuccess(previousStreak: Int, currentStreak: Int): Boolean {
+    return currentStreak > previousStreak
+}
+
+internal fun shouldPlayHigherLowerLoss(previousHasLoss: Boolean, currentHasLoss: Boolean): Boolean {
+    return !previousHasLoss && currentHasLoss
 }
 
 @Composable
