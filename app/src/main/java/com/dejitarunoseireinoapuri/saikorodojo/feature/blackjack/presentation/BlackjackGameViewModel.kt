@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 
 private const val DEFAULT_INITIAL_PLAYER_DICE = 2
 private const val DEFAULT_INITIAL_DEALER_DICE = 1
-private const val DEFAULT_ROLL_ANIMATION_MS = 750L
+private const val DEFAULT_ROLL_ANIMATION_MS = 1_000L
 private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_DEALER_STAND_TOTAL = 17
 private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_000L

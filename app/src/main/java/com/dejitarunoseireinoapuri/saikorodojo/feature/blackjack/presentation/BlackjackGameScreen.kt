@@ -123,11 +123,25 @@ fun BlackjackGameScreen(
     var wasRolling by remember { mutableStateOf(false) }
     var wasComplete by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
+    var previousPlayerDiceCount by remember { mutableStateOf(0) }
+    var previousDealerDiceCount by remember { mutableStateOf(0) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
         }
         wasRolling = uiState.isRolling
+    }
+    LaunchedEffect(uiState.playerDice.size) {
+        if (shouldPlayDiceRollForNewDie(previousPlayerDiceCount, uiState.playerDice.size)) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        previousPlayerDiceCount = uiState.playerDice.size
+    }
+    LaunchedEffect(uiState.dealerDice.size) {
+        if (shouldPlayDiceRollForNewDie(previousDealerDiceCount, uiState.dealerDice.size)) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        previousDealerDiceCount = uiState.dealerDice.size
     }
     LaunchedEffect(uiState.isComplete, uiState.rewardCards) {
         val hasLoss = uiState.isComplete && uiState.rewardCards.isEmpty() && uiState.isStarted
@@ -497,6 +511,10 @@ internal fun blackjackResultTextColor(
         )
         null -> defaultColor
     }
+}
+
+internal fun shouldPlayDiceRollForNewDie(previousCount: Int, currentCount: Int): Boolean {
+    return currentCount > previousCount
 }
 
 @Composable
