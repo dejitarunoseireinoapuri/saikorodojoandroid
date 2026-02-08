@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -130,5 +131,12 @@ class GameDiceBoardTest {
                 isFlipSelected = false
             )
         )
+    }
+
+    @Test
+    fun `selected overlay is only shown for Saikoro Dojo die`() {
+        assertEquals(true, shouldShowSelectedOverlay(R.drawable.saikoro_dojo_die, true))
+        assertEquals(false, shouldShowSelectedOverlay(R.drawable.ten_sides, true))
+        assertEquals(false, shouldShowSelectedOverlay(R.drawable.saikoro_dojo_die, false))
     }
 }

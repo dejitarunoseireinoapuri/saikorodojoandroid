@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
@@ -412,6 +413,16 @@ private fun DiceFace(
             painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected && showSelectedFace)),
             contentDescription = stringResource(R.string.cd_dice_face, number)
         )
+        if (shouldShowSelectedOverlay(faceDrawable, isSelected && showSelectedFace)) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        color = Color(0x6656BD88),
+                        shape = RoundedCornerShape(24.dp)
+                    )
+            )
+        }
         Text(
             text = number.toString(),
             modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
@@ -681,7 +692,7 @@ internal fun diceNumberYOffset(faceDrawable: Int): Dp {
 
 internal fun diceTypeDrawable(diceType: DiceType): Int {
     return when (diceType) {
-        DiceType.D6 -> R.drawable.six_sides
+        DiceType.D6 -> R.drawable.saikoro_dojo_die
         DiceType.D8 -> R.drawable.eigth_sides
         DiceType.D10 -> R.drawable.ten_sides
     }
@@ -689,7 +700,7 @@ internal fun diceTypeDrawable(diceType: DiceType): Int {
 
 internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
     return when (diceType) {
-        DiceType.D6 -> R.drawable.six_sides_contrast
+        DiceType.D6 -> R.drawable.saikoro_dojo_die
         DiceType.D8 -> R.drawable.eigth_sides_contrast
         DiceType.D10 -> R.drawable.ten_sides_contrast
     }
@@ -698,9 +709,14 @@ internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
 internal fun diceFaceDrawable(faceDrawable: Int, isSelected: Boolean): Int {
     if (!isSelected) return faceDrawable
     return when (faceDrawable) {
+        R.drawable.saikoro_dojo_die -> faceDrawable
         R.drawable.six_sides -> R.drawable.six_sides_selected
         R.drawable.eigth_sides -> R.drawable.eigth_sides_selected
         R.drawable.ten_sides -> R.drawable.ten_sides_selected
         else -> faceDrawable
     }
+}
+
+internal fun shouldShowSelectedOverlay(faceDrawable: Int, isSelected: Boolean): Boolean {
+    return isSelected && faceDrawable == R.drawable.saikoro_dojo_die
 }

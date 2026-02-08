@@ -63,7 +63,7 @@ class GameScreenTest {
 
     @Test
     fun `dice type drawable maps each dice type to its asset`() {
-        assertEquals(R.drawable.six_sides, diceTypeDrawable(DiceType.D6))
+        assertEquals(R.drawable.saikoro_dojo_die, diceTypeDrawable(DiceType.D6))
         assertEquals(R.drawable.eigth_sides, diceTypeDrawable(DiceType.D8))
         assertEquals(R.drawable.ten_sides, diceTypeDrawable(DiceType.D10))
     }
@@ -75,14 +75,14 @@ class GameScreenTest {
 
     @Test
     fun `dice number y offset is zero for other faces`() {
-        assertEquals(0.dp, diceNumberYOffset(R.drawable.six_sides))
+        assertEquals(0.dp, diceNumberYOffset(R.drawable.saikoro_dojo_die))
     }
 
     @Test
     fun `dice face drawable uses selected asset when selected`() {
-        val result = diceFaceDrawable(R.drawable.six_sides, true)
+        val result = diceFaceDrawable(R.drawable.saikoro_dojo_die, true)
 
-        assertEquals(R.drawable.six_sides_selected, result)
+        assertEquals(R.drawable.saikoro_dojo_die, result)
     }
 
     @Test
