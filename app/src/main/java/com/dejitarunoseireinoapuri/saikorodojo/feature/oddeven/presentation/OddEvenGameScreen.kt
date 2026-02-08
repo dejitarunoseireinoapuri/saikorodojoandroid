@@ -123,6 +123,7 @@ fun OddEvenGameScreen(
     var hadRewardCards by remember { mutableStateOf(false) }
     var previousCorrectCount by remember { mutableStateOf(0) }
     var previousWrongCount by remember { mutableStateOf(0) }
+    var previousHasLoss by remember { mutableStateOf(false) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
@@ -135,11 +136,13 @@ fun OddEvenGameScreen(
         }
         previousCorrectCount = uiState.correctCount
     }
-    LaunchedEffect(uiState.wrongCount) {
-        if (shouldPlayOddEvenLoss(previousWrongCount, uiState.wrongCount)) {
+    LaunchedEffect(uiState.wrongCount, uiState.isComplete, uiState.rewardCards) {
+        val hasLoss = uiState.isComplete && uiState.rewardCards.isEmpty() && uiState.isStarted
+        if (shouldPlayOddEvenLoss(previousWrongCount, uiState.wrongCount, previousHasLoss, hasLoss)) {
             soundPlayer.play(SoundEffect.LOSS)
         }
         previousWrongCount = uiState.wrongCount
+        previousHasLoss = hasLoss
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
@@ -196,10 +199,10 @@ fun OddEvenGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 32.dp, end = 32.dp, top = 80.dp, bottom = 24.dp),
+                .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             val titleColor = MaterialTheme.colorScheme.onBackground
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
@@ -338,7 +341,7 @@ fun OddEvenGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 32.dp)
+                    .padding(top = 64.dp)
                     .testTag(ODD_EVEN_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
@@ -507,6 +510,11 @@ internal fun shouldPlayOddEvenSuccess(previousCorrect: Int, currentCorrect: Int)
     return currentCorrect > previousCorrect
 }
 
-internal fun shouldPlayOddEvenLoss(previousWrong: Int, currentWrong: Int): Boolean {
-    return currentWrong > previousWrong
+internal fun shouldPlayOddEvenLoss(
+    previousWrong: Int,
+    currentWrong: Int,
+    previousHasLoss: Boolean,
+    currentHasLoss: Boolean
+): Boolean {
+    return currentWrong > previousWrong || (currentHasLoss && !previousHasLoss)
 }
