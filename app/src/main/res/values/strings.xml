@@ -10,6 +10,7 @@
     <string name="cd_sound_on">Sound on</string>
     <string name="cd_sound_off">Sound off</string>
     <string name="cd_settings">Settings</string>
+    <string name="cd_saikoro_dojo_die">Saikoro Dojo die</string>
     <string name="cd_dice_face">Dice face %1$d</string>
     <plurals name="selected_dice_count">
         <item quantity="one">%1$d of %2$d selected</item>
