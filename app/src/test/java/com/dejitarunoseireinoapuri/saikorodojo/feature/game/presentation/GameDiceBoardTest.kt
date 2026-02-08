@@ -1,9 +1,11 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class GameDiceBoardTest {
@@ -130,5 +132,16 @@ class GameDiceBoardTest {
                 isFlipSelected = false
             )
         )
+    }
+
+    @Test
+    fun `background die applies only to unselected d6 d8 and d10`() {
+        assertTrue(shouldUseBackgroundDie(R.drawable.six_sides, isSelected = false))
+        assertTrue(shouldUseBackgroundDie(R.drawable.eigth_sides, isSelected = false))
+        assertTrue(shouldUseBackgroundDie(R.drawable.ten_sides, isSelected = false))
+        assertFalse(shouldUseBackgroundDie(R.drawable.six_sides, isSelected = true))
+        assertFalse(shouldUseBackgroundDie(R.drawable.eigth_sides, isSelected = true))
+        assertFalse(shouldUseBackgroundDie(R.drawable.ten_sides, isSelected = true))
+        assertFalse(shouldUseBackgroundDie(R.drawable.six_sides_selected, isSelected = false))
     }
 }

@@ -8,9 +8,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
@@ -435,7 +435,7 @@ private fun DiceFace(
                     painter = painterResource(id = R.drawable.background_die),
                     contentDescription = stringResource(R.string.cd_dice_face, number),
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.matchParentSize()
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         } else {
@@ -746,7 +746,7 @@ private const val D10PathData =
 
 private val DiceOutlineColor = Color(0xFF3A4663)
 
-private fun shouldUseBackgroundDie(faceDrawable: Int, isSelected: Boolean): Boolean {
+internal fun shouldUseBackgroundDie(faceDrawable: Int, isSelected: Boolean): Boolean {
     if (isSelected) return false
     return when (faceDrawable) {
         R.drawable.six_sides,
