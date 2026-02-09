@@ -93,6 +93,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 @Composable
 fun GameRoute(
@@ -452,6 +453,7 @@ fun GameScreen(
                         val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
                         val infoGap = 4.dp
                         var objectiveTextWidthPx by remember { mutableStateOf(0) }
+                        var objectiveTextCenterOffsetPx by remember { mutableStateOf(0f) }
                         val density = LocalDensity.current
                         val collapsedSize = 18.dp
                         val infoOffsetDp by animateDpAsState(
@@ -478,15 +480,31 @@ fun GameScreen(
                                 textAlign = TextAlign.Center,
                                 onTextLayout = { textLayout ->
                                     objectiveTextWidthPx = textLayout.size.width
+                                    if (textLayout.lineCount > 0) {
+                                        val lineTop = textLayout.getLineTop(0)
+                                        val lineBottom = textLayout.getLineBottom(0)
+                                        val lineCenter = (lineTop + lineBottom) / 2f
+                                        val layoutCenter = textLayout.size.height / 2f
+                                        objectiveTextCenterOffsetPx = lineCenter - layoutCenter
+                                    } else {
+                                        objectiveTextCenterOffsetPx = 0f
+                                    }
                                 }
                             )
                             if (line.shouldShowInfo) {
                                 val collapsedModifier = Modifier.size(collapsedSize)
-                                val expandedModifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                val expandedModifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .widthIn(max = 320.dp)
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.Center)
-                                        .offset { IntOffset(with(density) { infoOffsetDp.roundToPx() }, 0) }
+                                        .offset {
+                                            IntOffset(
+                                                with(density) { infoOffsetDp.roundToPx() },
+                                                objectiveTextCenterOffsetPx.roundToInt()
+                                            )
+                                        }
                                         .zIndex(2f)
                                         .layout { measurable, constraints ->
                                             val placeable = measurable.measure(constraints)
