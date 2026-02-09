@@ -36,19 +36,20 @@ fun RewardCardStack(
     val cardSize = DpSize(width = 208.dp, height = 278.dp)
     val stackSpacing = 40.dp
     val stackRise = 32.dp
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize()
-            .testTag(REWARD_CARD_STACK_TAG)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                if (expandedIndex != cards.lastIndex) {
-                    expandedIndex = cards.lastIndex
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag(REWARD_CARD_STACK_TAG)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    if (expandedIndex != cards.lastIndex) {
+                        expandedIndex = cards.lastIndex
+                    }
                 }
-            }
-    ) {
+        )
         val totalWidth = cardSize.width + stackSpacing * (cards.size - 1).coerceAtLeast(0)
         val startX = (maxWidth - totalWidth) / 2f
         val centerY = (maxHeight - cardSize.height) / 2f

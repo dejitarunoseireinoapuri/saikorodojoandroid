@@ -238,7 +238,11 @@ fun GameRoute(
         onConfirmSurrender = { viewModel.onEvent(GameUiEvent.ConfirmSurrender) },
         onConfirmExit = { viewModel.onEvent(GameUiEvent.ConfirmExit) },
         onOpenRandomMinigame = { viewModel.onEvent(GameUiEvent.OpenRandomMinigame) },
-        onConfirmMinigamesAd = { viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd) },
+        onConfirmMinigamesAd = {
+            viewModel.onEvent(
+                GameUiEvent.ConfirmMinigamesAd(isAdReady = rewardedAdState.value != null)
+            )
+        },
         onDismissMinigamesAdPrompt = { viewModel.onEvent(GameUiEvent.DismissMinigamesAdPrompt) }
     )
 }

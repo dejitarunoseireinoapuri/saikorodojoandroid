@@ -115,7 +115,7 @@ sealed interface GameUiEvent {
     data object ConfirmSurrender : GameUiEvent
     data object ConfirmExit : GameUiEvent
     data object OpenRandomMinigame : GameUiEvent
-    data object ConfirmMinigamesAd : GameUiEvent
+    data class ConfirmMinigamesAd(val isAdReady: Boolean) : GameUiEvent
     data object DismissMinigamesAdPrompt : GameUiEvent
     data object MinigamesAdDisplayed : GameUiEvent
     data object MinigamesAdCompleted : GameUiEvent
@@ -240,7 +240,7 @@ class GameViewModel(
             GameUiEvent.ConfirmSurrender -> confirmSurrender()
             GameUiEvent.ConfirmExit -> confirmExit()
             GameUiEvent.OpenRandomMinigame -> openRandomMinigame()
-            GameUiEvent.ConfirmMinigamesAd -> confirmMinigamesAd()
+            is GameUiEvent.ConfirmMinigamesAd -> confirmMinigamesAd(event.isAdReady)
             GameUiEvent.DismissMinigamesAdPrompt -> dismissMinigamesAdPrompt()
             GameUiEvent.MinigamesAdDisplayed -> markMinigamesAdDisplayed()
             GameUiEvent.MinigamesAdCompleted -> grantMinigamesFromAd()
@@ -281,11 +281,11 @@ class GameViewModel(
         }
     }
 
-    private fun confirmMinigamesAd() {
-        _uiState.update {
-            it.copy(
+    private fun confirmMinigamesAd(isAdReady: Boolean) {
+        _uiState.update { state ->
+            state.copy(
                 showMinigamesAdPrompt = false,
-                isMinigamesAdLoading = true
+                isMinigamesAdLoading = !isAdReady
             )
         }
         viewModelScope.launch(dispatcher) {

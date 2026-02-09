@@ -463,7 +463,7 @@ class GameViewModelTest {
             viewModel.effects.take(1).toList(effects)
         }
 
-        viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd)
+        viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd(isAdReady = false))
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(1, effects.size)
@@ -485,13 +485,29 @@ class GameViewModelTest {
         val viewModel = buildViewModel()
         val initialMinigames = viewModel.uiState.value.minigamesAvailable
 
-        viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd)
+        viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd(isAdReady = false))
         assertTrue(viewModel.uiState.value.isMinigamesAdLoading)
 
         viewModel.onEvent(GameUiEvent.MinigamesAdDisplayed)
 
         assertTrue(!viewModel.uiState.value.isMinigamesAdLoading)
         assertEquals(initialMinigames, viewModel.uiState.value.minigamesAvailable)
+    }
+
+    @Test
+    fun `confirm minigames ad skips loading when ad is ready`() = runTest {
+        val viewModel = buildViewModel()
+        val effects = mutableListOf<GameUiEffect>()
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(1).toList(effects)
+        }
+
+        viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd(isAdReady = true))
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(listOf(GameUiEffect.ShowMinigamesRewardedAd), effects)
+        assertTrue(!viewModel.uiState.value.isMinigamesAdLoading)
+        collectorJob.cancel()
     }
 
     @Test
