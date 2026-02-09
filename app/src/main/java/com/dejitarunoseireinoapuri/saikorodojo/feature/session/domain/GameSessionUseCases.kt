@@ -24,6 +24,14 @@ class ClearGameSessionUseCase(
     }
 }
 
+class ClearSavedSessionUseCase(
+    private val repository: GameSessionRepository
+) {
+    fun execute() {
+        repository.clearSavedSession()
+    }
+}
+
 class HasSavedGameSessionUseCase(
     private val repository: GameSessionRepository
 ) {

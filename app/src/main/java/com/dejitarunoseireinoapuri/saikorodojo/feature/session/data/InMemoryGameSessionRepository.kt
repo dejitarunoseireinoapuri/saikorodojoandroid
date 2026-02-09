@@ -21,6 +21,10 @@ class InMemoryGameSessionRepository : GameSessionRepository {
         pendingMainGameSnapshot = null
     }
 
+    override fun clearSavedSession() {
+        savedSession = null
+    }
+
     override fun hasSession(): Boolean {
         return savedSession != null
     }
