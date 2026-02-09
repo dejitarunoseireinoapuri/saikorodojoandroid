@@ -541,7 +541,7 @@ fun GameScreen(
                         Text(
                             text = explainTextValue,
                             color = Color.Black,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
                             textAlign = TextAlign.Center
                         )
                     }
