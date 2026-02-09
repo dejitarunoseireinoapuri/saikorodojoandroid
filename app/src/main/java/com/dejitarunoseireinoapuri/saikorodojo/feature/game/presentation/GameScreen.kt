@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material3.AlertDialog
@@ -72,6 +73,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
@@ -446,10 +448,11 @@ fun GameScreen(
                             label = "objectiveInfoIconAlpha_$index"
                         )
                         val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
-                        Row(
+                        val infoMargin = 6.dp
+                        var objectiveTextWidthPx by remember { mutableStateOf(0) }
+                        Box(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                            contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = objectiveText,
@@ -457,15 +460,25 @@ fun GameScreen(
                                     fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
                                 ),
                                 color = MaterialTheme.colorScheme.onBackground,
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                onTextLayout = { textLayout ->
+                                    objectiveTextWidthPx = textLayout.size.width
+                                }
                             )
                             if (line.shouldShowInfo) {
-                                Spacer(modifier = Modifier.width(6.dp))
+                                val infoOffsetX = with(LocalDensity.current) {
+                                    (objectiveTextWidthPx / 2 + infoMargin.toPx()).toInt()
+                                }
+                                val collapsedSize = 18.dp
+                                val collapsedModifier = Modifier.size(collapsedSize)
+                                val expandedModifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
                                 Box(
                                     modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .offset { IntOffset(infoOffsetX, 0) }
                                         .zIndex(2f)
-                                        .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
                                         .animateContentSize(animationSpec = tween(durationMillis = 180))
+                                        .then(if (showObjectiveExplain) expandedModifier else collapsedModifier)
                                         .border(
                                             width = 1.dp,
                                             color = Color.White,
@@ -483,8 +496,7 @@ fun GameScreen(
                                             indication = null
                                         ) {
                                             expandedObjectiveIndex = if (showObjectiveExplain) null else index
-                                        }
-                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                        },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -496,7 +508,7 @@ fun GameScreen(
                                     if (showObjectiveExplain) {
                                         Text(
                                             text = objectiveExplainText,
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal),
+                                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
                                             color = Color.Black,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier.alpha(infoTextAlpha)
