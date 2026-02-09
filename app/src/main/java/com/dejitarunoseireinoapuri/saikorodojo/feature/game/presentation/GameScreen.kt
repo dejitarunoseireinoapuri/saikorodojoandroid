@@ -477,6 +477,7 @@ fun GameScreen(
                         animationSpec = tween(durationMillis = 140),
                         label = "objectiveInfoIconAlpha"
                     )
+                    val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
                     Box(
                         modifier = Modifier
                             .defaultMinSize(minWidth = 28.dp, minHeight = 28.dp)
@@ -492,7 +493,7 @@ fun GameScreen(
                                 shape = RoundedCornerShape(infoCornerRadius)
                             )
                             .semantics {
-                                contentDescription = stringResource(R.string.cd_objective_info)
+                                contentDescription = objectiveInfoDescription
                             }
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
