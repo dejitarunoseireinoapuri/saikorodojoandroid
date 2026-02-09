@@ -12,6 +12,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.RollSequenceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.SequenceFailureReason
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
@@ -70,6 +71,8 @@ class SequenceGameViewModel(
         SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
         GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
+    private val clearGameSessionUseCase: ClearGameSessionUseCase =
+        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -96,7 +99,11 @@ class SequenceGameViewModel(
             ?.takeIf { it.minigameType == MinigameType.SEQUENCE }
             ?.minigameSnapshot as? MinigameSnapshot.Sequence
         if (snapshot != null) {
-            restoreFromSnapshot(snapshot)
+            if (snapshot.isComplete) {
+                clearGameSessionUseCase.execute()
+            } else {
+                restoreFromSnapshot(snapshot)
+            }
         }
     }
 
@@ -109,6 +116,10 @@ class SequenceGameViewModel(
     }
 
     fun saveSession() {
+        if (_uiState.value.isComplete) {
+            clearGameSessionUseCase.execute()
+            return
+        }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
         val snapshot = buildSnapshot()
         saveGameSessionUseCase.execute(
@@ -270,6 +281,7 @@ class SequenceGameViewModel(
                 isLatestSavedValueHidden = false
             )
         }
+        clearGameSessionUseCase.execute()
         viewModelScope.launch(dispatcher) {
             delay(rewardRevealDelayMs)
             _uiState.update { current ->
@@ -302,6 +314,7 @@ class SequenceGameViewModel(
                 isLatestSavedValueHidden = false
             )
         }
+        clearGameSessionUseCase.execute()
     }
 
     private fun resolveRewardCards(): List<CardUiModel> {

@@ -13,6 +13,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.Higher
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.RollHigherLowerUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
@@ -78,6 +79,8 @@ class HigherLowerGameViewModel(
         SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
         GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
+    private val clearGameSessionUseCase: ClearGameSessionUseCase =
+        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -106,7 +109,11 @@ class HigherLowerGameViewModel(
             ?.takeIf { it.minigameType == MinigameType.HIGHER_LOWER }
             ?.minigameSnapshot as? MinigameSnapshot.HigherLower
         if (snapshot != null) {
-            restoreFromSnapshot(snapshot)
+            if (snapshot.isComplete) {
+                clearGameSessionUseCase.execute()
+            } else {
+                restoreFromSnapshot(snapshot)
+            }
         }
     }
 
@@ -118,6 +125,10 @@ class HigherLowerGameViewModel(
     }
 
     fun saveSession() {
+        if (_uiState.value.isComplete) {
+            clearGameSessionUseCase.execute()
+            return
+        }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
         val snapshot = buildSnapshot()
         saveGameSessionUseCase.execute(
@@ -297,6 +308,7 @@ class HigherLowerGameViewModel(
                     hasLoss = true
                 )
             }
+            clearGameSessionUseCase.execute()
         }
     }
 
@@ -324,6 +336,7 @@ class HigherLowerGameViewModel(
                     rewardCards = rewardCards
                 )
             }
+            clearGameSessionUseCase.execute()
         }
     }
 

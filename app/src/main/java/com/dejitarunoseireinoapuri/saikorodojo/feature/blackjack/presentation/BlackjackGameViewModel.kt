@@ -14,6 +14,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUi
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
@@ -76,6 +77,8 @@ class BlackjackGameViewModel(
         SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
         GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
+    private val clearGameSessionUseCase: ClearGameSessionUseCase =
+        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -97,7 +100,11 @@ class BlackjackGameViewModel(
             ?.takeIf { it.minigameType == MinigameType.BLACKJACK }
             ?.minigameSnapshot as? MinigameSnapshot.Blackjack
         if (snapshot != null) {
-            restoreFromSnapshot(snapshot)
+            if (snapshot.isComplete) {
+                clearGameSessionUseCase.execute()
+            } else {
+                restoreFromSnapshot(snapshot)
+            }
         }
     }
 
@@ -110,6 +117,10 @@ class BlackjackGameViewModel(
     }
 
     fun saveSession() {
+        if (_uiState.value.isComplete) {
+            clearGameSessionUseCase.execute()
+            return
+        }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
         val snapshot = buildSnapshot()
         saveGameSessionUseCase.execute(
@@ -358,6 +369,7 @@ class BlackjackGameViewModel(
                     isComplete = true
                 )
             }
+            clearGameSessionUseCase.execute()
             return
         }
         _uiState.update {
@@ -365,6 +377,7 @@ class BlackjackGameViewModel(
                 isComplete = true
             )
         }
+        clearGameSessionUseCase.execute()
     }
 
     private fun resolveRewardCards(): List<CardUiModel> {
