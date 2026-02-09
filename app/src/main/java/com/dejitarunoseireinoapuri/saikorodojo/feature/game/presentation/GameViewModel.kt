@@ -1276,11 +1276,9 @@ internal fun objectiveLineText(
             )
         }
         is MinSelectedDiceCondition -> {
-            val clampedCount = selectedCount.coerceAtMost(condition.minCount)
-            ObjectiveLineText.PluralRes(
-                resId = R.plurals.objective_selected_progress,
-                quantity = clampedCount,
-                formatArgs = listOf(clampedCount, condition.minCount)
+            ObjectiveLineText.StringRes(
+                resId = R.string.objective_selected_progress,
+                formatArgs = listOf(condition.minCount)
             )
         }
         is ExactSelectedDiceCondition -> {
