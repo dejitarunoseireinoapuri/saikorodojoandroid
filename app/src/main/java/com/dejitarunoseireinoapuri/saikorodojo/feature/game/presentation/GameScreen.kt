@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
@@ -86,6 +87,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import kotlinx.coroutines.delay
 
 @Composable
 fun GameRoute(
@@ -298,6 +300,13 @@ fun GameScreen(
     ) {
         var showSurrenderDialog by remember { mutableStateOf(false) }
         var showExitDialog by remember { mutableStateOf(false) }
+        var showObjectiveExplain by remember { mutableStateOf(false) }
+        LaunchedEffect(showObjectiveExplain) {
+            if (showObjectiveExplain) {
+                delay(3_000L)
+                showObjectiveExplain = false
+            }
+        }
         BackHandler(enabled = !showExitDialog && !showSurrenderDialog) {
             showExitDialog = true
         }
@@ -383,31 +392,133 @@ fun GameScreen(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 76.dp)
-                    .widthIn(max = 360.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .widthIn(max = 360.dp)
             ) {
-                uiState.objectiveLines.forEach { line ->
-                    val objectiveText = when (val text = line.text) {
-                        is ObjectiveLineText.StringRes -> {
-                            stringResource(text.resId, *text.formatArgs.toTypedArray())
-                        }
-                        is ObjectiveLineText.PluralRes -> {
-                            pluralStringResource(
-                                text.resId,
-                                text.quantity,
-                                *text.formatArgs.toTypedArray()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        uiState.objectiveLines.forEach { line ->
+                            val objectiveText = when (val text = line.text) {
+                                is ObjectiveLineText.StringRes -> {
+                                    stringResource(text.resId, *text.formatArgs.toTypedArray())
+                                }
+                                is ObjectiveLineText.PluralRes -> {
+                                    pluralStringResource(
+                                        text.resId,
+                                        text.quantity,
+                                        *text.formatArgs.toTypedArray()
+                                    )
+                                }
+                            }
+                            Text(
+                                text = objectiveText,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
-                    Text(
-                        text = objectiveText,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center
+                    Spacer(modifier = Modifier.width(8.dp))
+                    val objectiveExplainText = if (showObjectiveExplain) {
+                        var textValue = ""
+                        for (index in uiState.objectiveLines.indices) {
+                            val line = uiState.objectiveLines[index]
+                            val explainText = when (val text = line.explainText) {
+                                is ObjectiveLineText.StringRes -> {
+                                    stringResource(text.resId, *text.formatArgs.toTypedArray())
+                                }
+                                is ObjectiveLineText.PluralRes -> {
+                                    pluralStringResource(
+                                        text.resId,
+                                        text.quantity,
+                                        *text.formatArgs.toTypedArray()
+                                    )
+                                }
+                            }
+                            textValue += explainText
+                            if (index < uiState.objectiveLines.lastIndex) {
+                                textValue += "\n"
+                            }
+                        }
+                        textValue
+                    } else {
+                        ""
+                    }
+                    val infoWidth by animateDpAsState(
+                        targetValue = if (showObjectiveExplain) 240.dp else 28.dp,
+                        animationSpec = tween(durationMillis = 180),
+                        label = "objectiveInfoWidth"
                     )
+                    val infoHeight by animateDpAsState(
+                        targetValue = if (showObjectiveExplain) 64.dp else 28.dp,
+                        animationSpec = tween(durationMillis = 180),
+                        label = "objectiveInfoHeight"
+                    )
+                    val infoCornerRadius by animateDpAsState(
+                        targetValue = if (showObjectiveExplain) 12.dp else 50.dp,
+                        animationSpec = tween(durationMillis = 180),
+                        label = "objectiveInfoCornerRadius"
+                    )
+                    val infoTextAlpha by animateFloatAsState(
+                        targetValue = if (showObjectiveExplain) 1f else 0f,
+                        animationSpec = tween(durationMillis = 140),
+                        label = "objectiveInfoTextAlpha"
+                    )
+                    val infoIconAlpha by animateFloatAsState(
+                        targetValue = if (showObjectiveExplain) 0f else 1f,
+                        animationSpec = tween(durationMillis = 140),
+                        label = "objectiveInfoIconAlpha"
+                    )
+                    Box(
+                        modifier = Modifier
+                            .defaultMinSize(minWidth = 28.dp, minHeight = 28.dp)
+                            .width(infoWidth)
+                            .height(infoHeight)
+                            .border(
+                                width = 1.dp,
+                                color = Color.White,
+                                shape = RoundedCornerShape(infoCornerRadius)
+                            )
+                            .background(
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                                shape = RoundedCornerShape(infoCornerRadius)
+                            )
+                            .semantics {
+                                contentDescription = stringResource(R.string.cd_objective_info)
+                            }
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                showObjectiveExplain = !showObjectiveExplain
+                            }
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "i",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.alpha(infoIconAlpha)
+                        )
+                        if (showObjectiveExplain) {
+                            Text(
+                                text = objectiveExplainText,
+                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.alpha(infoTextAlpha)
+                            )
+                        }
+                    }
                 }
             }
             DiceBoard(

@@ -143,4 +143,5 @@
     <string name="dialog_cancel">Cancelar</string>
     <string name="cd_surrender">Rendirse</string>
     <string name="cd_exit_home">Salir al menú</string>
+    <string name="cd_objective_info">Información del objetivo</string>
 </resources>

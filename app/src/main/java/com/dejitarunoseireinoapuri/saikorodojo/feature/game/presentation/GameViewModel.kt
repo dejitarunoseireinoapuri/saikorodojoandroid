@@ -127,6 +127,7 @@ sealed interface GameUiEffect {
 
 data class ObjectiveLineUiState(
     val text: ObjectiveLineText,
+    val explainText: ObjectiveLineText,
     val isMet: Boolean
 )
 
@@ -1158,8 +1159,10 @@ class GameViewModel(
         val selectedCount = diceValues.size
         return objective.conditions.map { condition ->
             val text = objectiveLineText(condition, selectedCount)
+            val explainText = objectiveLineExplainText(condition, selectedCount)
             ObjectiveLineUiState(
                 text = text,
+                explainText = explainText,
                 isMet = condition.isMet(diceValues, diceSides)
             )
         }
@@ -1285,6 +1288,104 @@ internal fun objectiveLineText(
             } else {
                 ObjectiveLineText.StringRes(
                     resId = R.string.objective_at_least_odd_values,
+                    formatArgs = listOf(condition.minCount)
+                )
+            }
+        }
+    }
+}
+
+internal fun objectiveLineExplainText(
+    condition: ObjectiveCondition,
+    selectedCount: Int
+): ObjectiveLineText {
+    return when (condition) {
+        is SumAtLeastCondition -> ObjectiveLineText.StringRes(
+            resId = R.string.objective_sum_at_least_explain,
+            formatArgs = listOf(condition.threshold)
+        )
+        is SumAtMostCondition -> ObjectiveLineText.StringRes(
+            resId = R.string.objective_sum_at_most_explain,
+            formatArgs = listOf(condition.threshold)
+        )
+        is SumExactCondition -> ObjectiveLineText.StringRes(
+            resId = R.string.objective_sum_exact_explain,
+            formatArgs = listOf(condition.target)
+        )
+        is SumMultipleCondition -> ObjectiveLineText.StringRes(
+            resId = R.string.objective_sum_multiple_explain,
+            formatArgs = listOf(condition.factor)
+        )
+        is SumMaxDifferenceCondition -> {
+            ObjectiveLineText.StringRes(
+                resId = R.string.objective_sum_max_difference_explain,
+                formatArgs = listOf(condition.target, condition.maxDifference)
+            )
+        }
+        is SumInRangeCondition -> if (condition.min == condition.max) {
+            ObjectiveLineText.StringRes(
+                resId = R.string.objective_sum_exact_explain,
+                formatArgs = listOf(condition.min)
+            )
+        } else {
+            ObjectiveLineText.StringRes(
+                resId = R.string.objective_sum_in_range_explain,
+                formatArgs = listOf(condition.min, condition.max)
+            )
+        }
+        is SumParityCondition -> if (condition.shouldBeEven) {
+            ObjectiveLineText.StringRes(resId = R.string.objective_sum_even_explain)
+        } else {
+            ObjectiveLineText.StringRes(resId = R.string.objective_sum_odd_explain)
+        }
+        is HasPairCondition -> if (condition.requiredPairs >= 2) {
+            ObjectiveLineText.StringRes(resId = R.string.objective_two_pairs_explain)
+        } else {
+            ObjectiveLineText.StringRes(resId = R.string.objective_pair_explain)
+        }
+        is HasThreeOfKindCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_three_of_kind_explain)
+        is ThreeOfKindWithValueCondition -> {
+            ObjectiveLineText.StringRes(
+                resId = R.string.objective_three_of_kind_with_value_explain,
+                formatArgs = listOf(condition.requiredValue)
+            )
+        }
+        is HasFourOfKindCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_four_of_kind_explain)
+        is FullHouseCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_full_house_explain)
+        is AllDistinctCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_all_distinct_explain)
+        is ExactlyDistinctValuesCondition -> ObjectiveLineText.StringRes(
+            resId = R.string.objective_exact_distinct_values_explain,
+            formatArgs = listOf(condition.distinctCount)
+        )
+        is StraightCondition -> objectiveLineText(condition, selectedCount)
+        is ContainsValuesCondition -> {
+            ObjectiveLineText.StringRes(
+                resId = R.string.objective_contains_values_explain,
+                formatArgs = listOf(formatValues(condition.values))
+            )
+        }
+        is ContainsValuesWithMultiplicityCondition -> {
+            ObjectiveLineText.StringRes(
+                resId = R.string.objective_contains_values_explain,
+                formatArgs = listOf(formatMultiplicity(condition.values))
+            )
+        }
+        is ForbidValuesCondition -> {
+            ObjectiveLineText.StringRes(
+                resId = R.string.objective_forbid_values_explain,
+                formatArgs = listOf(formatValues(condition.values))
+            )
+        }
+        is MinSelectedDiceCondition -> objectiveLineText(condition, selectedCount)
+        is AtLeastParityCountCondition -> {
+            if (condition.even) {
+                ObjectiveLineText.StringRes(
+                    resId = R.string.objective_at_least_even_values_explain,
+                    formatArgs = listOf(condition.minCount)
+                )
+            } else {
+                ObjectiveLineText.StringRes(
+                    resId = R.string.objective_at_least_odd_values_explain,
                     formatArgs = listOf(condition.minCount)
                 )
             }
