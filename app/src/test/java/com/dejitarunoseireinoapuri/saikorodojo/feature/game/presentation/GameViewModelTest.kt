@@ -11,10 +11,12 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefiniti
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameUiSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavePendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -500,6 +502,49 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `level completion pauses for interstitial before advancing`() = runTest {
+        val sessionRepository = InMemoryGameSessionRepository()
+        sessionRepository.savePendingMainGameSnapshot(buildSnapshot(pendingInterstitialAds = 1))
+        val viewModel = buildViewModel(sessionRepository = sessionRepository)
+
+        val effects = mutableListOf<GameUiEffect>()
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(1).toList(effects)
+        }
+
+        val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
+        method.isAccessible = true
+        method.invoke(viewModel)
+
+        testDispatcher.scheduler.advanceTimeBy(1_000L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(1, viewModel.uiState.value.levelNumber)
+        assertEquals(listOf(GameUiEffect.ShowInterstitialAd), effects)
+
+        viewModel.onEvent(GameUiEvent.InterstitialAdShown)
+        viewModel.onEvent(GameUiEvent.InterstitialAdClosed)
+
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(2, viewModel.uiState.value.levelNumber)
+        collectorJob.cancel()
+    }
+
+    @Test
+    fun `saving session syncs pending interstitial progress`() = runTest {
+        val sessionRepository = InMemoryGameSessionRepository()
+        sessionRepository.savePendingMainGameSnapshot(
+            buildSnapshot(pendingInterstitialAds = 0, minigamesPlayedSinceInterstitial = 6)
+        )
+        val viewModel = buildViewModel(sessionRepository = sessionRepository)
+
+        viewModel.saveSession()
+
+        val saved = sessionRepository.loadSession() as SavedSession.MainGame
+        assertEquals(6, saved.snapshot.uiSnapshot.minigamesPlayedSinceInterstitial)
+    }
+
+    @Test
     fun `level one starts without cards when inventory is empty`() = runTest {
         val viewModel = buildViewModel(cardUiModels = emptyList())
 
@@ -587,6 +632,8 @@ class GameViewModelTest {
             loadGameSessionUseCase = LoadGameSessionUseCase(sessionRepository),
             saveGameSessionUseCase = SaveGameSessionUseCase(sessionRepository),
             clearGameSessionUseCase = ClearGameSessionUseCase(sessionRepository),
+            savePendingMainGameSnapshotUseCase = SavePendingMainGameSnapshotUseCase(sessionRepository),
+            getPendingMainGameSnapshotUseCase = GetPendingMainGameSnapshotUseCase(sessionRepository),
             dispatcher = testDispatcher,
             rollDurationMs = 1L,
             tickMs = 1L,
