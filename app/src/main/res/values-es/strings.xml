@@ -107,9 +107,9 @@
     <string name="objective_sum_exact_explain">La suma de los dados seleccionados debe ser %1$d</string>
     <string name="objective_sum_in_range">Entre %1$d y %2$d</string>
     <string name="objective_sum_in_range_explain">La suma de los dados seleccionados debe estar entre %1$d y %2$d</string>
-    <string name="objective_sum_even">Par</string>
+    <string name="objective_sum_even">Total Par</string>
     <string name="objective_sum_even_explain">La suma de los dados seleccionados debe ser par</string>
-    <string name="objective_sum_odd">Impar</string>
+    <string name="objective_sum_odd">Total Impar</string>
     <string name="objective_sum_odd_explain">La suma de los dados seleccionados debe ser impar</string>
     <string name="objective_contains_values">Contiene %1$s</string>
     <string name="objective_contains_values_explain">La selección de los dados debe contener: %1$s</string>

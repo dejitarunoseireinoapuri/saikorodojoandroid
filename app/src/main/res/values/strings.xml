@@ -107,9 +107,9 @@
     <string name="objective_sum_exact_explain">The sum of the selected dice must be %1$d</string>
     <string name="objective_sum_in_range">Between %1$d and %2$d</string>
     <string name="objective_sum_in_range_explain">The sum of the selected dice must be between %1$d and %2$d</string>
-    <string name="objective_sum_even">Even</string>
+    <string name="objective_sum_even">Even total</string>
     <string name="objective_sum_even_explain">The sum of the selected dice must be even</string>
-    <string name="objective_sum_odd">Odd</string>
+    <string name="objective_sum_odd">Odd total</string>
     <string name="objective_sum_odd_explain">The sum of the selected dice must be odd</string>
     <string name="objective_contains_values">Contains %1$s</string>
     <string name="objective_contains_values_explain">The selected dice must contain: %1$s</string>

@@ -107,9 +107,9 @@
     <string name="objective_sum_exact_explain">La suma dels daus seleccionats ha de ser %1$d</string>
     <string name="objective_sum_in_range">Entre %1$d i %2$d</string>
     <string name="objective_sum_in_range_explain">La suma dels daus seleccionats ha d’estar entre %1$d i %2$d</string>
-    <string name="objective_sum_even">Parell</string>
+    <string name="objective_sum_even">Total parell</string>
     <string name="objective_sum_even_explain">La suma dels daus seleccionats ha de ser parell</string>
-    <string name="objective_sum_odd">Senar</string>
+    <string name="objective_sum_odd">Total senar</string>
     <string name="objective_sum_odd_explain">La suma dels daus seleccionats ha de ser senar</string>
     <string name="objective_contains_values">Conté %1$s</string>
     <string name="objective_contains_values_explain">La selecció dels daus ha de contenir: %1$s</string>
