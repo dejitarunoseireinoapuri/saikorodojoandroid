@@ -1,6 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain
 
-internal const val MINIGAMES_PER_INTERSTITIAL = 5
+internal const val MINIGAMES_PER_INTERSTITIAL = 7
 
 fun MainGameSnapshot.registerMinigameCompletion(): MainGameSnapshot {
     return copy(uiSnapshot = uiSnapshot.registerMinigameCompletion())

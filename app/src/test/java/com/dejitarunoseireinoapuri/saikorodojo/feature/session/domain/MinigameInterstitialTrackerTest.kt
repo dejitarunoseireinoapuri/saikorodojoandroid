@@ -9,7 +9,7 @@ class MinigameInterstitialTrackerTest {
     @Test
     fun `registering minigame completion queues interstitial when reaching threshold`() {
         val snapshot = buildSnapshot(
-            minigamesPlayedSinceInterstitial = 4,
+            minigamesPlayedSinceInterstitial = 6,
             pendingInterstitialAds = 0
         )
 
@@ -22,7 +22,7 @@ class MinigameInterstitialTrackerTest {
     @Test
     fun `registering minigame completion accumulates pending ads`() {
         val snapshot = buildSnapshot(
-            minigamesPlayedSinceInterstitial = 4,
+            minigamesPlayedSinceInterstitial = 6,
             pendingInterstitialAds = 1
         )
 
