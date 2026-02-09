@@ -30,7 +30,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasFourOfKind
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.FullHouseCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AllDistinctCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AtLeastParityCountCondition
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsHighAndLowValueCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.StraightCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesWithMultiplicityCondition
@@ -1253,7 +1252,6 @@ internal fun objectiveLineText(
             quantity = condition.distinctCount,
             formatArgs = listOf(condition.distinctCount)
         )
-        is ContainsHighAndLowValueCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_contains_high_and_low)
         is StraightCondition -> ObjectiveLineText.PluralRes(
             resId = R.plurals.objective_straight,
             quantity = condition.length,

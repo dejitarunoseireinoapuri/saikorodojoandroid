@@ -140,7 +140,7 @@ fun MenuScreen(
 
             Image(
                 painter = painterResource(R.drawable.saikoro_dojo_die),
-                contentDescription = stringResource(R.string.cd_saikoro_dojo_die),
+                contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .align(Alignment.Center)
