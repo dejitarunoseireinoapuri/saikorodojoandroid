@@ -35,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.layout.layout
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -449,7 +450,7 @@ fun GameScreen(
                             label = "objectiveInfoIconAlpha_$index"
                         )
                         val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
-                        val infoMargin = 10.dp
+                        val infoMargin = 14.dp
                         var objectiveTextWidthPx by remember { mutableStateOf(0) }
                         val density = LocalDensity.current
                         val infoOffsetDp by animateDpAsState(
@@ -480,12 +481,18 @@ fun GameScreen(
                             if (line.shouldShowInfo) {
                                 val collapsedSize = 18.dp
                                 val collapsedModifier = Modifier.size(collapsedSize)
-                                val expandedModifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
+                                val expandedModifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.Center)
                                         .offset { IntOffset(with(density) { infoOffsetDp.roundToPx() }, 0) }
                                         .zIndex(2f)
+                                        .layout { measurable, constraints ->
+                                            val placeable = measurable.measure(constraints)
+                                            layout(0, 0) {
+                                                placeable.place(0, 0)
+                                            }
+                                        }
                                         .animateContentSize(animationSpec = tween(durationMillis = 180))
                                         .then(if (showObjectiveExplain) expandedModifier else collapsedModifier)
                                         .border(
