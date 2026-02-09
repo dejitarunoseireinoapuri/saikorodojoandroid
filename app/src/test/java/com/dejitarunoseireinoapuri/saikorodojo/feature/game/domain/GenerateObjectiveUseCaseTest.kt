@@ -15,7 +15,6 @@ class GenerateObjectiveUseCaseTest {
             val objective = useCase.execute(levelNumber = level, diceTypes = diceTypes, seedBase = 42L)
 
             assertTrue(objective.conditions.any { it is MinSelectedDiceCondition })
-            assertTrue(objective.conditions.none { it is ExactSelectedDiceCondition })
         }
     }
 
@@ -34,7 +33,6 @@ class GenerateObjectiveUseCaseTest {
 
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
-        assertTrue(candidates.any { it is ExactTwoPairsCondition })
     }
 
     @Test
@@ -52,7 +50,6 @@ class GenerateObjectiveUseCaseTest {
 
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
-        assertTrue(candidates.any { it is ExactTwoPairsCondition })
         assertTrue(candidates.any { it is HasThreeOfKindCondition && it.required })
     }
 

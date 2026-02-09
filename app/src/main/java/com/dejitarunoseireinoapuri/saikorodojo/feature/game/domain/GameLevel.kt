@@ -79,13 +79,6 @@ data class HasPairCondition(val requiredPairs: Int) : ObjectiveCondition {
     }
 }
 
-data object ExactTwoPairsCondition : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
-        val counts = valueCounts(diceValues).values.sortedDescending()
-        return counts.count { it == 2 } == 2 && counts.none { it > 2 }
-    }
-}
-
 data class HasThreeOfKindCondition(val required: Boolean = true) : ObjectiveCondition {
     override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val hasThree = valueCounts(diceValues).values.any { it >= 3 }
@@ -173,12 +166,6 @@ data class MinSelectedDiceCondition(val minCount: Int) : ObjectiveCondition {
     }
 }
 
-data class ExactSelectedDiceCondition(val count: Int) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
-        return diceValues.size == count
-    }
-}
-
 data class AtLeastParityCountCondition(
     val minCount: Int,
     val even: Boolean
@@ -186,15 +173,6 @@ data class AtLeastParityCountCondition(
     override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
         val parityCount = diceValues.count { value -> (value % 2 == 0) == even }
         return parityCount >= minCount
-    }
-}
-
-data class SatisfyAndAvoidCondition(
-    val required: ObjectiveCondition,
-    val forbidden: ObjectiveCondition
-) : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
-        return required.isMet(diceValues, diceSides) && !forbidden.isMet(diceValues, diceSides)
     }
 }
 
@@ -346,7 +324,6 @@ internal fun buildObjectiveCandidates(
         candidates.add(AllDistinctCondition)
         candidates.add(HasPairCondition(requiredPairs = 1))
         candidates.add(HasPairCondition(requiredPairs = 2))
-        candidates.add(ExactTwoPairsCondition)
         candidates.add(ExactlyDistinctValuesCondition(distinctCount = minOf(3, maxSelectable)))
         val containsCount = minOf(2 + stage / 2, maxSelectable).coerceAtLeast(1)
         candidates.add(
@@ -387,12 +364,6 @@ internal fun buildObjectiveCandidates(
         val forbiddenCount = minOf(stage - 2, maxDieValue - 1).coerceAtLeast(1)
         val forbiddenValues = randomValuesPool.shuffled(random).take(forbiddenCount)
         candidates.add(ForbidValuesCondition(values = forbiddenValues))
-        candidates.add(
-            SatisfyAndAvoidCondition(
-                required = SumAtLeastCondition(threshold = atLeastThreshold),
-                forbidden = ForbidValuesCondition(values = listOf(randomValuesPool.random(random)))
-            )
-        )
     }
 
     return candidates
