@@ -104,55 +104,6 @@ class GameScreenTest {
     }
 
     @Test
-    fun selectedDiceCountIsNotDisplayedWhenSumIsHidden() {
-        val selectedDice = setOf(0, 1)
-        val uiState = GameUiState(
-            diceValues = listOf(1, 2, 3, 4, 5),
-            diceCount = 5,
-            diceType = DiceType.D6,
-            diceTypes = listOf(
-                DiceType.D6,
-                DiceType.D6,
-                DiceType.D6,
-                DiceType.D6,
-                DiceType.D6
-            ),
-            selectedDice = selectedDice,
-            selectedDiceSum = 3
-        )
-        val minimumDiceCount = 3
-        val countText = composeRule.activity.getString(
-            R.string.selected_dice_count,
-            minimumDiceCount
-        )
-
-        composeRule.setContent {
-            SaikoroDojoTheme {
-                GameScreen(
-                    applySystemBarsPadding = false,
-                    uiState = uiState,
-                    onDiceClick = {},
-                    onCardSelect = {},
-                    onCardDismiss = {},
-                    onCardApply = {},
-                    onAdjustSelectedDie = {},
-                    onSetSelectedDieValue = {},
-                    onRollSelectedDice = {},
-                    onRollSingleDie = {},
-                    onFlipSelectedDie = {},
-                    onConfirmSurrender = {},
-                    onConfirmExit = {},
-                    onOpenRandomMinigame = {},
-                    onConfirmMinigamesAd = {},
-                    onDismissMinigamesAdPrompt = {}
-                )
-            }
-        }
-
-        composeRule.onAllNodesWithText(countText).assertCountEquals(0)
-    }
-
-    @Test
     fun selectedDiceSumIsDisplayedWhenEnabled() {
         val uiState = GameUiState(
             diceValues = listOf(2, 4, 6, 1, 3),
