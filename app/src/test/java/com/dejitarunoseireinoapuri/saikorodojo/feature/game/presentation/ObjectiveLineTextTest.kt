@@ -4,7 +4,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AtLeastParityCountCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactlyDistinctValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDiceCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumAtLeastCondition
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class ObjectiveLineTextTest {
@@ -62,5 +64,28 @@ class ObjectiveLineTextTest {
         )
 
         assertEquals(expected, result)
+    }
+
+    @Test
+    fun `sum at least objective explains required total`() {
+        val condition = SumAtLeastCondition(threshold = 12)
+
+        val result = objectiveLineExplainText(condition, selectedCount = 5)
+
+        val expected = ObjectiveLineText.StringRes(
+            resId = R.string.objective_sum_at_least_explain,
+            formatArgs = listOf(12)
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `selected dice progress has no explain text`() {
+        val condition = MinSelectedDiceCondition(minCount = 3)
+
+        val result = objectiveLineExplainText(condition, selectedCount = 2)
+
+        assertNull(result)
     }
 }
