@@ -200,8 +200,6 @@ fun GameRoute(
     )
 }
 
-private const val MINIGAMES_REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
-
 private fun loadRewardedAd(
     context: Context,
     rewardedAdState: androidx.compose.runtime.MutableState<RewardedAd?>,
@@ -210,7 +208,7 @@ private fun loadRewardedAd(
     val adRequest = AdRequest.Builder().build()
     RewardedAd.load(
         context,
-        MINIGAMES_REWARDED_AD_UNIT_ID,
+        rewardedAdUnitId(),
         adRequest,
         object : RewardedAdLoadCallback() {
             override fun onAdLoaded(ad: RewardedAd) {

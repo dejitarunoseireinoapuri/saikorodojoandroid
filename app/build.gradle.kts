@@ -17,6 +17,8 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["admobAppId"] = (project.findProperty("ADMOB_APP_ID") as String?) ?: ""
+        val rewardedAdUnitId = (project.findProperty("ADMOB_REWARDED_UNIT_ID") as String?) ?: ""
+        buildConfigField("String", "ADMOB_REWARDED_UNIT_ID", "\"$rewardedAdUnitId\"")
     }
 
     buildTypes {
@@ -34,6 +36,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
