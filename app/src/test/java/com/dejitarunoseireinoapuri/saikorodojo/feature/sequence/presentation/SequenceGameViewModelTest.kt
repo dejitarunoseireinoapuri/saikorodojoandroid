@@ -189,6 +189,31 @@ class SequenceGameViewModelTest {
     }
 
     @Test
+    fun `roll starts after save animation completes`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(3, 7),
+            rollAnimationMs = 0L,
+            tickMs = 1L,
+            saveAnimationMs = 200L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(3, viewModel.uiState.value.diceValue)
+
+        dispatcher.scheduler.advanceTimeBy(199L)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(3, viewModel.uiState.value.diceValue)
+
+        dispatcher.scheduler.advanceTimeBy(1L)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(7, viewModel.uiState.value.diceValue)
+    }
+
+    @Test
     fun `discarding until the final round ends the game`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2, 4, 6),
