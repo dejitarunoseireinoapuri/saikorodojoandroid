@@ -13,11 +13,7 @@
     <string name="cd_dice_face">Cara del dau %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
 
-    <plurals name="selected_dice_count">
-        <item quantity="one">%1$d de %2$d seleccionat</item>
-        <item quantity="other">%1$d de %2$d seleccionats</item>
-        <item quantity="many">%1$d de %2$d seleccionats</item>
-    </plurals>
+    <string name="selected_dice_count">Mínim %1$d daus</string>
 
     <string name="select_die_to_reroll">Selecciona un dau per tornar a tirar</string>
     <string name="select_dice_to_reroll">Selecciona els daus per tornar a tirar</string>
