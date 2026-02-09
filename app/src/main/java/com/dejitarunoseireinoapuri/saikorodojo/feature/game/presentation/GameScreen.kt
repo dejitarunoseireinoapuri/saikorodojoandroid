@@ -110,6 +110,7 @@ fun GameRoute(
     val rewardedAdState = remember { mutableStateOf<RewardedAd?>(null) }
     val pendingRewardedAd = remember { mutableStateOf(false) }
     val interstitialAdState = remember { mutableStateOf<InterstitialAd?>(null) }
+    val pendingInterstitialAd = remember { mutableStateOf(false) }
     val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
     val onInterstitialAdCompleted by rememberUpdatedState {
         viewModel.onEvent(GameUiEvent.LevelInterstitialAdCompleted)
@@ -151,7 +152,37 @@ fun GameRoute(
     }
 
     LaunchedEffect(Unit) {
-        loadInterstitialAd(context, interstitialAdState)
+        loadInterstitialAd(
+            context = context,
+            interstitialAdState = interstitialAdState,
+            onLoaded = { interstitialAd ->
+                if (pendingInterstitialAd.value) {
+                    pendingInterstitialAd.value = false
+                    val shown = showInterstitialAd(
+                        activity = context.findActivity(),
+                        interstitialAd = interstitialAd,
+                        onDismissed = {
+                            onInterstitialAdCompleted()
+                            loadInterstitialAd(context, interstitialAdState)
+                        },
+                        onFailedToShow = {
+                            onInterstitialAdCompleted()
+                            loadInterstitialAd(context, interstitialAdState)
+                        }
+                    )
+                    if (!shown) {
+                        onInterstitialAdCompleted()
+                        loadInterstitialAd(context, interstitialAdState)
+                    }
+                }
+            },
+            onFailedToLoad = {
+                if (pendingInterstitialAd.value) {
+                    pendingInterstitialAd.value = false
+                    onInterstitialAdCompleted()
+                }
+            }
+        )
     }
 
     LaunchedEffect(viewModel) {
@@ -199,8 +230,38 @@ fun GameRoute(
                         }
                     )
                     if (!shown) {
-                        onInterstitialAdCompleted()
-                        loadInterstitialAd(context, interstitialAdState)
+                        pendingInterstitialAd.value = true
+                        loadInterstitialAd(
+                            context = context,
+                            interstitialAdState = interstitialAdState,
+                            onLoaded = { interstitialAd ->
+                                if (pendingInterstitialAd.value) {
+                                    pendingInterstitialAd.value = false
+                                    val displayed = showInterstitialAd(
+                                        activity = context.findActivity(),
+                                        interstitialAd = interstitialAd,
+                                        onDismissed = {
+                                            onInterstitialAdCompleted()
+                                            loadInterstitialAd(context, interstitialAdState)
+                                        },
+                                        onFailedToShow = {
+                                            onInterstitialAdCompleted()
+                                            loadInterstitialAd(context, interstitialAdState)
+                                        }
+                                    )
+                                    if (!displayed) {
+                                        onInterstitialAdCompleted()
+                                        loadInterstitialAd(context, interstitialAdState)
+                                    }
+                                }
+                            },
+                            onFailedToLoad = {
+                                if (pendingInterstitialAd.value) {
+                                    pendingInterstitialAd.value = false
+                                    onInterstitialAdCompleted()
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -255,7 +316,8 @@ private fun loadRewardedAd(
 private fun loadInterstitialAd(
     context: Context,
     interstitialAdState: androidx.compose.runtime.MutableState<InterstitialAd?>,
-    onLoaded: (InterstitialAd) -> Unit = {}
+    onLoaded: (InterstitialAd) -> Unit = {},
+    onFailedToLoad: () -> Unit = {}
 ) {
     val adRequest = AdRequest.Builder().build()
     InterstitialAd.load(
@@ -270,6 +332,7 @@ private fun loadInterstitialAd(
 
             override fun onAdFailedToLoad(error: LoadAdError) {
                 interstitialAdState.value = null
+                onFailedToLoad()
             }
         }
     )
