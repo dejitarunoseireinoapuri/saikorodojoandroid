@@ -120,11 +120,10 @@ class GameScreenTest {
             selectedDice = selectedDice,
             selectedDiceSum = 3
         )
-        val countText = composeRule.activity.resources.getQuantityString(
-            R.plurals.selected_dice_count,
-            selectedDice.size,
-            selectedDice.size,
-            uiState.diceValues.size
+        val minimumDiceCount = 3
+        val countText = composeRule.activity.getString(
+            R.string.selected_dice_count,
+            minimumDiceCount
         )
 
         composeRule.setContent {

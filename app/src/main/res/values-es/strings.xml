@@ -12,12 +12,7 @@
     <string name="cd_settings">Ajustes</string>
     <string name="cd_dice_face">Cara del dado %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
-    <plurals name="selected_dice_count">
-        <item quantity="one">%1$d de %2$d seleccionado</item>
-        <item quantity="other">%1$d de %2$d seleccionados</item>
-        <item quantity="many">%1$d de %2$d seleccionados</item>
-        Selecciona al menos 3 dados / mínimo 3
-    </plurals>
+    <string name="selected_dice_count">Mínimo %1$d dados</string>
     <string name="select_die_to_reroll">Selecciona un dado para volver a tirar</string>
     <string name="select_dice_to_reroll">Selecciona los dados a relanzar</string>
     <string name="select_die_to_flip">Selecciona un dado para voltear</string>
