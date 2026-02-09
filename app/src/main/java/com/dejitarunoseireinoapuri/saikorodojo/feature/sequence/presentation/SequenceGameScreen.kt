@@ -196,6 +196,7 @@ fun SequenceGameScreen(
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
+        soundPlayer.play(SoundEffect.MOVE_DICE)
         saveAnimationProgress.snapTo(0f)
         saveAnimationProgress.animateTo(
             targetValue = 1f,
@@ -443,7 +444,13 @@ fun SequenceGameScreen(
                                     SequenceSavedDie(
                                         value = savedDie.value,
                                         size = dieSize,
-                                        isVisible = savedDie.isVisible,
+                                        isVisible = shouldShowSequenceSavedDie(
+                                            isVisible = savedDie.isVisible,
+                                            isLatest = savedDie.isLatest,
+                                            animatingSaveValue = animatingSaveValue,
+                                            isAnimatingToFailure = animatingToFailureDie,
+                                            value = savedDie.value
+                                        ),
                                         modifier = if (savedDie.isLatest) {
                                             Modifier.onGloballyPositioned { coordinates ->
                                                 val position = coordinates.positionInRoot()
@@ -458,12 +465,16 @@ fun SequenceGameScreen(
                                     )
                                 }
                                 uiState.failureDieValue?.let { value ->
-                                    val isAnimatingFailureDie =
-                                        animatingToFailureDie && animatingSaveValue == value
                                     SequenceSavedDie(
                                         value = value,
                                         size = dieSize,
-                                        isVisible = !isAnimatingFailureDie,
+                                        isVisible = shouldShowSequenceSavedDie(
+                                            isVisible = true,
+                                            isLatest = false,
+                                            animatingSaveValue = animatingSaveValue,
+                                            isAnimatingToFailure = animatingToFailureDie,
+                                            value = value
+                                        ),
                                         modifier = Modifier.onGloballyPositioned { coordinates ->
                                             val position = coordinates.positionInRoot()
                                             failureDieCenterInRoot = Offset(
@@ -668,6 +679,26 @@ internal fun shouldPlaySequenceSuccess(previousSavedCount: Int, currentSavedCoun
 
 internal fun shouldPlaySequenceLoss(previousHasFailure: Boolean, currentHasFailure: Boolean): Boolean {
     return !previousHasFailure && currentHasFailure
+}
+
+internal fun shouldShowSequenceSavedDie(
+    isVisible: Boolean,
+    isLatest: Boolean,
+    animatingSaveValue: Int?,
+    isAnimatingToFailure: Boolean,
+    value: Int
+): Boolean {
+    if (!isVisible) {
+        return false
+    }
+    if (animatingSaveValue == null) {
+        return true
+    }
+    return if (isAnimatingToFailure) {
+        value != animatingSaveValue
+    } else {
+        !isLatest
+    }
 }
 
 @Composable

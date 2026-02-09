@@ -36,4 +36,43 @@ class SequenceGameScreenLogicTest {
     fun `dice number y offset keeps values centered`() {
         assertEquals(0.dp, sequenceDiceNumberYOffset())
     }
+
+    @Test
+    fun `saved die stays hidden while save animation is active`() {
+        val hidden = shouldShowSequenceSavedDie(
+            isVisible = true,
+            isLatest = true,
+            animatingSaveValue = 5,
+            isAnimatingToFailure = false,
+            value = 5
+        )
+
+        assertFalse(hidden)
+    }
+
+    @Test
+    fun `failure die stays hidden while failure animation is active`() {
+        val hidden = shouldShowSequenceSavedDie(
+            isVisible = true,
+            isLatest = false,
+            animatingSaveValue = 3,
+            isAnimatingToFailure = true,
+            value = 3
+        )
+
+        assertFalse(hidden)
+    }
+
+    @Test
+    fun `non latest dice remain visible during save animation`() {
+        val visible = shouldShowSequenceSavedDie(
+            isVisible = true,
+            isLatest = false,
+            animatingSaveValue = 7,
+            isAnimatingToFailure = false,
+            value = 4
+        )
+
+        assertTrue(visible)
+    }
 }
