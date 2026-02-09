@@ -12,11 +12,13 @@
     <string name="cd_settings">Ajustes</string>
     <string name="cd_dice_face">Cara del dado %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
+
     <string name="select_die_to_reroll">Selecciona un dado para volver a tirar</string>
     <string name="select_dice_to_reroll">Selecciona los dados a relanzar</string>
     <string name="select_die_to_flip">Selecciona un dado para voltear</string>
     <string name="select_die_to_modify">Selecciona un dado para modificar</string>
     <string name="apply">Usar</string>
+
     <string name="card_adjust_plus_minus_one_title">Ajustar ±1</string>
     <string name="card_adjust_plus_minus_one_description">Aumenta o reduce el valor del dado en 1</string>
     <string name="card_flip_face_title">Voltear dado</string>
@@ -26,6 +28,7 @@
     <string name="card_reroll_all_title">Relanzar varios</string>
     <string name="card_reroll_all_description">Vuelve a lanzar los dados que quieras</string>
     <string name="roll_selected_dice">Lanzar</string>
+
     <string name="card_set_value_title">Elegir valor</string>
     <string name="card_set_value_description">Elige el valor de un dado</string>
     <string name="card_repeat_last_title">Repetir carta</string>
@@ -33,6 +36,7 @@
     <string name="card_repeat_last_none">Ninguna</string>
     <string name="card_minigames_title">Minijuegos</string>
     <string name="card_minigames_description">Gana dos minijuegos</string>
+
     <string name="odd_even_title">Par o Impar</string>
     <string name="odd_even_subtitle">Acierta si el resultado será par o impar. Consigue 3 aciertos en un máximo 7 rondas.</string>
     <string name="odd_even_start">Empezar</string>
@@ -41,6 +45,7 @@
     <string name="odd_even_even">Par</string>
     <string name="odd_even_odd">Impar</string>
     <string name="odd_even_continue">Continuar</string>
+
     <string name="higher_lower_title">Superior o Inferior</string>
     <string name="higher_lower_subtitle">Adivina si la siguiente tirada tendrá un resultado superior o inferior a la anterior tirada.Victoria: 3 aciertos o que la suma de los dados sea la misma en dos ocasiones consecutivas.
 </string>
@@ -48,12 +53,14 @@
     <string name="higher_lower_higher">Superior</string>
     <string name="higher_lower_lower">Inferior</string>
     <string name="higher_lower_total">Total: %1$d</string>
+
     <string name="sequence_title">Secuencia</string>
     <string name="sequence_subtitle">Debes conseguir una secuencia de 3 en la que cada valor sea igual o superior al anterior. Después de cada ronda, quédate o descarta el dado. Tienes 5 rondas para conseguirlo. </string>
     <string name="flip_selected_die">Voltear</string>
     <string name="sequence_start">Empezar</string>
     <string name="sequence_save">Guardar</string>
     <string name="sequence_discard">Descartar</string>
+
     <string name="blackjack_title">Blackjack</string>
     <string name="blackjack_subtitle">Llega a 21 sin pasarte. \n Después de la primera tirada, elige si quieres tirar un dado de 10 más o plantarte. Cuando te plantes será el turno de la banca. La banca se planta en 17 o más. \n El que se acerque más a 21 gana. Si empatáis, gana la banca. \n El 1 vale como 1 u 11 según convenga.</string>
     <string name="blackjack_start">Empezar</string>
@@ -62,15 +69,19 @@
     <string name="blackjack_player_score">Tu puntuación: %1$d</string>
     <string name="blackjack_dealer_score">Puntuación de la banca: %1$d</string>
     <string name="blackjack_continue">Continuar</string>
+
     <string name="minigame_win_message">¡Enhorabuena!</string>
     <string name="minigame_lose_message">¡Otra vez lo conseguirás!</string>
     <string name="minigame_win_cards_message">Has ganado cartas</string>
     <string name="cd_minigames_available">Minijuegos disponibles</string>
+
     <string name="minigames_ad_title">No quedan minijuegos</string>
     <string name="minigames_ad_message">¿Quieres ver un anuncio para ganar dos minijuegos?</string>
     <string name="minigames_ad_confirm">Ver anuncio</string>
+
     <string name="level_title">Nivel %1$d</string>
     <string name="level_complete_message">¡Enhorabuena!</string>
+
     <string name="objective_pair">Pareja</string>
     <string name="objective_pair_explain">Selecciona dos dados del mismo valor </string>
     <string name="objective_two_pairs">Doble pareja</string>
@@ -83,11 +94,13 @@
     <string name="objective_full_house_explain">Selecciona dos dados del mismo valor y tres dados del mismo valor</string>
     <string name="objective_all_distinct">Todos distintos</string>
     <string name="objective_all_distinct_explain">Selecciona solo dados con distinto valor</string>
+
     <plurals name="objective_straight">
         <item quantity="one">Consigue una escalera de %1$d dado</item>
         <item quantity="other">Consigue una escalera de %1$d dados</item>
         <item quantity="many">Consigue una escalera de %1$d dados</item>
     </plurals>
+
     <string name="objective_sum_at_least">Total igual o superior a %1$d</string>
     <string name="objective_sum_at_least_explain">La suma de los dados seleccionados debe ser al menos %1$d</string>
     <string name="objective_sum_exact">Total igual a %1$d</string>
@@ -108,44 +121,19 @@
     <string name="objective_sum_multiple_explain">La suma de los dados seleccionados debe ser múltiplo de %1$d</string>
     <string name="objective_sum_max_difference">Distancia de %2$d respecto a %1$d</string>
     <string name="objective_sum_max_difference_explain">La suma de los dados seleccionados de estar a una distancia máxima de %2$d respecto a %1$d</string>
-    <plurals name="objective_exact_distinct_values">
-        <item quantity="one">Selecciona exactamente %1$d valor distinto</item>
-        <item quantity="other">Selecciona exactamente %1$d valores distintos</item>
 
-        <item quantity="many">Selecciona exactamente %1$d valores distintos</item>
-    </plurals>
-    <plurals name="objective_selected_exact">
-        <item quantity="one">%1$d de %2$d seleccionado (exacto)</item>
-        <item quantity="other">%1$d de %2$d seleccionados (exacto)</item>
-        <item quantity="many">%1$d de %2$d seleccionados (exacto)</item>
-    </plurals>
-    <plurals name="objective_at_least_even_values">
-        <item quantity="one">%1$d dado par</item>
-        <item quantity="other">%1$d dados pares</item>
-        <item quantity="many">%1$d dados pares</item>
-    </plurals>
-    <plurals name="objective_at_least_even_values_explain">
-        <item quantity="one">Selecciona al menos %1$d dado par</item>
-        <item quantity="other">Selecciona al menos %1$d dados pares</item>
-        <item quantity="many">Selecciona al menos %1$d dados pares</item>
-    </plurals>
-    <plurals name="objective_at_least_odd_values">
-        <item quantity="one">%1$d dado impar</item>
-        <item quantity="other">%1$d dados impares</item>
-        <item quantity="many">%1$d dados impares</item>
-    </plurals>
-    <plurals name="objective_at_least_odd_values_explain">
-        <item quantity="one">Selecciona al menos %1$d dado impar</item>
-        <item quantity="other">Selecciona al menos %1$d dados impares</item>
-        <item quantity="many">Selecciona al menos %1$d dados impares</item>
-    </plurals>
-    <string name="objective_two_pairs_exact">Solo dos parejas</string>
-    <string name="objective_two_pairs_exact_explain">Consigue exactamente dos parejas</string>
+    <string name="objective_exact_distinct_values">%1$d valores distintos</string>
+    <string name="objective_exact_distinct_values_explain">Selecciona %1$d valores distintos</string>
+    <string name="objective_at_least_even_values">%1$d dados pares</string>
+    <string name="objective_at_least_even_values_explain">Selecciona al menos %1$d dados pares</string>
+    <string name="objective_at_least_odd_values">%1$d dados impares</string>
+    <string name="objective_at_least_odd_values_explain">Selecciona al menos %1$d dados impares</string>
+
     <string name="objective_three_of_kind_with_value">Trío de %1$d</string>
     <string name="objective_three_of_kind_with_value_explain">Selecciona tres dados de valor %1$d</string>
-    <string name="objective_satisfy_and_avoid">Cumple A y evita B</string>
-    <string name="objective_satisfy_and_avoid_explain">Cumple A y evita B</string>
+
     <string name="objective_selected_progress">Mínimo %1$d dados</string>
+
     <string name="surrender_title">¿Rendirse?</string>
     <string name="surrender_message">¿Quieres rendirte y volver al menú?</string>
     <string name="surrender_confirm">Rendirse</string>

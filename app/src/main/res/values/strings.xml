@@ -47,21 +47,22 @@
     <string name="odd_even_continue">Continue</string>
 
     <string name="higher_lower_title">Higher or Lower</string>
-    <string name="higher_lower_subtitle">Guess whether the next roll will be higher or lower than the previous roll. Victory: 3 correct guesses or the dice sum being the same twice in a row.</string>
+    <string name="higher_lower_subtitle">Guess whether the next roll will be higher or lower than the previous roll. Victory: 3 correct guesses or the dice sum being the same twice in a row.
+</string>
     <string name="higher_lower_start">Start</string>
     <string name="higher_lower_higher">Higher</string>
     <string name="higher_lower_lower">Lower</string>
     <string name="higher_lower_total">Total: %1$d</string>
 
     <string name="sequence_title">Sequence</string>
-    <string name="sequence_subtitle">You must get a sequence of 3 where each value is equal to or higher than the previous one. After each round, keep or discard the die. You have 5 rounds to do it.</string>
+    <string name="sequence_subtitle">You must get a sequence of 3 where each value is equal to or higher than the previous one. After each round, keep or discard the die. You have 5 rounds to do it. </string>
     <string name="flip_selected_die">Flip</string>
     <string name="sequence_start">Start</string>
     <string name="sequence_save">Keep</string>
     <string name="sequence_discard">Discard</string>
 
     <string name="blackjack_title">Blackjack</string>
-    <string name="blackjack_subtitle">Reach 21 without going over.\nAfter the first roll, choose whether to roll one more d10 or stand. When you stand, it will be the dealer’s turn. The dealer stands on 17 or more.\nWhoever gets closer to 21 wins. If you tie, the dealer wins.\nA 1 counts as 1 or 11 as appropriate.</string>
+    <string name="blackjack_subtitle">Reach 21 without going over. \n After the first roll, choose whether you want to roll one more d10 or stand. When you stand, it will be the dealer’s turn. The dealer stands on 17 or more. \n Whoever gets closer to 21 wins. If you tie, the dealer wins. \n A 1 counts as 1 or 11 as appropriate.</string>
     <string name="blackjack_start">Start</string>
     <string name="blackjack_hit">Hit</string>
     <string name="blackjack_stand">Stand</string>
@@ -82,7 +83,7 @@
     <string name="level_complete_message">Congratulations!</string>
 
     <string name="objective_pair">Pair</string>
-    <string name="objective_pair_explain">Select two dice with the same value</string>
+    <string name="objective_pair_explain">Select two dice with the same value </string>
     <string name="objective_two_pairs">Two pairs</string>
     <string name="objective_two_pairs_explain">Select two pairs of dice with the same value</string>
     <string name="objective_three_of_kind">Three of a kind</string>
@@ -121,50 +122,17 @@
     <string name="objective_sum_max_difference">Within %2$d of %1$d</string>
     <string name="objective_sum_max_difference_explain">The sum of the selected dice must be within a maximum distance of %2$d from %1$d</string>
 
-    <plurals name="objective_exact_distinct_values">
-        <item quantity="one">Select exactly %1$d distinct value</item>
-        <item quantity="other">Select exactly %1$d distinct values</item>
-        <item quantity="many">Select exactly %1$d distinct values</item>
-    </plurals>
+    <string name="objective_exact_distinct_values">%1$d distinct values</string>
+    <string name="objective_exact_distinct_values_explain">Select %1$d distinct values</string>
+    <string name="objective_at_least_even_values">%1$d even dice</string>
+    <string name="objective_at_least_even_values_explain">Select at least %1$d even dice</string>
+    <string name="objective_at_least_odd_values">%1$d odd dice</string>
+    <string name="objective_at_least_odd_values_explain">Select at least %1$d odd dice</string>
 
-    <plurals name="objective_selected_exact">
-        <item quantity="one">%1$d of %2$d selected (exact)</item>
-        <item quantity="other">%1$d of %2$d selected (exact)</item>
-        <item quantity="many">%1$d of %2$d selected (exact)</item>
-    </plurals>
-
-    <plurals name="objective_at_least_even_values">
-        <item quantity="one">%1$d even die</item>
-        <item quantity="other">%1$d even dice</item>
-        <item quantity="many">%1$d even dice</item>
-    </plurals>
-
-    <plurals name="objective_at_least_even_values_explain">
-        <item quantity="one">Select at least %1$d even die</item>
-        <item quantity="other">Select at least %1$d even dice</item>
-        <item quantity="many">Select at least %1$d even dice</item>
-    </plurals>
-
-    <plurals name="objective_at_least_odd_values">
-        <item quantity="one">%1$d odd die</item>
-        <item quantity="other">%1$d odd dice</item>
-        <item quantity="many">%1$d odd dice</item>
-    </plurals>
-
-    <plurals name="objective_at_least_odd_values_explain">
-        <item quantity="one">Select at least %1$d odd die</item>
-        <item quantity="other">Select at least %1$d odd dice</item>
-        <item quantity="many">Select at least %1$d odd dice</item>
-    </plurals>
-
-    <string name="objective_two_pairs_exact">Only two pairs</string>
-    <string name="objective_two_pairs_exact_explain">Get exactly two pairs</string>
     <string name="objective_three_of_kind_with_value">Three of a kind of %1$d</string>
     <string name="objective_three_of_kind_with_value_explain">Select three dice with value %1$d</string>
-    <string name="objective_satisfy_and_avoid">Satisfy A and avoid B</string>
-    <string name="objective_satisfy_and_avoid_explain">Satisfy A and avoid B</string>
 
-    <string name="objective_selected_progress">Mínimo %1$d dados</string>
+    <string name="objective_selected_progress">At least %1$d dice</string>
 
     <string name="surrender_title">Surrender?</string>
     <string name="surrender_message">Do you want to surrender and return to the menu?</string>
