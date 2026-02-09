@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -448,8 +449,19 @@ fun GameScreen(
                             label = "objectiveInfoIconAlpha_$index"
                         )
                         val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
-                        val infoMargin = 6.dp
+                        val infoMargin = 10.dp
                         var objectiveTextWidthPx by remember { mutableStateOf(0) }
+                        val density = LocalDensity.current
+                        val infoOffsetDp by animateDpAsState(
+                            targetValue = calculateObjectiveInfoOffset(
+                                objectiveTextWidthPx = objectiveTextWidthPx,
+                                margin = infoMargin,
+                                density = density,
+                                isExpanded = showObjectiveExplain
+                            ),
+                            animationSpec = tween(durationMillis = 180),
+                            label = "objectiveInfoOffset_$index"
+                        )
                         Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center
@@ -466,16 +478,13 @@ fun GameScreen(
                                 }
                             )
                             if (line.shouldShowInfo) {
-                                val infoOffsetX = with(LocalDensity.current) {
-                                    (objectiveTextWidthPx / 2 + infoMargin.toPx()).toInt()
-                                }
                                 val collapsedSize = 18.dp
                                 val collapsedModifier = Modifier.size(collapsedSize)
                                 val expandedModifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.Center)
-                                        .offset { IntOffset(infoOffsetX, 0) }
+                                        .offset { IntOffset(with(density) { infoOffsetDp.roundToPx() }, 0) }
                                         .zIndex(2f)
                                         .animateContentSize(animationSpec = tween(durationMillis = 180))
                                         .then(if (showObjectiveExplain) expandedModifier else collapsedModifier)
@@ -824,6 +833,17 @@ internal fun calculateCardStackStartX(
     val rightAlignedStartX =
         (rightEdgeX - stackSpacing * stackedCards.toFloat()).coerceAtLeast(0.dp)
     return if (cardsCount >= maxCardTypes) rightAlignedStartX else centeredStartX
+}
+
+internal fun calculateObjectiveInfoOffset(
+    objectiveTextWidthPx: Int,
+    margin: Dp,
+    density: Density,
+    isExpanded: Boolean
+): Dp {
+    if (isExpanded) return 0.dp
+    if (objectiveTextWidthPx <= 0) return margin
+    return with(density) { objectiveTextWidthPx.toDp() / 2 + margin }
 }
 
 private fun cardTitleResForId(cardId: CardId): Int? {

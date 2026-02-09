@@ -5,6 +5,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.Density
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 
@@ -210,6 +211,30 @@ class GameScreenTest {
         )
 
         assertEquals(208.dp, startX)
+    }
+
+    @Test
+    fun `objective info offset centers when expanded`() {
+        val offset = calculateObjectiveInfoOffset(
+            objectiveTextWidthPx = 100,
+            margin = 10.dp,
+            density = Density(2f),
+            isExpanded = true
+        )
+
+        assertEquals(0.dp, offset)
+    }
+
+    @Test
+    fun `objective info offset adds margin and half text width when collapsed`() {
+        val offset = calculateObjectiveInfoOffset(
+            objectiveTextWidthPx = 100,
+            margin = 10.dp,
+            density = Density(2f),
+            isExpanded = false
+        )
+
+        assertEquals(35.dp, offset)
     }
 }
 
