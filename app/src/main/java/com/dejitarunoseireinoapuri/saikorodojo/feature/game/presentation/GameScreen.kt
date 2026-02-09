@@ -479,14 +479,18 @@ fun GameScreen(
                                 color = MaterialTheme.colorScheme.onBackground,
                                 textAlign = TextAlign.Center,
                                 onTextLayout = { textLayout ->
-                                    objectiveTextWidthPx = textLayout.size.width
                                     if (textLayout.lineCount > 0) {
                                         val lineTop = textLayout.getLineTop(0)
                                         val lineBottom = textLayout.getLineBottom(0)
                                         val lineCenter = (lineTop + lineBottom) / 2f
                                         val layoutCenter = textLayout.size.height / 2f
+                                        objectiveTextWidthPx = calculateLineWidthPx(
+                                            lineLeft = textLayout.getLineLeft(0),
+                                            lineRight = textLayout.getLineRight(0)
+                                        )
                                         objectiveTextCenterOffsetPx = lineCenter - layoutCenter
                                     } else {
+                                        objectiveTextWidthPx = 0
                                         objectiveTextCenterOffsetPx = 0f
                                     }
                                 }
@@ -494,7 +498,7 @@ fun GameScreen(
                             if (line.shouldShowInfo) {
                                 val collapsedModifier = Modifier.size(collapsedSize)
                                 val expandedModifier = Modifier
-                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .padding(horizontal = 20.dp, vertical = 16.dp)
                                     .widthIn(max = 320.dp)
                                 Box(
                                     modifier = Modifier
@@ -872,6 +876,18 @@ internal fun calculateObjectiveInfoOffset(
     val iconRadius = iconSize / 2
     if (objectiveTextWidthPx <= 0) return textToIconGap + iconRadius
     return with(density) { objectiveTextWidthPx.toDp() / 2 + textToIconGap + iconRadius }
+}
+
+internal fun calculateLineWidthPx(
+    lineLeft: Float,
+    lineRight: Float
+): Int {
+    val width = lineRight - lineLeft
+    return if (width > 0f) {
+        width.roundToInt()
+    } else {
+        0
+    }
 }
 
 private fun cardTitleResForId(cardId: CardId): Int? {

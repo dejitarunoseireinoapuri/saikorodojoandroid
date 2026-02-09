@@ -238,6 +238,26 @@ class GameScreenTest {
 
         assertEquals(38.dp, offset)
     }
+
+    @Test
+    fun `line width uses the distance between left and right`() {
+        val width = calculateLineWidthPx(
+            lineLeft = 10f,
+            lineRight = 42f
+        )
+
+        assertEquals(32, width)
+    }
+
+    @Test
+    fun `line width returns zero for invalid ranges`() {
+        val width = calculateLineWidthPx(
+            lineLeft = 24f,
+            lineRight = 12f
+        )
+
+        assertEquals(0, width)
+    }
 }
 
 private fun overlaps(
