@@ -6,34 +6,21 @@ import org.junit.Test
 
 class BlackjackDiceRollSoundTest {
     @Test
-    fun `should play dice roll when a new die is added`() {
+    fun `should play dice roll when rolling starts`() {
         assertTrue(
-            shouldPlayDiceRollForNewDie(
-                previousCount = 1,
-                currentCount = 2,
-                isRolling = true
+            shouldPlayDiceRollOnStart(
+                isRolling = true,
+                wasRolling = false
             )
         )
     }
 
     @Test
-    fun `should not play dice roll when dice count stays the same`() {
+    fun `should not play dice roll when already rolling`() {
         assertFalse(
-            shouldPlayDiceRollForNewDie(
-                previousCount = 2,
-                currentCount = 2,
-                isRolling = true
-            )
-        )
-    }
-
-    @Test
-    fun `should not play dice roll when dice count decreases`() {
-        assertFalse(
-            shouldPlayDiceRollForNewDie(
-                previousCount = 3,
-                currentCount = 1,
-                isRolling = true
+            shouldPlayDiceRollOnStart(
+                isRolling = true,
+                wasRolling = true
             )
         )
     }
@@ -41,10 +28,9 @@ class BlackjackDiceRollSoundTest {
     @Test
     fun `should not play dice roll when not rolling`() {
         assertFalse(
-            shouldPlayDiceRollForNewDie(
-                previousCount = 1,
-                currentCount = 2,
-                isRolling = false
+            shouldPlayDiceRollOnStart(
+                isRolling = false,
+                wasRolling = false
             )
         )
     }
