@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -156,6 +157,7 @@ fun SequenceGameScreen(
     var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var animatedDieSize by remember { mutableStateOf(0.dp) }
+    val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     var animationTrigger by remember { mutableIntStateOf(0) }
     LaunchedEffect(uiState.isRolling) {
@@ -622,9 +624,7 @@ fun SequenceGameScreen(
                     text = currentAnimationValue.toString(),
                     style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.graphicsLayer {
-                        translationY = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
-                    }
+                    modifier = Modifier.graphicsLayer { translationY = animatedTextOffsetPx }
                 )
             }
         }
