@@ -94,6 +94,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import kotlinx.coroutines.delay
 
 @Composable
 fun GameRoute(
@@ -307,6 +308,13 @@ fun GameScreen(
         var showSurrenderDialog by remember { mutableStateOf(false) }
         var showExitDialog by remember { mutableStateOf(false) }
         var expandedObjectiveIndex by remember { mutableStateOf<Int?>(null) }
+        LaunchedEffect(expandedObjectiveIndex) {
+            val selectedIndex = expandedObjectiveIndex ?: return@LaunchedEffect
+            delay(3_000L)
+            if (expandedObjectiveIndex == selectedIndex) {
+                expandedObjectiveIndex = null
+            }
+        }
         BackHandler(enabled = !showExitDialog && !showSurrenderDialog) {
             showExitDialog = true
         }
@@ -527,13 +535,13 @@ fun GameScreen(
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
-                            ) { },
+                            ) { expandedObjectiveIndex = null },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = explainTextValue,
                             color = Color.Black,
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.titleMedium,
                             textAlign = TextAlign.Center
                         )
                     }
