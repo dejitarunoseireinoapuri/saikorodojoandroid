@@ -6,6 +6,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMiniga
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.DiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.RollHigherLowerUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.advanceTimeBy
@@ -265,6 +269,18 @@ class HigherLowerGameViewModelTest {
         assertTrue(finalState.rewardCards.isNotEmpty())
     }
 
+    @Test
+    fun `clear session delegates to repository`() = runTest {
+        val repository = TestGameSessionRepository()
+        val viewModel = HigherLowerGameViewModel(
+            clearGameSessionUseCase = ClearGameSessionUseCase(repository)
+        )
+
+        viewModel.clearSession()
+
+        assertTrue(repository.clearCalls > 0)
+    }
+
     private fun buildViewModel(
         diceValues: List<Int>,
         targetCorrect: Int = 3,
@@ -301,5 +317,23 @@ class HigherLowerGameViewModelTest {
 
     private class FixedRewardRandomProvider : RewardCardsRandomProvider {
         override fun nextFloat(): Float = 0.4f
+    }
+
+    private class TestGameSessionRepository : GameSessionRepository {
+        var clearCalls = 0
+
+        override fun saveSession(session: SavedSession) = Unit
+
+        override fun loadSession(): SavedSession? = null
+
+        override fun clearSession() {
+            clearCalls += 1
+        }
+
+        override fun hasSession(): Boolean = false
+
+        override fun savePendingMainGameSnapshot(snapshot: MainGameSnapshot) = Unit
+
+        override fun getPendingMainGameSnapshot(): MainGameSnapshot? = null
     }
 }

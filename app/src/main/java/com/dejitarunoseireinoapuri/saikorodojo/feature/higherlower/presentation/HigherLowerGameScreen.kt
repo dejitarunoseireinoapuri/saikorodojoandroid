@@ -107,9 +107,16 @@ fun HigherLowerGameRoute(
         onChoiceSelect = { choice ->
             viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(choice))
         },
-        onContinueClick = onContinueClick,
+        onContinueClick = {
+            viewModel.clearSession()
+            onContinueClick()
+        },
         onExitToMenu = {
-            viewModel.saveSession()
+            if (uiState.isComplete) {
+                viewModel.clearSession()
+            } else {
+                viewModel.saveSession()
+            }
             onNavigateToMenu()
         }
     )

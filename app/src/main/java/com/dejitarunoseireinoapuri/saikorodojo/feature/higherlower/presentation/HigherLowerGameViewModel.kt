@@ -13,6 +13,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.Higher
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.RollHigherLowerUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
@@ -76,6 +77,8 @@ class HigherLowerGameViewModel(
         LoadGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val saveGameSessionUseCase: SaveGameSessionUseCase =
         SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
+    private val clearGameSessionUseCase: ClearGameSessionUseCase =
+        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
         GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -127,6 +130,10 @@ class HigherLowerGameViewModel(
                 mainGameSnapshot = mainSnapshot
             )
         )
+    }
+
+    fun clearSession() {
+        clearGameSessionUseCase.execute()
     }
 
     private fun startGame() {

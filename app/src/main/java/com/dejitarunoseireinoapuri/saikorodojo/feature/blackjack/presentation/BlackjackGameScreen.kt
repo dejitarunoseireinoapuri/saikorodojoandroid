@@ -99,9 +99,16 @@ fun BlackjackGameRoute(
         onStartClick = { viewModel.onEvent(BlackjackGameUiEvent.StartGame) },
         onHitClick = { viewModel.onEvent(BlackjackGameUiEvent.Hit) },
         onStandClick = { viewModel.onEvent(BlackjackGameUiEvent.Stand) },
-        onContinueClick = onContinueClick,
+        onContinueClick = {
+            viewModel.clearSession()
+            onContinueClick()
+        },
         onExitToMenu = {
-            viewModel.saveSession()
+            if (uiState.isComplete) {
+                viewModel.clearSession()
+            } else {
+                viewModel.saveSession()
+            }
             onNavigateToMenu()
         }
     )

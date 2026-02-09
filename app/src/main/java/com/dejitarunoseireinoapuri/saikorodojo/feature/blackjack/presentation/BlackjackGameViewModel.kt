@@ -14,6 +14,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUi
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
@@ -74,6 +75,8 @@ class BlackjackGameViewModel(
         LoadGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val saveGameSessionUseCase: SaveGameSessionUseCase =
         SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
+    private val clearGameSessionUseCase: ClearGameSessionUseCase =
+        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
         GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -119,6 +122,10 @@ class BlackjackGameViewModel(
                 mainGameSnapshot = mainSnapshot
             )
         )
+    }
+
+    fun clearSession() {
+        clearGameSessionUseCase.execute()
     }
 
     private fun startGame() {

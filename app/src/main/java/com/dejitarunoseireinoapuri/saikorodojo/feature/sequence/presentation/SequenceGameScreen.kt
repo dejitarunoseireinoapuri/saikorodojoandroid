@@ -117,9 +117,16 @@ fun SequenceGameRoute(
         onStartClick = { viewModel.onEvent(SequenceGameUiEvent.StartGame) },
         onSaveClick = { viewModel.onEvent(SequenceGameUiEvent.SaveRoll) },
         onDiscardClick = { viewModel.onEvent(SequenceGameUiEvent.DiscardRoll) },
-        onContinueClick = onContinueClick,
+        onContinueClick = {
+            viewModel.clearSession()
+            onContinueClick()
+        },
         onExitToMenu = {
-            viewModel.saveSession()
+            if (uiState.isComplete) {
+                viewModel.clearSession()
+            } else {
+                viewModel.saveSession()
+            }
             onNavigateToMenu()
         }
     )

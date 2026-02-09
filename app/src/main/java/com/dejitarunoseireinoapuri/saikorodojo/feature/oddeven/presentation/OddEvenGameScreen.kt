@@ -99,9 +99,16 @@ fun OddEvenGameRoute(
         onChoiceSelect = { choice ->
             viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(choice))
         },
-        onContinueClick = onContinueClick,
+        onContinueClick = {
+            viewModel.clearSession()
+            onContinueClick()
+        },
         onExitToMenu = {
-            viewModel.saveSession()
+            if (uiState.isComplete) {
+                viewModel.clearSession()
+            } else {
+                viewModel.saveSession()
+            }
             onNavigateToMenu()
         }
     )

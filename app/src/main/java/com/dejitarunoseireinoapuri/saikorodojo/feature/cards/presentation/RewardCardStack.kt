@@ -13,9 +13,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+
+internal const val REWARD_CARD_STACK_TAG = "reward_card_stack"
+internal const val REWARD_CARD_TAG_PREFIX = "reward_card"
+internal val RewardCardExpandedKey = SemanticsPropertyKey<Boolean>("RewardCardExpanded")
+internal var SemanticsPropertyReceiver.rewardCardExpanded by RewardCardExpandedKey
 
 @Composable
 fun RewardCardStack(
@@ -27,7 +36,19 @@ fun RewardCardStack(
     val cardSize = DpSize(width = 208.dp, height = 278.dp)
     val stackSpacing = 40.dp
     val stackRise = 32.dp
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .testTag(REWARD_CARD_STACK_TAG)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                if (expandedIndex != cards.lastIndex) {
+                    expandedIndex = cards.lastIndex
+                }
+            }
+    ) {
         val totalWidth = cardSize.width + stackSpacing * (cards.size - 1).coerceAtLeast(0)
         val startX = (maxWidth - totalWidth) / 2f
         val centerY = (maxHeight - cardSize.height) / 2f
@@ -39,6 +60,8 @@ fun RewardCardStack(
                 modifier = Modifier
                     .offset(x = positionX, y = positionY)
                     .zIndex(if (isExpanded) 2f else 1f + index * 0.01f)
+                    .testTag("${REWARD_CARD_TAG_PREFIX}_$index")
+                    .semantics { rewardCardExpanded = isExpanded }
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null

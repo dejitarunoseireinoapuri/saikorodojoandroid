@@ -3,6 +3,10 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.DiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.RollOddEvenUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -42,5 +46,35 @@ class OddEvenGameViewModelTest {
         advanceTimeBy(1L)
         runCurrent()
         assertTrue(viewModel.uiState.value.isComplete)
+    }
+
+    @Test
+    fun clearSessionDelegatesToRepository() = runTest {
+        val repository = TestGameSessionRepository()
+        val viewModel = OddEvenGameViewModel(
+            clearGameSessionUseCase = ClearGameSessionUseCase(repository)
+        )
+
+        viewModel.clearSession()
+
+        assertTrue(repository.clearCalls > 0)
+    }
+
+    private class TestGameSessionRepository : GameSessionRepository {
+        var clearCalls = 0
+
+        override fun saveSession(session: SavedSession) = Unit
+
+        override fun loadSession(): SavedSession? = null
+
+        override fun clearSession() {
+            clearCalls += 1
+        }
+
+        override fun hasSession(): Boolean = false
+
+        override fun savePendingMainGameSnapshot(snapshot: MainGameSnapshot) = Unit
+
+        override fun getPendingMainGameSnapshot(): MainGameSnapshot? = null
     }
 }

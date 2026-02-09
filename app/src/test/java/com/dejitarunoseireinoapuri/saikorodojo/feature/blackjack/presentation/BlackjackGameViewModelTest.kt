@@ -9,6 +9,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.RollBlac
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.RewardCardsRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -183,6 +187,36 @@ class BlackjackGameViewModelTest {
         val revealedState = viewModel.uiState.value
         assertTrue(revealedState.rewardCards.isNotEmpty())
         assertTrue(revealedState.isComplete)
+    }
+
+    @Test
+    fun `clear session delegates to repository`() = runTest {
+        val repository = TestGameSessionRepository()
+        val viewModel = BlackjackGameViewModel(
+            clearGameSessionUseCase = ClearGameSessionUseCase(repository)
+        )
+
+        viewModel.clearSession()
+
+        assertTrue(repository.clearCalls > 0)
+    }
+
+    private class TestGameSessionRepository : GameSessionRepository {
+        var clearCalls = 0
+
+        override fun saveSession(session: SavedSession) = Unit
+
+        override fun loadSession(): SavedSession? = null
+
+        override fun clearSession() {
+            clearCalls += 1
+        }
+
+        override fun hasSession(): Boolean = false
+
+        override fun savePendingMainGameSnapshot(snapshot: MainGameSnapshot) = Unit
+
+        override fun getPendingMainGameSnapshot(): MainGameSnapshot? = null
     }
 }
 

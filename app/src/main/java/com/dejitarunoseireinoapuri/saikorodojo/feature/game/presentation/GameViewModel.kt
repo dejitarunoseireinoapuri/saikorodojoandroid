@@ -95,7 +95,8 @@ data class GameUiState(
     val isLevelComplete: Boolean = false,
     val showLevelCompleteMessage: Boolean = false,
     val minigamesAvailable: Int = DEFAULT_MINIGAMES_AVAILABLE,
-    val showMinigamesAdPrompt: Boolean = false
+    val showMinigamesAdPrompt: Boolean = false,
+    val isMinigamesAdLoading: Boolean = false
 )
 
 sealed interface GameUiEvent {
@@ -116,6 +117,7 @@ sealed interface GameUiEvent {
     data object OpenRandomMinigame : GameUiEvent
     data object ConfirmMinigamesAd : GameUiEvent
     data object DismissMinigamesAdPrompt : GameUiEvent
+    data object MinigamesAdDisplayed : GameUiEvent
     data object MinigamesAdCompleted : GameUiEvent
 }
 
@@ -240,6 +242,7 @@ class GameViewModel(
             GameUiEvent.OpenRandomMinigame -> openRandomMinigame()
             GameUiEvent.ConfirmMinigamesAd -> confirmMinigamesAd()
             GameUiEvent.DismissMinigamesAdPrompt -> dismissMinigamesAdPrompt()
+            GameUiEvent.MinigamesAdDisplayed -> markMinigamesAdDisplayed()
             GameUiEvent.MinigamesAdCompleted -> grantMinigamesFromAd()
         }
     }
@@ -279,7 +282,12 @@ class GameViewModel(
     }
 
     private fun confirmMinigamesAd() {
-        _uiState.update { it.copy(showMinigamesAdPrompt = false) }
+        _uiState.update {
+            it.copy(
+                showMinigamesAdPrompt = false,
+                isMinigamesAdLoading = true
+            )
+        }
         viewModelScope.launch(dispatcher) {
             _effects.emit(GameUiEffect.ShowMinigamesRewardedAd)
         }
@@ -289,9 +297,16 @@ class GameViewModel(
         _uiState.update { it.copy(showMinigamesAdPrompt = false) }
     }
 
+    private fun markMinigamesAdDisplayed() {
+        _uiState.update { it.copy(isMinigamesAdLoading = false) }
+    }
+
     private fun grantMinigamesFromAd() {
         _uiState.update {
-            it.copy(minigamesAvailable = it.minigamesAvailable + MINIGAMES_REWARD_AMOUNT)
+            it.copy(
+                minigamesAvailable = it.minigamesAvailable + MINIGAMES_REWARD_AMOUNT,
+                isMinigamesAdLoading = false
+            )
         }
     }
 

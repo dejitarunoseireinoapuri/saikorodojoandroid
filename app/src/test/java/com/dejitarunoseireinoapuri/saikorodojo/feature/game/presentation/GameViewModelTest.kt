@@ -469,13 +469,29 @@ class GameViewModelTest {
         assertEquals(1, effects.size)
         assertEquals(GameUiEffect.ShowMinigamesRewardedAd, effects.single())
         assertTrue(!viewModel.uiState.value.showMinigamesAdPrompt)
+        assertTrue(viewModel.uiState.value.isMinigamesAdLoading)
         assertEquals(0, viewModel.uiState.value.minigamesAvailable)
 
         viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
 
         assertEquals(3, viewModel.uiState.value.minigamesAvailable)
+        assertTrue(!viewModel.uiState.value.isMinigamesAdLoading)
         navigationCollector.cancel()
         collectorJob.cancel()
+    }
+
+    @Test
+    fun `minigames ad display clears loading without granting reward`() = runTest {
+        val viewModel = buildViewModel()
+        val initialMinigames = viewModel.uiState.value.minigamesAvailable
+
+        viewModel.onEvent(GameUiEvent.ConfirmMinigamesAd)
+        assertTrue(viewModel.uiState.value.isMinigamesAdLoading)
+
+        viewModel.onEvent(GameUiEvent.MinigamesAdDisplayed)
+
+        assertTrue(!viewModel.uiState.value.isMinigamesAdLoading)
+        assertEquals(initialMinigames, viewModel.uiState.value.minigamesAvailable)
     }
 
     @Test

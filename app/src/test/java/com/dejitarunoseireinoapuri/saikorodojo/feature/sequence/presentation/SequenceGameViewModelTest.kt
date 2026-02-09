@@ -8,6 +8,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUi
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.DiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.RollSequenceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.SequenceFailureReason
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -272,6 +276,18 @@ class SequenceGameViewModelTest {
         assertTrue(state.rewardCards.isEmpty())
     }
 
+    @Test
+    fun `clear session delegates to repository`() = runTest {
+        val repository = TestGameSessionRepository()
+        val viewModel = SequenceGameViewModel(
+            clearGameSessionUseCase = ClearGameSessionUseCase(repository)
+        )
+
+        viewModel.clearSession()
+
+        assertTrue(repository.clearCalls > 0)
+    }
+
     private fun buildViewModel(
         diceRolls: List<Int>,
         rewardRolls: List<Float> = listOf(0.4f, 0.2f, 0.3f),
@@ -334,5 +350,23 @@ class SequenceGameViewModelTest {
             index += 1
             return value
         }
+    }
+
+    private class TestGameSessionRepository : GameSessionRepository {
+        var clearCalls = 0
+
+        override fun saveSession(session: SavedSession) = Unit
+
+        override fun loadSession(): SavedSession? = null
+
+        override fun clearSession() {
+            clearCalls += 1
+        }
+
+        override fun hasSession(): Boolean = false
+
+        override fun savePendingMainGameSnapshot(snapshot: MainGameSnapshot) = Unit
+
+        override fun getPendingMainGameSnapshot(): MainGameSnapshot? = null
     }
 }

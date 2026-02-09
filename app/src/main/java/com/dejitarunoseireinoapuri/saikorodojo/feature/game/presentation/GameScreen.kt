@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -108,6 +109,7 @@ fun GameRoute(
     val rewardedAdState = remember { mutableStateOf<RewardedAd?>(null) }
     val pendingRewardedAd = remember { mutableStateOf(false) }
     val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
+    val onAdDisplayed by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdDisplayed) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner, viewModel) {
@@ -130,18 +132,36 @@ fun GameRoute(
     }
 
     LaunchedEffect(Unit) {
-        loadRewardedAd(context, rewardedAdState) { rewardAd ->
-            if (pendingRewardedAd.value) {
-                pendingRewardedAd.value = false
-                showRewardedAd(
-                    activity = context.findActivity(),
-                    rewardedAd = rewardAd,
-                    onEarnedReward = onAdCompleted,
-                    onDismissed = { loadRewardedAd(context, rewardedAdState) },
-                    onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
-                )
+        loadRewardedAd(
+            context = context,
+            rewardedAdState = rewardedAdState,
+            onLoaded = { rewardAd ->
+                if (pendingRewardedAd.value) {
+                    pendingRewardedAd.value = false
+                    val shown = showRewardedAd(
+                        activity = context.findActivity(),
+                        rewardedAd = rewardAd,
+                        onEarnedReward = onAdCompleted,
+                        onDismissed = { loadRewardedAd(context, rewardedAdState) },
+                        onFailedToShow = {
+                            onAdCompleted()
+                            loadRewardedAd(context, rewardedAdState)
+                        }
+                    )
+                    if (shown) {
+                        onAdDisplayed()
+                    } else {
+                        onAdCompleted()
+                    }
+                }
+            },
+            onFailed = {
+                if (pendingRewardedAd.value) {
+                    pendingRewardedAd.value = false
+                    onAdCompleted()
+                }
             }
-        }
+        )
     }
 
     LaunchedEffect(viewModel) {
@@ -156,22 +176,45 @@ fun GameRoute(
                         rewardedAd = rewardedAdState.value,
                         onEarnedReward = onAdCompleted,
                         onDismissed = { loadRewardedAd(context, rewardedAdState) },
-                        onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
+                        onFailedToShow = {
+                            onAdCompleted()
+                            loadRewardedAd(context, rewardedAdState)
+                        }
                     )
                     if (!shown) {
                         pendingRewardedAd.value = true
-                        loadRewardedAd(context, rewardedAdState) { rewardAd ->
-                            if (pendingRewardedAd.value) {
-                                pendingRewardedAd.value = false
-                                showRewardedAd(
-                                    activity = context.findActivity(),
-                                    rewardedAd = rewardAd,
-                                    onEarnedReward = onAdCompleted,
-                                    onDismissed = { loadRewardedAd(context, rewardedAdState) },
-                                    onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
-                                )
+                        loadRewardedAd(
+                            context = context,
+                            rewardedAdState = rewardedAdState,
+                            onLoaded = { rewardAd ->
+                                if (pendingRewardedAd.value) {
+                                    pendingRewardedAd.value = false
+                                    val pendingShown = showRewardedAd(
+                                        activity = context.findActivity(),
+                                        rewardedAd = rewardAd,
+                                        onEarnedReward = onAdCompleted,
+                                        onDismissed = { loadRewardedAd(context, rewardedAdState) },
+                                        onFailedToShow = {
+                                            onAdCompleted()
+                                            loadRewardedAd(context, rewardedAdState)
+                                        }
+                                    )
+                                    if (pendingShown) {
+                                        onAdDisplayed()
+                                    } else {
+                                        onAdCompleted()
+                                    }
+                                }
+                            },
+                            onFailed = {
+                                if (pendingRewardedAd.value) {
+                                    pendingRewardedAd.value = false
+                                    onAdCompleted()
+                                }
                             }
-                        }
+                        )
+                    } else {
+                        onAdDisplayed()
                     }
                 }
             }
@@ -205,7 +248,8 @@ private const val MINIGAMES_REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5
 private fun loadRewardedAd(
     context: Context,
     rewardedAdState: androidx.compose.runtime.MutableState<RewardedAd?>,
-    onLoaded: (RewardedAd) -> Unit = {}
+    onLoaded: (RewardedAd) -> Unit = {},
+    onFailed: () -> Unit = {}
 ) {
     val adRequest = AdRequest.Builder().build()
     RewardedAd.load(
@@ -220,6 +264,7 @@ private fun loadRewardedAd(
 
             override fun onAdFailedToLoad(error: LoadAdError) {
                 rewardedAdState.value = null
+                onFailed()
             }
         }
     )
@@ -582,6 +627,31 @@ fun GameScreen(
                     dismissLabel = stringResource(R.string.dialog_cancel),
                     onConfirm = onConfirmMinigamesAd,
                     onDismiss = onDismissMinigamesAdPrompt
+                )
+            }
+            if (uiState.isMinigamesAdLoading) {
+                AlertDialog(
+                    onDismissRequest = {},
+                    containerColor = MaterialTheme.colorScheme.background,
+                    tonalElevation = 0.dp,
+                    shape = MaterialTheme.shapes.extraLarge,
+                    text = {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            CircularProgressIndicator()
+                            Text(
+                                text = stringResource(R.string.minigames_ad_loading),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    },
+                    confirmButton = {},
+                    dismissButton = {}
                 )
             }
         }

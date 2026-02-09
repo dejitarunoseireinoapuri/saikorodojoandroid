@@ -78,6 +78,7 @@
     <string name="minigames_ad_title">No minigames left</string>
     <string name="minigames_ad_message">Do you want to watch an ad to earn two minigames?</string>
     <string name="minigames_ad_confirm">Watch ad</string>
+    <string name="minigames_ad_loading">Preparing the ad...</string>
 
     <string name="level_title">Level %1$d</string>
     <string name="level_complete_message">Congratulations!</string>
