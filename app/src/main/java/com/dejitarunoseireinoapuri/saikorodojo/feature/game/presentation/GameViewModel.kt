@@ -127,6 +127,7 @@ sealed interface GameUiEffect {
     data class NavigateToMenu(val resetProgress: Boolean) : GameUiEffect
     data object ShowMinigamesRewardedAd : GameUiEffect
     data object ShowLevelInterstitialAd : GameUiEffect
+    data object ShowStartupInterstitialAd : GameUiEffect
 }
 
 data class ObjectiveLineUiState(
@@ -172,7 +173,8 @@ class GameViewModel(
     private val layoutSeedProvider: () -> Long = { Random.nextLong() },
     baseSeedProvider: () -> Long = { Random.nextLong() },
     initialLevelDefinition: LevelDefinition? = null,
-    cardUiModels: List<CardUiModel> = emptyList()
+    cardUiModels: List<CardUiModel> = emptyList(),
+    private val showStartupInterstitialAd: Boolean = true
 ) : ViewModel() {
     private var baseSeed = 0L
     private val _uiState = MutableStateFlow(GameUiState())
@@ -211,6 +213,11 @@ class GameViewModel(
                     ?: generateLevelUseCase.execute(levelNumber = 1, seedBase = baseSeed),
                 cardUiModels = initialCards
             )
+            if (showStartupInterstitialAd) {
+                viewModelScope.launch(dispatcher) {
+                    _effects.emit(GameUiEffect.ShowStartupInterstitialAd)
+                }
+            }
         }
     }
 
