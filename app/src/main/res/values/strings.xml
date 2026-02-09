@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Saikoro Dojo</string>
     <string name="game_title">Saikoro Dojo</string>
     <string name="play">Play</string>
@@ -10,111 +10,172 @@
     <string name="cd_sound_on">Sound on</string>
     <string name="cd_sound_off">Sound off</string>
     <string name="cd_settings">Settings</string>
-    <string name="cd_saikoro_dojo_die">Saikoro Dojo die</string>
-    <string name="cd_dice_face">Dice face %1$d</string>
+    <string name="cd_dice_face">Die face %1$d</string>
+    <string name="selected_dice_sum">Selected sum: %1$d</string>
+
     <plurals name="selected_dice_count">
         <item quantity="one">%1$d of %2$d selected</item>
         <item quantity="other">%1$d of %2$d selected</item>
+        <item quantity="many">%1$d of %2$d selected</item>
     </plurals>
-    <string name="selected_dice_sum">Selected sum: %1$d</string>
+
     <string name="select_die_to_reroll">Select a die to reroll</string>
-    <string name="select_dice_to_reroll">Select dice to reroll</string>
+    <string name="select_dice_to_reroll">Select the dice to reroll</string>
     <string name="select_die_to_flip">Select a die to flip</string>
     <string name="select_die_to_modify">Select a die to modify</string>
     <string name="apply">Use</string>
+
     <string name="card_adjust_plus_minus_one_title">Adjust ±1</string>
-    <string name="card_adjust_plus_minus_one_description">Increase or decrease a die value by 1 without leaving its range</string>
+    <string name="card_adjust_plus_minus_one_description">Increase or decrease the die value by 1</string>
     <string name="card_flip_face_title">Flip die</string>
     <string name="card_flip_face_description">Invert the die value</string>
-    <string name="card_reroll_single_title">Reroll one die</string>
+    <string name="card_reroll_single_title">Reroll one</string>
     <string name="card_reroll_single_description">Choose a die and roll it again</string>
-    <string name="card_reroll_all_title">Reroll some</string>
-    <string name="card_reroll_all_description">Reroll the dice you want</string>
+    <string name="card_reroll_all_title">Reroll several</string>
+    <string name="card_reroll_all_description">Reroll any dice you want</string>
     <string name="roll_selected_dice">Roll</string>
-    <string name="card_set_value_title">Set value</string>
-    <string name="card_set_value_description">Choose the final value of a die within its range</string>
+
+    <string name="card_set_value_title">Choose value</string>
+    <string name="card_set_value_description">Choose the value of a die</string>
     <string name="card_repeat_last_title">Repeat card</string>
     <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target. Last card:</string>
     <string name="card_repeat_last_none">None</string>
     <string name="card_minigames_title">Minigames</string>
-    <string name="card_minigames_description">Gain three minigames</string>
+    <string name="card_minigames_description">Win two minigames</string>
+
     <string name="odd_even_title">Odd or Even</string>
-    <string name="odd_even_subtitle">Guess at least 3 out of 7 rounds if the result is even or odd</string>
+    <string name="odd_even_subtitle">Guess whether the result will be odd or even. Get 3 correct guesses within a maximum of 7 rounds.</string>
     <string name="odd_even_start">Start</string>
     <string name="odd_even_round_status">Round %1$d of %2$d</string>
-    <string name="odd_even_hits_status">Hits: %1$d of %2$d</string>
+    <string name="odd_even_hits_status">Correct: %1$d of %2$d</string>
     <string name="odd_even_even">Even</string>
     <string name="odd_even_odd">Odd</string>
     <string name="odd_even_continue">Continue</string>
+
     <string name="higher_lower_title">Higher or Lower</string>
-    <string name="higher_lower_subtitle">Say whether the next roll will be higher or lower than the current one. You win if you guess correctly three times in a row or the sum of the two dice is the same twice in a row.</string>
+    <string name="higher_lower_subtitle">Guess whether the next roll will be higher or lower than the previous roll. Victory: 3 correct guesses or the dice sum being the same twice in a row.</string>
     <string name="higher_lower_start">Start</string>
     <string name="higher_lower_higher">Higher</string>
     <string name="higher_lower_lower">Lower</string>
     <string name="higher_lower_total">Total: %1$d</string>
+
     <string name="sequence_title">Sequence</string>
-    <string name="sequence_subtitle">Keep the die result or discard it, but after the fifth round you must have a greater or equal sequence of 3 dice</string>
+    <string name="sequence_subtitle">You must get a sequence of 3 where each value is equal to or higher than the previous one. After each round, keep or discard the die. You have 5 rounds to do it.</string>
     <string name="flip_selected_die">Flip</string>
     <string name="sequence_start">Start</string>
     <string name="sequence_save">Keep</string>
     <string name="sequence_discard">Discard</string>
+
     <string name="blackjack_title">Blackjack</string>
-    <string name="blackjack_subtitle">Reach 21 without going over. After the first roll, choose whether to roll one more 10-sided die or stand. After you stand, it will be the dealer’s turn. Whoever gets closer to 21 wins; if it’s a tie, both lose. A 1 counts as 1 or 11, whichever is better.</string>
+    <string name="blackjack_subtitle">Reach 21 without going over.\nAfter the first roll, choose whether to roll one more d10 or stand. When you stand, it will be the dealer’s turn. The dealer stands on 17 or more.\nWhoever gets closer to 21 wins. If you tie, the dealer wins.\nA 1 counts as 1 or 11 as appropriate.</string>
     <string name="blackjack_start">Start</string>
     <string name="blackjack_hit">Hit</string>
     <string name="blackjack_stand">Stand</string>
     <string name="blackjack_player_score">Your score: %1$d</string>
     <string name="blackjack_dealer_score">Dealer score: %1$d</string>
     <string name="blackjack_continue">Continue</string>
-    <string name="minigame_win_message">>You win!</string>
-    <string name="minigame_lose_message">You will get it next time!</string>
-    <string name="minigame_win_cards_message">You’ve won some cards</string>
+
+    <string name="minigame_win_message">Congratulations!</string>
+    <string name="minigame_lose_message">You’ll get it next time!</string>
+    <string name="minigame_win_cards_message">You won cards</string>
+    <string name="cd_minigames_available">Minigames available</string>
+
+    <string name="minigames_ad_title">No minigames left</string>
+    <string name="minigames_ad_message">Do you want to watch an ad to earn two minigames?</string>
+    <string name="minigames_ad_confirm">Watch ad</string>
+
     <string name="level_title">Level %1$d</string>
     <string name="level_complete_message">Congratulations!</string>
-    <string name="objective_pair">Get a pair</string>
-    <string name="objective_two_pairs">Get two pairs</string>
-    <string name="objective_three_of_kind">Get three of a kind</string>
-    <string name="objective_four_of_kind">Get four of a kind</string>
-    <string name="objective_full_house">Get a full house</string>
-    <string name="objective_all_distinct">Select distinct dice</string>
+
+    <string name="objective_pair">Pair</string>
+    <string name="objective_pair_explain">Select two dice with the same value</string>
+    <string name="objective_two_pairs">Two pairs</string>
+    <string name="objective_two_pairs_explain">Select two pairs of dice with the same value</string>
+    <string name="objective_three_of_kind">Three of a kind</string>
+    <string name="objective_three_of_kind_explain">Select three dice with the same value</string>
+    <string name="objective_four_of_kind">Four of a kind</string>
+    <string name="objective_four_of_kind_explain">Select four dice with the same value</string>
+    <string name="objective_full_house">Full house</string>
+    <string name="objective_full_house_explain">Select two dice with the same value and three dice with the same value</string>
+    <string name="objective_all_distinct">All different</string>
+    <string name="objective_all_distinct_explain">Select only dice with different values</string>
+
     <plurals name="objective_straight">
         <item quantity="one">Get a straight of %1$d die</item>
         <item quantity="other">Get a straight of %1$d dice</item>
+        <item quantity="many">Get a straight of %1$d dice</item>
     </plurals>
-    <string name="objective_sum_at_least">The sum must be at least %1$d</string>
-    <string name="objective_sum_exact">The sum must be %1$d</string>
-    <string name="objective_sum_in_range" tools:ignore="PluralsCandidate">The sum must be between %1$d and %2$d</string>
-    <string name="objective_sum_even">The sum must be even</string>
-    <string name="objective_sum_odd">The sum must be odd</string>
-    <string name="objective_contains_values">The selection must contain: %1$s</string>
-    <string name="objective_forbid_values">The selection must not contain %1$s</string>
-    <string name="objective_sum_at_most">The sum must be at most %1$d</string>
-    <string name="objective_sum_multiple">The sum must be a multiple of %1$d</string>
-    <string name="objective_sum_max_difference">The sum must be within %2$d of %1$d</string>
+
+    <string name="objective_sum_at_least">Total at least %1$d</string>
+    <string name="objective_sum_at_least_explain">The sum of the selected dice must be at least %1$d</string>
+    <string name="objective_sum_exact">Total exactly %1$d</string>
+    <string name="objective_sum_exact_explain">The sum of the selected dice must be %1$d</string>
+    <string name="objective_sum_in_range">Between %1$d and %2$d</string>
+    <string name="objective_sum_in_range_explain">The sum of the selected dice must be between %1$d and %2$d</string>
+    <string name="objective_sum_even">Even</string>
+    <string name="objective_sum_even_explain">The sum of the selected dice must be even</string>
+    <string name="objective_sum_odd">Odd</string>
+    <string name="objective_sum_odd_explain">The sum of the selected dice must be odd</string>
+    <string name="objective_contains_values">Contains %1$s</string>
+    <string name="objective_contains_values_explain">The selected dice must contain: %1$s</string>
+    <string name="objective_forbid_values">Does not contain %1$s</string>
+    <string name="objective_forbid_values_explain">The selected dice must not contain: %1$s</string>
+    <string name="objective_sum_at_most">Maximum %1$d</string>
+    <string name="objective_sum_at_most_explain">The sum of the selected dice must be at most %1$d</string>
+    <string name="objective_sum_multiple">Multiple of %1$d</string>
+    <string name="objective_sum_multiple_explain">The sum of the selected dice must be a multiple of %1$d</string>
+    <string name="objective_sum_max_difference">Within %2$d of %1$d</string>
+    <string name="objective_sum_max_difference_explain">The sum of the selected dice must be within a maximum distance of %2$d from %1$d</string>
+
     <plurals name="objective_exact_distinct_values">
         <item quantity="one">Select exactly %1$d distinct value</item>
         <item quantity="other">Select exactly %1$d distinct values</item>
+        <item quantity="many">Select exactly %1$d distinct values</item>
     </plurals>
+
     <plurals name="objective_selected_exact">
         <item quantity="one">%1$d of %2$d selected (exact)</item>
         <item quantity="other">%1$d of %2$d selected (exact)</item>
+        <item quantity="many">%1$d of %2$d selected (exact)</item>
     </plurals>
+
     <plurals name="objective_at_least_even_values">
+        <item quantity="one">%1$d even die</item>
+        <item quantity="other">%1$d even dice</item>
+        <item quantity="many">%1$d even dice</item>
+    </plurals>
+
+    <plurals name="objective_at_least_even_values_explain">
         <item quantity="one">Select at least %1$d even die</item>
         <item quantity="other">Select at least %1$d even dice</item>
+        <item quantity="many">Select at least %1$d even dice</item>
     </plurals>
+
     <plurals name="objective_at_least_odd_values">
+        <item quantity="one">%1$d odd die</item>
+        <item quantity="other">%1$d odd dice</item>
+        <item quantity="many">%1$d odd dice</item>
+    </plurals>
+
+    <plurals name="objective_at_least_odd_values_explain">
         <item quantity="one">Select at least %1$d odd die</item>
         <item quantity="other">Select at least %1$d odd dice</item>
+        <item quantity="many">Select at least %1$d odd dice</item>
     </plurals>
-    <string name="objective_contains_high_and_low">Contain at least one low and one high value</string>
-    <string name="objective_two_pairs_exact">Get exactly two pairs</string>
-    <string name="objective_three_of_kind_with_value">Get three of a kind of %1$d</string>
-    <string name="objective_satisfy_and_avoid">Meet condition A and avoid condition B</string>
+
+    <string name="objective_two_pairs_exact">Only two pairs</string>
+    <string name="objective_two_pairs_exact_explain">Get exactly two pairs</string>
+    <string name="objective_three_of_kind_with_value">Three of a kind of %1$d</string>
+    <string name="objective_three_of_kind_with_value_explain">Select three dice with value %1$d</string>
+    <string name="objective_satisfy_and_avoid">Satisfy A and avoid B</string>
+    <string name="objective_satisfy_and_avoid_explain">Satisfy A and avoid B</string>
+
     <plurals name="objective_selected_progress">
         <item quantity="one">%1$d of %2$d selected</item>
         <item quantity="other">%1$d of %2$d selected</item>
+        <item quantity="many">%1$d of %2$d selected</item>
     </plurals>
+
     <string name="surrender_title">Surrender?</string>
     <string name="surrender_message">Do you want to surrender and return to the menu?</string>
     <string name="surrender_confirm">Surrender</string>
@@ -124,8 +185,4 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="cd_surrender">Surrender</string>
     <string name="cd_exit_home">Exit to menu</string>
-    <string name="cd_minigames_available">Minigames available</string>
-    <string name="minigames_ad_title">No minigames available</string>
-    <string name="minigames_ad_message">Watch an ad to gain three minigames?</string>
-    <string name="minigames_ad_confirm">Watch ad</string>
 </resources>
