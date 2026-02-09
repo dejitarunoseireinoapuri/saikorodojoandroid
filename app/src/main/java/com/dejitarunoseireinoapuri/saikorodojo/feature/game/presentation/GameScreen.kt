@@ -124,6 +124,12 @@ fun GameRoute(
             }
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.onEvent(GameUiEvent.RefreshInventory)
+                if (interstitialAdState.value == null) {
+                    loadInterstitialAd(
+                        context = context,
+                        interstitialAdState = interstitialAdState
+                    )
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -173,6 +179,8 @@ fun GameRoute(
                     if (!shown) {
                         onInterstitialAdCompleted()
                         loadInterstitialAd(context, interstitialAdState)
+                    } else {
+                        interstitialAdState.value = null
                     }
                 }
             },
@@ -252,6 +260,8 @@ fun GameRoute(
                                     if (!displayed) {
                                         onInterstitialAdCompleted()
                                         loadInterstitialAd(context, interstitialAdState)
+                                    } else {
+                                        interstitialAdState.value = null
                                     }
                                 }
                             },
@@ -262,6 +272,9 @@ fun GameRoute(
                                 }
                             }
                         )
+                    }
+                    if (shown) {
+                        interstitialAdState.value = null
                     }
                 }
             }
