@@ -22,29 +22,10 @@ class ObjectiveConditionExtensionsTest {
     }
 
     @Test
-    fun `exact selected dice requires exact count`() {
-        val condition = ExactSelectedDiceCondition(count = 4)
+    fun `at least parity count validates minimum`() {
+        val condition = AtLeastParityCountCondition(minCount = 2, even = true)
 
-        assertTrue(condition.isMet(listOf(1, 2, 3, 4)))
-        assertFalse(condition.isMet(listOf(1, 2, 3)))
-    }
-
-    @Test
-    fun `exact two pairs rejects three of a kind`() {
-        val condition = ExactTwoPairsCondition
-
-        assertTrue(condition.isMet(listOf(2, 2, 5, 5)))
-        assertFalse(condition.isMet(listOf(3, 3, 3, 5)))
-    }
-
-    @Test
-    fun `satisfy and avoid combines both conditions`() {
-        val condition = SatisfyAndAvoidCondition(
-            required = SumAtLeastCondition(threshold = 9),
-            forbidden = ContainsValuesCondition(values = listOf(6))
-        )
-
-        assertTrue(condition.isMet(listOf(4, 5)))
-        assertFalse(condition.isMet(listOf(4, 5, 6)))
+        assertTrue(condition.isMet(listOf(2, 4, 5)))
+        assertFalse(condition.isMet(listOf(2, 3, 5)))
     }
 }

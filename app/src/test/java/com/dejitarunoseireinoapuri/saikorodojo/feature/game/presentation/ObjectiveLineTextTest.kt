@@ -1,6 +1,8 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AtLeastParityCountCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactlyDistinctValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDiceCondition
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -29,6 +31,34 @@ class ObjectiveLineTextTest {
         val expected = ObjectiveLineText.StringRes(
             resId = R.string.objective_selected_progress,
             formatArgs = listOf(3)
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `distinct values objective uses string resource`() {
+        val condition = ExactlyDistinctValuesCondition(distinctCount = 4)
+
+        val result = objectiveLineText(condition, selectedCount = 4)
+
+        val expected = ObjectiveLineText.StringRes(
+            resId = R.string.objective_exact_distinct_values,
+            formatArgs = listOf(4)
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `parity count objective uses string resource`() {
+        val condition = AtLeastParityCountCondition(minCount = 2, even = true)
+
+        val result = objectiveLineText(condition, selectedCount = 2)
+
+        val expected = ObjectiveLineText.StringRes(
+            resId = R.string.objective_at_least_even_values,
+            formatArgs = listOf(2)
         )
 
         assertEquals(expected, result)

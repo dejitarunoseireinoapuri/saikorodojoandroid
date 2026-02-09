@@ -33,13 +33,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AtLeastParity
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.StraightCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ContainsValuesWithMultiplicityCondition
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactSelectedDiceCondition
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactTwoPairsCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactlyDistinctValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ForbidValuesCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDiceCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SatisfyAndAvoidCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ThreeOfKindWithValueCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
@@ -1236,7 +1233,6 @@ internal fun objectiveLineText(
         } else {
             ObjectiveLineText.StringRes(resId = R.string.objective_pair)
         }
-        is ExactTwoPairsCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_two_pairs_exact)
         is HasThreeOfKindCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_three_of_kind)
         is ThreeOfKindWithValueCondition -> {
             ObjectiveLineText.StringRes(
@@ -1247,9 +1243,8 @@ internal fun objectiveLineText(
         is HasFourOfKindCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_four_of_kind)
         is FullHouseCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_full_house)
         is AllDistinctCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_all_distinct)
-        is ExactlyDistinctValuesCondition -> ObjectiveLineText.PluralRes(
-            resId = R.plurals.objective_exact_distinct_values,
-            quantity = condition.distinctCount,
+        is ExactlyDistinctValuesCondition -> ObjectiveLineText.StringRes(
+            resId = R.string.objective_exact_distinct_values,
             formatArgs = listOf(condition.distinctCount)
         )
         is StraightCondition -> ObjectiveLineText.PluralRes(
@@ -1281,30 +1276,18 @@ internal fun objectiveLineText(
                 formatArgs = listOf(condition.minCount)
             )
         }
-        is ExactSelectedDiceCondition -> {
-            ObjectiveLineText.PluralRes(
-                resId = R.plurals.objective_selected_exact,
-                quantity = selectedCount,
-                formatArgs = listOf(selectedCount, condition.count)
-            )
-        }
         is AtLeastParityCountCondition -> {
             if (condition.even) {
-                ObjectiveLineText.PluralRes(
-                    resId = R.plurals.objective_at_least_even_values,
-                    quantity = condition.minCount,
+                ObjectiveLineText.StringRes(
+                    resId = R.string.objective_at_least_even_values,
                     formatArgs = listOf(condition.minCount)
                 )
             } else {
-                ObjectiveLineText.PluralRes(
-                    resId = R.plurals.objective_at_least_odd_values,
-                    quantity = condition.minCount,
+                ObjectiveLineText.StringRes(
+                    resId = R.string.objective_at_least_odd_values,
                     formatArgs = listOf(condition.minCount)
                 )
             }
-        }
-        is SatisfyAndAvoidCondition -> {
-            ObjectiveLineText.StringRes(resId = R.string.objective_satisfy_and_avoid)
         }
     }
 }
