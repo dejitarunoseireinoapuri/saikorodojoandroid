@@ -38,14 +38,6 @@ class ObjectiveConditionExtensionsTest {
     }
 
     @Test
-    fun `contains high and low checks each die type limits`() {
-        val condition = ContainsHighAndLowValueCondition
-
-        assertTrue(condition.isMet(diceValues = listOf(2, 7), diceSides = listOf(6, 8)))
-        assertFalse(condition.isMet(diceValues = listOf(3, 7), diceSides = listOf(6, 8)))
-    }
-
-    @Test
     fun `satisfy and avoid combines both conditions`() {
         val condition = SatisfyAndAvoidCondition(
             required = SumAtLeastCondition(threshold = 9),

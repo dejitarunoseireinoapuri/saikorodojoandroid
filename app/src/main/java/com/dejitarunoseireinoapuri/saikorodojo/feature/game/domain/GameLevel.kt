@@ -189,17 +189,6 @@ data class AtLeastParityCountCondition(
     }
 }
 
-data object ContainsHighAndLowValueCondition : ObjectiveCondition {
-    override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
-        if (diceValues.size != diceSides.size || diceValues.isEmpty()) {
-            return false
-        }
-        val hasLow = diceValues.zip(diceSides).any { (value, sides) -> value <= (1 + 1).coerceAtMost(sides) }
-        val hasHigh = diceValues.zip(diceSides).any { (value, sides) -> value >= (sides - 1).coerceAtLeast(1) }
-        return hasLow && hasHigh
-    }
-}
-
 data class SatisfyAndAvoidCondition(
     val required: ObjectiveCondition,
     val forbidden: ObjectiveCondition
@@ -395,7 +384,6 @@ internal fun buildObjectiveCandidates(
     if (stage >= 4) {
         candidates.add(HasFourOfKindCondition(required = true))
         candidates.add(FullHouseCondition)
-        candidates.add(ContainsHighAndLowValueCondition)
         val forbiddenCount = minOf(stage - 2, maxDieValue - 1).coerceAtLeast(1)
         val forbiddenValues = randomValuesPool.shuffled(random).take(forbiddenCount)
         candidates.add(ForbidValuesCondition(values = forbiddenValues))
