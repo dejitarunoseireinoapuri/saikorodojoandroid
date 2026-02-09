@@ -120,17 +120,10 @@ fun BlackjackGameScreen(
     onExitToMenu: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
-    var wasRolling by remember { mutableStateOf(false) }
     var wasComplete by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
     var previousPlayerDiceCount by remember { mutableStateOf(0) }
     var previousDealerDiceCount by remember { mutableStateOf(0) }
-    LaunchedEffect(uiState.isRolling) {
-        if (uiState.isRolling && !wasRolling) {
-            soundPlayer.play(SoundEffect.DICE_ROLL)
-        }
-        wasRolling = uiState.isRolling
-    }
     LaunchedEffect(uiState.playerDice.size, uiState.isRolling) {
         if (shouldPlayDiceRollForNewDie(previousPlayerDiceCount, uiState.playerDice.size, uiState.isRolling)) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
@@ -508,14 +501,6 @@ internal fun blackjackResultTextColor(
         )
         null -> defaultColor
     }
-}
-
-internal fun shouldPlayDiceRollForNewDie(
-    previousCount: Int,
-    currentCount: Int,
-    isRolling: Boolean
-): Boolean {
-    return isRolling && currentCount > previousCount
 }
 
 @Composable
