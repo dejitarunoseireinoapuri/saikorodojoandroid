@@ -84,6 +84,23 @@ class FileGameSessionRepositoryTest {
         assertEquals(snapshot.baseSeed, loaded?.baseSeed)
     }
 
+    @Test
+    fun clearSavedSessionKeepsPendingSnapshot() {
+        val file = temporaryFolder.newFile("session_clear_saved.json")
+        val repository = FileGameSessionRepository(file)
+        val snapshot = buildMainGameSnapshot()
+
+        repository.savePendingMainGameSnapshot(snapshot)
+        repository.saveSession(SavedSession.MainGame(snapshot))
+
+        repository.clearSavedSession()
+
+        val loadedSession = repository.loadSession()
+        val loadedPending = repository.getPendingMainGameSnapshot()
+        assertEquals(null, loadedSession)
+        assertEquals(snapshot.uiSnapshot.levelNumber, loadedPending?.uiSnapshot?.levelNumber)
+    }
+
     private fun buildMainGameSnapshot(): MainGameSnapshot {
         val uiSnapshot = GameUiSnapshot(
             diceValues = listOf(2, 5),
@@ -111,7 +128,9 @@ class FileGameSessionRepositoryTest {
             levelNumber = 2,
             isLevelComplete = false,
             showLevelCompleteMessage = false,
-            minigamesAvailable = 1
+            minigamesAvailable = 1,
+            minigamesPlayedSinceInterstitial = 2,
+            pendingInterstitialAds = 1
         )
         val baseSeed = 52L
         return MainGameSnapshot(

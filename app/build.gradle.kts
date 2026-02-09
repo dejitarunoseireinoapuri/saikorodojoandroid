@@ -18,7 +18,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["admobAppId"] = (project.findProperty("ADMOB_APP_ID") as String?) ?: ""
         val rewardedAdUnitId = (project.findProperty("ADMOB_REWARDED_UNIT_ID") as String?) ?: ""
+        val interstitialAdUnitId = (project.findProperty("ADMOB_INTERS") as String?) ?: ""
         buildConfigField("String", "ADMOB_REWARDED_UNIT_ID", "\"$rewardedAdUnitId\"")
+        buildConfigField("String", "ADMOB_INTERS", "\"$interstitialAdUnitId\"")
     }
 
     buildTypes {

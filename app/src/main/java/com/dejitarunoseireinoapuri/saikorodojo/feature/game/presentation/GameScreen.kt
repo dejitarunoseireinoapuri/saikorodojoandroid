@@ -89,6 +89,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememb
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import android.app.Activity
@@ -107,7 +109,10 @@ fun GameRoute(
     val context = LocalContext.current
     val rewardedAdState = remember { mutableStateOf<RewardedAd?>(null) }
     val pendingRewardedAd = remember { mutableStateOf(false) }
+    val interstitialAdState = remember { mutableStateOf<InterstitialAd?>(null) }
+    val pendingInterstitialAd = remember { mutableStateOf(false) }
     val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
+    val onInterstitialShown by rememberUpdatedState { viewModel.onEvent(GameUiEvent.InterstitialAdShown) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner, viewModel) {
@@ -144,6 +149,21 @@ fun GameRoute(
         }
     }
 
+    LaunchedEffect(Unit) {
+        loadInterstitialAd(context, interstitialAdState) { interstitialAd ->
+            if (pendingInterstitialAd.value) {
+                pendingInterstitialAd.value = false
+                showInterstitialAd(
+                    activity = context.findActivity(),
+                    interstitialAd = interstitialAd,
+                    onShown = onInterstitialShown,
+                    onDismissed = { loadInterstitialAd(context, interstitialAdState) },
+                    onFailedToShow = { loadInterstitialAd(context, interstitialAdState) }
+                )
+            }
+        }
+    }
+
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -169,6 +189,31 @@ fun GameRoute(
                                     onEarnedReward = onAdCompleted,
                                     onDismissed = { loadRewardedAd(context, rewardedAdState) },
                                     onFailedToShow = { loadRewardedAd(context, rewardedAdState) }
+                                )
+                            }
+                        }
+                    }
+                }
+                GameUiEffect.ShowInterstitialAd -> {
+                    val activity = context.findActivity()
+                    val shown = showInterstitialAd(
+                        activity = activity,
+                        interstitialAd = interstitialAdState.value,
+                        onShown = onInterstitialShown,
+                        onDismissed = { loadInterstitialAd(context, interstitialAdState) },
+                        onFailedToShow = { loadInterstitialAd(context, interstitialAdState) }
+                    )
+                    if (!shown) {
+                        pendingInterstitialAd.value = true
+                        loadInterstitialAd(context, interstitialAdState) { interstitialAd ->
+                            if (pendingInterstitialAd.value) {
+                                pendingInterstitialAd.value = false
+                                showInterstitialAd(
+                                    activity = context.findActivity(),
+                                    interstitialAd = interstitialAd,
+                                    onShown = onInterstitialShown,
+                                    onDismissed = { loadInterstitialAd(context, interstitialAdState) },
+                                    onFailedToShow = { loadInterstitialAd(context, interstitialAdState) }
                                 )
                             }
                         }
@@ -241,6 +286,54 @@ private fun showRewardedAd(
         }
     }
     rewardedAd.show(activity) { onEarnedReward() }
+    return true
+}
+
+private fun loadInterstitialAd(
+    context: Context,
+    interstitialAdState: androidx.compose.runtime.MutableState<InterstitialAd?>,
+    onLoaded: (InterstitialAd) -> Unit = {}
+) {
+    val adRequest = AdRequest.Builder().build()
+    InterstitialAd.load(
+        context,
+        interstitialAdUnitId(),
+        adRequest,
+        object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(ad: InterstitialAd) {
+                interstitialAdState.value = ad
+                onLoaded(ad)
+            }
+
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                interstitialAdState.value = null
+            }
+        }
+    )
+}
+
+private fun showInterstitialAd(
+    activity: Activity?,
+    interstitialAd: InterstitialAd?,
+    onShown: () -> Unit,
+    onDismissed: () -> Unit,
+    onFailedToShow: () -> Unit
+): Boolean {
+    if (interstitialAd == null || activity == null) return false
+    interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+        override fun onAdShowedFullScreenContent() {
+            onShown()
+        }
+
+        override fun onAdDismissedFullScreenContent() {
+            onDismissed()
+        }
+
+        override fun onAdFailedToShowFullScreenContent(error: com.google.android.gms.ads.AdError) {
+            onFailedToShow()
+        }
+    }
+    interstitialAd.show(activity)
     return true
 }
 

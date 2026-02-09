@@ -14,13 +14,15 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUi
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
-import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearSavedSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MinigameSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavePendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.registerMinigameCompletion
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -77,8 +79,10 @@ class BlackjackGameViewModel(
         SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
         GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
-    private val clearGameSessionUseCase: ClearGameSessionUseCase =
-        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
+    private val savePendingMainGameSnapshotUseCase: SavePendingMainGameSnapshotUseCase =
+        SavePendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
+    private val clearSavedSessionUseCase: ClearSavedSessionUseCase =
+        ClearSavedSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -101,7 +105,8 @@ class BlackjackGameViewModel(
             ?.minigameSnapshot as? MinigameSnapshot.Blackjack
         if (snapshot != null) {
             if (snapshot.isComplete) {
-                clearGameSessionUseCase.execute()
+                registerCompletedMinigame(session)
+                clearSavedSessionUseCase.execute()
             } else {
                 restoreFromSnapshot(snapshot)
             }
@@ -118,7 +123,7 @@ class BlackjackGameViewModel(
 
     fun saveSession() {
         if (_uiState.value.isComplete) {
-            clearGameSessionUseCase.execute()
+            clearSavedSessionUseCase.execute()
             return
         }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
@@ -369,7 +374,8 @@ class BlackjackGameViewModel(
                     isComplete = true
                 )
             }
-            clearGameSessionUseCase.execute()
+            registerCompletedMinigame(resolveMainGameSnapshot())
+            clearSavedSessionUseCase.execute()
             return
         }
         _uiState.update {
@@ -377,7 +383,8 @@ class BlackjackGameViewModel(
                 isComplete = true
             )
         }
-        clearGameSessionUseCase.execute()
+        registerCompletedMinigame(resolveMainGameSnapshot())
+        clearSavedSessionUseCase.execute()
     }
 
     private fun resolveRewardCards(): List<CardUiModel> {
@@ -442,5 +449,21 @@ class BlackjackGameViewModel(
                 is SavedSession.MainGame -> session.snapshot
                 null -> null
             }
+    }
+
+    private fun registerCompletedMinigame(session: SavedSession?) {
+        val mainSnapshot = when (session) {
+            is SavedSession.Minigame -> session.mainGameSnapshot
+            is SavedSession.MainGame -> session.snapshot
+            null -> resolveMainGameSnapshot()
+        } ?: return
+        val updatedSnapshot = mainSnapshot.registerMinigameCompletion()
+        savePendingMainGameSnapshotUseCase.execute(updatedSnapshot)
+    }
+
+    private fun registerCompletedMinigame(mainSnapshot: MainGameSnapshot?) {
+        val snapshot = mainSnapshot ?: return
+        val updatedSnapshot = snapshot.registerMinigameCompletion()
+        savePendingMainGameSnapshotUseCase.execute(updatedSnapshot)
     }
 }

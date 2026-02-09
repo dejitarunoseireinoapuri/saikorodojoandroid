@@ -41,7 +41,9 @@ class InMemoryGameSessionRepositoryTest {
                 levelNumber = 1,
                 isLevelComplete = false,
                 showLevelCompleteMessage = false,
-                minigamesAvailable = 3
+                minigamesAvailable = 3,
+                minigamesPlayedSinceInterstitial = 0,
+                pendingInterstitialAds = 0
             ),
             baseSeed = 7L,
             currentObjective = LevelObjective(emptyList()),
@@ -93,7 +95,9 @@ class InMemoryGameSessionRepositoryTest {
                 levelNumber = 2,
                 isLevelComplete = false,
                 showLevelCompleteMessage = false,
-                minigamesAvailable = 1
+                minigamesAvailable = 1,
+                minigamesPlayedSinceInterstitial = 0,
+                pendingInterstitialAds = 0
             ),
             baseSeed = 11L,
             currentObjective = LevelObjective(emptyList()),
@@ -102,6 +106,53 @@ class InMemoryGameSessionRepositoryTest {
 
         repository.savePendingMainGameSnapshot(snapshot)
 
+        assertEquals(snapshot, repository.getPendingMainGameSnapshot())
+    }
+
+    @Test
+    fun `clear saved session keeps pending snapshot`() {
+        val repository = InMemoryGameSessionRepository()
+        val snapshot = MainGameSnapshot(
+            uiSnapshot = GameUiSnapshot(
+                diceValues = listOf(2, 2),
+                diceCount = 2,
+                diceType = DiceType.D6,
+                diceTypes = listOf(DiceType.D6, DiceType.D6),
+                layoutSeed = 6L,
+                isRolling = false,
+                isAwaitingRerollSingle = false,
+                isAwaitingRerollSelected = false,
+                isAwaitingFlipFace = false,
+                isAwaitingAdjustPlusMinus = false,
+                isAwaitingSetValue = false,
+                selectedDice = emptySet(),
+                selectedRerollDice = emptySet(),
+                selectedRerollSingleDieIndex = null,
+                selectedFlipDieIndex = null,
+                selectedAdjustmentDieIndex = null,
+                selectedSetValueDieIndex = null,
+                selectedDiceSum = 0,
+                shouldShowSelectedSum = false,
+                cardCounts = emptyMap(),
+                selectedCardIndex = null,
+                lastAppliedCardId = null,
+                levelNumber = 3,
+                isLevelComplete = false,
+                showLevelCompleteMessage = false,
+                minigamesAvailable = 1,
+                minigamesPlayedSinceInterstitial = 3,
+                pendingInterstitialAds = 0
+            ),
+            baseSeed = 8L,
+            currentObjective = LevelObjective(emptyList()),
+            initialRollSnapshot = null
+        )
+
+        repository.savePendingMainGameSnapshot(snapshot)
+        repository.saveSession(SavedSession.MainGame(snapshot))
+        repository.clearSavedSession()
+
+        assertNull(repository.loadSession())
         assertEquals(snapshot, repository.getPendingMainGameSnapshot())
     }
 }

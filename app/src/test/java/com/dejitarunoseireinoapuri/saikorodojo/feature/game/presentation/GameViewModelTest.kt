@@ -12,7 +12,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCa
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameUiSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -538,6 +540,51 @@ class GameViewModelTest {
         assertEquals(1, updatedCards.first().count)
     }
 
+    @Test
+    fun `interstitial ad shown consumes pending counter`() = runTest {
+        val sessionRepository = InMemoryGameSessionRepository()
+        sessionRepository.saveSession(
+            SavedSession.MainGame(
+                buildSnapshot(
+                    pendingInterstitialAds = 1,
+                    minigamesPlayedSinceInterstitial = 3
+                )
+            )
+        )
+        val viewModel = buildViewModel(sessionRepository = sessionRepository)
+
+        assertEquals(1, viewModel.uiState.value.pendingInterstitialAds)
+        assertEquals(3, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
+
+        viewModel.onEvent(GameUiEvent.InterstitialAdShown)
+
+        assertEquals(0, viewModel.uiState.value.pendingInterstitialAds)
+        assertEquals(0, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
+    }
+
+    @Test
+    fun `level completion emits interstitial when pending snapshot has ads`() = runTest {
+        val sessionRepository = InMemoryGameSessionRepository()
+        sessionRepository.savePendingMainGameSnapshot(
+            buildSnapshot(
+                pendingInterstitialAds = 1,
+                minigamesPlayedSinceInterstitial = 7
+            )
+        )
+        val viewModel = buildViewModel(sessionRepository = sessionRepository)
+        val effects = mutableListOf<GameUiEffect>()
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(1).toList(effects)
+        }
+
+        viewModel.handleLevelComplete()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(1, effects.size)
+        assertEquals(GameUiEffect.ShowInterstitialAd, effects.first())
+        collectorJob.cancel()
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(
@@ -569,6 +616,48 @@ class GameViewModelTest {
             layoutSeedProvider = { 0L },
             initialLevelDefinition = levelDefinition,
             cardUiModels = cardUiModels
+        )
+    }
+
+    private fun buildSnapshot(
+        pendingInterstitialAds: Int,
+        minigamesPlayedSinceInterstitial: Int = 0
+    ): MainGameSnapshot {
+        val uiSnapshot = GameUiSnapshot(
+            diceValues = listOf(1, 1, 1),
+            diceCount = 3,
+            diceType = DiceType.D6,
+            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6),
+            layoutSeed = 0L,
+            isRolling = false,
+            isAwaitingRerollSingle = false,
+            isAwaitingRerollSelected = false,
+            isAwaitingFlipFace = false,
+            isAwaitingAdjustPlusMinus = false,
+            isAwaitingSetValue = false,
+            selectedDice = emptySet(),
+            selectedRerollDice = emptySet(),
+            selectedRerollSingleDieIndex = null,
+            selectedFlipDieIndex = null,
+            selectedAdjustmentDieIndex = null,
+            selectedSetValueDieIndex = null,
+            selectedDiceSum = 0,
+            shouldShowSelectedSum = false,
+            cardCounts = emptyMap(),
+            selectedCardIndex = null,
+            lastAppliedCardId = null,
+            levelNumber = 1,
+            isLevelComplete = false,
+            showLevelCompleteMessage = false,
+            minigamesAvailable = 3,
+            minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial,
+            pendingInterstitialAds = pendingInterstitialAds
+        )
+        return MainGameSnapshot(
+            uiSnapshot = uiSnapshot,
+            baseSeed = 0L,
+            currentObjective = null,
+            initialRollSnapshot = null
         )
     }
 

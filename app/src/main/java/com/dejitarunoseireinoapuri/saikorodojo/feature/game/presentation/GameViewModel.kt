@@ -42,6 +42,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionR
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameRollSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameUiSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
@@ -95,7 +96,9 @@ data class GameUiState(
     val isLevelComplete: Boolean = false,
     val showLevelCompleteMessage: Boolean = false,
     val minigamesAvailable: Int = DEFAULT_MINIGAMES_AVAILABLE,
-    val showMinigamesAdPrompt: Boolean = false
+    val showMinigamesAdPrompt: Boolean = false,
+    val minigamesPlayedSinceInterstitial: Int = 0,
+    val pendingInterstitialAds: Int = 0
 )
 
 sealed interface GameUiEvent {
@@ -117,12 +120,14 @@ sealed interface GameUiEvent {
     data object ConfirmMinigamesAd : GameUiEvent
     data object DismissMinigamesAdPrompt : GameUiEvent
     data object MinigamesAdCompleted : GameUiEvent
+    data object InterstitialAdShown : GameUiEvent
 }
 
 sealed interface GameUiEffect {
     data class NavigateToMinigame(val minigame: MinigameType) : GameUiEffect
     data class NavigateToMenu(val resetProgress: Boolean) : GameUiEffect
     data object ShowMinigamesRewardedAd : GameUiEffect
+    data object ShowInterstitialAd : GameUiEffect
 }
 
 data class ObjectiveLineUiState(
@@ -162,6 +167,8 @@ class GameViewModel(
         ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val savePendingMainGameSnapshotUseCase: SavePendingMainGameSnapshotUseCase =
         SavePendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
+    private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
+        GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollDurationMs: Long = DEFAULT_ROLL_DURATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
@@ -241,6 +248,7 @@ class GameViewModel(
             GameUiEvent.ConfirmMinigamesAd -> confirmMinigamesAd()
             GameUiEvent.DismissMinigamesAdPrompt -> dismissMinigamesAdPrompt()
             GameUiEvent.MinigamesAdCompleted -> grantMinigamesFromAd()
+            GameUiEvent.InterstitialAdShown -> consumePendingInterstitialAd()
         }
     }
 
@@ -939,7 +947,9 @@ class GameViewModel(
     private fun applyLevelDefinition(
         levelDefinition: LevelDefinition,
         cardUiModels: List<CardUiModel> = _uiState.value.cardUiModels,
-        minigamesAvailable: Int = _uiState.value.minigamesAvailable
+        minigamesAvailable: Int = _uiState.value.minigamesAvailable,
+        minigamesPlayedSinceInterstitial: Int = _uiState.value.minigamesPlayedSinceInterstitial,
+        pendingInterstitialAds: Int = _uiState.value.pendingInterstitialAds
     ) {
         currentLevelNumber = levelDefinition.levelNumber
         currentObjective = null
@@ -973,7 +983,9 @@ class GameViewModel(
                 isLevelComplete = false,
                 showLevelCompleteMessage = false,
                 minigamesAvailable = minigamesAvailable,
-                showMinigamesAdPrompt = false
+                showMinigamesAdPrompt = false,
+                minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial,
+                pendingInterstitialAds = pendingInterstitialAds
             )
         }
         initialRollSnapshot = null
@@ -982,6 +994,7 @@ class GameViewModel(
     private fun refreshCardInventory() {
         val updatedCards = loadInventoryCardModels()
         _uiState.update { it.copy(cardUiModels = updatedCards) }
+        syncInterstitialProgressFromPendingSnapshot()
     }
 
     private fun loadInventoryCardModels(): List<CardUiModel> {
@@ -1072,7 +1085,9 @@ class GameViewModel(
                 isLevelComplete = uiSnapshot.isLevelComplete,
                 showLevelCompleteMessage = uiSnapshot.showLevelCompleteMessage,
                 minigamesAvailable = uiSnapshot.minigamesAvailable,
-                showMinigamesAdPrompt = false
+                showMinigamesAdPrompt = false,
+                minigamesPlayedSinceInterstitial = uiSnapshot.minigamesPlayedSinceInterstitial,
+                pendingInterstitialAds = uiSnapshot.pendingInterstitialAds
             )
         }
         refreshObjectiveProgress()
@@ -1107,7 +1122,9 @@ class GameViewModel(
             levelNumber = state.levelNumber,
             isLevelComplete = state.isLevelComplete,
             showLevelCompleteMessage = state.showLevelCompleteMessage,
-            minigamesAvailable = state.minigamesAvailable
+            minigamesAvailable = state.minigamesAvailable,
+            minigamesPlayedSinceInterstitial = state.minigamesPlayedSinceInterstitial,
+            pendingInterstitialAds = state.pendingInterstitialAds
         )
         return MainGameSnapshot(
             uiSnapshot = uiSnapshot,
@@ -1128,9 +1145,13 @@ class GameViewModel(
         }
     }
 
-    private fun handleLevelComplete() {
+    internal fun handleLevelComplete() {
         if (completionJob?.isActive == true) return
         completionJob = viewModelScope.launch(dispatcher) {
+            syncInterstitialProgressFromPendingSnapshot()
+            if (_uiState.value.pendingInterstitialAds > 0) {
+                _effects.emit(GameUiEffect.ShowInterstitialAd)
+            }
             delay(LEVEL_COMPLETE_DELAY_MS)
             val updatedMinigames = _uiState.value.minigamesAvailable + LEVEL_MINIGAMES_REWARD_AMOUNT
             val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
@@ -1143,6 +1164,37 @@ class GameViewModel(
                 minigamesAvailable = updatedMinigames
             )
             startRolling()
+        }
+    }
+
+    private fun consumePendingInterstitialAd() {
+        _uiState.update { state ->
+            if (state.pendingInterstitialAds <= 0) {
+                state
+            } else {
+                state.copy(
+                    pendingInterstitialAds = state.pendingInterstitialAds - 1,
+                    minigamesPlayedSinceInterstitial = 0
+                )
+            }
+        }
+    }
+
+    private fun syncInterstitialProgressFromPendingSnapshot() {
+        val pendingSnapshot = getPendingMainGameSnapshotUseCase.execute() ?: return
+        val pendingUi = pendingSnapshot.uiSnapshot
+        _uiState.update { state ->
+            if (
+                state.minigamesPlayedSinceInterstitial == pendingUi.minigamesPlayedSinceInterstitial &&
+                state.pendingInterstitialAds == pendingUi.pendingInterstitialAds
+            ) {
+                state
+            } else {
+                state.copy(
+                    minigamesPlayedSinceInterstitial = pendingUi.minigamesPlayedSinceInterstitial,
+                    pendingInterstitialAds = pendingUi.pendingInterstitialAds
+                )
+            }
         }
     }
 

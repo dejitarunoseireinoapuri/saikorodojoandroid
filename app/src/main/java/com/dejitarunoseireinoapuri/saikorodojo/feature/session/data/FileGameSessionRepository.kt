@@ -40,6 +40,11 @@ class FileGameSessionRepository(
         writeStore(StoredGameSession())
     }
 
+    override fun clearSavedSession() {
+        val updated = readStore().copy(savedSession = null)
+        writeStore(updated)
+    }
+
     override fun hasSession(): Boolean {
         return readStore().savedSession != null
     }
@@ -132,7 +137,9 @@ internal data class StoredGameUiSnapshot(
     val levelNumber: Int,
     val isLevelComplete: Boolean,
     val showLevelCompleteMessage: Boolean,
-    val minigamesAvailable: Int
+    val minigamesAvailable: Int,
+    val minigamesPlayedSinceInterstitial: Int = 0,
+    val pendingInterstitialAds: Int = 0
 )
 
 @Serializable
@@ -311,7 +318,9 @@ private fun GameUiSnapshot.toStored(): StoredGameUiSnapshot {
         levelNumber = levelNumber,
         isLevelComplete = isLevelComplete,
         showLevelCompleteMessage = showLevelCompleteMessage,
-        minigamesAvailable = minigamesAvailable
+        minigamesAvailable = minigamesAvailable,
+        minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial,
+        pendingInterstitialAds = pendingInterstitialAds
     )
 }
 
@@ -342,7 +351,9 @@ private fun StoredGameUiSnapshot.toDomain(): GameUiSnapshot {
         levelNumber = levelNumber,
         isLevelComplete = isLevelComplete,
         showLevelCompleteMessage = showLevelCompleteMessage,
-        minigamesAvailable = minigamesAvailable
+        minigamesAvailable = minigamesAvailable,
+        minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial,
+        pendingInterstitialAds = pendingInterstitialAds
     )
 }
 
