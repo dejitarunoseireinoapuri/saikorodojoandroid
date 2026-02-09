@@ -113,6 +113,7 @@ fun GameRoute(
     val pendingInterstitialAd = remember { mutableStateOf(false) }
     val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
     val onInterstitialShown by rememberUpdatedState { viewModel.onEvent(GameUiEvent.InterstitialAdShown) }
+    val onInterstitialClosed by rememberUpdatedState { viewModel.onEvent(GameUiEvent.InterstitialAdClosed) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner, viewModel) {
@@ -200,23 +201,45 @@ fun GameRoute(
                         activity = activity,
                         interstitialAd = interstitialAdState.value,
                         onShown = onInterstitialShown,
-                        onDismissed = { loadInterstitialAd(context, interstitialAdState) },
-                        onFailedToShow = { loadInterstitialAd(context, interstitialAdState) }
+                        onDismissed = {
+                            onInterstitialClosed()
+                            loadInterstitialAd(context, interstitialAdState)
+                        },
+                        onFailedToShow = {
+                            onInterstitialClosed()
+                            loadInterstitialAd(context, interstitialAdState)
+                        }
                     )
                     if (!shown) {
                         pendingInterstitialAd.value = true
-                        loadInterstitialAd(context, interstitialAdState) { interstitialAd ->
-                            if (pendingInterstitialAd.value) {
-                                pendingInterstitialAd.value = false
-                                showInterstitialAd(
-                                    activity = context.findActivity(),
-                                    interstitialAd = interstitialAd,
-                                    onShown = onInterstitialShown,
-                                    onDismissed = { loadInterstitialAd(context, interstitialAdState) },
-                                    onFailedToShow = { loadInterstitialAd(context, interstitialAdState) }
-                                )
+                        loadInterstitialAd(
+                            context = context,
+                            interstitialAdState = interstitialAdState,
+                            onLoaded = { interstitialAd ->
+                                if (pendingInterstitialAd.value) {
+                                    pendingInterstitialAd.value = false
+                                    showInterstitialAd(
+                                        activity = context.findActivity(),
+                                        interstitialAd = interstitialAd,
+                                        onShown = onInterstitialShown,
+                                        onDismissed = {
+                                            onInterstitialClosed()
+                                            loadInterstitialAd(context, interstitialAdState)
+                                        },
+                                        onFailedToShow = {
+                                            onInterstitialClosed()
+                                            loadInterstitialAd(context, interstitialAdState)
+                                        }
+                                    )
+                                }
+                            },
+                            onFailed = {
+                                if (pendingInterstitialAd.value) {
+                                    pendingInterstitialAd.value = false
+                                    onInterstitialClosed()
+                                }
                             }
-                        }
+                        )
                     }
                 }
             }
@@ -292,7 +315,8 @@ private fun showRewardedAd(
 private fun loadInterstitialAd(
     context: Context,
     interstitialAdState: androidx.compose.runtime.MutableState<InterstitialAd?>,
-    onLoaded: (InterstitialAd) -> Unit = {}
+    onLoaded: (InterstitialAd) -> Unit = {},
+    onFailed: () -> Unit = {}
 ) {
     val adRequest = AdRequest.Builder().build()
     InterstitialAd.load(
@@ -307,6 +331,7 @@ private fun loadInterstitialAd(
 
             override fun onAdFailedToLoad(error: LoadAdError) {
                 interstitialAdState.value = null
+                onFailed()
             }
         }
     )

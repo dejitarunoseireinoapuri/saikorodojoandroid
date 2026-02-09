@@ -121,6 +121,7 @@ sealed interface GameUiEvent {
     data object DismissMinigamesAdPrompt : GameUiEvent
     data object MinigamesAdCompleted : GameUiEvent
     data object InterstitialAdShown : GameUiEvent
+    data object InterstitialAdClosed : GameUiEvent
 }
 
 sealed interface GameUiEffect {
@@ -191,6 +192,7 @@ class GameViewModel(
     private var currentLevelNumber: Int = 1
     private var shouldAutoStartRoll = true
     private var allowSessionSaving = true
+    private var awaitingInterstitialToAdvance = false
 
     init {
         baseSeed = baseSeedProvider()
@@ -249,11 +251,13 @@ class GameViewModel(
             GameUiEvent.DismissMinigamesAdPrompt -> dismissMinigamesAdPrompt()
             GameUiEvent.MinigamesAdCompleted -> grantMinigamesFromAd()
             GameUiEvent.InterstitialAdShown -> consumePendingInterstitialAd()
+            GameUiEvent.InterstitialAdClosed -> finishInterstitialAdvanceIfNeeded()
         }
     }
 
     fun saveSession() {
         if (!allowSessionSaving) return
+        syncInterstitialProgressFromPendingSnapshot()
         val snapshot = buildMainGameSnapshot()
         saveGameSessionUseCase.execute(SavedSession.MainGame(snapshot))
     }
@@ -1151,19 +1155,11 @@ class GameViewModel(
             delay(LEVEL_COMPLETE_DELAY_MS)
             syncInterstitialProgressFromPendingSnapshot()
             if (_uiState.value.pendingInterstitialAds > 0) {
+                awaitingInterstitialToAdvance = true
                 _effects.emit(GameUiEffect.ShowInterstitialAd)
+                return@launch
             }
-            val updatedMinigames = _uiState.value.minigamesAvailable + LEVEL_MINIGAMES_REWARD_AMOUNT
-            val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
-            val nextDefinition = generateLevelUseCase.execute(
-                levelNumber = nextLevel,
-                seedBase = baseSeed
-            )
-            applyLevelDefinition(
-                levelDefinition = nextDefinition,
-                minigamesAvailable = updatedMinigames
-            )
-            startRolling()
+            advanceToNextLevel()
         }
     }
 
@@ -1178,6 +1174,13 @@ class GameViewModel(
                 )
             }
         }
+        savePendingMainGameSnapshotUseCase.execute(buildMainGameSnapshot())
+    }
+
+    private fun finishInterstitialAdvanceIfNeeded() {
+        if (!awaitingInterstitialToAdvance) return
+        awaitingInterstitialToAdvance = false
+        advanceToNextLevel()
     }
 
     private fun syncInterstitialProgressFromPendingSnapshot() {
@@ -1196,6 +1199,20 @@ class GameViewModel(
                 )
             }
         }
+    }
+
+    private fun advanceToNextLevel() {
+        val updatedMinigames = _uiState.value.minigamesAvailable + LEVEL_MINIGAMES_REWARD_AMOUNT
+        val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
+        val nextDefinition = generateLevelUseCase.execute(
+            levelNumber = nextLevel,
+            seedBase = baseSeed
+        )
+        applyLevelDefinition(
+            levelDefinition = nextDefinition,
+            minigamesAvailable = updatedMinigames
+        )
+        startRolling()
     }
 
     private fun pickMinigame(): MinigameType {
