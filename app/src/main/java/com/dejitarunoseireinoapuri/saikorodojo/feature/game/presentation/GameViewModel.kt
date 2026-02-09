@@ -1180,7 +1180,8 @@ class GameViewModel(
     }
 
     private fun pickMinigame(): MinigameType {
-        return MinigameType.SEQUENCE
+        val values = MinigameType.entries
+        return values[Random.nextInt(values.size)]
     }
 
     private fun buildObjectiveLines(
