@@ -394,14 +394,14 @@ fun GameScreen(
                     .padding(top = 76.dp)
                     .widthIn(max = 360.dp)
             ) {
-                Row(
+                Box(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.align(Alignment.Center)
                     ) {
                         uiState.objectiveLines.forEach { line ->
                             val objectiveText = when (val text = line.text) {
@@ -426,98 +426,99 @@ fun GameScreen(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    val objectiveExplainText = if (showObjectiveExplain) {
-                        var textValue = ""
-                        for (index in uiState.objectiveLines.indices) {
-                            val line = uiState.objectiveLines[index]
-                            val explainText = when (val text = line.explainText) {
-                                is ObjectiveLineText.StringRes -> {
-                                    stringResource(text.resId, *text.formatArgs.toTypedArray())
+                    val shouldShowObjectiveInfo = uiState.objectiveLines.isNotEmpty()
+                    if (shouldShowObjectiveInfo) {
+                        val objectiveExplainText = if (showObjectiveExplain) {
+                            var textValue = ""
+                            for (index in uiState.objectiveLines.indices) {
+                                val line = uiState.objectiveLines[index]
+                                val explainText = when (val text = line.explainText) {
+                                    is ObjectiveLineText.StringRes -> {
+                                        stringResource(text.resId, *text.formatArgs.toTypedArray())
+                                    }
+                                    is ObjectiveLineText.PluralRes -> {
+                                        pluralStringResource(
+                                            text.resId,
+                                            text.quantity,
+                                            *text.formatArgs.toTypedArray()
+                                        )
+                                    }
                                 }
-                                is ObjectiveLineText.PluralRes -> {
-                                    pluralStringResource(
-                                        text.resId,
-                                        text.quantity,
-                                        *text.formatArgs.toTypedArray()
-                                    )
+                                textValue += explainText
+                                if (index < uiState.objectiveLines.lastIndex) {
+                                    textValue += "\n"
                                 }
                             }
-                            textValue += explainText
-                            if (index < uiState.objectiveLines.lastIndex) {
-                                textValue += "\n"
-                            }
+                            textValue
+                        } else {
+                            ""
                         }
-                        textValue
-                    } else {
-                        ""
-                    }
-                    val infoWidth by animateDpAsState(
-                        targetValue = if (showObjectiveExplain) 240.dp else 28.dp,
-                        animationSpec = tween(durationMillis = 180),
-                        label = "objectiveInfoWidth"
-                    )
-                    val infoHeight by animateDpAsState(
-                        targetValue = if (showObjectiveExplain) 64.dp else 28.dp,
-                        animationSpec = tween(durationMillis = 180),
-                        label = "objectiveInfoHeight"
-                    )
-                    val infoCornerRadius by animateDpAsState(
-                        targetValue = if (showObjectiveExplain) 12.dp else 50.dp,
-                        animationSpec = tween(durationMillis = 180),
-                        label = "objectiveInfoCornerRadius"
-                    )
-                    val infoTextAlpha by animateFloatAsState(
-                        targetValue = if (showObjectiveExplain) 1f else 0f,
-                        animationSpec = tween(durationMillis = 140),
-                        label = "objectiveInfoTextAlpha"
-                    )
-                    val infoIconAlpha by animateFloatAsState(
-                        targetValue = if (showObjectiveExplain) 0f else 1f,
-                        animationSpec = tween(durationMillis = 140),
-                        label = "objectiveInfoIconAlpha"
-                    )
-                    val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
-                    Box(
-                        modifier = Modifier
-                            .defaultMinSize(minWidth = 28.dp, minHeight = 28.dp)
-                            .width(infoWidth)
-                            .height(infoHeight)
-                            .border(
-                                width = 1.dp,
-                                color = Color.White,
-                                shape = RoundedCornerShape(infoCornerRadius)
-                            )
-                            .background(
-                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                                shape = RoundedCornerShape(infoCornerRadius)
-                            )
-                            .semantics {
-                                contentDescription = objectiveInfoDescription
-                            }
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) {
-                                showObjectiveExplain = !showObjectiveExplain
-                            }
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "i",
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.alpha(infoIconAlpha)
+                        val collapsedSize = 20.dp
+                        val infoWidth by animateDpAsState(
+                            targetValue = if (showObjectiveExplain) 280.dp else collapsedSize,
+                            animationSpec = tween(durationMillis = 180),
+                            label = "objectiveInfoWidth"
                         )
-                        if (showObjectiveExplain) {
+                        val infoCornerRadius by animateDpAsState(
+                            targetValue = if (showObjectiveExplain) 12.dp else 50.dp,
+                            animationSpec = tween(durationMillis = 180),
+                            label = "objectiveInfoCornerRadius"
+                        )
+                        val infoTextAlpha by animateFloatAsState(
+                            targetValue = if (showObjectiveExplain) 1f else 0f,
+                            animationSpec = tween(durationMillis = 140),
+                            label = "objectiveInfoTextAlpha"
+                        )
+                        val infoIconAlpha by animateFloatAsState(
+                            targetValue = if (showObjectiveExplain) 0f else 1f,
+                            animationSpec = tween(durationMillis = 140),
+                            label = "objectiveInfoIconAlpha"
+                        )
+                        val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .zIndex(2f)
+                                .defaultMinSize(minWidth = collapsedSize, minHeight = collapsedSize)
+                                .width(infoWidth)
+                                .heightIn(min = collapsedSize)
+                                .animateContentSize(animationSpec = tween(durationMillis = 180))
+                                .border(
+                                    width = 1.dp,
+                                    color = Color.White,
+                                    shape = RoundedCornerShape(infoCornerRadius)
+                                )
+                                .background(
+                                    color = if (showObjectiveExplain) Color.White else Color.Transparent,
+                                    shape = RoundedCornerShape(infoCornerRadius)
+                                )
+                                .semantics {
+                                    contentDescription = objectiveInfoDescription
+                                }
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
+                                    showObjectiveExplain = !showObjectiveExplain
+                                }
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Text(
-                                text = objectiveExplainText,
+                                text = "i",
                                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.alpha(infoTextAlpha)
+                                color = Color.White,
+                                modifier = Modifier.alpha(infoIconAlpha)
                             )
+                            if (showObjectiveExplain) {
+                                Text(
+                                    text = objectiveExplainText,
+                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal),
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.alpha(infoTextAlpha)
+                                )
+                            }
                         }
                     }
                 }
