@@ -503,13 +503,6 @@ internal fun blackjackResultTextColor(
     }
 }
 
-internal fun shouldPlayDiceRollOnStart(
-    isRolling: Boolean,
-    wasRolling: Boolean
-): Boolean {
-    return isRolling && !wasRolling
-}
-
 @Composable
 private fun ScoreLabel(text: String) {
     Text(
