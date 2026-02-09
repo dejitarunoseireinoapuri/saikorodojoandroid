@@ -12,6 +12,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.RollOddEvenUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
@@ -67,6 +68,8 @@ class OddEvenGameViewModel(
         SaveGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val getPendingMainGameSnapshotUseCase: GetPendingMainGameSnapshotUseCase =
         GetPendingMainGameSnapshotUseCase(GameSessionRepositoryProvider.provide()),
+    private val clearGameSessionUseCase: ClearGameSessionUseCase =
+        ClearGameSessionUseCase(GameSessionRepositoryProvider.provide()),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val resultAnimationMs: Long = DEFAULT_RESULT_ANIMATION_MS,
@@ -92,7 +95,11 @@ class OddEvenGameViewModel(
             ?.takeIf { it.minigameType == MinigameType.ODD_EVEN }
             ?.minigameSnapshot as? MinigameSnapshot.OddEven
         if (snapshot != null) {
-            restoreFromSnapshot(snapshot)
+            if (snapshot.isComplete) {
+                clearGameSessionUseCase.execute()
+            } else {
+                restoreFromSnapshot(snapshot)
+            }
         }
     }
 
@@ -104,6 +111,10 @@ class OddEvenGameViewModel(
     }
 
     fun saveSession() {
+        if (_uiState.value.isComplete) {
+            clearGameSessionUseCase.execute()
+            return
+        }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
         val snapshot = buildSnapshot()
         saveGameSessionUseCase.execute(
@@ -207,6 +218,9 @@ class OddEvenGameViewModel(
                     isComplete = isComplete,
                     rewardCards = rewardCards
                 )
+            }
+            if (isComplete) {
+                clearGameSessionUseCase.execute()
             }
         }
     }
