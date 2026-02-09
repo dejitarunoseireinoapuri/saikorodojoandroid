@@ -543,14 +543,23 @@ class GameViewModelTest {
     @Test
     fun `interstitial ad shown consumes pending counter`() = runTest {
         val sessionRepository = InMemoryGameSessionRepository()
-        sessionRepository.saveSession(SavedSession.MainGame(buildSnapshot(pendingInterstitialAds = 1)))
+        sessionRepository.saveSession(
+            SavedSession.MainGame(
+                buildSnapshot(
+                    pendingInterstitialAds = 1,
+                    minigamesPlayedSinceInterstitial = 3
+                )
+            )
+        )
         val viewModel = buildViewModel(sessionRepository = sessionRepository)
 
         assertEquals(1, viewModel.uiState.value.pendingInterstitialAds)
+        assertEquals(3, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
 
         viewModel.onEvent(GameUiEvent.InterstitialAdShown)
 
         assertEquals(0, viewModel.uiState.value.pendingInterstitialAds)
+        assertEquals(0, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
     }
 
     private fun buildViewModel(
@@ -587,7 +596,10 @@ class GameViewModelTest {
         )
     }
 
-    private fun buildSnapshot(pendingInterstitialAds: Int): MainGameSnapshot {
+    private fun buildSnapshot(
+        pendingInterstitialAds: Int,
+        minigamesPlayedSinceInterstitial: Int = 0
+    ): MainGameSnapshot {
         val uiSnapshot = GameUiSnapshot(
             diceValues = listOf(1, 1, 1),
             diceCount = 3,
@@ -615,7 +627,7 @@ class GameViewModelTest {
             isLevelComplete = false,
             showLevelCompleteMessage = false,
             minigamesAvailable = 3,
-            minigamesPlayedSinceInterstitial = 0,
+            minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial,
             pendingInterstitialAds = pendingInterstitialAds
         )
         return MainGameSnapshot(

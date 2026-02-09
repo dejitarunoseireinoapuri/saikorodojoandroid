@@ -1149,6 +1149,7 @@ class GameViewModel(
         if (completionJob?.isActive == true) return
         completionJob = viewModelScope.launch(dispatcher) {
             delay(LEVEL_COMPLETE_DELAY_MS)
+            syncInterstitialProgressFromPendingSnapshot()
             if (_uiState.value.pendingInterstitialAds > 0) {
                 _effects.emit(GameUiEffect.ShowInterstitialAd)
             }
@@ -1171,7 +1172,10 @@ class GameViewModel(
             if (state.pendingInterstitialAds <= 0) {
                 state
             } else {
-                state.copy(pendingInterstitialAds = state.pendingInterstitialAds - 1)
+                state.copy(
+                    pendingInterstitialAds = state.pendingInterstitialAds - 1,
+                    minigamesPlayedSinceInterstitial = 0
+                )
             }
         }
     }
