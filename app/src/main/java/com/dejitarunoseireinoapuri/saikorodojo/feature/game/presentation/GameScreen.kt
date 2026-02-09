@@ -1,5 +1,10 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -23,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
@@ -59,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -298,6 +305,7 @@ fun GameScreen(
     ) {
         var showSurrenderDialog by remember { mutableStateOf(false) }
         var showExitDialog by remember { mutableStateOf(false) }
+        var expandedObjectiveIndex by remember { mutableStateOf<Int?>(null) }
         BackHandler(enabled = !showExitDialog && !showSurrenderDialog) {
             showExitDialog = true
         }
@@ -387,7 +395,7 @@ fun GameScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                uiState.objectiveLines.forEach { line ->
+                uiState.objectiveLines.forEachIndexed { index, line ->
                     val objectiveText = when (val text = line.text) {
                         is ObjectiveLineText.StringRes -> {
                             stringResource(text.resId, *text.formatArgs.toTypedArray())
@@ -400,14 +408,46 @@ fun GameScreen(
                             )
                         }
                     }
-                    Text(
-                        text = objectiveText,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = objectiveText,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center
+                        )
+                        if (line.explainText != null) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .border(1.dp, Color.White, CircleShape)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) {
+                                        expandedObjectiveIndex = if (expandedObjectiveIndex == index) {
+                                            null
+                                        } else {
+                                            index
+                                        }
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "i",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal
+                                )
+                            }
+                        }
+                    }
                 }
             }
             DiceBoard(
@@ -441,6 +481,62 @@ fun GameScreen(
                     onCardDismiss = onCardDismiss,
                     onCardApply = onCardApply
                 )
+            }
+            val expandedObjectiveLine = expandedObjectiveIndex?.let { uiState.objectiveLines.getOrNull(it) }
+            AnimatedVisibility(
+                visible = expandedObjectiveLine?.explainText != null,
+                enter = fadeIn(tween(durationMillis = 120)) + scaleIn(
+                    initialScale = 0.96f,
+                    animationSpec = tween(durationMillis = 120)
+                ),
+                exit = fadeOut(tween(durationMillis = 120)) + scaleOut(
+                    targetScale = 0.96f,
+                    animationSpec = tween(durationMillis = 120)
+                )
+            ) {
+                val explainText = expandedObjectiveLine?.explainText ?: return@AnimatedVisibility
+                val explainTextValue = when (explainText) {
+                    is ObjectiveLineText.StringRes -> {
+                        stringResource(explainText.resId, *explainText.formatArgs.toTypedArray())
+                    }
+                    is ObjectiveLineText.PluralRes -> {
+                        pluralStringResource(
+                            explainText.resId,
+                            explainText.quantity,
+                            *explainText.formatArgs.toTypedArray()
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(2f)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { expandedObjectiveIndex = null },
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 136.dp, start = 24.dp, end = 24.dp)
+                            .background(Color.White, RoundedCornerShape(12.dp))
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .widthIn(max = 320.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = explainTextValue,
+                            color = Color.Black,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
             if (showSurrenderDialog) {
                 GameAlertDialog(
