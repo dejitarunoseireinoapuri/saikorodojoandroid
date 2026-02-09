@@ -430,12 +430,6 @@ fun GameScreen(
                             ""
                         }
                         val showObjectiveExplain = expandedObjectiveIndex == index
-                        val collapsedSize = 18.dp
-                        val infoWidth by animateDpAsState(
-                            targetValue = if (showObjectiveExplain) 280.dp else collapsedSize,
-                            animationSpec = tween(durationMillis = 180),
-                            label = "objectiveInfoWidth_$index"
-                        )
                         val infoCornerRadius by animateDpAsState(
                             targetValue = if (showObjectiveExplain) 12.dp else 50.dp,
                             animationSpec = tween(durationMillis = 180),
@@ -452,9 +446,10 @@ fun GameScreen(
                             label = "objectiveInfoIconAlpha_$index"
                         )
                         val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
-                        Box(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = objectiveText,
@@ -462,53 +457,51 @@ fun GameScreen(
                                     fontWeight = if (line.isMet) FontWeight.Bold else FontWeight.Normal
                                 ),
                                 color = MaterialTheme.colorScheme.onBackground,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.align(Alignment.Center)
+                                textAlign = TextAlign.Center
                             )
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .padding(start = 8.dp)
-                                    .zIndex(2f)
-                                    .defaultMinSize(minWidth = collapsedSize, minHeight = collapsedSize)
-                                    .width(infoWidth)
-                                    .heightIn(min = collapsedSize)
-                                    .animateContentSize(animationSpec = tween(durationMillis = 180))
-                                    .border(
-                                        width = 1.dp,
-                                        color = Color.White,
-                                        shape = RoundedCornerShape(infoCornerRadius)
-                                    )
-                                    .background(
-                                        color = if (showObjectiveExplain) Color.White else Color.Transparent,
-                                        shape = RoundedCornerShape(infoCornerRadius)
-                                    )
-                                    .semantics {
-                                        contentDescription = objectiveInfoDescription
-                                    }
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) {
-                                        expandedObjectiveIndex = if (showObjectiveExplain) null else index
-                                    }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ) {
-                                Text(
-                                    text = "i",
-                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal),
-                                    color = Color.White,
-                                    modifier = Modifier.alpha(infoIconAlpha)
-                                )
-                                if (showObjectiveExplain) {
+                            if (line.shouldShowInfo) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .zIndex(2f)
+                                        .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
+                                        .animateContentSize(animationSpec = tween(durationMillis = 180))
+                                        .border(
+                                            width = 1.dp,
+                                            color = Color.White,
+                                            shape = RoundedCornerShape(infoCornerRadius)
+                                        )
+                                        .background(
+                                            color = if (showObjectiveExplain) Color.White else Color.Transparent,
+                                            shape = RoundedCornerShape(infoCornerRadius)
+                                        )
+                                        .semantics {
+                                            contentDescription = objectiveInfoDescription
+                                        }
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            expandedObjectiveIndex = if (showObjectiveExplain) null else index
+                                        }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Text(
-                                        text = objectiveExplainText,
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal),
-                                        color = Color.Black,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.alpha(infoTextAlpha)
+                                        text = "i",
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal),
+                                        color = Color.White,
+                                        modifier = Modifier.alpha(infoIconAlpha)
                                     )
+                                    if (showObjectiveExplain) {
+                                        Text(
+                                            text = objectiveExplainText,
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal),
+                                            color = Color.Black,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.alpha(infoTextAlpha)
+                                        )
+                                    }
                                 }
                             }
                         }

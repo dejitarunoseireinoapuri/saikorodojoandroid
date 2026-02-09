@@ -90,4 +90,22 @@ class ObjectiveLineTextTest {
 
         assertEquals(expected, result)
     }
+
+    @Test
+    fun `min selected dice objective hides info`() {
+        val condition = MinSelectedDiceCondition(minCount = 2)
+
+        val result = shouldShowObjectiveInfo(condition)
+
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun `non min selected dice objective shows info`() {
+        val condition = HasPairCondition(requiredPairs = 1)
+
+        val result = shouldShowObjectiveInfo(condition)
+
+        assertEquals(true, result)
+    }
 }

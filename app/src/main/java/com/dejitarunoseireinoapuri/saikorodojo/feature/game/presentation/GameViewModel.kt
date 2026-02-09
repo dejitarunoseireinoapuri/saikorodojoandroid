@@ -128,6 +128,7 @@ sealed interface GameUiEffect {
 data class ObjectiveLineUiState(
     val text: ObjectiveLineText,
     val explainText: ObjectiveLineText,
+    val shouldShowInfo: Boolean,
     val isMet: Boolean
 )
 
@@ -1163,6 +1164,7 @@ class GameViewModel(
             ObjectiveLineUiState(
                 text = text,
                 explainText = explainText,
+                shouldShowInfo = shouldShowObjectiveInfo(condition),
                 isMet = condition.isMet(diceValues, diceSides)
             )
         }
@@ -1391,6 +1393,10 @@ internal fun objectiveLineExplainText(
             }
         }
     }
+}
+
+internal fun shouldShowObjectiveInfo(condition: ObjectiveCondition): Boolean {
+    return condition !is MinSelectedDiceCondition
 }
 
 internal fun formatValues(values: List<Int>): String {
