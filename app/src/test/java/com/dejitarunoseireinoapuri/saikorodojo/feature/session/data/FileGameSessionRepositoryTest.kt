@@ -111,7 +111,8 @@ class FileGameSessionRepositoryTest {
             levelNumber = 2,
             isLevelComplete = false,
             showLevelCompleteMessage = false,
-            minigamesAvailable = 1
+            minigamesAvailable = 1,
+            minigamesPlayedSinceInterstitial = 1
         )
         val baseSeed = 52L
         return MainGameSnapshot(

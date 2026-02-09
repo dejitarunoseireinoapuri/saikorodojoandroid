@@ -89,6 +89,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememb
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import android.app.Activity
@@ -107,7 +109,11 @@ fun GameRoute(
     val context = LocalContext.current
     val rewardedAdState = remember { mutableStateOf<RewardedAd?>(null) }
     val pendingRewardedAd = remember { mutableStateOf(false) }
+    val interstitialAdState = remember { mutableStateOf<InterstitialAd?>(null) }
     val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
+    val onInterstitialAdCompleted by rememberUpdatedState {
+        viewModel.onEvent(GameUiEvent.LevelInterstitialAdCompleted)
+    }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner, viewModel) {
@@ -144,6 +150,10 @@ fun GameRoute(
         }
     }
 
+    LaunchedEffect(Unit) {
+        loadInterstitialAd(context, interstitialAdState)
+    }
+
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -172,6 +182,25 @@ fun GameRoute(
                                 )
                             }
                         }
+                    }
+                }
+                GameUiEffect.ShowLevelInterstitialAd -> {
+                    val activity = context.findActivity()
+                    val shown = showInterstitialAd(
+                        activity = activity,
+                        interstitialAd = interstitialAdState.value,
+                        onDismissed = {
+                            onInterstitialAdCompleted()
+                            loadInterstitialAd(context, interstitialAdState)
+                        },
+                        onFailedToShow = {
+                            onInterstitialAdCompleted()
+                            loadInterstitialAd(context, interstitialAdState)
+                        }
+                    )
+                    if (!shown) {
+                        onInterstitialAdCompleted()
+                        loadInterstitialAd(context, interstitialAdState)
                     }
                 }
             }
@@ -223,6 +252,29 @@ private fun loadRewardedAd(
     )
 }
 
+private fun loadInterstitialAd(
+    context: Context,
+    interstitialAdState: androidx.compose.runtime.MutableState<InterstitialAd?>,
+    onLoaded: (InterstitialAd) -> Unit = {}
+) {
+    val adRequest = AdRequest.Builder().build()
+    InterstitialAd.load(
+        context,
+        interstitialAdUnitId(),
+        adRequest,
+        object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(ad: InterstitialAd) {
+                interstitialAdState.value = ad
+                onLoaded(ad)
+            }
+
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                interstitialAdState.value = null
+            }
+        }
+    )
+}
+
 private fun showRewardedAd(
     activity: Activity?,
     rewardedAd: RewardedAd?,
@@ -241,6 +293,26 @@ private fun showRewardedAd(
         }
     }
     rewardedAd.show(activity) { onEarnedReward() }
+    return true
+}
+
+private fun showInterstitialAd(
+    activity: Activity?,
+    interstitialAd: InterstitialAd?,
+    onDismissed: () -> Unit,
+    onFailedToShow: () -> Unit
+): Boolean {
+    if (interstitialAd == null || activity == null) return false
+    interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+        override fun onAdDismissedFullScreenContent() {
+            onDismissed()
+        }
+
+        override fun onAdFailedToShowFullScreenContent(error: com.google.android.gms.ads.AdError) {
+            onFailedToShow()
+        }
+    }
+    interstitialAd.show(activity)
     return true
 }
 
