@@ -450,13 +450,15 @@ fun GameScreen(
                             label = "objectiveInfoIconAlpha_$index"
                         )
                         val objectiveInfoDescription = stringResource(R.string.cd_objective_info)
-                        val infoMargin = 14.dp
+                        val infoGap = 4.dp
                         var objectiveTextWidthPx by remember { mutableStateOf(0) }
                         val density = LocalDensity.current
+                        val collapsedSize = 18.dp
                         val infoOffsetDp by animateDpAsState(
                             targetValue = calculateObjectiveInfoOffset(
                                 objectiveTextWidthPx = objectiveTextWidthPx,
-                                margin = infoMargin,
+                                textToIconGap = infoGap,
+                                iconSize = collapsedSize,
                                 density = density,
                                 isExpanded = showObjectiveExplain
                             ),
@@ -479,7 +481,6 @@ fun GameScreen(
                                 }
                             )
                             if (line.shouldShowInfo) {
-                                val collapsedSize = 18.dp
                                 val collapsedModifier = Modifier.size(collapsedSize)
                                 val expandedModifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                                 Box(
@@ -524,7 +525,7 @@ fun GameScreen(
                                     if (showObjectiveExplain) {
                                         Text(
                                             text = objectiveExplainText,
-                                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
                                             color = Color.Black,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier.alpha(infoTextAlpha)
@@ -844,13 +845,15 @@ internal fun calculateCardStackStartX(
 
 internal fun calculateObjectiveInfoOffset(
     objectiveTextWidthPx: Int,
-    margin: Dp,
+    textToIconGap: Dp,
+    iconSize: Dp,
     density: Density,
     isExpanded: Boolean
 ): Dp {
     if (isExpanded) return 0.dp
-    if (objectiveTextWidthPx <= 0) return margin
-    return with(density) { objectiveTextWidthPx.toDp() / 2 + margin }
+    val iconRadius = iconSize / 2
+    if (objectiveTextWidthPx <= 0) return textToIconGap + iconRadius
+    return with(density) { objectiveTextWidthPx.toDp() / 2 + textToIconGap + iconRadius }
 }
 
 private fun cardTitleResForId(cardId: CardId): Int? {

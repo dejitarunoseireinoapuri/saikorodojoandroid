@@ -217,7 +217,8 @@ class GameScreenTest {
     fun `objective info offset centers when expanded`() {
         val offset = calculateObjectiveInfoOffset(
             objectiveTextWidthPx = 100,
-            margin = 10.dp,
+            textToIconGap = 4.dp,
+            iconSize = 18.dp,
             density = Density(2f),
             isExpanded = true
         )
@@ -229,12 +230,13 @@ class GameScreenTest {
     fun `objective info offset adds margin and half text width when collapsed`() {
         val offset = calculateObjectiveInfoOffset(
             objectiveTextWidthPx = 100,
-            margin = 10.dp,
+            textToIconGap = 4.dp,
+            iconSize = 18.dp,
             density = Density(2f),
             isExpanded = false
         )
 
-        assertEquals(35.dp, offset)
+        assertEquals(38.dp, offset)
     }
 }
 
