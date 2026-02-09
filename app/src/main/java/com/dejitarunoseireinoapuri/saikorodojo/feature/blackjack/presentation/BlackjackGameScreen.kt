@@ -503,12 +503,11 @@ internal fun blackjackResultTextColor(
     }
 }
 
-internal fun shouldPlayDiceRollForNewDie(
-    previousCount: Int,
-    currentCount: Int,
-    isRolling: Boolean
+internal fun shouldPlayDiceRollOnStart(
+    isRolling: Boolean,
+    wasRolling: Boolean
 ): Boolean {
-    return isRolling && currentCount > previousCount
+    return isRolling && !wasRolling
 }
 
 @Composable
