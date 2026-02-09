@@ -132,7 +132,8 @@ internal data class StoredGameUiSnapshot(
     val levelNumber: Int,
     val isLevelComplete: Boolean,
     val showLevelCompleteMessage: Boolean,
-    val minigamesAvailable: Int
+    val minigamesAvailable: Int,
+    val minigamesPlayedSinceInterstitial: Int = 0
 )
 
 @Serializable
@@ -311,7 +312,8 @@ private fun GameUiSnapshot.toStored(): StoredGameUiSnapshot {
         levelNumber = levelNumber,
         isLevelComplete = isLevelComplete,
         showLevelCompleteMessage = showLevelCompleteMessage,
-        minigamesAvailable = minigamesAvailable
+        minigamesAvailable = minigamesAvailable,
+        minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial
     )
 }
 
@@ -342,7 +344,8 @@ private fun StoredGameUiSnapshot.toDomain(): GameUiSnapshot {
         levelNumber = levelNumber,
         isLevelComplete = isLevelComplete,
         showLevelCompleteMessage = showLevelCompleteMessage,
-        minigamesAvailable = minigamesAvailable
+        minigamesAvailable = minigamesAvailable,
+        minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial
     )
 }
 

@@ -498,6 +498,42 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `level completion shows interstitial after two minigames`() = runTest {
+        val viewModel = buildViewModel()
+
+        val effects = mutableListOf<GameUiEffect>()
+        val collector = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.take(3).toList(effects)
+        }
+
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
+        assertEquals(1, viewModel.uiState.value.minigamesAvailable)
+
+        val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
+        method.isAccessible = true
+        method.invoke(viewModel)
+
+        testDispatcher.scheduler.advanceTimeBy(1_000L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(effects.any { it == GameUiEffect.ShowLevelInterstitialAd })
+        assertEquals(1, viewModel.uiState.value.levelNumber)
+        assertEquals(1, viewModel.uiState.value.minigamesAvailable)
+
+        viewModel.onEvent(GameUiEvent.LevelInterstitialAdCompleted)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.levelNumber)
+        assertEquals(3, viewModel.uiState.value.minigamesAvailable)
+        assertEquals(0, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
+        collector.cancel()
+    }
+
+    @Test
     fun `level one starts without cards when inventory is empty`() = runTest {
         val viewModel = buildViewModel(cardUiModels = emptyList())
 

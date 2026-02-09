@@ -41,7 +41,8 @@ class InMemoryGameSessionRepositoryTest {
                 levelNumber = 1,
                 isLevelComplete = false,
                 showLevelCompleteMessage = false,
-                minigamesAvailable = 3
+                minigamesAvailable = 3,
+                minigamesPlayedSinceInterstitial = 0
             ),
             baseSeed = 7L,
             currentObjective = LevelObjective(emptyList()),
@@ -93,7 +94,8 @@ class InMemoryGameSessionRepositoryTest {
                 levelNumber = 2,
                 isLevelComplete = false,
                 showLevelCompleteMessage = false,
-                minigamesAvailable = 1
+                minigamesAvailable = 1,
+                minigamesPlayedSinceInterstitial = 2
             ),
             baseSeed = 11L,
             currentObjective = LevelObjective(emptyList()),

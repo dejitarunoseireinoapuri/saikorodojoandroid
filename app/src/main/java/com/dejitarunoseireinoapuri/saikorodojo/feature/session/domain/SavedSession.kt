@@ -58,7 +58,8 @@ data class GameUiSnapshot(
     val levelNumber: Int,
     val isLevelComplete: Boolean,
     val showLevelCompleteMessage: Boolean,
-    val minigamesAvailable: Int
+    val minigamesAvailable: Int,
+    val minigamesPlayedSinceInterstitial: Int
 )
 
 sealed interface MinigameSnapshot {

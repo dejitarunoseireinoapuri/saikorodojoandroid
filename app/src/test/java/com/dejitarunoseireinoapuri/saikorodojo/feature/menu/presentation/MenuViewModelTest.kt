@@ -144,7 +144,8 @@ class MenuViewModelTest {
                 levelNumber = 1,
                 isLevelComplete = false,
                 showLevelCompleteMessage = false,
-                minigamesAvailable = 2
+                minigamesAvailable = 2,
+                minigamesPlayedSinceInterstitial = 0
             ),
             baseSeed = 7L,
             currentObjective = LevelObjective(emptyList()),

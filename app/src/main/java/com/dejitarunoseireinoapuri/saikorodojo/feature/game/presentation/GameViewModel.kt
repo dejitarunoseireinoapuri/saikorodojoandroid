@@ -66,6 +66,7 @@ private const val LEVEL_COMPLETE_DELAY_MS = 1_000L
 private const val DEFAULT_MINIGAMES_AVAILABLE = 3
 private const val MINIGAMES_REWARD_AMOUNT = 3
 private const val LEVEL_MINIGAMES_REWARD_AMOUNT = 2
+private const val MINIGAMES_FOR_INTERSTITIAL = 2
 
 data class GameUiState(
     val diceValues: List<Int> = List(DEFAULT_DICE_COUNT) { 1 },
@@ -95,7 +96,8 @@ data class GameUiState(
     val isLevelComplete: Boolean = false,
     val showLevelCompleteMessage: Boolean = false,
     val minigamesAvailable: Int = DEFAULT_MINIGAMES_AVAILABLE,
-    val showMinigamesAdPrompt: Boolean = false
+    val showMinigamesAdPrompt: Boolean = false,
+    val minigamesPlayedSinceInterstitial: Int = 0
 )
 
 sealed interface GameUiEvent {
@@ -117,12 +119,14 @@ sealed interface GameUiEvent {
     data object ConfirmMinigamesAd : GameUiEvent
     data object DismissMinigamesAdPrompt : GameUiEvent
     data object MinigamesAdCompleted : GameUiEvent
+    data object LevelInterstitialAdCompleted : GameUiEvent
 }
 
 sealed interface GameUiEffect {
     data class NavigateToMinigame(val minigame: MinigameType) : GameUiEffect
     data class NavigateToMenu(val resetProgress: Boolean) : GameUiEffect
     data object ShowMinigamesRewardedAd : GameUiEffect
+    data object ShowLevelInterstitialAd : GameUiEffect
 }
 
 data class ObjectiveLineUiState(
@@ -184,6 +188,7 @@ class GameViewModel(
     private var currentLevelNumber: Int = 1
     private var shouldAutoStartRoll = true
     private var allowSessionSaving = true
+    private var awaitingLevelInterstitialAd = false
 
     init {
         baseSeed = baseSeedProvider()
@@ -241,6 +246,7 @@ class GameViewModel(
             GameUiEvent.ConfirmMinigamesAd -> confirmMinigamesAd()
             GameUiEvent.DismissMinigamesAdPrompt -> dismissMinigamesAdPrompt()
             GameUiEvent.MinigamesAdCompleted -> grantMinigamesFromAd()
+            GameUiEvent.LevelInterstitialAdCompleted -> handleLevelInterstitialAdCompleted()
         }
     }
 
@@ -268,7 +274,8 @@ class GameViewModel(
         _uiState.update {
             it.copy(
                 minigamesAvailable = (it.minigamesAvailable - 1).coerceAtLeast(0),
-                showMinigamesAdPrompt = false
+                showMinigamesAdPrompt = false,
+                minigamesPlayedSinceInterstitial = it.minigamesPlayedSinceInterstitial + 1
             )
         }
         val snapshot = buildMainGameSnapshot()
@@ -293,6 +300,12 @@ class GameViewModel(
         _uiState.update {
             it.copy(minigamesAvailable = it.minigamesAvailable + MINIGAMES_REWARD_AMOUNT)
         }
+    }
+
+    private fun handleLevelInterstitialAdCompleted() {
+        if (!awaitingLevelInterstitialAd) return
+        awaitingLevelInterstitialAd = false
+        advanceToNextLevel(resetMinigamesPlayed = true)
     }
 
     private fun confirmSurrender() {
@@ -939,7 +952,8 @@ class GameViewModel(
     private fun applyLevelDefinition(
         levelDefinition: LevelDefinition,
         cardUiModels: List<CardUiModel> = _uiState.value.cardUiModels,
-        minigamesAvailable: Int = _uiState.value.minigamesAvailable
+        minigamesAvailable: Int = _uiState.value.minigamesAvailable,
+        minigamesPlayedSinceInterstitial: Int = _uiState.value.minigamesPlayedSinceInterstitial
     ) {
         currentLevelNumber = levelDefinition.levelNumber
         currentObjective = null
@@ -973,7 +987,8 @@ class GameViewModel(
                 isLevelComplete = false,
                 showLevelCompleteMessage = false,
                 minigamesAvailable = minigamesAvailable,
-                showMinigamesAdPrompt = false
+                showMinigamesAdPrompt = false,
+                minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial
             )
         }
         initialRollSnapshot = null
@@ -1072,7 +1087,8 @@ class GameViewModel(
                 isLevelComplete = uiSnapshot.isLevelComplete,
                 showLevelCompleteMessage = uiSnapshot.showLevelCompleteMessage,
                 minigamesAvailable = uiSnapshot.minigamesAvailable,
-                showMinigamesAdPrompt = false
+                showMinigamesAdPrompt = false,
+                minigamesPlayedSinceInterstitial = uiSnapshot.minigamesPlayedSinceInterstitial
             )
         }
         refreshObjectiveProgress()
@@ -1107,7 +1123,8 @@ class GameViewModel(
             levelNumber = state.levelNumber,
             isLevelComplete = state.isLevelComplete,
             showLevelCompleteMessage = state.showLevelCompleteMessage,
-            minigamesAvailable = state.minigamesAvailable
+            minigamesAvailable = state.minigamesAvailable,
+            minigamesPlayedSinceInterstitial = state.minigamesPlayedSinceInterstitial
         )
         return MainGameSnapshot(
             uiSnapshot = uiSnapshot,
@@ -1132,18 +1149,34 @@ class GameViewModel(
         if (completionJob?.isActive == true) return
         completionJob = viewModelScope.launch(dispatcher) {
             delay(LEVEL_COMPLETE_DELAY_MS)
-            val updatedMinigames = _uiState.value.minigamesAvailable + LEVEL_MINIGAMES_REWARD_AMOUNT
-            val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
-            val nextDefinition = generateLevelUseCase.execute(
-                levelNumber = nextLevel,
-                seedBase = baseSeed
-            )
-            applyLevelDefinition(
-                levelDefinition = nextDefinition,
-                minigamesAvailable = updatedMinigames
-            )
-            startRolling()
+            val minigamesPlayed = _uiState.value.minigamesPlayedSinceInterstitial
+            if (minigamesPlayed >= MINIGAMES_FOR_INTERSTITIAL) {
+                awaitingLevelInterstitialAd = true
+                _effects.emit(GameUiEffect.ShowLevelInterstitialAd)
+            } else {
+                advanceToNextLevel(resetMinigamesPlayed = false)
+            }
         }
+    }
+
+    private fun advanceToNextLevel(resetMinigamesPlayed: Boolean) {
+        val updatedMinigames = _uiState.value.minigamesAvailable + LEVEL_MINIGAMES_REWARD_AMOUNT
+        val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
+        val nextDefinition = generateLevelUseCase.execute(
+            levelNumber = nextLevel,
+            seedBase = baseSeed
+        )
+        val updatedMinigamesPlayed = if (resetMinigamesPlayed) {
+            0
+        } else {
+            _uiState.value.minigamesPlayedSinceInterstitial
+        }
+        applyLevelDefinition(
+            levelDefinition = nextDefinition,
+            minigamesAvailable = updatedMinigames,
+            minigamesPlayedSinceInterstitial = updatedMinigamesPlayed
+        )
+        startRolling()
     }
 
     private fun pickMinigame(): MinigameType {
