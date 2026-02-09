@@ -111,7 +111,6 @@ fun GameRoute(
     val pendingRewardedAd = remember { mutableStateOf(false) }
     val interstitialAdState = remember { mutableStateOf<InterstitialAd?>(null) }
     val pendingInterstitialAd = remember { mutableStateOf(false) }
-    val pendingStartupInterstitialAd = remember { mutableStateOf(false) }
     val onAdCompleted by rememberUpdatedState { viewModel.onEvent(GameUiEvent.MinigamesAdCompleted) }
     val onInterstitialAdCompleted by rememberUpdatedState {
         viewModel.onEvent(GameUiEvent.LevelInterstitialAdCompleted)
@@ -184,27 +183,12 @@ fun GameRoute(
                         interstitialAdState.value = null
                     }
                 }
-                if (pendingStartupInterstitialAd.value) {
-                    pendingStartupInterstitialAd.value = false
-                    val shown = showInterstitialAd(
-                        activity = context.findActivity(),
-                        interstitialAd = interstitialAd,
-                        onDismissed = { loadInterstitialAd(context, interstitialAdState) },
-                        onFailedToShow = { loadInterstitialAd(context, interstitialAdState) }
-                    )
-                    if (!shown) {
-                        loadInterstitialAd(context, interstitialAdState)
-                    } else {
-                        interstitialAdState.value = null
-                    }
-                }
             },
             onFailedToLoad = {
                 if (pendingInterstitialAd.value) {
                     pendingInterstitialAd.value = false
                     onInterstitialAdCompleted()
                 }
-                pendingStartupInterstitialAd.value = false
             }
         )
     }
@@ -290,43 +274,6 @@ fun GameRoute(
                         )
                     }
                     if (shown) {
-                        interstitialAdState.value = null
-                    }
-                }
-                GameUiEffect.ShowStartupInterstitialAd -> {
-                    val activity = context.findActivity()
-                    val shown = showInterstitialAd(
-                        activity = activity,
-                        interstitialAd = interstitialAdState.value,
-                        onDismissed = { loadInterstitialAd(context, interstitialAdState) },
-                        onFailedToShow = { loadInterstitialAd(context, interstitialAdState) }
-                    )
-                    if (!shown) {
-                        pendingStartupInterstitialAd.value = true
-                        loadInterstitialAd(
-                            context = context,
-                            interstitialAdState = interstitialAdState,
-                            onLoaded = { interstitialAd ->
-                                if (pendingStartupInterstitialAd.value) {
-                                    pendingStartupInterstitialAd.value = false
-                                    val displayed = showInterstitialAd(
-                                        activity = context.findActivity(),
-                                        interstitialAd = interstitialAd,
-                                        onDismissed = { loadInterstitialAd(context, interstitialAdState) },
-                                        onFailedToShow = { loadInterstitialAd(context, interstitialAdState) }
-                                    )
-                                    if (!displayed) {
-                                        loadInterstitialAd(context, interstitialAdState)
-                                    } else {
-                                        interstitialAdState.value = null
-                                    }
-                                }
-                            },
-                            onFailedToLoad = {
-                                pendingStartupInterstitialAd.value = false
-                            }
-                        )
-                    } else {
                         interstitialAdState.value = null
                     }
                 }

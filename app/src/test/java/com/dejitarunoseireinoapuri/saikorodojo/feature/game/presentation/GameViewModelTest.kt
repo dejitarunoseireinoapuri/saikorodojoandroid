@@ -498,21 +498,6 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `startup emits interstitial effect for new sessions`() = runTest {
-        val effects = mutableListOf<GameUiEffect>()
-        val viewModel = buildViewModel(showStartupInterstitialAd = true)
-
-        val collector = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.effects.take(1).toList(effects)
-        }
-
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        assertEquals(listOf(GameUiEffect.ShowStartupInterstitialAd), effects)
-        collector.cancel()
-    }
-
-    @Test
     fun `level completion shows interstitial after two minigames`() = runTest {
         val viewModel = buildViewModel()
 
@@ -600,8 +585,7 @@ class GameViewModelTest {
             )
         ),
         cardInventoryRepository: InMemoryCardInventoryRepository = InMemoryCardInventoryRepository(),
-        sessionRepository: GameSessionRepository = InMemoryGameSessionRepository(),
-        showStartupInterstitialAd: Boolean = false
+        sessionRepository: GameSessionRepository = InMemoryGameSessionRepository()
     ): GameViewModel {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
@@ -620,8 +604,7 @@ class GameViewModelTest {
             tickMs = 1L,
             layoutSeedProvider = { 0L },
             initialLevelDefinition = levelDefinition,
-            cardUiModels = cardUiModels,
-            showStartupInterstitialAd = showStartupInterstitialAd
+            cardUiModels = cardUiModels
         )
     }
 
