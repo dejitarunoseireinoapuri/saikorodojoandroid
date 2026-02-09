@@ -120,14 +120,21 @@ fun BlackjackGameScreen(
     onExitToMenu: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
-    var wasRolling by remember { mutableStateOf(false) }
     var wasComplete by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
-    LaunchedEffect(uiState.isRolling) {
-        if (shouldPlayDiceRollOnStart(uiState.isRolling, wasRolling)) {
+    var previousPlayerDiceCount by remember { mutableStateOf(0) }
+    var previousDealerDiceCount by remember { mutableStateOf(0) }
+    LaunchedEffect(uiState.playerDice.size, uiState.isRolling) {
+        if (shouldPlayDiceRollForNewDie(previousPlayerDiceCount, uiState.playerDice.size, uiState.isRolling)) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
         }
-        wasRolling = uiState.isRolling
+        previousPlayerDiceCount = uiState.playerDice.size
+    }
+    LaunchedEffect(uiState.dealerDice.size, uiState.isRolling) {
+        if (shouldPlayDiceRollForNewDie(previousDealerDiceCount, uiState.dealerDice.size, uiState.isRolling)) {
+            soundPlayer.play(SoundEffect.DICE_ROLL)
+        }
+        previousDealerDiceCount = uiState.dealerDice.size
     }
     LaunchedEffect(uiState.isComplete, uiState.rewardCards) {
         val hasLoss = uiState.isComplete && uiState.rewardCards.isEmpty() && uiState.isStarted
