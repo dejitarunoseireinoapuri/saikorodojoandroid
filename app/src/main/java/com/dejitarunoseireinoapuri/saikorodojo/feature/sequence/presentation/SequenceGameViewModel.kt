@@ -34,6 +34,7 @@ private const val DEFAULT_MAX_DISCARDS = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 1_500L
 private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_000L
+private const val DEFAULT_SAVE_ANIMATION_MS = 320L
 data class SequenceGameUiState(
     val isStarted: Boolean = false,
     val isRolling: Boolean = false,
@@ -77,6 +78,7 @@ class SequenceGameViewModel(
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
     private val rewardRevealDelayMs: Long = DEFAULT_REWARD_REVEAL_DELAY_MS,
+    private val saveAnimationMs: Long = DEFAULT_SAVE_ANIMATION_MS,
     private val totalRolls: Int = DEFAULT_TOTAL_ROLLS,
     private val targetSequence: Int = DEFAULT_TARGET_SEQUENCE,
     private val maxDiscards: Int = DEFAULT_MAX_DISCARDS,
@@ -92,6 +94,8 @@ class SequenceGameViewModel(
     val uiState: StateFlow<SequenceGameUiState> = _uiState
 
     private var rollJob: Job? = null
+    private var hideLatestSavedJob: Job? = null
+    private var pendingRollJob: Job? = null
 
     init {
         val session = loadGameSessionUseCase.execute()
@@ -133,6 +137,8 @@ class SequenceGameViewModel(
 
     private fun startGame() {
         rollJob?.cancel()
+        hideLatestSavedJob?.cancel()
+        pendingRollJob?.cancel()
         _uiState.update {
             it.copy(
                 isStarted = true,
@@ -150,7 +156,12 @@ class SequenceGameViewModel(
                 isLatestSavedValueHidden = false
             )
         }
-        startRoll(nextRoll = 1, savedValues = emptyList(), discardCount = 0)
+        startRoll(
+            nextRoll = 1,
+            savedValues = emptyList(),
+            discardCount = 0,
+            hideLatestSavedValue = false
+        )
     }
 
     private fun handleSave() {
@@ -177,7 +188,9 @@ class SequenceGameViewModel(
         advanceOrComplete(
             nextRoll = state.currentRoll + 1,
             savedValues = updatedSaved,
-            discardCount = state.discardCount
+            discardCount = state.discardCount,
+            hideLatestSavedValue = true,
+            rollDelayMs = saveAnimationMs
         )
     }
 
@@ -190,14 +203,18 @@ class SequenceGameViewModel(
         advanceOrComplete(
             nextRoll = state.currentRoll + 1,
             savedValues = state.savedValues,
-            discardCount = updatedDiscard
+            discardCount = updatedDiscard,
+            hideLatestSavedValue = false,
+            rollDelayMs = 0L
         )
     }
 
     private fun advanceOrComplete(
         nextRoll: Int,
         savedValues: List<Int>,
-        discardCount: Int
+        discardCount: Int,
+        hideLatestSavedValue: Boolean,
+        rollDelayMs: Long
     ) {
         val state = _uiState.value
         val remainingRolls = (state.totalRolls - nextRoll + 1).coerceAtLeast(0)
@@ -220,11 +237,74 @@ class SequenceGameViewModel(
             )
             return
         }
-        startRoll(nextRoll = nextRoll, savedValues = savedValues, discardCount = discardCount)
+        if (rollDelayMs > 0L) {
+            startDelayedRoll(
+                nextRoll = nextRoll,
+                savedValues = savedValues,
+                discardCount = discardCount,
+                hideLatestSavedValue = hideLatestSavedValue,
+                rollDelayMs = rollDelayMs
+            )
+        } else {
+            startRoll(
+                nextRoll = nextRoll,
+                savedValues = savedValues,
+                discardCount = discardCount,
+                hideLatestSavedValue = hideLatestSavedValue
+            )
+        }
     }
 
-    private fun startRoll(nextRoll: Int, savedValues: List<Int>, discardCount: Int) {
+    private fun startDelayedRoll(
+        nextRoll: Int,
+        savedValues: List<Int>,
+        discardCount: Int,
+        hideLatestSavedValue: Boolean,
+        rollDelayMs: Long
+    ) {
+        pendingRollJob?.cancel()
+        hideLatestSavedJob?.cancel()
+        _uiState.update {
+            it.copy(
+                currentRoll = nextRoll,
+                savedValues = savedValues,
+                discardCount = discardCount,
+                isRolling = false,
+                isAwaitingDecision = false,
+                pendingRewardCards = emptyList(),
+                failureReason = null,
+                failureDieValue = null,
+                isLatestSavedValueHidden = hideLatestSavedValue
+            )
+        }
+        if (hideLatestSavedValue) {
+            hideLatestSavedJob = viewModelScope.launch(dispatcher) {
+                delay(rollDelayMs)
+                _uiState.update { current ->
+                    current.copy(isLatestSavedValueHidden = false)
+                }
+            }
+        }
+        pendingRollJob = viewModelScope.launch(dispatcher) {
+            delay(rollDelayMs)
+            startRoll(
+                nextRoll = nextRoll,
+                savedValues = savedValues,
+                discardCount = discardCount,
+                hideLatestSavedValue = false
+            )
+        }
+    }
+
+    private fun startRoll(
+        nextRoll: Int,
+        savedValues: List<Int>,
+        discardCount: Int,
+        hideLatestSavedValue: Boolean
+    ) {
         rollJob?.cancel()
+        hideLatestSavedJob?.cancel()
+        pendingRollJob?.cancel()
         _uiState.update {
             it.copy(
                 currentRoll = nextRoll,
@@ -236,8 +316,16 @@ class SequenceGameViewModel(
                 pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null,
-                isLatestSavedValueHidden = false
+                isLatestSavedValueHidden = hideLatestSavedValue
             )
+        }
+        if (hideLatestSavedValue) {
+            hideLatestSavedJob = viewModelScope.launch(dispatcher) {
+                delay(saveAnimationMs)
+                _uiState.update { current ->
+                    current.copy(isLatestSavedValueHidden = false)
+                }
+            }
         }
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollAnimationMs / tickMs).coerceAtLeast(1L).toInt()
@@ -266,6 +354,8 @@ class SequenceGameViewModel(
 
     private fun completeSuccess(savedValues: List<Int>, discardCount: Int) {
         rollJob?.cancel()
+        hideLatestSavedJob?.cancel()
+        pendingRollJob?.cancel()
         val rewardCards = resolveRewardCards()
         _uiState.update {
             it.copy(
@@ -300,6 +390,8 @@ class SequenceGameViewModel(
         failureDieValue: Int?
     ) {
         rollJob?.cancel()
+        hideLatestSavedJob?.cancel()
+        pendingRollJob?.cancel()
         _uiState.update {
             it.copy(
                 savedValues = savedValues,

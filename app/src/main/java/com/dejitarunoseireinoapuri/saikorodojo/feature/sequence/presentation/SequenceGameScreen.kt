@@ -29,11 +29,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -45,7 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -90,6 +97,7 @@ internal fun sequenceDecisionActionOrder(): List<SequenceDecisionAction> = listO
 internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
+private const val SEQUENCE_SAVE_ANIMATION_MS = 320
 
 @Composable
 fun SequenceGameRoute(
@@ -142,6 +150,16 @@ fun SequenceGameScreen(
     var hadRewardCards by remember { mutableStateOf(false) }
     var previousSavedCount by remember { mutableStateOf(0) }
     var previousHasFailure by remember { mutableStateOf(false) }
+    var previousFailureDieValue by remember { mutableStateOf<Int?>(null) }
+    var animatingSaveValue by remember { mutableStateOf<Int?>(null) }
+    var animatingToFailureDie by remember { mutableStateOf(false) }
+    var diceCenterInRoot by remember { mutableStateOf<Offset?>(null) }
+    var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
+    var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
+    var animatedDieSize by remember { mutableStateOf(0.dp) }
+    val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
+    val saveAnimationProgress = remember { Animatable(0f) }
+    var animationTrigger by remember { mutableIntStateOf(0) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
@@ -152,6 +170,11 @@ fun SequenceGameScreen(
         if (shouldPlaySequenceSuccess(previousSavedCount, uiState.savedValues.size)) {
             soundPlayer.play(SoundEffect.SUCCESS)
         }
+        if (uiState.savedValues.size > previousSavedCount) {
+            animatingSaveValue = uiState.savedValues.lastOrNull()
+            animatingToFailureDie = false
+            animationTrigger += 1
+        }
         previousSavedCount = uiState.savedValues.size
     }
     LaunchedEffect(uiState.failureReason) {
@@ -160,6 +183,30 @@ fun SequenceGameScreen(
             soundPlayer.play(SoundEffect.LOSS)
         }
         previousHasFailure = hasFailure
+    }
+    LaunchedEffect(uiState.failureDieValue) {
+        if (uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue) {
+            animatingSaveValue = uiState.failureDieValue
+            animatingToFailureDie = true
+            animationTrigger += 1
+        }
+        previousFailureDieValue = uiState.failureDieValue
+    }
+    LaunchedEffect(animationTrigger) {
+        if (animatingSaveValue == null) {
+            return@LaunchedEffect
+        }
+        soundPlayer.play(SoundEffect.MOVE_DICE)
+        saveAnimationProgress.snapTo(0f)
+        saveAnimationProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
+                easing = LinearOutSlowInEasing
+            )
+        )
+        animatingSaveValue = null
+        animatingToFailureDie = false
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
@@ -342,7 +389,15 @@ fun SequenceGameScreen(
                         SequenceDiceFace(
                             value = uiState.diceValue,
                             size = 140.dp,
-                            modifier = Modifier.testTag(SEQUENCE_DICE_TAG)
+                            modifier = Modifier
+                                .testTag(SEQUENCE_DICE_TAG)
+                                .onGloballyPositioned { coordinates ->
+                                    val position = coordinates.positionInRoot()
+                                    diceCenterInRoot = Offset(
+                                        x = position.x + coordinates.size.width / 2f,
+                                        y = position.y + coordinates.size.height / 2f
+                                    )
+                                }
                         )
                     }
                 }
@@ -374,6 +429,9 @@ fun SequenceGameScreen(
                             val spacing = 10.dp
                             val availableWidth = maxWidth - horizontalPadding * 2 - spacing * 2
                             val dieSize = (availableWidth / 3f).coerceAtMost(104.dp)
+                            if (animatedDieSize != dieSize) {
+                                animatedDieSize = dieSize
+                            }
                             Row(
                                 modifier = Modifier.padding(horizontal = horizontalPadding),
                                 horizontalArrangement = Arrangement.spacedBy(spacing),
@@ -386,13 +444,44 @@ fun SequenceGameScreen(
                                     SequenceSavedDie(
                                         value = savedDie.value,
                                         size = dieSize,
-                                        isVisible = savedDie.isVisible
+                                        isVisible = shouldShowSequenceSavedDie(
+                                            isVisible = savedDie.isVisible,
+                                            isLatest = savedDie.isLatest,
+                                            animatingSaveValue = animatingSaveValue,
+                                            isAnimatingToFailure = animatingToFailureDie,
+                                            value = savedDie.value
+                                        ),
+                                        modifier = if (savedDie.isLatest) {
+                                            Modifier.onGloballyPositioned { coordinates ->
+                                                val position = coordinates.positionInRoot()
+                                                savedDieCenterInRoot = Offset(
+                                                    x = position.x + coordinates.size.width / 2f,
+                                                    y = position.y + coordinates.size.height / 2f
+                                                )
+                                            }
+                                        } else {
+                                            Modifier
+                                        }
                                     )
                                 }
                                 uiState.failureDieValue?.let { value ->
                                     SequenceSavedDie(
                                         value = value,
-                                        size = dieSize
+                                        size = dieSize,
+                                        isVisible = shouldShowSequenceSavedDie(
+                                            isVisible = true,
+                                            isLatest = false,
+                                            animatingSaveValue = animatingSaveValue,
+                                            isAnimatingToFailure = animatingToFailureDie,
+                                            value = value
+                                        ),
+                                        modifier = Modifier.onGloballyPositioned { coordinates ->
+                                            val position = coordinates.positionInRoot()
+                                            failureDieCenterInRoot = Offset(
+                                                x = position.x + coordinates.size.width / 2f,
+                                                y = position.y + coordinates.size.height / 2f
+                                            )
+                                        }
                                     )
                                 }
                             }
@@ -514,12 +603,50 @@ fun SequenceGameScreen(
             )
         }
     }
+
+    val currentAnimationValue = animatingSaveValue
+    if (currentAnimationValue != null) {
+        val start = diceCenterInRoot
+        val end = if (animatingToFailureDie) failureDieCenterInRoot else savedDieCenterInRoot
+        val dieSize = animatedDieSize
+        if (start != null && end != null && dieSize > 0.dp) {
+            val sizePx = with(LocalDensity.current) { dieSize.toPx() }
+            val progress = saveAnimationProgress.value
+            val offset = Offset(
+                x = start.x + (end.x - start.x) * progress,
+                y = start.y + (end.y - start.y) * progress
+            )
+            Box(
+                modifier = Modifier
+                    .size(dieSize)
+                    .graphicsLayer {
+                        translationX = offset.x - sizePx / 2f
+                        translationY = offset.y - sizePx / 2f
+                    }
+                    .zIndex(5f),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ten_sides),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Text(
+                    text = currentAnimationValue.toString(),
+                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.graphicsLayer { translationY = animatedTextOffsetPx }
+                )
+            }
+        }
+    }
 }
 
 
 internal data class SequenceSavedDieUi(
     val value: Int,
-    val isVisible: Boolean
+    val isVisible: Boolean,
+    val isLatest: Boolean
 )
 
 internal fun sequenceSavedDiceUiState(
@@ -533,7 +660,8 @@ internal fun sequenceSavedDiceUiState(
     return savedValues.mapIndexed { index, value ->
         SequenceSavedDieUi(
             value = value,
-            isVisible = index != hiddenIndex
+            isVisible = index != hiddenIndex,
+            isLatest = index == savedValues.lastIndex
         )
     }
 }
@@ -551,6 +679,26 @@ internal fun shouldPlaySequenceSuccess(previousSavedCount: Int, currentSavedCoun
 
 internal fun shouldPlaySequenceLoss(previousHasFailure: Boolean, currentHasFailure: Boolean): Boolean {
     return !previousHasFailure && currentHasFailure
+}
+
+internal fun shouldShowSequenceSavedDie(
+    isVisible: Boolean,
+    isLatest: Boolean,
+    animatingSaveValue: Int?,
+    isAnimatingToFailure: Boolean,
+    value: Int
+): Boolean {
+    if (!isVisible) {
+        return false
+    }
+    if (animatingSaveValue == null) {
+        return true
+    }
+    return if (isAnimatingToFailure) {
+        value != animatingSaveValue
+    } else {
+        !isLatest
+    }
 }
 
 @Composable
@@ -637,12 +785,13 @@ private fun SequenceDiceFace(
 private fun SequenceSavedDie(
     value: Int,
     size: Dp,
-    isVisible: Boolean = true
+    isVisible: Boolean = true,
+    modifier: Modifier = Modifier
 ) {
     val diceRes = R.drawable.ten_sides
     val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(size)
             .alpha(if (isVisible) 1f else 0f)
             .testTag("${SEQUENCE_SAVED_DIE_TAG_PREFIX}_$value"),

@@ -146,11 +146,12 @@ class SequenceGameViewModelTest {
 
 
     @Test
-    fun `save action keeps latest saved die visible during the next roll`() = runTest {
+    fun `save action hides latest saved die until the animation completes`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(3, 7),
             rollAnimationMs = 200L,
-            tickMs = 100L
+            tickMs = 100L,
+            saveAnimationMs = 200L
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
@@ -159,8 +160,11 @@ class SequenceGameViewModelTest {
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
         dispatcher.scheduler.runCurrent()
 
-        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
-
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+        dispatcher.scheduler.advanceTimeBy(199L)
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+        dispatcher.scheduler.advanceTimeBy(1L)
         dispatcher.scheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
     }
@@ -182,6 +186,31 @@ class SequenceGameViewModelTest {
         dispatcher.scheduler.runCurrent()
         assertTrue(viewModel.uiState.value.isAwaitingDecision)
         assertTrue(viewModel.uiState.value.isRolling.not())
+    }
+
+    @Test
+    fun `roll starts after save animation completes`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(3, 7),
+            rollAnimationMs = 0L,
+            tickMs = 1L,
+            saveAnimationMs = 200L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(3, viewModel.uiState.value.diceValue)
+
+        dispatcher.scheduler.advanceTimeBy(199L)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(3, viewModel.uiState.value.diceValue)
+
+        dispatcher.scheduler.advanceTimeBy(1L)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(7, viewModel.uiState.value.diceValue)
     }
 
     @Test
@@ -280,7 +309,8 @@ class SequenceGameViewModelTest {
         rewardRevealDelayMs: Long = 0L,
         targetSequence: Int = 3,
         rollAnimationMs: Long = 0L,
-        tickMs: Long = 1L
+        tickMs: Long = 1L,
+        saveAnimationMs: Long = 0L
     ): SequenceGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
@@ -294,6 +324,7 @@ class SequenceGameViewModelTest {
             rollAnimationMs = rollAnimationMs,
             tickMs = tickMs,
             rewardRevealDelayMs = rewardRevealDelayMs,
+            saveAnimationMs = saveAnimationMs,
             totalRolls = totalRolls,
             targetSequence = targetSequence,
             maxDiscards = maxDiscards,

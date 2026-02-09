@@ -8,6 +8,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.GetCardInven
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.LevelDefinition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.RollDiceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
@@ -399,7 +400,8 @@ class GameViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(1, effects.size)
-        assertTrue(effects.single() is GameUiEffect.NavigateToMinigame)
+        val effect = effects.single() as GameUiEffect.NavigateToMinigame
+        assertTrue(MinigameType.entries.contains(effect.minigame))
         assertEquals(startingMinigames - 1, viewModel.uiState.value.minigamesAvailable)
         collectorJob.cancel()
     }
