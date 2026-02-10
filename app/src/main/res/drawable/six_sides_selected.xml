@@ -1,5 +1,4 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="200dp"
     android:height="200dp"
     android:viewportWidth="1024"
@@ -15,25 +14,30 @@
       android:pivotY="512">
     <path
         android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
-            android:fillColor="#33000000"/>
+        android:fillColor="#33000000"/>
   </group>
 
-  <!-- Main shape -->
+  <!-- Outer shape -->
   <path
       android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
+      android:fillColor="#56BD88"
+      android:strokeColor="#56BD88"
+      android:strokeWidth="24"
       android:strokeLineJoin="round"
-      android:strokeWidth="8"
-      android:strokeColor="#FF56BD88"
-      android:strokeLineCap="round">
-    <aapt:attr name="android:fillColor">
-      <gradient
-          android:type="linear"
-          android:startX="184"
-          android:startY="184"
-          android:endX="840"
-          android:endY="840"
-          android:startColor="#FF56BD88"
-          android:endColor="#FF56BD88"/>
-    </aapt:attr>
-  </path>
+      android:strokeLineCap="round"/>
+
+  <!-- Inner shape for thick border effect -->
+  <group
+      android:scaleX="0.82"
+      android:scaleY="0.82"
+      android:pivotX="512"
+      android:pivotY="512">
+    <path
+        android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
+        android:fillColor="#7FD7A6"
+        android:strokeColor="#7FD7A6"
+        android:strokeWidth="18"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"/>
+  </group>
 </vector>
