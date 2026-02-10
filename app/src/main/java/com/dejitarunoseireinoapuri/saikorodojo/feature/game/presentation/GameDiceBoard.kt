@@ -169,10 +169,10 @@ internal fun DiceBoard(
                         if (availability.canDecrease) {
                             DiceOption(
                                 value = (selectedValue - 1).coerceAtLeast(1),
-                                faceDrawable = diceTypeOptionDrawable(selectedType),
+                                faceDrawable = diceTypeAdjustDrawable(selectedType),
                                 size = diceSize,
                                 numberTextScale = 1f,
-                                numberTextColor = diceOptionNumberColor(),
+                                numberTextColor = diceSetValueNumberColor(),
                                 onClick = {
                                     soundPlayer.play(SoundEffect.USE)
                                     onAdjustSelectedDie(-1)
@@ -182,10 +182,10 @@ internal fun DiceBoard(
                         if (availability.canIncrease) {
                             DiceOption(
                                 value = (selectedValue + 1).coerceAtMost(selectedType.sides),
-                                faceDrawable = diceTypeOptionDrawable(selectedType),
+                                faceDrawable = diceTypeAdjustDrawable(selectedType),
                                 size = diceSize,
                                 numberTextScale = 1f,
-                                numberTextColor = diceOptionNumberColor(),
+                                numberTextColor = diceSetValueNumberColor(),
                                 onClick = {
                                     soundPlayer.play(SoundEffect.USE)
                                     onAdjustSelectedDie(1)
@@ -718,6 +718,14 @@ internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
         DiceType.D6 -> R.drawable.six_sides_contrast
         DiceType.D8 -> R.drawable.eigth_sides_contrast
         DiceType.D10 -> R.drawable.ten_sides_contrast
+    }
+}
+
+internal fun diceTypeAdjustDrawable(diceType: DiceType): Int {
+    return when (diceType) {
+        DiceType.D6 -> R.drawable.six_sides_set_value
+        DiceType.D8 -> R.drawable.eigth_sides_set_value
+        DiceType.D10 -> R.drawable.ten_sides_set_value
     }
 }
 

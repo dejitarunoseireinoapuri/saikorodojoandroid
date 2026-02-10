@@ -2,6 +2,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.R
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
@@ -86,6 +88,13 @@ class GameDiceBoardTest {
     @Test
     fun `set value number color uses highest contrast against orange background`() {
         assertEquals(Color.Black, diceSetValueNumberColor(DiceSetValueOuterColor))
+    }
+
+    @Test
+    fun `adjust plus minus uses orange dice faces`() {
+        assertEquals(R.drawable.six_sides_set_value, diceTypeAdjustDrawable(DiceType.D6))
+        assertEquals(R.drawable.eigth_sides_set_value, diceTypeAdjustDrawable(DiceType.D8))
+        assertEquals(R.drawable.ten_sides_set_value, diceTypeAdjustDrawable(DiceType.D10))
     }
 
     @Test
