@@ -95,11 +95,7 @@ class OddEvenGameViewModel(
             ?.takeIf { it.minigameType == MinigameType.ODD_EVEN }
             ?.minigameSnapshot as? MinigameSnapshot.OddEven
         if (snapshot != null) {
-            if (snapshot.isComplete) {
-                clearGameSessionUseCase.execute()
-            } else {
-                restoreFromSnapshot(snapshot)
-            }
+            restoreFromSnapshot(snapshot)
         }
     }
 
@@ -111,10 +107,6 @@ class OddEvenGameViewModel(
     }
 
     fun saveSession() {
-        if (_uiState.value.isComplete) {
-            clearGameSessionUseCase.execute()
-            return
-        }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
         val snapshot = buildSnapshot()
         saveGameSessionUseCase.execute(
@@ -218,9 +210,6 @@ class OddEvenGameViewModel(
                     isComplete = isComplete,
                     rewardCards = rewardCards
                 )
-            }
-            if (isComplete) {
-                clearGameSessionUseCase.execute()
             }
         }
     }

@@ -109,11 +109,7 @@ class HigherLowerGameViewModel(
             ?.takeIf { it.minigameType == MinigameType.HIGHER_LOWER }
             ?.minigameSnapshot as? MinigameSnapshot.HigherLower
         if (snapshot != null) {
-            if (snapshot.isComplete) {
-                clearGameSessionUseCase.execute()
-            } else {
-                restoreFromSnapshot(snapshot)
-            }
+            restoreFromSnapshot(snapshot)
         }
     }
 
@@ -125,10 +121,6 @@ class HigherLowerGameViewModel(
     }
 
     fun saveSession() {
-        if (_uiState.value.isComplete) {
-            clearGameSessionUseCase.execute()
-            return
-        }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
         val snapshot = buildSnapshot()
         saveGameSessionUseCase.execute(
@@ -308,7 +300,6 @@ class HigherLowerGameViewModel(
                     hasLoss = true
                 )
             }
-            clearGameSessionUseCase.execute()
         }
     }
 
@@ -336,7 +327,6 @@ class HigherLowerGameViewModel(
                     rewardCards = rewardCards
                 )
             }
-            clearGameSessionUseCase.execute()
         }
     }
 

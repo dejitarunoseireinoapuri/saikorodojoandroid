@@ -4,11 +4,12 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.DiceRoll
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.RollBlackjackDiceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.BlackjackGameUiEvent
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.BlackjackGameViewModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.DiceRoller as HigherLowerDiceRoller
+import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.RollHigherLowerUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation.HigherLowerGameUiEvent
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation.HigherLowerGameViewModel
-import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.DiceRoller as OddEvenDiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.RollOddEvenUseCase
@@ -23,6 +24,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessio
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MinigameSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +36,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -52,7 +55,7 @@ class MinigameSessionClearingTest {
     }
 
     @Test
-    fun oddEvenClearsSessionWhenComplete() = runTest {
+    fun oddEvenSavesCompletedSessionWhenAppSavesState() = runTest {
         val repository = FakeGameSessionRepository()
         val viewModel = OddEvenGameViewModel(
             rollOddEvenUseCase = RollOddEvenUseCase(diceRoller = OddEvenDiceRoller { 2 }),
@@ -72,12 +75,17 @@ class MinigameSessionClearingTest {
         viewModel.onEvent(OddEvenGameUiEvent.StartGame)
         viewModel.onEvent(OddEvenGameUiEvent.SelectChoice(OddEvenChoice.EVEN))
         advanceUntilIdle()
+        viewModel.saveSession()
 
-        assertEquals(1, repository.clearCalls)
+        val saved = repository.savedSession as SavedSession.Minigame
+        val snapshot = saved.minigameSnapshot as MinigameSnapshot.OddEven
+        assertEquals(MinigameType.ODD_EVEN, saved.minigameType)
+        assertTrue(snapshot.isComplete)
+        assertEquals(0, repository.clearCalls)
     }
 
     @Test
-    fun sequenceClearsSessionWhenComplete() = runTest {
+    fun sequenceSavesCompletedSessionWhenAppSavesState() = runTest {
         val repository = FakeGameSessionRepository()
         val viewModel = SequenceGameViewModel(
             rollSequenceUseCase = RollSequenceUseCase(diceRoller = SequenceDiceRoller { 1 }),
@@ -98,12 +106,17 @@ class MinigameSessionClearingTest {
         advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
         advanceUntilIdle()
+        viewModel.saveSession()
 
-        assertEquals(1, repository.clearCalls)
+        val saved = repository.savedSession as SavedSession.Minigame
+        val snapshot = saved.minigameSnapshot as MinigameSnapshot.Sequence
+        assertEquals(MinigameType.SEQUENCE, saved.minigameType)
+        assertTrue(snapshot.isComplete)
+        assertEquals(0, repository.clearCalls)
     }
 
     @Test
-    fun higherLowerClearsSessionWhenComplete() = runTest {
+    fun higherLowerSavesCompletedSessionWhenAppSavesState() = runTest {
         val repository = FakeGameSessionRepository()
         val viewModel = HigherLowerGameViewModel(
             rollHigherLowerUseCase = RollHigherLowerUseCase(diceRoller = HigherLowerDiceRoller { 3 }),
@@ -127,12 +140,17 @@ class MinigameSessionClearingTest {
         advanceUntilIdle()
         viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
         advanceUntilIdle()
+        viewModel.saveSession()
 
-        assertEquals(1, repository.clearCalls)
+        val saved = repository.savedSession as SavedSession.Minigame
+        val snapshot = saved.minigameSnapshot as MinigameSnapshot.HigherLower
+        assertEquals(MinigameType.HIGHER_LOWER, saved.minigameType)
+        assertTrue(snapshot.isComplete)
+        assertEquals(0, repository.clearCalls)
     }
 
     @Test
-    fun blackjackClearsSessionWhenComplete() = runTest {
+    fun blackjackSavesCompletedSessionWhenAppSavesState() = runTest {
         val repository = FakeGameSessionRepository()
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(diceRoller = BlackjackDiceRoller { 10 }),
@@ -153,14 +171,19 @@ class MinigameSessionClearingTest {
         advanceUntilIdle()
         viewModel.onEvent(BlackjackGameUiEvent.Stand)
         advanceUntilIdle()
+        viewModel.saveSession()
 
-        assertEquals(1, repository.clearCalls)
+        val saved = repository.savedSession as SavedSession.Minigame
+        val snapshot = saved.minigameSnapshot as MinigameSnapshot.Blackjack
+        assertEquals(MinigameType.BLACKJACK, saved.minigameType)
+        assertTrue(snapshot.isComplete)
+        assertEquals(0, repository.clearCalls)
     }
 }
 
 private class FakeGameSessionRepository : GameSessionRepository {
     var clearCalls = 0
-    private var savedSession: SavedSession? = null
+    var savedSession: SavedSession? = null
     private var pendingMainGameSnapshot: MainGameSnapshot? = null
 
     override fun saveSession(session: SavedSession) {

@@ -103,11 +103,7 @@ class SequenceGameViewModel(
             ?.takeIf { it.minigameType == MinigameType.SEQUENCE }
             ?.minigameSnapshot as? MinigameSnapshot.Sequence
         if (snapshot != null) {
-            if (snapshot.isComplete) {
-                clearGameSessionUseCase.execute()
-            } else {
-                restoreFromSnapshot(snapshot)
-            }
+            restoreFromSnapshot(snapshot)
         }
     }
 
@@ -120,10 +116,6 @@ class SequenceGameViewModel(
     }
 
     fun saveSession() {
-        if (_uiState.value.isComplete) {
-            clearGameSessionUseCase.execute()
-            return
-        }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
         val snapshot = buildSnapshot()
         saveGameSessionUseCase.execute(
@@ -371,7 +363,6 @@ class SequenceGameViewModel(
                 isLatestSavedValueHidden = false
             )
         }
-        clearGameSessionUseCase.execute()
         viewModelScope.launch(dispatcher) {
             delay(rewardRevealDelayMs)
             _uiState.update { current ->
@@ -406,7 +397,6 @@ class SequenceGameViewModel(
                 isLatestSavedValueHidden = false
             )
         }
-        clearGameSessionUseCase.execute()
     }
 
     private fun resolveRewardCards(): List<CardUiModel> {
