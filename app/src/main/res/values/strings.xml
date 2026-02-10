@@ -148,7 +148,7 @@
     <string name="rules_screen_back">Volver</string>
 
     <string name="rules_main_game_title">Juego principal</string>
-    <string name="rules_main_game_body">Se deben superar los objetivos que aparecen en pantalla.
+    <string name="rules_main_game_body">Debes superar los objetivos que aparecen en pantalla.
 En cada nivel se hace una tirada y luego eliges qué dados usar.
 Siempre puedes resolver el nivel usando solo una parte de los dados.
 La dificultad sube por etapas: más dados y mezcla progresiva de dados de 6 caras, 8 o 10.</string>
