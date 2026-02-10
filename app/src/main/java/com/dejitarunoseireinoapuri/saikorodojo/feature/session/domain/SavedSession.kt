@@ -89,13 +89,15 @@ sealed interface MinigameSnapshot {
         val maxDiscards: Int,
         val discardCount: Int,
         val savedValues: List<Int>,
+        val pendingSavedValue: Int?,
+        val pendingFailureDieValue: Int?,
+        val isAwaitingSaveAnimationConfirmation: Boolean,
         val diceValue: Int?,
         val isComplete: Boolean,
         val rewardCardIds: List<CardId>,
         val pendingRewardCardIds: List<CardId>,
         val failureReason: SequenceFailureReason?,
-        val failureDieValue: Int?,
-        val isLatestSavedValueHidden: Boolean
+        val failureDieValue: Int?
     ) : MinigameSnapshot
 
     data class Blackjack(

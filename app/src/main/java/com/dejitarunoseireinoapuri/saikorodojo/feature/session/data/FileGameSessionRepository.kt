@@ -168,13 +168,15 @@ internal sealed interface StoredMinigameSnapshot {
         val maxDiscards: Int,
         val discardCount: Int,
         val savedValues: List<Int>,
+        val pendingSavedValue: Int? = null,
+        val pendingFailureDieValue: Int? = null,
+        val isAwaitingSaveAnimationConfirmation: Boolean = false,
         val diceValue: Int?,
         val isComplete: Boolean,
         val rewardCardIds: List<String>,
         val pendingRewardCardIds: List<String>,
         val failureReason: String?,
-        val failureDieValue: Int?,
-        val isLatestSavedValueHidden: Boolean
+        val failureDieValue: Int?
     ) : StoredMinigameSnapshot
 
     @Serializable
@@ -376,13 +378,15 @@ private fun MinigameSnapshot.toStored(): StoredMinigameSnapshot {
             maxDiscards = maxDiscards,
             discardCount = discardCount,
             savedValues = savedValues,
+            pendingSavedValue = pendingSavedValue,
+            pendingFailureDieValue = pendingFailureDieValue,
+            isAwaitingSaveAnimationConfirmation = isAwaitingSaveAnimationConfirmation,
             diceValue = diceValue,
             isComplete = isComplete,
             rewardCardIds = rewardCardIds.map { it.name },
             pendingRewardCardIds = pendingRewardCardIds.map { it.name },
             failureReason = failureReason?.name,
-            failureDieValue = failureDieValue,
-            isLatestSavedValueHidden = isLatestSavedValueHidden
+            failureDieValue = failureDieValue
         )
         is MinigameSnapshot.Blackjack -> StoredMinigameSnapshot.Blackjack(
             isStarted = isStarted,
@@ -449,13 +453,15 @@ private fun StoredMinigameSnapshot.toDomain(): MinigameSnapshot {
             maxDiscards = maxDiscards,
             discardCount = discardCount,
             savedValues = savedValues,
+            pendingSavedValue = pendingSavedValue,
+            pendingFailureDieValue = pendingFailureDieValue,
+            isAwaitingSaveAnimationConfirmation = isAwaitingSaveAnimationConfirmation,
             diceValue = diceValue,
             isComplete = isComplete,
             rewardCardIds = rewardCardIds.map { CardId.valueOf(it) },
             pendingRewardCardIds = pendingRewardCardIds.map { CardId.valueOf(it) },
             failureReason = failureReason?.let { SequenceFailureReason.valueOf(it) },
-            failureDieValue = failureDieValue,
-            isLatestSavedValueHidden = isLatestSavedValueHidden
+            failureDieValue = failureDieValue
         )
         is StoredMinigameSnapshot.Blackjack -> MinigameSnapshot.Blackjack(
             isStarted = isStarted,
