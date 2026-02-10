@@ -4,7 +4,6 @@
     android:viewportWidth="1024"
     android:viewportHeight="1024">
 
-  <!-- Shadow (fake, same thickness settings as square) -->
   <group
       android:translateX="18"
       android:translateY="18"
@@ -13,27 +12,25 @@
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
+        android:pathData="M384,144L640,144Q704,144 749,189L835,275Q880,320 880,384L880,640Q880,704 835,749L749,835Q704,880 640,880L384,880Q320,880 275,835L189,749Q144,704 144,640L144,384Q144,320 189,275L275,189Q320,144 384,144Z"
         android:fillColor="#33000000"/>
   </group>
 
-  <!-- Outer shape -->
   <path
-      android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
+      android:pathData="M384,144L640,144Q704,144 749,189L835,275Q880,320 880,384L880,640Q880,704 835,749L749,835Q704,880 640,880L384,880Q320,880 275,835L189,749Q144,704 144,640L144,384Q144,320 189,275L275,189Q320,144 384,144Z"
       android:fillColor="@color/dice_selected_outer"
       android:strokeColor="@color/dice_selected_outer"
       android:strokeWidth="24"
       android:strokeLineJoin="round"
       android:strokeLineCap="round"/>
 
-  <!-- Inner shape for thick border effect -->
   <group
       android:scaleX="0.82"
       android:scaleY="0.82"
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
+        android:pathData="M384,144L640,144Q704,144 749,189L835,275Q880,320 880,384L880,640Q880,704 835,749L749,835Q704,880 640,880L384,880Q320,880 275,835L189,749Q144,704 144,640L144,384Q144,320 189,275L275,189Q320,144 384,144Z"
         android:fillColor="@color/dice_selected_inner"
         android:strokeColor="@color/dice_selected_inner"
         android:strokeWidth="18"

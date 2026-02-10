@@ -7,7 +7,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSetValueOuterColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -86,8 +85,8 @@ class GameDiceBoardTest {
     }
 
     @Test
-    fun `set value number color uses highest contrast against orange background`() {
-        assertEquals(Color.Black, diceSetValueNumberColor(DiceSetValueOuterColor))
+    fun `set value number color is always white for orange dice`() {
+        assertEquals(Color.White, diceSetValueNumberColor())
     }
 
     @Test

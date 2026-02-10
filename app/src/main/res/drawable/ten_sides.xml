@@ -4,7 +4,6 @@
     android:viewportWidth="1024"
     android:viewportHeight="1024">
 
-  <!-- Shadow (fake, same thickness settings as square) -->
   <group
       android:translateX="18"
       android:translateY="18"
@@ -13,27 +12,25 @@
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
+        android:pathData="M512,104L654,146Q708,162 742,208L860,372Q892,420 892,480L892,544Q892,604 860,652L742,816Q708,862 654,878L512,920L370,878Q316,862 282,816L164,652Q132,604 132,544L132,480Q132,420 164,372L282,208Q316,162 370,146Z"
         android:fillColor="#33000000"/>
   </group>
 
-  <!-- Outer shape -->
   <path
-      android:pathData="M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
+      android:pathData="M512,104L654,146Q708,162 742,208L860,372Q892,420 892,480L892,544Q892,604 860,652L742,816Q708,862 654,878L512,920L370,878Q316,862 282,816L164,652Q132,604 132,544L132,480Q132,420 164,372L282,208Q316,162 370,146Z"
       android:fillColor="@color/dice_default_outer"
       android:strokeColor="@color/dice_default_outer"
       android:strokeWidth="24"
       android:strokeLineJoin="round"
       android:strokeLineCap="round"/>
 
-  <!-- Inner shape for thick border effect -->
   <group
       android:scaleX="0.82"
       android:scaleY="0.82"
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
+        android:pathData="M512,104L654,146Q708,162 742,208L860,372Q892,420 892,480L892,544Q892,604 860,652L742,816Q708,862 654,878L512,920L370,878Q316,862 282,816L164,652Q132,604 132,544L132,480Q132,420 164,372L282,208Q316,162 370,146Z"
         android:fillColor="@color/dice_default_inner"
         android:strokeColor="@color/dice_default_inner"
         android:strokeWidth="18"

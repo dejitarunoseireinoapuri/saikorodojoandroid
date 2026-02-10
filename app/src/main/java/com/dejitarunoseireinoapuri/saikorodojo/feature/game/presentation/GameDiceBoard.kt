@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +37,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememb
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSetValueOuterColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import kotlin.random.Random
@@ -457,22 +455,7 @@ private fun DiceOption(
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
 
-internal fun diceSetValueNumberColor(backgroundColor: Color = DiceSetValueOuterColor): Color =
-    bestContrastTextColor(backgroundColor)
-
-internal fun bestContrastTextColor(backgroundColor: Color): Color {
-    val whiteContrast = contrastRatio(Color.White, backgroundColor)
-    val blackContrast = contrastRatio(Color.Black, backgroundColor)
-    return if (whiteContrast >= blackContrast) Color.White else Color.Black
-}
-
-internal fun contrastRatio(foreground: Color, background: Color): Float {
-    val foregroundLuminance = foreground.luminance()
-    val backgroundLuminance = background.luminance()
-    val lighter = maxOf(foregroundLuminance, backgroundLuminance)
-    val darker = minOf(foregroundLuminance, backgroundLuminance)
-    return ((lighter + 0.05f) / (darker + 0.05f))
-}
+internal fun diceSetValueNumberColor(): Color = Color.White
 
 internal fun diceFaceNumberColor(isSelected: Boolean): Color =
     if (isSelected) DiceSelectedNumberColor else DiceDefaultNumberColor
@@ -721,13 +704,8 @@ internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
     }
 }
 
-internal fun diceTypeAdjustDrawable(diceType: DiceType): Int {
-    return when (diceType) {
-        DiceType.D6 -> R.drawable.six_sides_set_value
-        DiceType.D8 -> R.drawable.eigth_sides_set_value
-        DiceType.D10 -> R.drawable.ten_sides_set_value
-    }
-}
+internal fun diceTypeAdjustDrawable(diceType: DiceType): Int =
+    diceTypeSetValueDrawable(diceType)
 
 internal fun diceTypeSetValueDrawable(diceType: DiceType): Int {
     return when (diceType) {
