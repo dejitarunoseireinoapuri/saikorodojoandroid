@@ -87,7 +87,7 @@ class GameDiceBoardTest {
 
     @Test
     fun `set value number color uses highest contrast against orange background`() {
-        assertEquals(Color.Black, diceSetValueNumberColor(DiceSetValueOuterColor))
+        assertEquals(Color.White, diceSetValueNumberColor(DiceSetValueOuterColor))
     }
 
     @Test

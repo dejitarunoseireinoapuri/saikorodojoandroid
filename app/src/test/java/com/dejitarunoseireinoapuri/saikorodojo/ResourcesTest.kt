@@ -33,6 +33,33 @@ class ResourcesTest {
         }
     }
 
+
+
+    @Test
+    fun `eight sided drawables use the octagon geometry across states`() {
+        val octagonPath = "M350,120L674,120L904,350L904,674L674,904L350,904L120,674L120,350Z"
+        val drawablePaths = listOf(
+            "app/src/main/res/drawable/eigth_sides.xml",
+            "app/src/main/res/drawable/eigth_sides_selected.xml",
+            "app/src/main/res/drawable/eigth_sides_contrast.xml",
+            "app/src/main/res/drawable/eigth_sides_set_value.xml"
+        ).map { resolveProjectPath(it) }
+
+        drawablePaths.forEach { file ->
+            val contents = file.readText()
+            assertTrue(contents.contains(octagonPath))
+        }
+    }
+
+    @Test
+    fun `ten sided set value drawable keeps ten sided geometry`() {
+        val file = resolveProjectPath("app/src/main/res/drawable/ten_sides_set_value.xml")
+        val contents = file.readText()
+
+        assertTrue(contents.contains("M550.8,914.1L910.5,588.3"))
+        assertTrue(contents.contains("@color/dice_set_value_outer"))
+        assertTrue(contents.contains("@color/dice_set_value_inner"))
+    }
     private fun resolveProjectPath(path: String): File {
         val projectRoot = requireNotNull(System.getProperty("user.dir")) {
             "user.dir is required to resolve project paths"

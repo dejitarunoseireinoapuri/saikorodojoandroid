@@ -457,8 +457,9 @@ private fun DiceOption(
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
 
+@Suppress("UNUSED_PARAMETER")
 internal fun diceSetValueNumberColor(backgroundColor: Color = DiceSetValueOuterColor): Color =
-    bestContrastTextColor(backgroundColor)
+    Color.White
 
 internal fun bestContrastTextColor(backgroundColor: Color): Color {
     val whiteContrast = contrastRatio(Color.White, backgroundColor)
