@@ -199,8 +199,8 @@ fun SequenceGameScreen(
         animatingSaveValue = animatingSaveValue,
         isAnimatingToFailure = animatingToFailureDie
     )
-    val visibleSavedValues = visibleSequenceSavedValues(
-        savedValues = uiState.savedValues,
+    val hideLatestSavedSlot = shouldHideLatestSavedSlotUntilAnimationEnds(
+        savedValuesSize = uiState.savedValues.size,
         lastAnimatedSavedCount = lastAnimatedSavedCount,
         animatingSaveValue = animatingSaveValue,
         isAnimatingToFailure = animatingToFailureDie
@@ -460,14 +460,15 @@ fun SequenceGameScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 sequenceSavedDiceUiState(
-                                    savedValues = visibleSavedValues,
+                                    savedValues = uiState.savedValues,
                                     isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
                                 ).forEach { savedDie ->
                                     SequenceSavedDie(
                                         value = savedDie.value,
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
-                                            isVisible = savedDie.isVisible,
+                                            isVisible = savedDie.isVisible &&
+                                                !(savedDie.isLatest && hideLatestSavedSlot),
                                             isLatest = savedDie.isLatest,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
@@ -723,21 +724,15 @@ internal fun shouldShowSequenceSavedDie(
     }
 }
 
-internal fun visibleSequenceSavedValues(
-    savedValues: List<Int>,
+internal fun shouldHideLatestSavedSlotUntilAnimationEnds(
+    savedValuesSize: Int,
     lastAnimatedSavedCount: Int,
     animatingSaveValue: Int?,
     isAnimatingToFailure: Boolean
-): List<Int> {
-    val shouldHideLatest = (savedValues.size > lastAnimatedSavedCount) ||
-        (animatingSaveValue != null && !isAnimatingToFailure)
-    if (!shouldHideLatest) {
-        return savedValues
-    }
-    if (savedValues.isEmpty()) {
-        return emptyList()
-    }
-    return savedValues.dropLast(1)
+): Boolean {
+    val waitingAnimationStart = savedValuesSize > lastAnimatedSavedCount
+    val saveAnimationInProgress = animatingSaveValue != null && !isAnimatingToFailure
+    return waitingAnimationStart || saveAnimationInProgress
 }
 
 internal fun shouldHidePendingFailureDie(
