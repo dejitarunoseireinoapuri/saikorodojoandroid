@@ -151,7 +151,7 @@
     <string name="rules_main_game_body">Debes superar los objetivos que aparecen en pantalla.
 En cada nivel se hace una tirada y luego eliges qué dados usar.
 Siempre puedes resolver el nivel usando solo una parte de los dados.
-La dificultad sube por etapas: más dados y mezcla progresiva de dados de 6 caras, 8 o 10.</string>
+La dificultad sube por etapas: más dados y mezcla progresiva de dados de 6, 8 y 10 caras.</string>
 
     <string name="rules_objectives_cards_title">Objetivos</string>
     <string name="rules_objectives_cards_body">Cada nivel tiene 1 o más condiciones y además una condición de cantidad mínima de dados seleccionados.
@@ -160,10 +160,10 @@ El nivel se completa cuando todas las condiciones activas se cumplen a la vez co
 
     <string name="rules_cards_title">Cartas</string>
     <string name="rules_cards_body">Al empezar una partida nueva recibes 3 cartas aleatorias.
-Inventario global: las cartas se acumulan entre niveles y pueden repetirse.
-Cada uso consume 1 carta de ese tipo.
+Las cartas se acumulan entre niveles y pueden repetirse.
+Cada uso consume esa carta.
 
-Cartas que pueden salir actualmente.
+Cartas que pueden salir:
 Ajustar ±1: sube o baja en 1 el valor de un dado.
 Voltear: cambia un dado a su cara opuesta.
 Relanzar uno: vuelves a tirar un único dado.

@@ -20,8 +20,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 
@@ -89,7 +91,8 @@ fun RulesScreen(
             )
             RulesSection(
                 title = stringResource(R.string.rules_cards_title),
-                body = stringResource(R.string.rules_cards_body)
+                body = stringResource(R.string.rules_cards_body),
+                boldPrefixBeforeColon = true
             )
             RulesSection(
                 title = stringResource(R.string.rules_minigames_title),
@@ -118,7 +121,8 @@ fun RulesScreen(
 @Composable
 private fun RulesSection(
     title: String,
-    body: String
+    body: String,
+    boldPrefixBeforeColon: Boolean = false
 ) {
     Text(
         text = title,
@@ -126,10 +130,34 @@ private fun RulesSection(
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)
     )
+    val bodyText = if (boldPrefixBeforeColon) {
+        buildRulesBodyWithBoldPrefixes(body)
+    } else {
+        buildAnnotatedString { append(body) }
+    }
     Text(
-        text = body,
+        text = bodyText,
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.padding(bottom = 8.dp)
     )
+}
+
+
+private fun buildRulesBodyWithBoldPrefixes(body: String) = buildAnnotatedString {
+    val lines = body.split("\n")
+    lines.forEachIndexed { index, line ->
+        if (line.contains(':')) {
+            val colonIndex = line.indexOf(':')
+            val prefix = line.substring(0, colonIndex)
+            val suffix = line.substring(colonIndex)
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                append(prefix)
+            }
+            append(suffix)
+        } else {
+            append(line)
+        }
+        if (index < lines.lastIndex) append("\n")
+    }
 }

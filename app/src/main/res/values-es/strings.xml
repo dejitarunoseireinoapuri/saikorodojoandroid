@@ -143,4 +143,59 @@
     <string name="dialog_cancel">Cancelar</string>
     <string name="cd_surrender">Rendirse</string>
     <string name="cd_exit_home">Salir al menú</string>
+
+    <string name="rules_screen_title">Reglas</string>
+    <string name="rules_screen_back">Volver</string>
+
+    <string name="rules_main_game_title">Juego principal</string>
+    <string name="rules_main_game_body">Debes superar los objetivos que aparecen en pantalla.
+En cada nivel se hace una tirada y luego eliges qué dados usar.
+Siempre puedes resolver el nivel usando solo una parte de los dados.
+La dificultad sube por etapas: más dados y mezcla progresiva de dados de 6, 8 y 10 caras.</string>
+
+    <string name="rules_objectives_cards_title">Objetivos</string>
+    <string name="rules_objectives_cards_body">Cada nivel tiene 1 o más condiciones y además una condición de cantidad mínima de dados seleccionados.
+Hay objetivos de suma (exacta, mínima, máxima, rango, múltiplos, par/impar), combinaciones (par, trío, póker, full, escalera, todos distintos) y colección/prohibición de valores.
+El nivel se completa cuando todas las condiciones activas se cumplen a la vez con los dados seleccionados.</string>
+
+    <string name="rules_cards_title">Cartas</string>
+    <string name="rules_cards_body">Al empezar una partida nueva recibes 3 cartas aleatorias.
+Las cartas se acumulan entre niveles y pueden repetirse.
+Cada uso consume esa carta.
+
+Cartas que pueden salir:
+Ajustar ±1: sube o baja en 1 el valor de un dado.
+Voltear: cambia un dado a su cara opuesta.
+Relanzar uno: vuelves a tirar un único dado.
+Relanzar varios: eliges varios dados y los relanzas.
+Elegir valor: fijas el valor de un dado dentro de los límites de su tipo.
+Repetir carta: repite el efecto de la última carta usada si existe.
+Minijuegos: añade 3 intentos de minijuego.</string>
+
+    <string name="rules_minigames_title">Minijuegos</string>
+    <string name="rules_minigames_body">Los minijuegos son un modo separado para ganar cartas para el juego principal.
+Al ganar un minijuego recibes entre 2 y 3 cartas aleatorias.
+Además, cada nivel completado en el juego principal suma 2 intentos de minijuego.</string>
+
+    <string name="rules_minigame_odd_even_title">Minijuego: Par o impar</string>
+    <string name="rules_minigame_odd_even_body">Elige par o impar antes de cada tirada.
+Objetivo: acertar 3 veces.
+Límite: máximo 7 rondas.</string>
+
+    <string name="rules_minigame_higher_lower_title">Minijuego: Mayor o menor</string>
+    <string name="rules_minigame_higher_lower_body">Adivina si la siguiente suma será mayor o menor que la suma anterior.
+Ganas al llegar a 3 aciertos.
+También ganas si se repite exactamente la misma suma en dos rondas seguidas.</string>
+
+    <string name="rules_minigame_sequence_title">Minijuego: Secuencia</string>
+    <string name="rules_minigame_sequence_body">Debes formar una secuencia de 3 dados no decreciente, donde cada valor es igual o mayor que el anterior.
+Tras cada ronda decides si guardar o descartar el dado mostrado.
+Tienes 5 rondas para completarla.</string>
+
+    <string name="rules_minigame_blackjack_title">Minijuego: Blackjack</string>
+    <string name="rules_minigame_blackjack_body">Objetivo: acercarte a 21 sin pasarte.
+Empiezas con una tirada inicial y luego decides si pides un dado de 10 caras adicional o te plantas.
+Después juega la banca y se planta con 17 o más.
+Si hay empate, gana la banca.
+El 1 cuenta como 1 u 11 según convenga.</string>
 </resources>

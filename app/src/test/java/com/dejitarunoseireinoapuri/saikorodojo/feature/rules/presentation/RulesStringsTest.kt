@@ -7,9 +7,24 @@ import java.io.File
 
 class RulesStringsTest {
     @Test
+    fun `rules are present in all locales`() {
+        val localeFiles = listOf(
+            "app/src/main/res/values/strings.xml",
+            "app/src/main/res/values-es/strings.xml",
+            "app/src/main/res/values-ca/strings.xml"
+        ).map(::resolveProjectPath)
+
+        localeFiles.forEach { file ->
+            val content = file.readText()
+            assertTrue(content.contains("name=\"rules_main_game_title\""))
+            assertTrue(content.contains("name=\"rules_cards_title\""))
+            assertTrue(content.contains("name=\"rules_minigame_blackjack_title\""))
+        }
+    }
+
+    @Test
     fun `rules describe main game before minigames and avoid ad mentions`() {
-        val stringsFile = resolveProjectPath("app/src/main/res/values/strings.xml")
-        val content = stringsFile.readText()
+        val content = resolveProjectPath("app/src/main/res/values/strings.xml").readText()
 
         val mainGameIndex = content.indexOf("name=\"rules_main_game_title\"")
         val minigamesIndex = content.indexOf("name=\"rules_minigames_title\"")
@@ -25,30 +40,44 @@ class RulesStringsTest {
     }
 
     @Test
-    fun `rules include cards subsection and one subsection per minigame`() {
-        val stringsFile = resolveProjectPath("app/src/main/res/values/strings.xml")
-        val content = stringsFile.readText()
+    fun `rules text does not use bullet prefixes`() {
+        val localeFiles = listOf(
+            "app/src/main/res/values/strings.xml",
+            "app/src/main/res/values-es/strings.xml",
+            "app/src/main/res/values-ca/strings.xml"
+        ).map(::resolveProjectPath)
 
-        assertTrue(content.contains("name=\"rules_cards_title\""))
-        assertTrue(content.contains("name=\"rules_cards_body\""))
-        assertTrue(content.contains("name=\"rules_minigame_odd_even_title\""))
-        assertTrue(content.contains("name=\"rules_minigame_higher_lower_title\""))
-        assertTrue(content.contains("name=\"rules_minigame_sequence_title\""))
-        assertTrue(content.contains("name=\"rules_minigame_blackjack_title\""))
+        localeFiles.forEach { file ->
+            val content = file.readText()
+            val rulesSection = content.substring(
+                startIndex = content.indexOf("name=\"rules_main_game_title\""),
+                endIndex = content.indexOf("</resources>")
+            )
+            assertFalse(rulesSection.contains("•"))
+            assertFalse(rulesSection.contains("\n- "))
+        }
     }
 
     @Test
-    fun `rules text does not use bullet prefixes`() {
-        val stringsFile = resolveProjectPath("app/src/main/res/values/strings.xml")
-        val content = stringsFile.readText()
+    fun `rules wording updates are applied in all locales`() {
+        val defaultContent = resolveProjectPath("app/src/main/res/values/strings.xml").readText()
+        val esContent = resolveProjectPath("app/src/main/res/values-es/strings.xml").readText()
+        val caContent = resolveProjectPath("app/src/main/res/values-ca/strings.xml").readText()
 
-        val rulesSection = content.substring(
-            startIndex = content.indexOf("name=\"rules_main_game_title\""),
-            endIndex = content.indexOf("</resources>")
-        )
+        assertTrue(defaultContent.contains("dados de 6, 8 y 10 caras"))
+        assertTrue(esContent.contains("dados de 6, 8 y 10 caras"))
+        assertTrue(caContent.contains("daus de 6, 8 i 10 cares"))
 
-        assertFalse(rulesSection.contains("•"))
-        assertFalse(rulesSection.contains("\n- "))
+        assertFalse(defaultContent.contains("Inventario global"))
+        assertFalse(esContent.contains("Inventario global"))
+
+        assertTrue(defaultContent.contains("Cada uso consume esa carta."))
+        assertTrue(esContent.contains("Cada uso consume esa carta."))
+        assertTrue(caContent.contains("Cada ús consumeix aquesta carta."))
+
+        assertTrue(defaultContent.contains("Cartas que pueden salir:"))
+        assertTrue(esContent.contains("Cartas que pueden salir:"))
+        assertTrue(caContent.contains("Cartes que poden sortir:"))
     }
 
     private fun resolveProjectPath(path: String): File {
