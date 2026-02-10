@@ -165,6 +165,7 @@ fun SequenceGameScreen(
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     var animationTrigger by remember { mutableIntStateOf(0) }
+    var processedAnimationTrigger by remember { mutableIntStateOf(0) }
     var pendingMoveTarget by remember { mutableStateOf<SequenceMoveTarget?>(null) }
     val hideCenterDie = shouldHideSequenceCenterDie(
         animatingSaveValue = animatingSaveValue,
@@ -202,10 +203,33 @@ fun SequenceGameScreen(
         }
         previousFailureDieValue = uiState.failureDieValue
     }
-    LaunchedEffect(animationTrigger) {
+    LaunchedEffect(
+        animationTrigger,
+        diceCenterInRoot,
+        savedDieCenterInRoot,
+        failureDieCenterInRoot,
+        animatingToFailureDie,
+        animatingSaveValue
+    ) {
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
+        if (animationTrigger == 0 || animationTrigger == processedAnimationTrigger) {
+            return@LaunchedEffect
+        }
+        if (diceCenterInRoot == null) {
+            return@LaunchedEffect
+        }
+        val targetCenter = if (animatingToFailureDie) {
+            failureDieCenterInRoot
+        } else {
+            savedDieCenterInRoot
+        }
+        if (targetCenter == null) {
+            return@LaunchedEffect
+        }
+
+        processedAnimationTrigger = animationTrigger
         soundPlayer.play(SoundEffect.MOVE_DICE)
         saveAnimationProgress.snapTo(0f)
         saveAnimationProgress.animateTo(
