@@ -96,7 +96,7 @@ class HigherLowerGameViewModelTest {
     @Test
     fun `win updates the correct streak to the target`() = runTest {
         val viewModel = buildViewModel(
-            diceValues = listOf(1, 1, 2, 2),
+            diceValues = listOf(1, 1, 1, 1, 2, 2, 2, 2),
             targetCorrect = 1
         )
 

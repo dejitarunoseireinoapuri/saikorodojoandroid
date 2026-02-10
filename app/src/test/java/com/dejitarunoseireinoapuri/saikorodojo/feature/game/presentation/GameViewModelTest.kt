@@ -500,20 +500,24 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `level completion shows interstitial after two minigames`() = runTest {
+    fun `level completion shows interstitial after threshold minigames`() = runTest {
         val viewModel = buildViewModel()
 
         val effects = mutableListOf<GameUiEffect>()
         val collector = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.effects.take(3).toList(effects)
+            viewModel.effects.take(8).toList(effects)
         }
 
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        repeat(2) {
+            viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
+        }
+        repeat(7) {
+            viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        }
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(2, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
-        assertEquals(1, viewModel.uiState.value.minigamesAvailable)
+        assertEquals(7, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
+        assertEquals(2, viewModel.uiState.value.minigamesAvailable)
 
         val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
         method.isAccessible = true
@@ -524,13 +528,13 @@ class GameViewModelTest {
 
         assertTrue(effects.any { it == GameUiEffect.ShowLevelInterstitialAd })
         assertEquals(1, viewModel.uiState.value.levelNumber)
-        assertEquals(1, viewModel.uiState.value.minigamesAvailable)
+        assertEquals(2, viewModel.uiState.value.minigamesAvailable)
 
         viewModel.onEvent(GameUiEvent.LevelInterstitialAdCompleted)
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(2, viewModel.uiState.value.levelNumber)
-        assertEquals(3, viewModel.uiState.value.minigamesAvailable)
+        assertEquals(4, viewModel.uiState.value.minigamesAvailable)
         assertEquals(0, viewModel.uiState.value.minigamesPlayedSinceInterstitial)
         collector.cancel()
     }
