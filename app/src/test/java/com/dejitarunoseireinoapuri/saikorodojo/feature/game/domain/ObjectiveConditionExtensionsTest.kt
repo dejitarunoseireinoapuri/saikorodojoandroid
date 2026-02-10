@@ -45,4 +45,14 @@ class ObjectiveConditionExtensionsTest {
         assertFalse(condition.isMet(listOf(6, 6, 6, 6, 6)))
     }
 
+    @Test
+    fun `same die value can satisfy pair and contains objectives simultaneously`() {
+        val pairCondition = HasPairCondition(requiredPairs = 1)
+        val containsCondition = ContainsValuesCondition(values = listOf(3, 6))
+        val diceValues = listOf(3, 3, 6)
+
+        assertTrue(pairCondition.isMet(diceValues))
+        assertTrue(containsCondition.isMet(diceValues))
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain
 
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.random.Random
@@ -19,7 +20,7 @@ class GenerateObjectiveUseCaseTest {
     }
 
     @Test
-    fun `stage one objectives include pair and double pair candidates`() {
+    fun `stage one objectives include pair and double pair candidates only`() {
         val candidates = buildObjectiveCandidates(
             stage = 1,
             maxSelectable = 5,
@@ -33,11 +34,11 @@ class GenerateObjectiveUseCaseTest {
 
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
-        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
+        assertFalse(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
     }
 
     @Test
-    fun `stage two objectives include pair and three of a kind candidates`() {
+    fun `stage two objectives include pair and one trio candidates only`() {
         val candidates = buildObjectiveCandidates(
             stage = 2,
             maxSelectable = 5,
@@ -51,8 +52,9 @@ class GenerateObjectiveUseCaseTest {
 
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
-        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
+        assertFalse(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
         assertTrue(candidates.any { it is HasThreeOfKindCondition && it.requiredTrios == 1 })
+        assertFalse(candidates.any { it is HasThreeOfKindCondition && it.requiredTrios == 2 })
     }
 
     @Test
@@ -70,6 +72,24 @@ class GenerateObjectiveUseCaseTest {
 
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
         assertTrue(candidates.any { it is HasThreeOfKindCondition && it.requiredTrios == 2 })
+    }
+
+    @Test
+    fun `candidates exclude conditions requiring more dice than available`() {
+        val candidates = buildObjectiveCandidates(
+            stage = 3,
+            maxSelectable = 5,
+            maxDieValue = 6,
+            randomValuesPool = (1..6).toList(),
+            exactTarget = 10,
+            atLeastThreshold = 12,
+            rangeCondition = SumInRangeCondition(min = 5, max = 9),
+            random = Random(4)
+        )
+
+        assertFalse(candidates.any { minimumRequiredDice(it) > 5 })
+        assertFalse(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
+        assertFalse(candidates.any { it is HasThreeOfKindCondition && it.requiredTrios == 2 })
     }
 
     @Test
