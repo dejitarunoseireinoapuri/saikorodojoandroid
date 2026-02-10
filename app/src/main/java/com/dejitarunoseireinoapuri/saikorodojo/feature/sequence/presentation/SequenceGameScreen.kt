@@ -160,13 +160,11 @@ fun SequenceGameScreen(
     var animatingToFailureDie by remember { mutableStateOf(false) }
     var diceCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
-    var savedDieCenterIndex by remember { mutableIntStateOf(-1) }
     var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var animatedDieSize by remember { mutableStateOf(0.dp) }
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     var animationTrigger by remember { mutableIntStateOf(0) }
-    var processedAnimationTrigger by remember { mutableIntStateOf(0) }
     var pendingMoveTarget by remember { mutableStateOf<SequenceMoveTarget?>(null) }
     val hideCenterDie = shouldHideSequenceCenterDie(
         animatingSaveValue = animatingSaveValue,
@@ -183,8 +181,6 @@ fun SequenceGameScreen(
             soundPlayer.play(SoundEffect.SUCCESS)
         }
         if (uiState.savedValues.size > previousSavedCount) {
-            savedDieCenterInRoot = null
-            savedDieCenterIndex = -1
             animatingSaveValue = uiState.savedValues.lastOrNull()
             animatingToFailureDie = false
             animationTrigger += 1
@@ -200,42 +196,16 @@ fun SequenceGameScreen(
     }
     LaunchedEffect(uiState.failureDieValue) {
         if (uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue) {
-            failureDieCenterInRoot = null
             animatingSaveValue = uiState.failureDieValue
             animatingToFailureDie = true
             animationTrigger += 1
         }
         previousFailureDieValue = uiState.failureDieValue
     }
-    LaunchedEffect(
-        animationTrigger,
-        diceCenterInRoot,
-        savedDieCenterInRoot,
-        savedDieCenterIndex,
-        failureDieCenterInRoot,
-        animatingToFailureDie,
-        animatingSaveValue
-    ) {
+    LaunchedEffect(animationTrigger) {
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
-        if (animationTrigger == 0 || animationTrigger == processedAnimationTrigger) {
-            return@LaunchedEffect
-        }
-        val expectedSavedIndex = uiState.savedValues.lastIndex
-        if (!canStartSequenceMoveAnimation(
-                diceCenterInRoot = diceCenterInRoot,
-                savedDieCenterInRoot = savedDieCenterInRoot,
-                savedDieCenterIndex = savedDieCenterIndex,
-                expectedSavedIndex = expectedSavedIndex,
-                failureDieCenterInRoot = failureDieCenterInRoot,
-                isAnimatingToFailureDie = animatingToFailureDie
-            )
-        ) {
-            return@LaunchedEffect
-        }
-
-        processedAnimationTrigger = animationTrigger
         soundPlayer.play(SoundEffect.MOVE_DICE)
         saveAnimationProgress.snapTo(0f)
         saveAnimationProgress.animateTo(
@@ -490,7 +460,7 @@ fun SequenceGameScreen(
                                 sequenceSavedDiceUiState(
                                     savedValues = uiState.savedValues,
                                     isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
-                                ).forEachIndexed { index, savedDie ->
+                                ).forEach { savedDie ->
                                     SequenceSavedDie(
                                         value = savedDie.value,
                                         size = dieSize,
@@ -510,7 +480,6 @@ fun SequenceGameScreen(
                                                     x = position.x + coordinates.size.width / 2f,
                                                     y = position.y + coordinates.size.height / 2f
                                                 )
-                                                savedDieCenterIndex = index
                                             }
                                         } else {
                                             Modifier
@@ -734,24 +703,6 @@ internal fun shouldPlaySequenceSuccess(previousSavedCount: Int, currentSavedCoun
 
 internal fun shouldPlaySequenceLoss(previousHasFailure: Boolean, currentHasFailure: Boolean): Boolean {
     return !previousHasFailure && currentHasFailure
-}
-
-internal fun canStartSequenceMoveAnimation(
-    diceCenterInRoot: Offset?,
-    savedDieCenterInRoot: Offset?,
-    savedDieCenterIndex: Int,
-    expectedSavedIndex: Int,
-    failureDieCenterInRoot: Offset?,
-    isAnimatingToFailureDie: Boolean
-): Boolean {
-    if (diceCenterInRoot == null) {
-        return false
-    }
-    return if (isAnimatingToFailureDie) {
-        failureDieCenterInRoot != null
-    } else {
-        savedDieCenterInRoot != null && savedDieCenterIndex == expectedSavedIndex
-    }
 }
 
 internal fun shouldShowSequenceSavedDie(
