@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.geometry.Rect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -16,18 +17,8 @@ class SequenceGameScreenLogicTest {
 
 
     @Test
-    fun `latest saved die stays hidden while transition is active`() {
-        val hidden = sequenceSavedDiceUiState(
-            savedValues = listOf(2, 5, 8),
-            isLatestSavedValueHidden = true
-        )
-
-        assertEquals(listOf(true, true, false), hidden.map { it.isVisible })
-
-        val shown = sequenceSavedDiceUiState(
-            savedValues = listOf(2, 5, 8),
-            isLatestSavedValueHidden = false
-        )
+    fun `saved dice remain visible while overlay handles pending movement`() {
+        val shown = sequenceSavedDiceUiState(savedValues = listOf(2, 5, 8))
 
         assertEquals(listOf(true, true, true), shown.map { it.isVisible })
     }
@@ -169,6 +160,21 @@ class SequenceGameScreenLogicTest {
                 animatedDieSize = 10.dp
             )
         )
+    }
+
+    @Test
+    fun `fallback target center resolves to next saved slot`() {
+        val center = resolvePendingSequenceTargetCenter(
+            boundsInRoot = Rect(left = 100f, top = 200f, right = 460f, bottom = 340f),
+            dieSize = 80.dp,
+            savedValuesCount = 1,
+            horizontalPaddingPx = 16f,
+            spacingPx = 10f,
+            maxDieSizePx = 104f
+        )
+
+        assertEquals(280f, center?.x)
+        assertEquals(270f, center?.y)
     }
 
 }

@@ -186,13 +186,15 @@ class MenuViewModelTest {
             maxDiscards = 3,
             discardCount = 0,
             savedValues = emptyList(),
+            pendingSavedValue = null,
+            pendingFailureDieValue = null,
+            isAwaitingSaveAnimationConfirmation = false,
             diceValue = null,
             isComplete = false,
             rewardCardIds = emptyList(),
             pendingRewardCardIds = emptyList(),
             failureReason = null,
-            failureDieValue = null,
-            isLatestSavedValueHidden = false
+            failureDieValue = null
         )
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -131,6 +132,7 @@ fun SequenceGameRoute(
         uiState = uiState,
         onStartClick = { viewModel.onEvent(SequenceGameUiEvent.StartGame) },
         onSaveClick = { viewModel.onEvent(SequenceGameUiEvent.SaveRoll) },
+        onSaveAnimationFinished = { viewModel.onEvent(SequenceGameUiEvent.SaveAnimationFinished) },
         onDiscardClick = { viewModel.onEvent(SequenceGameUiEvent.DiscardRoll) },
         onContinueClick = onContinueClick,
         onExitToMenu = {
@@ -148,6 +150,7 @@ fun SequenceGameScreen(
     uiState: SequenceGameUiState,
     onStartClick: () -> Unit,
     onSaveClick: () -> Unit,
+    onSaveAnimationFinished: () -> Unit,
     onDiscardClick: () -> Unit,
     onContinueClick: () -> Unit,
     onExitToMenu: () -> Unit
@@ -163,8 +166,12 @@ fun SequenceGameScreen(
     var diceCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
+    var savedMatBoundsInRoot by remember { mutableStateOf<androidx.compose.ui.geometry.Rect?>(null) }
     var animatedDieSize by remember { mutableStateOf(0.dp) }
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
+    val horizontalPaddingPx = with(LocalDensity.current) { 16.dp.toPx() }
+    val spacingPx = with(LocalDensity.current) { 10.dp.toPx() }
+    val maxDieSizePx = with(LocalDensity.current) { 104.dp.toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     var animationTrigger by remember { mutableIntStateOf(0) }
     var pendingMoveTarget by remember { mutableStateOf<SequenceMoveTarget?>(null) }
@@ -182,12 +189,15 @@ fun SequenceGameScreen(
         if (shouldPlaySequenceSuccess(previousSavedCount, uiState.savedValues.size)) {
             soundPlayer.play(SoundEffect.SUCCESS)
         }
-        if (uiState.savedValues.size > previousSavedCount) {
-            animatingSaveValue = uiState.savedValues.lastOrNull()
-            animatingToFailureDie = false
-            animationTrigger += 1
-        }
         previousSavedCount = uiState.savedValues.size
+    }
+    LaunchedEffect(uiState.pendingSavedValue) {
+        if (uiState.pendingSavedValue == null) {
+            return@LaunchedEffect
+        }
+        animatingSaveValue = uiState.pendingSavedValue
+        animatingToFailureDie = false
+        animationTrigger += 1
     }
     LaunchedEffect(uiState.failureReason) {
         val hasFailure = uiState.failureReason != null
@@ -196,25 +206,33 @@ fun SequenceGameScreen(
         }
         previousHasFailure = hasFailure
     }
-    LaunchedEffect(uiState.failureDieValue) {
-        if (uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue) {
-            animatingSaveValue = uiState.failureDieValue
+    LaunchedEffect(uiState.pendingFailureDieValue) {
+        if (uiState.pendingFailureDieValue != null && uiState.pendingFailureDieValue != previousFailureDieValue) {
+            animatingSaveValue = uiState.pendingFailureDieValue
             animatingToFailureDie = true
             animationTrigger += 1
         }
-        previousFailureDieValue = uiState.failureDieValue
+        previousFailureDieValue = uiState.pendingFailureDieValue
     }
     LaunchedEffect(animationTrigger) {
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
+        val fallbackTargetCenter = resolvePendingSequenceTargetCenter(
+            boundsInRoot = savedMatBoundsInRoot,
+            dieSize = animatedDieSize,
+            savedValuesCount = uiState.savedValues.size,
+            horizontalPaddingPx = horizontalPaddingPx,
+            spacingPx = spacingPx,
+            maxDieSizePx = maxDieSizePx
+        )
         snapshotFlow {
             isSequenceMoveAnchorReady(
                 diceCenterInRoot = diceCenterInRoot,
                 targetCenterInRoot = if (animatingToFailureDie) {
-                    failureDieCenterInRoot
+                    failureDieCenterInRoot ?: fallbackTargetCenter
                 } else {
-                    savedDieCenterInRoot
+                    savedDieCenterInRoot ?: fallbackTargetCenter
                 },
                 animatedDieSize = animatedDieSize
             )
@@ -229,6 +247,7 @@ fun SequenceGameScreen(
                 easing = LinearOutSlowInEasing
             )
         )
+        onSaveAnimationFinished()
         animatingSaveValue = null
         animatingToFailureDie = false
         pendingMoveTarget = null
@@ -301,7 +320,7 @@ fun SequenceGameScreen(
             val rulesModifier = if (showRules) {
                 Modifier
             } else {
-                Modifier.alpha(0f).clearAndSetSemantics { }
+                Modifier.clearAndSetSemantics { }
             }
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -457,7 +476,11 @@ fun SequenceGameScreen(
                         contentAlignment = Alignment.CenterStart
                     ) {
                         BoxWithConstraints(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned { coordinates ->
+                                    savedMatBoundsInRoot = coordinates.boundsInRoot()
+                                }
                         ) {
                             val horizontalPadding = 16.dp
                             val spacing = 10.dp
@@ -472,8 +495,7 @@ fun SequenceGameScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 sequenceSavedDiceUiState(
-                                    savedValues = uiState.savedValues,
-                                    isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
+                                    savedValues = uiState.savedValues
                                 ).forEach { savedDie ->
                                     SequenceSavedDie(
                                         value = savedDie.value,
@@ -688,17 +710,15 @@ internal data class SequenceSavedDieUi(
 )
 
 internal fun sequenceSavedDiceUiState(
-    savedValues: List<Int>,
-    isLatestSavedValueHidden: Boolean
+    savedValues: List<Int>
 ): List<SequenceSavedDieUi> {
     if (savedValues.isEmpty()) {
         return emptyList()
     }
-    val hiddenIndex = if (isLatestSavedValueHidden) savedValues.lastIndex else -1
     return savedValues.mapIndexed { index, value ->
         SequenceSavedDieUi(
             value = value,
-            isVisible = index != hiddenIndex,
+            isVisible = true,
             isLatest = index == savedValues.lastIndex
         )
     }
@@ -760,6 +780,29 @@ internal fun shouldHideSequenceCenterDie(
     pendingMoveTarget: SequenceMoveTarget?
 ): Boolean {
     return animatingSaveValue != null || pendingMoveTarget != null
+}
+
+internal fun resolvePendingSequenceTargetCenter(
+    boundsInRoot: androidx.compose.ui.geometry.Rect?,
+    dieSize: Dp,
+    savedValuesCount: Int,
+    horizontalPaddingPx: Float,
+    spacingPx: Float,
+    maxDieSizePx: Float
+): Offset? {
+    val bounds = boundsInRoot ?: return null
+    if (dieSize <= 0.dp) {
+        return null
+    }
+    val availableWidthPx = bounds.width - horizontalPaddingPx * 2f - spacingPx * 2f
+    if (availableWidthPx <= 0f) {
+        return null
+    }
+    val slotDieSizePx = (availableWidthPx / 3f).coerceAtMost(maxDieSizePx)
+    val slotIndex = savedValuesCount.coerceIn(0, 2)
+    val centerX = bounds.left + horizontalPaddingPx + slotDieSizePx / 2f + slotIndex * (slotDieSizePx + spacingPx)
+    val centerY = bounds.top + bounds.height / 2f
+    return Offset(centerX, centerY)
 }
 
 @Composable
