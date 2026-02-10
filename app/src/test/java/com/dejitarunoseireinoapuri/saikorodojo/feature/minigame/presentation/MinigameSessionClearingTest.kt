@@ -4,6 +4,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.DiceRoll
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.RollBlackjackDiceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.BlackjackGameUiEvent
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.BlackjackGameViewModel
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.DiceRoller as HigherLowerDiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
@@ -22,9 +23,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation.Seq
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameUiSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MinigameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameRollSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +60,7 @@ class MinigameSessionClearingTest {
     @Test
     fun oddEvenSavesCompletedSessionWhenAppSavesState() = runTest {
         val repository = FakeGameSessionRepository()
+        repository.savePendingMainGameSnapshot(TEST_MAIN_GAME_SNAPSHOT)
         val viewModel = OddEvenGameViewModel(
             rollOddEvenUseCase = RollOddEvenUseCase(diceRoller = OddEvenDiceRoller { 2 }),
             loadGameSessionUseCase = LoadGameSessionUseCase(repository),
@@ -87,6 +91,7 @@ class MinigameSessionClearingTest {
     @Test
     fun sequenceSavesCompletedSessionWhenAppSavesState() = runTest {
         val repository = FakeGameSessionRepository()
+        repository.savePendingMainGameSnapshot(TEST_MAIN_GAME_SNAPSHOT)
         val viewModel = SequenceGameViewModel(
             rollSequenceUseCase = RollSequenceUseCase(diceRoller = SequenceDiceRoller { 1 }),
             loadGameSessionUseCase = LoadGameSessionUseCase(repository),
@@ -118,6 +123,7 @@ class MinigameSessionClearingTest {
     @Test
     fun higherLowerSavesCompletedSessionWhenAppSavesState() = runTest {
         val repository = FakeGameSessionRepository()
+        repository.savePendingMainGameSnapshot(TEST_MAIN_GAME_SNAPSHOT)
         val viewModel = HigherLowerGameViewModel(
             rollHigherLowerUseCase = RollHigherLowerUseCase(diceRoller = HigherLowerDiceRoller { 3 }),
             loadGameSessionUseCase = LoadGameSessionUseCase(repository),
@@ -152,6 +158,7 @@ class MinigameSessionClearingTest {
     @Test
     fun blackjackSavesCompletedSessionWhenAppSavesState() = runTest {
         val repository = FakeGameSessionRepository()
+        repository.savePendingMainGameSnapshot(TEST_MAIN_GAME_SNAPSHOT)
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(diceRoller = BlackjackDiceRoller { 10 }),
             loadGameSessionUseCase = LoadGameSessionUseCase(repository),
@@ -180,6 +187,54 @@ class MinigameSessionClearingTest {
         assertEquals(0, repository.clearCalls)
     }
 }
+
+
+private val TEST_MAIN_GAME_SNAPSHOT = MainGameSnapshot(
+    uiSnapshot = GameUiSnapshot(
+        diceValues = listOf(1, 2, 3),
+        diceCount = 3,
+        diceType = DiceType.D6,
+        diceTypes = listOf(
+            DiceType.D6,
+            DiceType.D6,
+            DiceType.D6
+        ),
+        layoutSeed = 1L,
+        isRolling = false,
+        isAwaitingRerollSingle = false,
+        isAwaitingRerollSelected = false,
+        isAwaitingFlipFace = false,
+        isAwaitingAdjustPlusMinus = false,
+        isAwaitingSetValue = false,
+        selectedDice = emptySet(),
+        selectedRerollDice = emptySet(),
+        selectedRerollSingleDieIndex = null,
+        selectedFlipDieIndex = null,
+        selectedAdjustmentDieIndex = null,
+        selectedSetValueDieIndex = null,
+        selectedDiceSum = 0,
+        shouldShowSelectedSum = false,
+        cardCounts = emptyMap(),
+        selectedCardIndex = null,
+        lastAppliedCardId = null,
+        levelNumber = 1,
+        isLevelComplete = false,
+        showLevelCompleteMessage = false,
+        minigamesAvailable = 0,
+        minigamesPlayedSinceInterstitial = 0
+    ),
+    baseSeed = 1L,
+    currentObjective = null,
+    initialRollSnapshot = GameRollSnapshot(
+        diceValues = listOf(1, 2, 3),
+        diceTypes = listOf(
+            DiceType.D6,
+            DiceType.D6,
+            DiceType.D6
+        ),
+        layoutSeed = 1L
+    )
+)
 
 private class FakeGameSessionRepository : GameSessionRepository {
     var clearCalls = 0
