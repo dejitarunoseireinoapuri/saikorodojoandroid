@@ -6,31 +6,34 @@ import org.junit.Test
 
 class BlackjackDiceRollSoundTest {
     @Test
-    fun `should play dice roll when rolling starts`() {
+    fun `should play dice roll when a new die is added while rolling`() {
         assertTrue(
-            shouldPlayDiceRollOnStart(
-                isRolling = true,
-                wasRolling = false
+            shouldPlayDiceRollForNewDie(
+                previousCount = 1,
+                currentCount = 2,
+                isRolling = true
             )
         )
     }
 
     @Test
-    fun `should not play dice roll when already rolling`() {
+    fun `should not play dice roll when die count does not increase`() {
         assertFalse(
-            shouldPlayDiceRollOnStart(
+            shouldPlayDiceRollForNewDie(
+                previousCount = 2,
+                currentCount = 2,
                 isRolling = true,
-                wasRolling = true
             )
         )
     }
 
     @Test
-    fun `should not play dice roll when not rolling`() {
+    fun `should not play dice roll when not rolling even if die count increases`() {
         assertFalse(
-            shouldPlayDiceRollOnStart(
+            shouldPlayDiceRollForNewDie(
+                previousCount = 1,
+                currentCount = 2,
                 isRolling = false,
-                wasRolling = false
             )
         )
     }
