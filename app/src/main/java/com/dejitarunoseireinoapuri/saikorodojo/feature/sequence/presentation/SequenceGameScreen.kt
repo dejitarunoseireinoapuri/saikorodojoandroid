@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -165,8 +166,12 @@ fun SequenceGameScreen(
     var diceCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
+    var savedMatBoundsInRoot by remember { mutableStateOf<androidx.compose.ui.geometry.Rect?>(null) }
     var animatedDieSize by remember { mutableStateOf(0.dp) }
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
+    val horizontalPaddingPx = with(LocalDensity.current) { 16.dp.toPx() }
+    val spacingPx = with(LocalDensity.current) { 10.dp.toPx() }
+    val maxDieSizePx = with(LocalDensity.current) { 104.dp.toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     var animationTrigger by remember { mutableIntStateOf(0) }
     var pendingMoveTarget by remember { mutableStateOf<SequenceMoveTarget?>(null) }
@@ -213,13 +218,21 @@ fun SequenceGameScreen(
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
+        val fallbackTargetCenter = resolvePendingSequenceTargetCenter(
+            boundsInRoot = savedMatBoundsInRoot,
+            dieSize = animatedDieSize,
+            savedValuesCount = uiState.savedValues.size,
+            horizontalPaddingPx = horizontalPaddingPx,
+            spacingPx = spacingPx,
+            maxDieSizePx = maxDieSizePx
+        )
         snapshotFlow {
             isSequenceMoveAnchorReady(
                 diceCenterInRoot = diceCenterInRoot,
                 targetCenterInRoot = if (animatingToFailureDie) {
-                    failureDieCenterInRoot
+                    failureDieCenterInRoot ?: fallbackTargetCenter
                 } else {
-                    savedDieCenterInRoot
+                    savedDieCenterInRoot ?: fallbackTargetCenter
                 },
                 animatedDieSize = animatedDieSize
             )
@@ -463,7 +476,11 @@ fun SequenceGameScreen(
                         contentAlignment = Alignment.CenterStart
                     ) {
                         BoxWithConstraints(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned { coordinates ->
+                                    savedMatBoundsInRoot = coordinates.boundsInRoot()
+                                }
                         ) {
                             val horizontalPadding = 16.dp
                             val spacing = 10.dp
@@ -763,6 +780,29 @@ internal fun shouldHideSequenceCenterDie(
     pendingMoveTarget: SequenceMoveTarget?
 ): Boolean {
     return animatingSaveValue != null || pendingMoveTarget != null
+}
+
+internal fun resolvePendingSequenceTargetCenter(
+    boundsInRoot: androidx.compose.ui.geometry.Rect?,
+    dieSize: Dp,
+    savedValuesCount: Int,
+    horizontalPaddingPx: Float,
+    spacingPx: Float,
+    maxDieSizePx: Float
+): Offset? {
+    val bounds = boundsInRoot ?: return null
+    if (dieSize <= 0.dp) {
+        return null
+    }
+    val availableWidthPx = bounds.width - horizontalPaddingPx * 2f - spacingPx * 2f
+    if (availableWidthPx <= 0f) {
+        return null
+    }
+    val slotDieSizePx = (availableWidthPx / 3f).coerceAtMost(maxDieSizePx)
+    val slotIndex = savedValuesCount.coerceIn(0, 2)
+    val centerX = bounds.left + horizontalPaddingPx + slotDieSizePx / 2f + slotIndex * (slotDieSizePx + spacingPx)
+    val centerY = bounds.top + bounds.height / 2f
+    return Offset(centerX, centerY)
 }
 
 @Composable
