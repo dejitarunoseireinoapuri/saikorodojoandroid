@@ -65,14 +65,14 @@ class RulesStringsTest {
         val esContent = resolveProjectPath("app/src/main/res/values-es/strings.xml").readText()
         val caContent = resolveProjectPath("app/src/main/res/values-ca/strings.xml").readText()
 
-        assertTrue(defaultContent.contains("dados de 6, 8 y 10 caras"))
+        assertTrue(defaultContent.contains("6-, 8-, and 10-sided dice"))
         assertTrue(esContent.contains("dados de 6, 8 y 10 caras"))
         assertTrue(caContent.contains("daus de 6, 8 i 10 cares"))
 
-        assertFalse(defaultContent.contains("Inventario global"))
+        assertFalse(defaultContent.contains("Global inventory"))
         assertFalse(esContent.contains("Inventario global"))
 
-        assertTrue(defaultContent.contains("Cada uso consume esa carta."))
+        assertTrue(defaultContent.contains("Each use consumes that card."))
         assertTrue(esContent.contains("Cada uso consume esa carta."))
         assertTrue(caContent.contains("Cada ús consumeix aquesta carta."))
 
