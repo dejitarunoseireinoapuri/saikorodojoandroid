@@ -80,14 +80,20 @@ internal fun objectiveLineText(condition: ObjectiveCondition): ObjectiveLineText
         }
 
         is HasPairCondition -> {
-            if (condition.requiredPairs >= 2) {
-                ObjectiveLineText.StringRes(resId = R.string.objective_two_pairs)
-            } else {
-                ObjectiveLineText.StringRes(resId = R.string.objective_pair)
+            when {
+                condition.requiredPairs >= 3 -> ObjectiveLineText.StringRes(resId = R.string.objective_three_pairs)
+                condition.requiredPairs >= 2 -> ObjectiveLineText.StringRes(resId = R.string.objective_two_pairs)
+                else -> ObjectiveLineText.StringRes(resId = R.string.objective_pair)
             }
         }
 
-        is HasThreeOfKindCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_three_of_kind)
+        is HasThreeOfKindCondition -> {
+            if (condition.requiredTrios >= 2) {
+                ObjectiveLineText.StringRes(resId = R.string.objective_two_three_of_kind)
+            } else {
+                ObjectiveLineText.StringRes(resId = R.string.objective_three_of_kind)
+            }
+        }
         is ThreeOfKindWithValueCondition -> ObjectiveLineText.StringRes(
             resId = R.string.objective_three_of_kind_with_value,
             formatArgs = listOf(condition.requiredValue)
@@ -201,13 +207,19 @@ internal fun objectiveLineExplainText(
             ObjectiveLineText.StringRes(resId = R.string.objective_sum_odd_explain)
         }
 
-        is HasPairCondition -> if (condition.requiredPairs >= 2) {
-            ObjectiveLineText.StringRes(resId = R.string.objective_two_pairs_explain)
-        } else {
-            ObjectiveLineText.StringRes(resId = R.string.objective_pair_explain)
+        is HasPairCondition -> when {
+            condition.requiredPairs >= 3 -> ObjectiveLineText.StringRes(resId = R.string.objective_three_pairs_explain)
+            condition.requiredPairs >= 2 -> ObjectiveLineText.StringRes(resId = R.string.objective_two_pairs_explain)
+            else -> ObjectiveLineText.StringRes(resId = R.string.objective_pair_explain)
         }
 
-        is HasThreeOfKindCondition -> ObjectiveLineText.StringRes(resId = R.string.objective_three_of_kind_explain)
+        is HasThreeOfKindCondition -> {
+            if (condition.requiredTrios >= 2) {
+                ObjectiveLineText.StringRes(resId = R.string.objective_two_three_of_kind_explain)
+            } else {
+                ObjectiveLineText.StringRes(resId = R.string.objective_three_of_kind_explain)
+            }
+        }
         is ThreeOfKindWithValueCondition -> ObjectiveLineText.StringRes(
             resId = R.string.objective_three_of_kind_with_value_explain,
             formatArgs = listOf(condition.requiredValue)

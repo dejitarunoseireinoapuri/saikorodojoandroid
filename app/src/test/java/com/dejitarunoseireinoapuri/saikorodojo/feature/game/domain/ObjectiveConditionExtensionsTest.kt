@@ -28,4 +28,21 @@ class ObjectiveConditionExtensionsTest {
         assertTrue(condition.isMet(listOf(2, 4, 5)))
         assertFalse(condition.isMet(listOf(2, 3, 5)))
     }
+
+    @Test
+    fun `pair condition counts repeated pairs from the same value`() {
+        val condition = HasPairCondition(requiredPairs = 2)
+
+        assertTrue(condition.isMet(listOf(4, 4, 4, 4)))
+        assertFalse(condition.isMet(listOf(4, 4, 4)))
+    }
+
+    @Test
+    fun `three of a kind condition counts repeated trios from the same value`() {
+        val condition = HasThreeOfKindCondition(requiredTrios = 2)
+
+        assertTrue(condition.isMet(listOf(6, 6, 6, 6, 6, 6)))
+        assertFalse(condition.isMet(listOf(6, 6, 6, 6, 6)))
+    }
+
 }

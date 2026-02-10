@@ -74,15 +74,15 @@ data class SumParityCondition(val shouldBeEven: Boolean) : ObjectiveCondition {
 
 data class HasPairCondition(val requiredPairs: Int) : ObjectiveCondition {
     override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
-        val pairs = valueCounts(diceValues).values.count { it >= 2 }
+        val pairs = valueCounts(diceValues).values.sumOf { it / 2 }
         return pairs >= requiredPairs
     }
 }
 
-data class HasThreeOfKindCondition(val required: Boolean = true) : ObjectiveCondition {
+data class HasThreeOfKindCondition(val requiredTrios: Int = 1) : ObjectiveCondition {
     override fun isMet(diceValues: List<Int>, diceSides: List<Int>): Boolean {
-        val hasThree = valueCounts(diceValues).values.any { it >= 3 }
-        return if (required) hasThree else !hasThree
+        val trios = valueCounts(diceValues).values.sumOf { it / 3 }
+        return trios >= requiredTrios
     }
 }
 
@@ -324,6 +324,7 @@ internal fun buildObjectiveCandidates(
         candidates.add(AllDistinctCondition)
         candidates.add(HasPairCondition(requiredPairs = 1))
         candidates.add(HasPairCondition(requiredPairs = 2))
+        candidates.add(HasPairCondition(requiredPairs = 3))
         candidates.add(ExactlyDistinctValuesCondition(distinctCount = minOf(3, maxSelectable)))
         val containsCount = minOf(2 + stage / 2, maxSelectable).coerceAtLeast(1)
         candidates.add(
@@ -340,10 +341,11 @@ internal fun buildObjectiveCandidates(
         )
         candidates.add(StraightCondition(length = straightLength))
         candidates.add(AtLeastParityCountCondition(minCount = 2, even = random.nextBoolean()))
-        candidates.add(HasThreeOfKindCondition(required = true))
+        candidates.add(HasThreeOfKindCondition(requiredTrios = 1))
     }
 
     if (stage >= 3) {
+        candidates.add(HasThreeOfKindCondition(requiredTrios = 2))
         candidates.add(ThreeOfKindWithValueCondition(requiredValue = randomValuesPool.random(random)))
         val multiplicityTargetValue = randomValuesPool.random(random)
         val secondaryValue = randomValuesPool.random(random)

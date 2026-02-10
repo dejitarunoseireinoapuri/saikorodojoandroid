@@ -33,6 +33,7 @@ class GenerateObjectiveUseCaseTest {
 
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
     }
 
     @Test
@@ -50,7 +51,25 @@ class GenerateObjectiveUseCaseTest {
 
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 1 })
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
-        assertTrue(candidates.any { it is HasThreeOfKindCondition && it.required })
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
+        assertTrue(candidates.any { it is HasThreeOfKindCondition && it.requiredTrios == 1 })
+    }
+
+    @Test
+    fun `stage three objectives include advanced pair and trio candidates`() {
+        val candidates = buildObjectiveCandidates(
+            stage = 3,
+            maxSelectable = 8,
+            maxDieValue = 8,
+            randomValuesPool = (1..8).toList(),
+            exactTarget = 18,
+            atLeastThreshold = 21,
+            rangeCondition = SumInRangeCondition(min = 10, max = 16),
+            random = Random(3)
+        )
+
+        assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
+        assertTrue(candidates.any { it is HasThreeOfKindCondition && it.requiredTrios == 2 })
     }
 
     @Test

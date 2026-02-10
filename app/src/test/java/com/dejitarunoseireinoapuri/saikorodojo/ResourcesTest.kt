@@ -19,8 +19,7 @@ class ResourcesTest {
     }
 
     @Test
-    fun `selected dice drawables use app primary color`() {
-        val expectedColor = "#FF56BD88"
+    fun `selected dice drawables reference selected color resources`() {
         val drawablePaths = listOf(
             "app/src/main/res/drawable/six_sides_selected.xml",
             "app/src/main/res/drawable/eigth_sides_selected.xml",
@@ -29,7 +28,8 @@ class ResourcesTest {
 
         drawablePaths.forEach { file ->
             val contents = file.readText()
-            assertTrue(contents.contains(expectedColor))
+            assertTrue(contents.contains("@color/dice_selected_outer"))
+            assertTrue(contents.contains("@color/dice_selected_inner"))
         }
     }
 

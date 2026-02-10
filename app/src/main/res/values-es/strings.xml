@@ -35,7 +35,7 @@
     <string name="card_repeat_last_description">Repite el efecto de la última carta usada, eligiendo cualquier objetivo. Última carta:</string>
     <string name="card_repeat_last_none">Ninguna</string>
     <string name="card_minigames_title">Minijuegos</string>
-    <string name="card_minigames_description">Gana dos minijuegos</string>
+    <string name="card_minigames_description">Gana tres minijuegos</string>
 
     <string name="odd_even_title">Par o Impar</string>
     <string name="odd_even_subtitle">Acierta si el resultado será par o impar. Consigue 3 aciertos en un máximo 7 rondas.</string>
@@ -76,7 +76,7 @@
     <string name="cd_minigames_available">Minijuegos disponibles</string>
 
     <string name="minigames_ad_title">No quedan minijuegos</string>
-    <string name="minigames_ad_message">¿Quieres ver un anuncio para ganar dos minijuegos?</string>
+    <string name="minigames_ad_message">¿Quieres ver un anuncio para ganar tres minijuegos?</string>
     <string name="minigames_ad_confirm">Ver anuncio</string>
 
     <string name="level_title">Nivel %1$d</string>
@@ -86,8 +86,12 @@
     <string name="objective_pair_explain">Selecciona dos dados del mismo valor </string>
     <string name="objective_two_pairs">Doble pareja</string>
     <string name="objective_two_pairs_explain">Selecciona dos parejas de dados del mismo valor</string>
+    <string name="objective_three_pairs">Tres parejas</string>
+    <string name="objective_three_pairs_explain">Selecciona tres parejas de dados del mismo valor</string>
     <string name="objective_three_of_kind">Trío</string>
     <string name="objective_three_of_kind_explain">Selecciona tres dados del mismo valor</string>
+    <string name="objective_two_three_of_kind">Dos tríos</string>
+    <string name="objective_two_three_of_kind_explain">Selecciona dos grupos de tres dados del mismo valor</string>
     <string name="objective_four_of_kind">Póker</string>
     <string name="objective_four_of_kind_explain">Selecciona cuatro dados del mismo valorr</string>
     <string name="objective_full_house">Full</string>
