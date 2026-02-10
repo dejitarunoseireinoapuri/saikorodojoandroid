@@ -37,6 +37,20 @@ class RulesStringsTest {
         assertTrue(content.contains("name=\"rules_minigame_blackjack_title\""))
     }
 
+    @Test
+    fun `rules text does not use bullet prefixes`() {
+        val stringsFile = resolveProjectPath("app/src/main/res/values/strings.xml")
+        val content = stringsFile.readText()
+
+        val rulesSection = content.substring(
+            startIndex = content.indexOf("name=\"rules_main_game_title\""),
+            endIndex = content.indexOf("</resources>")
+        )
+
+        assertFalse(rulesSection.contains("•"))
+        assertFalse(rulesSection.contains("\n- "))
+    }
+
     private fun resolveProjectPath(path: String): File {
         val projectRoot = requireNotNull(System.getProperty("user.dir")) {
             "user.dir is required to resolve project paths"
