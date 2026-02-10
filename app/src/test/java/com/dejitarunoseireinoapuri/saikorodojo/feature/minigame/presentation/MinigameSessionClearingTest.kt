@@ -26,6 +26,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSn
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -36,6 +37,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MinigameSessionClearingTest {
     private val testDispatcher = StandardTestDispatcher()
 
