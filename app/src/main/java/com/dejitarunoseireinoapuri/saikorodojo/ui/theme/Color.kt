@@ -12,6 +12,11 @@ val VictoryMatBackground = Color(0xFF81C784)
 val FailureMatBackground = Color(0xFFE57373)
 val DiceOptionNumberColor = Color(0xFF1B2233)
 
+val DiceDefaultOuter = Color(0xFF1B2233)
+val DiceDefaultInner = Color(0xFF2B3552)
+val DiceSelectedOuter = Color(0xFF56BD88)
+val DiceSelectedInner = Color(0xFF7FD7A6)
+
 val AppPrimary = Color(0xFF56BD88)
 val AppOnPrimary = Color(0xFF121416)
 val AppSecondary = Color(0xFF57169C)
