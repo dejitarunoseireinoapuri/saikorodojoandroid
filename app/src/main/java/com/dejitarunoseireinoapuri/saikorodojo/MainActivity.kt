@@ -12,9 +12,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.Bl
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation.HigherLowerGameRoute
-import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuDestination
+import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddEvenGameRoute
+import com.dejitarunoseireinoapuri.saikorodojo.feature.rules.presentation.RulesRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation.SequenceGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundPlayerProvider
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                     }
+
                                     is MenuDestination.Minigame -> {
                                         val returned = navController.popBackStack(
                                             route = AppRoutes.GAME,
@@ -70,7 +72,16 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             },
-                            onRulesClick = {}
+                            onRulesClick = {
+                                navController.navigate(AppRoutes.RULES)
+                            }
+                        )
+                    }
+                    composable(AppRoutes.RULES) {
+                        RulesRoute(
+                            onNavigateBack = {
+                                navController.popBackStack()
+                            }
                         )
                     }
                     composable(AppRoutes.GAME) {

@@ -143,4 +143,65 @@
     <string name="dialog_cancel">Cancel·lar</string>
     <string name="cd_surrender">Rendir-se</string>
     <string name="cd_exit_home">Sortir al menú</string>
+
+    <string name="rules_screen_title">Regles</string>
+    <string name="rules_screen_back">Tornar</string>
+
+    <string name="rules_main_game_title">Joc principal</string>
+    <string name="rules_main_game_body">Has de superar els objectius que apareixen en pantalla.
+A cada nivell es fa una tirada i després tries quins daus vols fer servir.
+Sempre pots resoldre el nivell fent servir només una part dels daus.
+La dificultat puja per etapes: més daus i barreja progressiva de daus de 6, 8 i 10 cares.</string>
+
+    <string name="rules_objectives_cards_title">Objectius</string>
+    <string name="rules_objectives_cards_body">Cada nivell té 1 o més condicions i també una condició de quantitat mínima de daus seleccionats.
+Hi ha objectius de suma (exacta, mínima, màxima, rang, múltiples, parell/senar), combinacions (parella, trio, pòquer, full, escala, tots diferents) i col·lecció/prohibició de valors.
+El nivell es completa quan totes les condicions actives es compleixen alhora amb els daus seleccionats.</string>
+
+    <string name="rules_cards_title">Cartes</string>
+    <string name="rules_cards_body">Quan comences una partida nova reps 3 cartes aleatòries.
+Les cartes s’acumulen entre nivells i es poden repetir.
+Cada ús consumeix aquesta carta.</string>
+
+    <string name="rules_card_adjust_title">Ajustar ±1</string>
+    <string name="rules_card_adjust_body">Puja o baixa en 1 el valor d’un dau.</string>
+    <string name="rules_card_flip_title">Girar</string>
+    <string name="rules_card_flip_body">Canvia un dau a la seva cara oposada.</string>
+    <string name="rules_card_reroll_one_title">Rellançar-ne un</string>
+    <string name="rules_card_reroll_one_body">Tornes a tirar un únic dau.</string>
+    <string name="rules_card_reroll_several_title">Rellançar-ne diversos</string>
+    <string name="rules_card_reroll_several_body">Tries diversos daus i els rellances.</string>
+    <string name="rules_card_set_value_title">Triar valor</string>
+    <string name="rules_card_set_value_body">Fixes el valor d’un dau dins dels límits del seu tipus.</string>
+    <string name="rules_card_repeat_title">Repetir carta</string>
+    <string name="rules_card_repeat_body">Repeteix l’efecte de l’última carta usada si existeix.</string>
+    <string name="rules_card_minigames_title">Minijocs</string>
+    <string name="rules_card_minigames_body">Afegeix 3 intents de minijoc.</string>
+
+    <string name="rules_minigames_title">Minijocs</string>
+    <string name="rules_minigames_body">Els minijocs són un mode separat per guanyar cartes per al joc principal.
+Quan guanyes un minijoc reps entre 2 i 3 cartes aleatòries.
+A més, cada nivell completat al joc principal suma 2 intents de minijoc.</string>
+
+    <string name="rules_minigame_odd_even_title">Minijoc: Parell o senar</string>
+    <string name="rules_minigame_odd_even_body">Tria parell o senar abans de cada tirada.
+Objectiu: encertar 3 vegades.
+Límit: màxim 7 rondes.</string>
+
+    <string name="rules_minigame_higher_lower_title">Minijoc: Més alt o més baix</string>
+    <string name="rules_minigame_higher_lower_body">Endevina si la suma següent serà més alta o més baixa que la suma anterior.
+Guanyes quan arribes a 3 encerts.
+També guanyes si es repeteix exactament la mateixa suma en dues rondes seguides.</string>
+
+    <string name="rules_minigame_sequence_title">Minijoc: Seqüència</string>
+    <string name="rules_minigame_sequence_body">Has de formar una seqüència de 3 daus no decreixent, on cada valor és igual o més alt que l’anterior.
+Després de cada ronda decideixes si guardes o descartes el dau mostrat.
+Tens 5 rondes per completar-la.</string>
+
+    <string name="rules_minigame_blackjack_title">Minijoc: Blackjack</string>
+    <string name="rules_minigame_blackjack_body">Objectiu: acostar-te a 21 sense passar-te.
+Comences amb una tirada inicial i després decideixes si demanes un dau de 10 cares addicional o et plantes.
+Després juga la banca i es planta amb 17 o més.
+Si hi ha empat, guanya la banca.
+L’1 compta com 1 o 11 segons convingui.</string>
 </resources>

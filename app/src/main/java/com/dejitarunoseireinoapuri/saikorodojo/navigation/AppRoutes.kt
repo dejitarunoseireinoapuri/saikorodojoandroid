@@ -2,6 +2,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.navigation
 
 object AppRoutes {
     const val MENU = "menu"
+    const val RULES = "rules"
     const val GAME = "game"
     const val ODD_EVEN_GAME = "odd_even_game"
     const val SEQUENCE_GAME = "sequence_game"
