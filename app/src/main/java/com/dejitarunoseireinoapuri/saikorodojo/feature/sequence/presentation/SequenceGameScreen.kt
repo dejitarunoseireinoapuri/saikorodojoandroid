@@ -199,8 +199,8 @@ fun SequenceGameScreen(
         animatingSaveValue = animatingSaveValue,
         isAnimatingToFailure = animatingToFailureDie
     )
-    val hasPendingSavedDieAnimation = shouldHideLatestSavedDieDuringSaveAnimation(
-        savedValuesSize = uiState.savedValues.size,
+    val visibleSavedValues = visibleSequenceSavedValues(
+        savedValues = uiState.savedValues,
         lastAnimatedSavedCount = lastAnimatedSavedCount,
         animatingSaveValue = animatingSaveValue,
         isAnimatingToFailure = animatingToFailureDie
@@ -209,6 +209,7 @@ fun SequenceGameScreen(
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
+        val isFailureAnimation = animatingToFailureDie
         soundPlayer.play(SoundEffect.MOVE_DICE)
         saveAnimationProgress.snapTo(0f)
         saveAnimationProgress.animateTo(
@@ -218,7 +219,7 @@ fun SequenceGameScreen(
                 easing = LinearOutSlowInEasing
             )
         )
-        if (!animatingToFailureDie) {
+        if (!isFailureAnimation) {
             lastAnimatedSavedCount = uiState.savedValues.size
         }
         animatingSaveValue = null
@@ -230,6 +231,11 @@ fun SequenceGameScreen(
             soundPlayer.play(SoundEffect.CARD_DRAW)
         }
         hadRewardCards = hasRewards
+    }
+    LaunchedEffect(uiState.savedValues.size, animatingSaveValue) {
+        if (animatingSaveValue == null && uiState.savedValues.size < lastAnimatedSavedCount) {
+            lastAnimatedSavedCount = uiState.savedValues.size
+        }
     }
     var showExitDialog by remember { mutableStateOf(false) }
     BackHandler(enabled = !showExitDialog) {
@@ -454,18 +460,14 @@ fun SequenceGameScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 sequenceSavedDiceUiState(
-                                    savedValues = uiState.savedValues,
+                                    savedValues = visibleSavedValues,
                                     isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
                                 ).forEach { savedDie ->
                                     SequenceSavedDie(
                                         value = savedDie.value,
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
-                                            isVisible = savedDie.isVisible &&
-                                                !shouldHideLatestSavedDieBeforeAnimationStarts(
-                                                    isLatest = savedDie.isLatest,
-                                                    hasPendingSavedDieAnimation = hasPendingSavedDieAnimation
-                                                ),
+                                            isVisible = savedDie.isVisible,
                                             isLatest = savedDie.isLatest,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
@@ -721,22 +723,21 @@ internal fun shouldShowSequenceSavedDie(
     }
 }
 
-internal fun shouldHideLatestSavedDieDuringSaveAnimation(
-    savedValuesSize: Int,
+internal fun visibleSequenceSavedValues(
+    savedValues: List<Int>,
     lastAnimatedSavedCount: Int,
     animatingSaveValue: Int?,
     isAnimatingToFailure: Boolean
-): Boolean {
-    val waitingAnimationStart = savedValuesSize > lastAnimatedSavedCount
-    val saveAnimationInProgress = animatingSaveValue != null && !isAnimatingToFailure
-    return waitingAnimationStart || saveAnimationInProgress
-}
-
-internal fun shouldHideLatestSavedDieBeforeAnimationStarts(
-    isLatest: Boolean,
-    hasPendingSavedDieAnimation: Boolean
-): Boolean {
-    return isLatest && hasPendingSavedDieAnimation
+): List<Int> {
+    val shouldHideLatest = (savedValues.size > lastAnimatedSavedCount) ||
+        (animatingSaveValue != null && !isAnimatingToFailure)
+    if (!shouldHideLatest) {
+        return savedValues
+    }
+    if (savedValues.isEmpty()) {
+        return emptyList()
+    }
+    return savedValues.dropLast(1)
 }
 
 internal fun shouldHidePendingFailureDie(

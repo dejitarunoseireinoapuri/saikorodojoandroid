@@ -144,46 +144,38 @@ class SequenceGameScreenLogicTest {
     }
 
     @Test
-    fun `pending saved die animation is true when saved list grew and animation not completed`() {
-        val pending = shouldHideLatestSavedDieDuringSaveAnimation(
-            savedValuesSize = 2,
+    fun `visible saved values hide latest when save is pending before animation start`() {
+        val visible = visibleSequenceSavedValues(
+            savedValues = listOf(3, 7),
             lastAnimatedSavedCount = 1,
             animatingSaveValue = null,
             isAnimatingToFailure = false
         )
 
-        assertTrue(pending)
+        assertEquals(listOf(3), visible)
     }
 
     @Test
-    fun `latest die is hidden while saved animation is pending before effect`() {
-        val hidden = shouldHideLatestSavedDieBeforeAnimationStarts(
-            isLatest = true,
-            hasPendingSavedDieAnimation = true
-        )
-
-        assertTrue(hidden)
-    }
-
-    @Test
-    fun `non latest die is never hidden by pending saved animation`() {
-        val hidden = shouldHideLatestSavedDieBeforeAnimationStarts(
-            isLatest = false,
-            hasPendingSavedDieAnimation = true
-        )
-
-        assertFalse(hidden)
-    }
-
-    @Test
-    fun `pending saved die animation stays true while save move is running`() {
-        val pending = shouldHideLatestSavedDieDuringSaveAnimation(
-            savedValuesSize = 2,
+    fun `visible saved values hide latest while save animation is running`() {
+        val visible = visibleSequenceSavedValues(
+            savedValues = listOf(3, 7),
             lastAnimatedSavedCount = 2,
             animatingSaveValue = 7,
             isAnimatingToFailure = false
         )
 
-        assertTrue(pending)
+        assertEquals(listOf(3), visible)
+    }
+
+    @Test
+    fun `visible saved values keep all values when no save animation is pending`() {
+        val visible = visibleSequenceSavedValues(
+            savedValues = listOf(3, 7),
+            lastAnimatedSavedCount = 2,
+            animatingSaveValue = null,
+            isAnimatingToFailure = false
+        )
+
+        assertEquals(listOf(3, 7), visible)
     }
 }
