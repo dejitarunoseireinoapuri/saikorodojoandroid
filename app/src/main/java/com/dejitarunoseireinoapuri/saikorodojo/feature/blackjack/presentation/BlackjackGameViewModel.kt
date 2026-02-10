@@ -100,11 +100,7 @@ class BlackjackGameViewModel(
             ?.takeIf { it.minigameType == MinigameType.BLACKJACK }
             ?.minigameSnapshot as? MinigameSnapshot.Blackjack
         if (snapshot != null) {
-            if (snapshot.isComplete) {
-                clearGameSessionUseCase.execute()
-            } else {
-                restoreFromSnapshot(snapshot)
-            }
+            restoreFromSnapshot(snapshot)
         }
     }
 
@@ -117,10 +113,6 @@ class BlackjackGameViewModel(
     }
 
     fun saveSession() {
-        if (_uiState.value.isComplete) {
-            clearGameSessionUseCase.execute()
-            return
-        }
         val mainSnapshot = resolveMainGameSnapshot() ?: return
         val snapshot = buildSnapshot()
         saveGameSessionUseCase.execute(
@@ -369,7 +361,6 @@ class BlackjackGameViewModel(
                     isComplete = true
                 )
             }
-            clearGameSessionUseCase.execute()
             return
         }
         _uiState.update {
@@ -377,7 +368,6 @@ class BlackjackGameViewModel(
                 isComplete = true
             )
         }
-        clearGameSessionUseCase.execute()
     }
 
     private fun resolveRewardCards(): List<CardUiModel> {
