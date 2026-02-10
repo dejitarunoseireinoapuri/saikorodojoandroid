@@ -139,4 +139,36 @@ class SequenceGameScreenLogicTest {
         )
     }
 
+    @Test
+    fun `move anchor readiness requires source target and size`() {
+        assertFalse(
+            isSequenceMoveAnchorReady(
+                diceCenterInRoot = null,
+                targetCenterInRoot = androidx.compose.ui.geometry.Offset.Zero,
+                animatedDieSize = 10.dp
+            )
+        )
+        assertFalse(
+            isSequenceMoveAnchorReady(
+                diceCenterInRoot = androidx.compose.ui.geometry.Offset.Zero,
+                targetCenterInRoot = null,
+                animatedDieSize = 10.dp
+            )
+        )
+        assertFalse(
+            isSequenceMoveAnchorReady(
+                diceCenterInRoot = androidx.compose.ui.geometry.Offset.Zero,
+                targetCenterInRoot = androidx.compose.ui.geometry.Offset.Zero,
+                animatedDieSize = 0.dp
+            )
+        )
+        assertTrue(
+            isSequenceMoveAnchorReady(
+                diceCenterInRoot = androidx.compose.ui.geometry.Offset.Zero,
+                targetCenterInRoot = androidx.compose.ui.geometry.Offset.Zero,
+                animatedDieSize = 10.dp
+            )
+        )
+    }
+
 }

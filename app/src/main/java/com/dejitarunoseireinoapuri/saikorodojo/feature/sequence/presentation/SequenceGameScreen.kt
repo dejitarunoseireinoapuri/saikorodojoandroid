@@ -73,6 +73,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.snapshotFlow
 
 internal const val SEQUENCE_DICE_TAG = "sequence_dice"
 internal const val SEQUENCE_DICE_VALUE_TAG = "sequence_dice_value"
@@ -206,6 +208,18 @@ fun SequenceGameScreen(
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
+        snapshotFlow {
+            isSequenceMoveAnchorReady(
+                diceCenterInRoot = diceCenterInRoot,
+                targetCenterInRoot = if (animatingToFailureDie) {
+                    failureDieCenterInRoot
+                } else {
+                    savedDieCenterInRoot
+                },
+                animatedDieSize = animatedDieSize
+            )
+        }.first { it }
+
         soundPlayer.play(SoundEffect.MOVE_DICE)
         saveAnimationProgress.snapTo(0f)
         saveAnimationProgress.animateTo(
@@ -703,6 +717,14 @@ internal fun shouldPlaySequenceSuccess(previousSavedCount: Int, currentSavedCoun
 
 internal fun shouldPlaySequenceLoss(previousHasFailure: Boolean, currentHasFailure: Boolean): Boolean {
     return !previousHasFailure && currentHasFailure
+}
+
+internal fun isSequenceMoveAnchorReady(
+    diceCenterInRoot: Offset?,
+    targetCenterInRoot: Offset?,
+    animatedDieSize: Dp
+): Boolean {
+    return diceCenterInRoot != null && targetCenterInRoot != null && animatedDieSize > 0.dp
 }
 
 internal fun shouldShowSequenceSavedDie(
