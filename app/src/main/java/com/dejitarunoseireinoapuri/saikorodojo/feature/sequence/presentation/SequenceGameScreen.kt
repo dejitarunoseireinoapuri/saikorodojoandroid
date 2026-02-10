@@ -160,6 +160,14 @@ fun SequenceGameScreen(
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     var animationTrigger by remember { mutableIntStateOf(0) }
+    val hasPendingSaveAnimation = uiState.savedValues.size > previousSavedCount
+    val hasPendingFailureAnimation =
+        uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue
+    val hideCenterDie = shouldHideSequenceCenterDie(
+        animatingSaveValue = animatingSaveValue,
+        hasPendingSaveAnimation = hasPendingSaveAnimation,
+        hasPendingFailureAnimation = hasPendingFailureAnimation
+    )
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
@@ -385,7 +393,7 @@ fun SequenceGameScreen(
                     modifier = Modifier.height(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (!uiState.isComplete) {
+                    if (!uiState.isComplete && !hideCenterDie) {
                         SequenceDiceFace(
                             value = uiState.diceValue,
                             size = 140.dp,
@@ -447,8 +455,11 @@ fun SequenceGameScreen(
                                         isVisible = shouldShowSequenceSavedDie(
                                             isVisible = savedDie.isVisible,
                                             isLatest = savedDie.isLatest,
+                                            isFailureDie = false,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
+                                            hasPendingSaveAnimation = hasPendingSaveAnimation,
+                                            hasPendingFailureAnimation = hasPendingFailureAnimation,
                                             value = savedDie.value
                                         ),
                                         modifier = if (savedDie.isLatest) {
@@ -471,8 +482,11 @@ fun SequenceGameScreen(
                                         isVisible = shouldShowSequenceSavedDie(
                                             isVisible = true,
                                             isLatest = false,
+                                            isFailureDie = true,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
+                                            hasPendingSaveAnimation = hasPendingSaveAnimation,
+                                            hasPendingFailureAnimation = hasPendingFailureAnimation,
                                             value = value
                                         ),
                                         modifier = Modifier.onGloballyPositioned { coordinates ->
@@ -684,21 +698,38 @@ internal fun shouldPlaySequenceLoss(previousHasFailure: Boolean, currentHasFailu
 internal fun shouldShowSequenceSavedDie(
     isVisible: Boolean,
     isLatest: Boolean,
+    isFailureDie: Boolean,
     animatingSaveValue: Int?,
     isAnimatingToFailure: Boolean,
+    hasPendingSaveAnimation: Boolean,
+    hasPendingFailureAnimation: Boolean,
     value: Int
 ): Boolean {
     if (!isVisible) {
+        return false
+    }
+    if (hasPendingSaveAnimation && isLatest) {
+        return false
+    }
+    if (hasPendingFailureAnimation && isFailureDie) {
         return false
     }
     if (animatingSaveValue == null) {
         return true
     }
     return if (isAnimatingToFailure) {
-        value != animatingSaveValue
+        !(isFailureDie && value == animatingSaveValue)
     } else {
         !isLatest
     }
+}
+
+internal fun shouldHideSequenceCenterDie(
+    animatingSaveValue: Int?,
+    hasPendingSaveAnimation: Boolean,
+    hasPendingFailureAnimation: Boolean
+): Boolean {
+    return animatingSaveValue != null || hasPendingSaveAnimation || hasPendingFailureAnimation
 }
 
 @Composable
