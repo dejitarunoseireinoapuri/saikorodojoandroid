@@ -17,12 +17,19 @@
         android:fillColor="#33000000"/>
   </group>
 
-  <!-- Main shape -->
+  <!-- Outer shape -->
   <path
       android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
-      android:strokeLineJoin="round"
-      android:strokeWidth="8"
-      android:strokeColor="@color/dice_default_outer"
-      android:strokeLineCap="round"
-      android:fillColor="@color/dice_default_inner"/>
+      android:fillColor="@color/dice_default_outer"/>
+
+  <!-- Inner shape for thick border effect -->
+  <group
+      android:scaleX="0.82"
+      android:scaleY="0.82"
+      android:pivotX="512"
+      android:pivotY="512">
+    <path
+        android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
+        android:fillColor="@color/dice_default_inner"/>
+  </group>
 </vector>
