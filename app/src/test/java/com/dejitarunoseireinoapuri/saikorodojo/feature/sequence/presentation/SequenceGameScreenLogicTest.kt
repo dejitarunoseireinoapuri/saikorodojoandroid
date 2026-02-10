@@ -144,10 +144,12 @@ class SequenceGameScreenLogicTest {
     }
 
     @Test
-    fun `pending saved die animation is true when saved list just grew`() {
-        val pending = shouldHidePendingSavedDieAnimation(
+    fun `pending saved die animation is true when saved list grew and animation not completed`() {
+        val pending = shouldHideLatestSavedDieDuringSaveAnimation(
             savedValuesSize = 2,
-            previousSavedCount = 1
+            lastAnimatedSavedCount = 1,
+            animatingSaveValue = null,
+            isAnimatingToFailure = false
         )
 
         assertTrue(pending)
@@ -171,5 +173,17 @@ class SequenceGameScreenLogicTest {
         )
 
         assertFalse(hidden)
+    }
+
+    @Test
+    fun `pending saved die animation stays true while save move is running`() {
+        val pending = shouldHideLatestSavedDieDuringSaveAnimation(
+            savedValuesSize = 2,
+            lastAnimatedSavedCount = 2,
+            animatingSaveValue = 7,
+            isAnimatingToFailure = false
+        )
+
+        assertTrue(pending)
     }
 }

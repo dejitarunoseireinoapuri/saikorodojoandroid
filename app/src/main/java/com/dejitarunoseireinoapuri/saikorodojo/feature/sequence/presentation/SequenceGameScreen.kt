@@ -148,7 +148,8 @@ fun SequenceGameScreen(
     val soundPlayer = rememberSoundPlayer()
     var wasRolling by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
-    var previousSavedCount by remember { mutableStateOf(0) }
+    var previousSavedCountForSound by remember { mutableStateOf(0) }
+    var lastAnimatedSavedCount by remember { mutableIntStateOf(uiState.savedValues.size) }
     var previousHasFailure by remember { mutableStateOf(false) }
     var previousFailureDieValue by remember { mutableStateOf<Int?>(null) }
     var animatingSaveValue by remember { mutableStateOf<Int?>(null) }
@@ -167,15 +168,15 @@ fun SequenceGameScreen(
         wasRolling = uiState.isRolling
     }
     LaunchedEffect(uiState.savedValues.size) {
-        if (shouldPlaySequenceSuccess(previousSavedCount, uiState.savedValues.size)) {
+        if (shouldPlaySequenceSuccess(previousSavedCountForSound, uiState.savedValues.size)) {
             soundPlayer.play(SoundEffect.SUCCESS)
         }
-        if (uiState.savedValues.size > previousSavedCount) {
+        if (uiState.savedValues.size > lastAnimatedSavedCount) {
             animatingSaveValue = uiState.savedValues.lastOrNull()
             animatingToFailureDie = false
             animationTrigger += 1
         }
-        previousSavedCount = uiState.savedValues.size
+        previousSavedCountForSound = uiState.savedValues.size
     }
     LaunchedEffect(uiState.failureReason) {
         val hasFailure = uiState.failureReason != null
@@ -198,9 +199,11 @@ fun SequenceGameScreen(
         animatingSaveValue = animatingSaveValue,
         isAnimatingToFailure = animatingToFailureDie
     )
-    val hasPendingSavedDieAnimation = shouldHidePendingSavedDieAnimation(
+    val hasPendingSavedDieAnimation = shouldHideLatestSavedDieDuringSaveAnimation(
         savedValuesSize = uiState.savedValues.size,
-        previousSavedCount = previousSavedCount
+        lastAnimatedSavedCount = lastAnimatedSavedCount,
+        animatingSaveValue = animatingSaveValue,
+        isAnimatingToFailure = animatingToFailureDie
     )
     LaunchedEffect(animationTrigger) {
         if (animatingSaveValue == null) {
@@ -215,6 +218,9 @@ fun SequenceGameScreen(
                 easing = LinearOutSlowInEasing
             )
         )
+        if (!animatingToFailureDie) {
+            lastAnimatedSavedCount = uiState.savedValues.size
+        }
         animatingSaveValue = null
         animatingToFailureDie = false
     }
@@ -715,11 +721,15 @@ internal fun shouldShowSequenceSavedDie(
     }
 }
 
-internal fun shouldHidePendingSavedDieAnimation(
+internal fun shouldHideLatestSavedDieDuringSaveAnimation(
     savedValuesSize: Int,
-    previousSavedCount: Int
+    lastAnimatedSavedCount: Int,
+    animatingSaveValue: Int?,
+    isAnimatingToFailure: Boolean
 ): Boolean {
-    return savedValuesSize > previousSavedCount
+    val waitingAnimationStart = savedValuesSize > lastAnimatedSavedCount
+    val saveAnimationInProgress = animatingSaveValue != null && !isAnimatingToFailure
+    return waitingAnimationStart || saveAnimationInProgress
 }
 
 internal fun shouldHideLatestSavedDieBeforeAnimationStarts(
