@@ -124,4 +124,22 @@ class SequenceGameScreenLogicTest {
 
         assertTrue(visible)
     }
+
+    @Test
+    fun `latest saved die remains hidden before animation effect starts`() {
+        val latestDie = sequenceSavedDiceUiState(
+            savedValues = listOf(3, 7),
+            isLatestSavedValueHidden = true
+        ).last()
+
+        val visible = shouldShowSequenceSavedDie(
+            isVisible = latestDie.isVisible,
+            isLatest = latestDie.isLatest,
+            animatingSaveValue = null,
+            isAnimatingToFailure = false,
+            value = latestDie.value
+        )
+
+        assertFalse(visible)
+    }
 }

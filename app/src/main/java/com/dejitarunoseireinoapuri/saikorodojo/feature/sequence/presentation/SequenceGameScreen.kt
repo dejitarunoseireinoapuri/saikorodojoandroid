@@ -153,7 +153,6 @@ fun SequenceGameScreen(
     var previousFailureDieValue by remember { mutableStateOf<Int?>(null) }
     var animatingSaveValue by remember { mutableStateOf<Int?>(null) }
     var animatingToFailureDie by remember { mutableStateOf(false) }
-    var hideLatestSavedDieUntilAnimationEnds by remember { mutableStateOf(false) }
     var diceCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
@@ -174,7 +173,6 @@ fun SequenceGameScreen(
         if (uiState.savedValues.size > previousSavedCount) {
             animatingSaveValue = uiState.savedValues.lastOrNull()
             animatingToFailureDie = false
-            hideLatestSavedDieUntilAnimationEnds = true
             animationTrigger += 1
         }
         previousSavedCount = uiState.savedValues.size
@@ -204,7 +202,6 @@ fun SequenceGameScreen(
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
-        val isFailureAnimation = animatingToFailureDie
         soundPlayer.play(SoundEffect.MOVE_DICE)
         saveAnimationProgress.snapTo(0f)
         saveAnimationProgress.animateTo(
@@ -214,9 +211,6 @@ fun SequenceGameScreen(
                 easing = LinearOutSlowInEasing
             )
         )
-        if (!isFailureAnimation) {
-            hideLatestSavedDieUntilAnimationEnds = false
-        }
         animatingSaveValue = null
         animatingToFailureDie = false
     }
@@ -457,8 +451,7 @@ fun SequenceGameScreen(
                                         value = savedDie.value,
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
-                                            isVisible = savedDie.isVisible &&
-                                                (!savedDie.isLatest || !hideLatestSavedDieUntilAnimationEnds),
+                                            isVisible = savedDie.isVisible,
                                             isLatest = savedDie.isLatest,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
