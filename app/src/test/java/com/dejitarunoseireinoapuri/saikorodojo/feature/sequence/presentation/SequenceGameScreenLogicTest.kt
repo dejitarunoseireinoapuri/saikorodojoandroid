@@ -148,4 +148,24 @@ class SequenceGameScreenLogicTest {
         assertTrue(shouldShowSavedSlotByIndex(index = 0, displayedSavedCount = 1))
         assertFalse(shouldShowSavedSlotByIndex(index = 1, displayedSavedCount = 1))
     }
+
+    @Test
+    fun `displayed saved count updates only for non failure animation`() {
+        assertEquals(
+            2,
+            nextDisplayedSavedCountAfterAnimation(
+                savedValuesSize = 2,
+                displayedSavedCount = 1,
+                isFailureAnimation = false
+            )
+        )
+        assertEquals(
+            1,
+            nextDisplayedSavedCountAfterAnimation(
+                savedValuesSize = 2,
+                displayedSavedCount = 1,
+                isFailureAnimation = true
+            )
+        )
+    }
 }

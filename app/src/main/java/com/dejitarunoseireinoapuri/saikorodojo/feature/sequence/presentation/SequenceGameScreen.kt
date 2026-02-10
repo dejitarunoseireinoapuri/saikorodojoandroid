@@ -63,6 +63,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
@@ -214,11 +215,17 @@ fun SequenceGameScreen(
                 easing = LinearOutSlowInEasing
             )
         )
-        if (!animatingToFailureDie) {
-            displayedSavedCount = uiState.savedValues.size
-        }
+        val isFailureAnimation = animatingToFailureDie
         animatingSaveValue = null
         animatingToFailureDie = false
+        if (!isFailureAnimation) {
+            withFrameNanos { }
+            displayedSavedCount = nextDisplayedSavedCountAfterAnimation(
+                savedValuesSize = uiState.savedValues.size,
+                displayedSavedCount = displayedSavedCount,
+                isFailureAnimation = isFailureAnimation
+            )
+        }
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
@@ -714,6 +721,18 @@ internal fun shouldShowSequenceSavedDie(
         value != animatingSaveValue
     } else {
         !isLatest
+    }
+}
+
+internal fun nextDisplayedSavedCountAfterAnimation(
+    savedValuesSize: Int,
+    displayedSavedCount: Int,
+    isFailureAnimation: Boolean
+): Int {
+    return if (isFailureAnimation) {
+        displayedSavedCount
+    } else {
+        savedValuesSize
     }
 }
 
