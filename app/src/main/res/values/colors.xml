@@ -4,4 +4,6 @@
     <color name="dice_default_inner">#2A2D3D</color>
     <color name="dice_selected_inner">#F0F3FA</color>
     <color name="dice_selected_outer">#D9DEEA</color>
+    <color name="dice_set_value_outer">#FFA726</color>
+    <color name="dice_set_value_inner">#E87400</color>
 </resources>
