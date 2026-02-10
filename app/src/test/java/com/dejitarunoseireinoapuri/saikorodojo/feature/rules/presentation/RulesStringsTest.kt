@@ -18,6 +18,7 @@ class RulesStringsTest {
             val content = file.readText()
             assertTrue(content.contains("name=\"rules_main_game_title\""))
             assertTrue(content.contains("name=\"rules_cards_title\""))
+            assertTrue(content.contains("name=\"rules_card_adjust_title\""))
             assertTrue(content.contains("name=\"rules_minigame_blackjack_title\""))
         }
     }
@@ -75,9 +76,9 @@ class RulesStringsTest {
         assertTrue(esContent.contains("Cada uso consume esa carta."))
         assertTrue(caContent.contains("Cada ús consumeix aquesta carta."))
 
-        assertTrue(defaultContent.contains("Cartas que pueden salir:"))
-        assertTrue(esContent.contains("Cartas que pueden salir:"))
-        assertTrue(caContent.contains("Cartes que poden sortir:"))
+        assertTrue(defaultContent.contains("name=\"rules_card_adjust_title\""))
+        assertTrue(esContent.contains("name=\"rules_card_adjust_title\""))
+        assertTrue(caContent.contains("name=\"rules_card_adjust_title\""))
     }
 
     private fun resolveProjectPath(path: String): File {

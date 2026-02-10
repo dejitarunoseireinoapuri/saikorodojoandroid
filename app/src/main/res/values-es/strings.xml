@@ -161,16 +161,22 @@ El nivel se completa cuando todas las condiciones activas se cumplen a la vez co
     <string name="rules_cards_title">Cartas</string>
     <string name="rules_cards_body">Al empezar una partida nueva recibes 3 cartas aleatorias.
 Las cartas se acumulan entre niveles y pueden repetirse.
-Cada uso consume esa carta.
+Cada uso consume esa carta.</string>
 
-Cartas que pueden salir:
-Ajustar ±1: sube o baja en 1 el valor de un dado.
-Voltear: cambia un dado a su cara opuesta.
-Relanzar uno: vuelves a tirar un único dado.
-Relanzar varios: eliges varios dados y los relanzas.
-Elegir valor: fijas el valor de un dado dentro de los límites de su tipo.
-Repetir carta: repite el efecto de la última carta usada si existe.
-Minijuegos: añade 3 intentos de minijuego.</string>
+    <string name="rules_card_adjust_title">Ajustar ±1</string>
+    <string name="rules_card_adjust_body">Sube o baja en 1 el valor de un dado.</string>
+    <string name="rules_card_flip_title">Voltear</string>
+    <string name="rules_card_flip_body">Cambia un dado a su cara opuesta.</string>
+    <string name="rules_card_reroll_one_title">Relanzar uno</string>
+    <string name="rules_card_reroll_one_body">Vuelves a tirar un único dado.</string>
+    <string name="rules_card_reroll_several_title">Relanzar varios</string>
+    <string name="rules_card_reroll_several_body">Eliges varios dados y los relanzas.</string>
+    <string name="rules_card_set_value_title">Elegir valor</string>
+    <string name="rules_card_set_value_body">Fijas el valor de un dado dentro de los límites de su tipo.</string>
+    <string name="rules_card_repeat_title">Repetir carta</string>
+    <string name="rules_card_repeat_body">Repite el efecto de la última carta usada si existe.</string>
+    <string name="rules_card_minigames_title">Minijuegos</string>
+    <string name="rules_card_minigames_body">Añade 3 intentos de minijuego.</string>
 
     <string name="rules_minigames_title">Minijuegos</string>
     <string name="rules_minigames_body">Los minijuegos son un modo separado para ganar cartas para el juego principal.

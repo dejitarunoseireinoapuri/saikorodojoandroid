@@ -161,16 +161,22 @@ El nivell es completa quan totes les condicions actives es compleixen alhora amb
     <string name="rules_cards_title">Cartes</string>
     <string name="rules_cards_body">Quan comences una partida nova reps 3 cartes aleatòries.
 Les cartes s’acumulen entre nivells i es poden repetir.
-Cada ús consumeix aquesta carta.
+Cada ús consumeix aquesta carta.</string>
 
-Cartes que poden sortir:
-Ajustar ±1: puja o baixa en 1 el valor d’un dau.
-Girar: canvia un dau a la seva cara oposada.
-Rellançar-ne un: tornes a tirar un únic dau.
-Rellançar-ne diversos: tries diversos daus i els rellances.
-Triar valor: fixes el valor d’un dau dins dels límits del seu tipus.
-Repetir carta: repeteix l’efecte de l’última carta usada si existeix.
-Minijocs: afegeix 3 intents de minijoc.</string>
+    <string name="rules_card_adjust_title">Ajustar ±1</string>
+    <string name="rules_card_adjust_body">Puja o baixa en 1 el valor d’un dau.</string>
+    <string name="rules_card_flip_title">Girar</string>
+    <string name="rules_card_flip_body">Canvia un dau a la seva cara oposada.</string>
+    <string name="rules_card_reroll_one_title">Rellançar-ne un</string>
+    <string name="rules_card_reroll_one_body">Tornes a tirar un únic dau.</string>
+    <string name="rules_card_reroll_several_title">Rellançar-ne diversos</string>
+    <string name="rules_card_reroll_several_body">Tries diversos daus i els rellances.</string>
+    <string name="rules_card_set_value_title">Triar valor</string>
+    <string name="rules_card_set_value_body">Fixes el valor d’un dau dins dels límits del seu tipus.</string>
+    <string name="rules_card_repeat_title">Repetir carta</string>
+    <string name="rules_card_repeat_body">Repeteix l’efecte de l’última carta usada si existeix.</string>
+    <string name="rules_card_minigames_title">Minijocs</string>
+    <string name="rules_card_minigames_body">Afegeix 3 intents de minijoc.</string>
 
     <string name="rules_minigames_title">Minijocs</string>
     <string name="rules_minigames_body">Els minijocs són un mode separat per guanyar cartes per al joc principal.

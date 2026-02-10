@@ -20,10 +20,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 
@@ -83,20 +81,51 @@ fun RulesScreen(
         ) {
             RulesSection(
                 title = stringResource(R.string.rules_main_game_title),
-                body = stringResource(R.string.rules_main_game_body)
+                body = stringResource(R.string.rules_main_game_body),
+                majorTitle = true
             )
             RulesSection(
                 title = stringResource(R.string.rules_objectives_cards_title),
-                body = stringResource(R.string.rules_objectives_cards_body)
+                body = stringResource(R.string.rules_objectives_cards_body),
+                majorTitle = true
             )
             RulesSection(
                 title = stringResource(R.string.rules_cards_title),
                 body = stringResource(R.string.rules_cards_body),
-                boldPrefixBeforeColon = true
+                majorTitle = true
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_card_adjust_title),
+                body = stringResource(R.string.rules_card_adjust_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_card_flip_title),
+                body = stringResource(R.string.rules_card_flip_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_card_reroll_one_title),
+                body = stringResource(R.string.rules_card_reroll_one_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_card_reroll_several_title),
+                body = stringResource(R.string.rules_card_reroll_several_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_card_set_value_title),
+                body = stringResource(R.string.rules_card_set_value_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_card_repeat_title),
+                body = stringResource(R.string.rules_card_repeat_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_card_minigames_title),
+                body = stringResource(R.string.rules_card_minigames_body)
             )
             RulesSection(
                 title = stringResource(R.string.rules_minigames_title),
-                body = stringResource(R.string.rules_minigames_body)
+                body = stringResource(R.string.rules_minigames_body),
+                majorTitle = true
             )
             RulesSection(
                 title = stringResource(R.string.rules_minigame_odd_even_title),
@@ -122,42 +151,23 @@ fun RulesScreen(
 private fun RulesSection(
     title: String,
     body: String,
-    boldPrefixBeforeColon: Boolean = false
+    majorTitle: Boolean = false
 ) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)
-    )
-    val bodyText = if (boldPrefixBeforeColon) {
-        buildRulesBodyWithBoldPrefixes(body)
+    val titleStyle = if (majorTitle) {
+        MaterialTheme.typography.titleLarge
     } else {
-        buildAnnotatedString { append(body) }
+        MaterialTheme.typography.titleMedium
     }
     Text(
-        text = bodyText,
+        text = title,
+        style = titleStyle.copy(fontWeight = FontWeight.Bold),
+        color = MaterialTheme.colorScheme.onBackground,
+        modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
+    )
+    Text(
+        text = body,
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier.padding(bottom = 8.dp)
     )
-}
-
-
-private fun buildRulesBodyWithBoldPrefixes(body: String) = buildAnnotatedString {
-    val lines = body.split("\n")
-    lines.forEachIndexed { index, line ->
-        if (line.contains(':')) {
-            val colonIndex = line.indexOf(':')
-            val prefix = line.substring(0, colonIndex)
-            val suffix = line.substring(colonIndex)
-            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                append(prefix)
-            }
-            append(suffix)
-        } else {
-            append(line)
-        }
-        if (index < lines.lastIndex) append("\n")
-    }
 }
