@@ -102,15 +102,11 @@ internal fun objectiveLineText(condition: ObjectiveCondition): ObjectiveLineText
         )
 
         is StraightCondition -> {
-            if (condition.length == 0) {
-                ObjectiveLineText.StringRes(resId = R.string.objective_straight)
-            } else {
-                ObjectiveLineText.PluralRes(
-                    resId = R.plurals.objective_straight_length,
-                    quantity = condition.length,
-                    formatArgs = listOf(condition.length)
-                )
-            }
+            ObjectiveLineText.PluralRes(
+                resId = R.plurals.objective_straight,
+                quantity = condition.length,
+                formatArgs = listOf(condition.length)
+            )
         }
 
         is ContainsValuesCondition -> {
