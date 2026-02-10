@@ -993,8 +993,7 @@ class GameViewModel(
     }
 
     private fun pickMinigame(): MinigameType {
-        val values = MinigameType.entries
-        return values[Random.nextInt(values.size)]
+        return MinigameType.SEQUENCE
     }
 
 }

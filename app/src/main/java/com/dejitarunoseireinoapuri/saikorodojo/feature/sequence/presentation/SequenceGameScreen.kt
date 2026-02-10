@@ -76,6 +76,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 
 internal const val SEQUENCE_DICE_TAG = "sequence_dice"
 internal const val SEQUENCE_DICE_VALUE_TAG = "sequence_dice_value"
+
+internal enum class SequenceMoveTarget {
+    SAVED,
+    FAILURE
+}
 internal const val SEQUENCE_SAVE_BUTTON_TAG = "sequence_save_button"
 internal const val SEQUENCE_DISCARD_BUTTON_TAG = "sequence_discard_button"
 internal const val SEQUENCE_CONTINUE_BUTTON_TAG = "sequence_continue_button"
@@ -160,13 +165,10 @@ fun SequenceGameScreen(
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     var animationTrigger by remember { mutableIntStateOf(0) }
-    val hasPendingSaveAnimation = uiState.savedValues.size > previousSavedCount
-    val hasPendingFailureAnimation =
-        uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue
+    var pendingMoveTarget by remember { mutableStateOf<SequenceMoveTarget?>(null) }
     val hideCenterDie = shouldHideSequenceCenterDie(
         animatingSaveValue = animatingSaveValue,
-        hasPendingSaveAnimation = hasPendingSaveAnimation,
-        hasPendingFailureAnimation = hasPendingFailureAnimation
+        pendingMoveTarget = pendingMoveTarget
     )
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
@@ -181,6 +183,7 @@ fun SequenceGameScreen(
         if (uiState.savedValues.size > previousSavedCount) {
             animatingSaveValue = uiState.savedValues.lastOrNull()
             animatingToFailureDie = false
+            pendingMoveTarget = null
             animationTrigger += 1
         }
         previousSavedCount = uiState.savedValues.size
@@ -196,6 +199,7 @@ fun SequenceGameScreen(
         if (uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue) {
             animatingSaveValue = uiState.failureDieValue
             animatingToFailureDie = true
+            pendingMoveTarget = null
             animationTrigger += 1
         }
         previousFailureDieValue = uiState.failureDieValue
@@ -371,6 +375,7 @@ fun SequenceGameScreen(
                                         testTag = SEQUENCE_DISCARD_BUTTON_TAG,
                                         modifier = Modifier.weight(1f),
                                         onClick = {
+                                            pendingMoveTarget = null
                                             onDiscardClick()
                                         }
                                     )
@@ -380,6 +385,13 @@ fun SequenceGameScreen(
                                         testTag = SEQUENCE_SAVE_BUTTON_TAG,
                                         modifier = Modifier.weight(1f),
                                         onClick = {
+                                            val value = uiState.diceValue
+                                            val lastSaved = uiState.savedValues.lastOrNull()
+                                            pendingMoveTarget = if (value != null && lastSaved != null && value < lastSaved) {
+                                                SequenceMoveTarget.FAILURE
+                                            } else {
+                                                SequenceMoveTarget.SAVED
+                                            }
                                             onSaveClick()
                                         }
                                     )
@@ -458,8 +470,7 @@ fun SequenceGameScreen(
                                             isFailureDie = false,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
-                                            hasPendingSaveAnimation = hasPendingSaveAnimation,
-                                            hasPendingFailureAnimation = hasPendingFailureAnimation,
+                                            pendingMoveTarget = pendingMoveTarget,
                                             value = savedDie.value
                                         ),
                                         modifier = if (savedDie.isLatest) {
@@ -485,8 +496,7 @@ fun SequenceGameScreen(
                                             isFailureDie = true,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
-                                            hasPendingSaveAnimation = hasPendingSaveAnimation,
-                                            hasPendingFailureAnimation = hasPendingFailureAnimation,
+                                            pendingMoveTarget = pendingMoveTarget,
                                             value = value
                                         ),
                                         modifier = Modifier.onGloballyPositioned { coordinates ->
@@ -701,17 +711,16 @@ internal fun shouldShowSequenceSavedDie(
     isFailureDie: Boolean,
     animatingSaveValue: Int?,
     isAnimatingToFailure: Boolean,
-    hasPendingSaveAnimation: Boolean,
-    hasPendingFailureAnimation: Boolean,
+    pendingMoveTarget: SequenceMoveTarget?,
     value: Int
 ): Boolean {
     if (!isVisible) {
         return false
     }
-    if (hasPendingSaveAnimation && isLatest) {
+    if (pendingMoveTarget == SequenceMoveTarget.SAVED && isLatest) {
         return false
     }
-    if (hasPendingFailureAnimation && isFailureDie) {
+    if (pendingMoveTarget == SequenceMoveTarget.FAILURE && isFailureDie) {
         return false
     }
     if (animatingSaveValue == null) {
@@ -726,10 +735,9 @@ internal fun shouldShowSequenceSavedDie(
 
 internal fun shouldHideSequenceCenterDie(
     animatingSaveValue: Int?,
-    hasPendingSaveAnimation: Boolean,
-    hasPendingFailureAnimation: Boolean
+    pendingMoveTarget: SequenceMoveTarget?
 ): Boolean {
-    return animatingSaveValue != null || hasPendingSaveAnimation || hasPendingFailureAnimation
+    return animatingSaveValue != null || pendingMoveTarget != null
 }
 
 @Composable

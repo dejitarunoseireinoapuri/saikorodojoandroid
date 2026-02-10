@@ -45,8 +45,7 @@ class SequenceGameScreenLogicTest {
             isFailureDie = false,
             animatingSaveValue = 5,
             isAnimatingToFailure = false,
-            hasPendingSaveAnimation = false,
-            hasPendingFailureAnimation = false,
+            pendingMoveTarget = null,
             value = 5
         )
 
@@ -61,8 +60,7 @@ class SequenceGameScreenLogicTest {
             isFailureDie = true,
             animatingSaveValue = 3,
             isAnimatingToFailure = true,
-            hasPendingSaveAnimation = false,
-            hasPendingFailureAnimation = false,
+            pendingMoveTarget = null,
             value = 3
         )
 
@@ -77,8 +75,7 @@ class SequenceGameScreenLogicTest {
             isFailureDie = false,
             animatingSaveValue = 7,
             isAnimatingToFailure = false,
-            hasPendingSaveAnimation = false,
-            hasPendingFailureAnimation = false,
+            pendingMoveTarget = null,
             value = 4
         )
 
@@ -92,8 +89,7 @@ class SequenceGameScreenLogicTest {
             isFailureDie = false,
             animatingSaveValue = null,
             isAnimatingToFailure = false,
-            hasPendingSaveAnimation = true,
-            hasPendingFailureAnimation = false,
+            pendingMoveTarget = SequenceMoveTarget.SAVED,
             value = 8
         )
 
@@ -108,8 +104,7 @@ class SequenceGameScreenLogicTest {
             isFailureDie = true,
             animatingSaveValue = null,
             isAnimatingToFailure = false,
-            hasPendingSaveAnimation = false,
-            hasPendingFailureAnimation = true,
+            pendingMoveTarget = SequenceMoveTarget.FAILURE,
             value = 2
         )
 
@@ -121,29 +116,25 @@ class SequenceGameScreenLogicTest {
         assertTrue(
             shouldHideSequenceCenterDie(
                 animatingSaveValue = null,
-                hasPendingSaveAnimation = true,
-                hasPendingFailureAnimation = false
+                pendingMoveTarget = SequenceMoveTarget.SAVED
             )
         )
         assertTrue(
             shouldHideSequenceCenterDie(
                 animatingSaveValue = null,
-                hasPendingSaveAnimation = false,
-                hasPendingFailureAnimation = true
+                pendingMoveTarget = SequenceMoveTarget.FAILURE
             )
         )
         assertTrue(
             shouldHideSequenceCenterDie(
                 animatingSaveValue = 4,
-                hasPendingSaveAnimation = false,
-                hasPendingFailureAnimation = false
+                pendingMoveTarget = null
             )
         )
         assertFalse(
             shouldHideSequenceCenterDie(
                 animatingSaveValue = null,
-                hasPendingSaveAnimation = false,
-                hasPendingFailureAnimation = false
+                pendingMoveTarget = null
             )
         )
     }
