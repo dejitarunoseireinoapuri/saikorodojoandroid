@@ -1,6 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -23,9 +24,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -34,7 +42,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultInner
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultOuter
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedInner
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedOuter
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import kotlin.random.Random
@@ -85,9 +97,9 @@ internal fun DiceBoard(
             seed = uiState.layoutSeed
         )
     }
-    val diceFaces = remember(uiState.diceTypes, diceCount) {
+    val diceTypes = remember(uiState.diceTypes, diceCount) {
         List(diceCount) { index ->
-            diceTypeDrawable(uiState.diceTypes.getOrElse(index) { DiceType.D6 })
+            uiState.diceTypes.getOrElse(index) { DiceType.D6 }
         }
     }
     val boardYOffset = 24.dp
@@ -165,7 +177,7 @@ internal fun DiceBoard(
                         if (availability.canDecrease) {
                             DiceOption(
                                 value = (selectedValue - 1).coerceAtLeast(1),
-                                faceDrawable = diceTypeOptionDrawable(selectedType),
+                                diceType = selectedType,
                                 size = diceSize,
                                 numberTextScale = 1f,
                                 numberTextColor = diceOptionNumberColor(),
@@ -178,7 +190,7 @@ internal fun DiceBoard(
                         if (availability.canIncrease) {
                             DiceOption(
                                 value = (selectedValue + 1).coerceAtMost(selectedType.sides),
-                                faceDrawable = diceTypeOptionDrawable(selectedType),
+                                diceType = selectedType,
                                 size = diceSize,
                                 numberTextScale = 1f,
                                 numberTextColor = diceOptionNumberColor(),
@@ -243,7 +255,7 @@ internal fun DiceBoard(
                                     } else {
                                         DiceOption(
                                             value = value,
-                                            faceDrawable = diceTypeOptionDrawable(selectedType),
+                                            diceType = selectedType,
                                             size = optionSize,
                                             numberTextScale = textScale,
                                             numberTextColor = diceOptionNumberColor(),
@@ -335,7 +347,7 @@ internal fun DiceBoard(
         ) {
             uiState.diceValues.forEachIndexed { index, value ->
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
-                val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
+                val diceType = diceTypes.getOrElse(index) { DiceType.D6 }
                 val isSelected = uiState.selectedDice.contains(index)
                 val isAdjustmentSelected = uiState.selectedAdjustmentDieIndex == index
                 val isSetValueSelected = uiState.selectedSetValueDieIndex == index
@@ -370,7 +382,7 @@ internal fun DiceBoard(
                     DiceFace(
                         number = value,
                         size = diceSize,
-                        faceDrawable = faceDrawable,
+                        diceType = diceType,
                         isSelected = isSelected,
                         showSelectionBorder = showSelectionBorder,
                         numberTextScale = diceTextScale
@@ -385,7 +397,7 @@ internal fun DiceBoard(
 private fun DiceFace(
     number: Int,
     size: Dp,
-    faceDrawable: Int,
+    diceType: DiceType,
     isSelected: Boolean,
     showSelectionBorder: Boolean,
     showSelectedFace: Boolean = true,
@@ -408,13 +420,15 @@ private fun DiceFace(
             ),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected && showSelectedFace)),
+        DiceShape(
+            modifier = Modifier.fillMaxSize(),
+            diceType = diceType,
+            isSelected = isSelected && showSelectedFace,
             contentDescription = stringResource(R.string.cd_dice_face, number)
         )
         Text(
             text = number.toString(),
-            modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
+            modifier = Modifier.offset(y = diceNumberYOffset(diceType)),
             style = MaterialTheme.typography.displaySmall.copy(
                 fontSize = MaterialTheme.typography.displaySmall.fontSize * numberTextScale
             ),
@@ -423,10 +437,111 @@ private fun DiceFace(
     }
 }
 
+
+@Composable
+private fun DiceShape(
+    modifier: Modifier,
+    diceType: DiceType,
+    isSelected: Boolean,
+    contentDescription: String
+) {
+    val outerColor = if (isSelected) DiceSelectedOuter else DiceDefaultOuter
+    val innerColor = if (isSelected) DiceSelectedInner else DiceDefaultInner
+    Box(modifier = modifier.semantics { contentDescription = contentDescription }) {
+        DiceShapeLayer(
+            modifier = Modifier.fillMaxSize(),
+            diceType = diceType,
+            color = outerColor
+        )
+        DiceShapeLayer(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = 0.82f
+                    scaleY = 0.82f
+                },
+            diceType = diceType,
+            color = innerColor
+        )
+    }
+}
+
+@Composable
+private fun DiceShapeLayer(
+    modifier: Modifier,
+    diceType: DiceType,
+    color: Color
+) {
+    Canvas(modifier = modifier) {
+        val strokeWidth = size.minDimension * 0.0234f
+        when (diceType) {
+            DiceType.D6 -> {
+                val corner = size.minDimension * 0.12f
+                drawRoundRect(
+                    color = color,
+                    cornerRadius = CornerRadius(corner, corner)
+                )
+                drawRoundRect(
+                    color = color,
+                    cornerRadius = CornerRadius(corner, corner),
+                    style = Stroke(
+                        width = strokeWidth,
+                        join = StrokeJoin.Round,
+                        cap = StrokeCap.Round
+                    )
+                )
+            }
+
+            DiceType.D8 -> {
+                val path = Path().apply {
+                    moveTo(size.width * 0.5f, size.height * 0.1477f)
+                    lineTo(size.width * 0.8523f, size.height * 0.8523f)
+                    lineTo(size.width * 0.1477f, size.height * 0.8523f)
+                    close()
+                }
+                drawPath(color = color, path = path)
+                drawPath(
+                    color = color,
+                    path = path,
+                    style = Stroke(
+                        width = strokeWidth,
+                        join = StrokeJoin.Round,
+                        cap = StrokeCap.Round
+                    )
+                )
+            }
+
+            DiceType.D10 -> {
+                val path = Path().apply {
+                    moveTo(size.width * 0.538f, size.height * 0.892f)
+                    lineTo(size.width * 0.889f, size.height * 0.575f)
+                    lineTo(size.width * 0.889f, size.height * 0.501f)
+                    lineTo(size.width * 0.535f, size.height * 0.112f)
+                    lineTo(size.width * 0.465f, size.height * 0.112f)
+                    lineTo(size.width * 0.111f, size.height * 0.501f)
+                    lineTo(size.width * 0.111f, size.height * 0.575f)
+                    lineTo(size.width * 0.462f, size.height * 0.892f)
+                    close()
+                }
+                drawPath(color = color, path = path)
+                drawPath(
+                    color = color,
+                    path = path,
+                    style = Stroke(
+                        width = strokeWidth,
+                        join = StrokeJoin.Round,
+                        cap = StrokeCap.Round
+                    )
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun DiceOption(
     value: Int,
-    faceDrawable: Int,
+    diceType: DiceType,
     size: Dp,
     numberTextScale: Float,
     numberTextColor: Color,
@@ -441,7 +556,7 @@ private fun DiceOption(
         DiceFace(
             number = value,
             size = size,
-            faceDrawable = faceDrawable,
+            diceType = diceType,
             isSelected = false,
             showSelectionBorder = false,
             numberTextScale = numberTextScale,
@@ -671,10 +786,9 @@ internal fun calculateDiceTextScale(diceSize: Dp, referenceSize: Dp = 72.dp): Fl
     return (diceSize.value / referenceSize.value).coerceAtMost(1f)
 }
 
-internal fun diceNumberYOffset(faceDrawable: Int): Dp {
-    return when (faceDrawable) {
-        R.drawable.eigth_sides,
-        R.drawable.eigth_sides_contrast -> 6.dp
+internal fun diceNumberYOffset(diceType: DiceType): Dp {
+    return when (diceType) {
+        DiceType.D8 -> 6.dp
         else -> 0.dp
     }
 }
@@ -687,20 +801,3 @@ internal fun diceTypeDrawable(diceType: DiceType): Int {
     }
 }
 
-internal fun diceTypeOptionDrawable(diceType: DiceType): Int {
-    return when (diceType) {
-        DiceType.D6 -> R.drawable.six_sides_contrast
-        DiceType.D8 -> R.drawable.eigth_sides_contrast
-        DiceType.D10 -> R.drawable.ten_sides_contrast
-    }
-}
-
-internal fun diceFaceDrawable(faceDrawable: Int, isSelected: Boolean): Int {
-    if (!isSelected) return faceDrawable
-    return when (faceDrawable) {
-        R.drawable.six_sides -> R.drawable.six_sides_selected
-        R.drawable.eigth_sides -> R.drawable.eigth_sides_selected
-        R.drawable.ten_sides -> R.drawable.ten_sides_selected
-        else -> faceDrawable
-    }
-}
