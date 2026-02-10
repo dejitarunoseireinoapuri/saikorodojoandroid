@@ -34,7 +34,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import kotlin.random.Random
@@ -373,7 +375,8 @@ internal fun DiceBoard(
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
                         showSelectionBorder = showSelectionBorder,
-                        numberTextScale = diceTextScale
+                        numberTextScale = diceTextScale,
+                        numberTextColor = diceFaceNumberColor(isSelected = isSelected)
                     )
                 }
             }
@@ -451,6 +454,9 @@ private fun DiceOption(
 }
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
+
+internal fun diceFaceNumberColor(isSelected: Boolean): Color =
+    if (isSelected) DiceSelectedNumberColor else DiceDefaultNumberColor
 
 internal fun shouldPlayMoveSound(isRolling: Boolean): Boolean = !isRolling
 

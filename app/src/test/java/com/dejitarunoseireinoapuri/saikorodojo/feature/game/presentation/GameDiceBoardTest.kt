@@ -1,7 +1,9 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.ui.unit.dp
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -75,8 +77,14 @@ class GameDiceBoardTest {
     }
 
     @Test
-    fun `dice option number color uses mat darkest tone`() {
+    fun `dice option number color matches die dot white`() {
         assertEquals(DiceOptionNumberColor, diceOptionNumberColor())
+    }
+
+    @Test
+    fun `dice face number color swaps when die is selected`() {
+        assertEquals(DiceDefaultNumberColor, diceFaceNumberColor(isSelected = false))
+        assertEquals(DiceSelectedNumberColor, diceFaceNumberColor(isSelected = true))
     }
 
     @Test
