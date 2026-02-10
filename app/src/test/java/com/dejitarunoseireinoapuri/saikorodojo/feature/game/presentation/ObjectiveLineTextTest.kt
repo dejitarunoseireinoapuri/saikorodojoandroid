@@ -3,6 +3,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.AtLeastParityCountCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactlyDistinctValuesCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasThreeOfKindCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasPairCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDiceCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumAtLeastCondition
 import org.junit.Assert.assertEquals
@@ -66,6 +68,29 @@ class ObjectiveLineTextTest {
         assertEquals(expected, result)
     }
 
+
+    @Test
+    fun `three pairs objective uses dedicated string resource`() {
+        val condition = HasPairCondition(requiredPairs = 3)
+
+        val result = objectiveLineText(condition)
+
+        val expected = ObjectiveLineText.StringRes(resId = R.string.objective_three_pairs)
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `two three of a kind objective uses dedicated string resource`() {
+        val condition = HasThreeOfKindCondition(requiredTrios = 2)
+
+        val result = objectiveLineText(condition)
+
+        val expected = ObjectiveLineText.StringRes(resId = R.string.objective_two_three_of_kind)
+
+        assertEquals(expected, result)
+    }
+
     @Test
     fun `sum at least objective explains required total`() {
         val condition = SumAtLeastCondition(threshold = 12)
@@ -76,6 +101,18 @@ class ObjectiveLineTextTest {
             resId = R.string.objective_sum_at_least_explain,
             formatArgs = listOf(12)
         )
+
+        assertEquals(expected, result)
+    }
+
+
+    @Test
+    fun `three pairs objective explain uses dedicated string resource`() {
+        val condition = HasPairCondition(requiredPairs = 3)
+
+        val result = objectiveLineExplainText(condition, selectedCount = 6)
+
+        val expected = ObjectiveLineText.StringRes(resId = R.string.objective_three_pairs_explain)
 
         assertEquals(expected, result)
     }

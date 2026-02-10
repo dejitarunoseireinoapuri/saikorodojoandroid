@@ -35,7 +35,7 @@
     <string name="card_repeat_last_description">Repeat the effect of the last card used, choosing any target. Last card:</string>
     <string name="card_repeat_last_none">None</string>
     <string name="card_minigames_title">Minigames</string>
-    <string name="card_minigames_description">Win two minigames</string>
+    <string name="card_minigames_description">Win three minigames</string>
 
     <string name="odd_even_title">Odd or Even</string>
     <string name="odd_even_subtitle">Guess whether the result will be odd or even. Get 3 correct guesses within a maximum of 7 rounds.</string>
@@ -75,7 +75,7 @@
     <string name="cd_minigames_available">Minigames available</string>
 
     <string name="minigames_ad_title">No minigames left</string>
-    <string name="minigames_ad_message">Do you want to watch an ad to earn two minigames?</string>
+    <string name="minigames_ad_message">Do you want to watch an ad to earn three minigames?</string>
     <string name="minigames_ad_confirm">Watch ad</string>
 
     <string name="level_title">Level %1$d</string>
@@ -85,8 +85,12 @@
     <string name="objective_pair_explain">Select two dice with the same value</string>
     <string name="objective_two_pairs">Two pairs</string>
     <string name="objective_two_pairs_explain">Select two pairs of dice with the same value</string>
+    <string name="objective_three_pairs">Three pairs</string>
+    <string name="objective_three_pairs_explain">Select three pairs of dice with the same value</string>
     <string name="objective_three_of_kind">Three of a kind</string>
     <string name="objective_three_of_kind_explain">Select three dice with the same value</string>
+    <string name="objective_two_three_of_kind">Two three of a kind</string>
+    <string name="objective_two_three_of_kind_explain">Select two groups of three dice with the same value</string>
     <string name="objective_four_of_kind">Four of a kind</string>
     <string name="objective_four_of_kind_explain">Select four dice with the same value</string>
     <string name="objective_full_house">Full house</string>

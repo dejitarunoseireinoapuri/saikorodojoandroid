@@ -35,7 +35,7 @@
     <string name="card_repeat_last_description">Repeteix l’efecte de l’última carta usada, triant qualsevol objectiu. Última carta:</string>
     <string name="card_repeat_last_none">Cap</string>
     <string name="card_minigames_title">Minijocs</string>
-    <string name="card_minigames_description">Guanya dos minijocs</string>
+    <string name="card_minigames_description">Guanya tres minijocs</string>
 
     <string name="odd_even_title">Parell o Senar</string>
     <string name="odd_even_subtitle">Endevina si el resultat serà parell o senar. Aconsegueix 3 encerts en un màxim de 7 rondes.</string>
@@ -76,7 +76,7 @@
     <string name="cd_minigames_available">Minijocs disponibles</string>
 
     <string name="minigames_ad_title">No queden minijocs</string>
-    <string name="minigames_ad_message">Vols veure un anunci per guanyar dos minijocs?</string>
+    <string name="minigames_ad_message">Vols veure un anunci per guanyar tres minijocs?</string>
     <string name="minigames_ad_confirm">Veure anunci</string>
 
     <string name="level_title">Nivell %1$d</string>
@@ -86,8 +86,12 @@
     <string name="objective_pair_explain">Selecciona dos daus del mateix valor </string>
     <string name="objective_two_pairs">Doble parella</string>
     <string name="objective_two_pairs_explain">Selecciona dues parelles de daus del mateix valor</string>
+    <string name="objective_three_pairs">Tres parelles</string>
+    <string name="objective_three_pairs_explain">Selecciona tres parelles de daus del mateix valor</string>
     <string name="objective_three_of_kind">Trio</string>
     <string name="objective_three_of_kind_explain">Selecciona tres daus del mateix valor</string>
+    <string name="objective_two_three_of_kind">Dos trios</string>
+    <string name="objective_two_three_of_kind_explain">Selecciona dos grups de tres daus del mateix valor</string>
     <string name="objective_four_of_kind">Pòquer</string>
     <string name="objective_four_of_kind_explain">Selecciona quatre daus del mateix valor</string>
     <string name="objective_full_house">Full</string>
