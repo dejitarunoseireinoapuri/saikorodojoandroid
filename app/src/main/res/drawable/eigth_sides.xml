@@ -13,13 +13,13 @@
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
+        android:pathData="M512,151.2C530,151.2 546,161 555,177L857,780C866,798 859,820 842,828L182,828C165,820 158,798 167,780L469,177C478,161 494,151.2 512,151.2Z"
         android:fillColor="#33000000"/>
   </group>
 
   <!-- Outer shape -->
   <path
-      android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
+      android:pathData="M512,151.2C530,151.2 546,161 555,177L857,780C866,798 859,820 842,828L182,828C165,820 158,798 167,780L469,177C478,161 494,151.2 512,151.2Z"
       android:fillColor="@color/dice_default_outer"
       android:strokeColor="@color/dice_default_outer"
       android:strokeWidth="24"
@@ -33,7 +33,7 @@
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
+        android:pathData="M512,151.2C530,151.2 546,161 555,177L857,780C866,798 859,820 842,828L182,828C165,820 158,798 167,780L469,177C478,161 494,151.2 512,151.2Z"
         android:fillColor="@color/dice_default_inner"
         android:strokeColor="@color/dice_default_inner"
         android:strokeWidth="18"

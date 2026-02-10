@@ -12,12 +12,12 @@
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
+        android:pathData="M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
         android:fillColor="#33000000"/>
   </group>
 
   <path
-      android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
+      android:pathData="M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
       android:fillColor="@color/dice_set_value_outer"
       android:strokeColor="@color/dice_set_value_outer"
       android:strokeWidth="24"
@@ -30,7 +30,7 @@
       android:pivotX="512"
       android:pivotY="512">
     <path
-        android:pathData="M244,184L780,184A60,60 0,0 1,840 244L840,780A60,60 0,0 1,780 840L244,840A60,60 0,0 1,184 780L184,244A60,60 0,0 1,244 184Z"
+        android:pathData="M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
         android:fillColor="@color/dice_set_value_inner"
         android:strokeColor="@color/dice_set_value_inner"
         android:strokeWidth="18"

@@ -69,8 +69,11 @@ class GameScreenTest {
     }
 
     @Test
-    fun `dice number y offset is applied for eight sides`() {
-        assertEquals(6.dp, diceNumberYOffset(R.drawable.eigth_sides))
+    fun `dice number y offset is applied for eight sides in all color variants`() {
+        assertEquals(3.dp, diceNumberYOffset(R.drawable.eigth_sides))
+        assertEquals(3.dp, diceNumberYOffset(R.drawable.eigth_sides_selected))
+        assertEquals(3.dp, diceNumberYOffset(R.drawable.eigth_sides_contrast))
+        assertEquals(3.dp, diceNumberYOffset(R.drawable.eigth_sides_set_value))
     }
 
     @Test

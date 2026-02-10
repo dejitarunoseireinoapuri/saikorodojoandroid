@@ -457,8 +457,9 @@ private fun DiceOption(
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
 
+@Suppress("UNUSED_PARAMETER")
 internal fun diceSetValueNumberColor(backgroundColor: Color = DiceSetValueOuterColor): Color =
-    bestContrastTextColor(backgroundColor)
+    Color.White
 
 internal fun bestContrastTextColor(backgroundColor: Color): Color {
     val whiteContrast = contrastRatio(Color.White, backgroundColor)
@@ -700,7 +701,7 @@ internal fun diceNumberYOffset(faceDrawable: Int): Dp {
     return when (faceDrawable) {
         R.drawable.eigth_sides,
         R.drawable.eigth_sides_contrast,
-        R.drawable.eigth_sides_set_value -> 6.dp
+        R.drawable.eigth_sides_set_value -> 3.dp
         else -> 0.dp
     }
 }
