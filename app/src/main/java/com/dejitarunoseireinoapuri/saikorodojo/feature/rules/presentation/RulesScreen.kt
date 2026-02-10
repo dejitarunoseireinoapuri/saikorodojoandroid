@@ -88,6 +88,10 @@ fun RulesScreen(
                 body = stringResource(R.string.rules_objectives_cards_body)
             )
             RulesSection(
+                title = stringResource(R.string.rules_cards_title),
+                body = stringResource(R.string.rules_cards_body)
+            )
+            RulesSection(
                 title = stringResource(R.string.rules_minigames_title),
                 body = stringResource(R.string.rules_minigames_body)
             )

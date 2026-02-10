@@ -148,34 +148,34 @@
     <string name="rules_screen_back">Volver</string>
 
     <string name="rules_main_game_title">Juego principal</string>
-    <string name="rules_main_game_body">• Supera niveles de puzle cumpliendo todos los objetivos que aparecen en pantalla.
-• En cada nivel primero se hace una tirada animada y luego eliges qué dados usar.
-• Al principio puedes dejar dados sin seleccionar, pero en niveles más avanzados se exige seleccionar un mínimo y, a partir de etapas altas, normalmente todos.
-• La dificultad sube por etapas: más dados y mezcla progresiva de d6, d8 y d10.</string>
+    <string name="rules_main_game_body">Se deben superar los objetivos que aparecen en pantalla.
+En cada nivel se hace una tirada y luego eliges qué dados usar.
+Siempre puedes resolver el nivel usando solo una parte de los dados.
+La dificultad sube por etapas: más dados y mezcla progresiva de dados de 6 caras, 8 o 10.</string>
 
-    <string name="rules_objectives_cards_title">Objetivos y cartas</string>
-    <string name="rules_objectives_cards_body">Objetivos
-• Cada nivel tiene 1 o más condiciones y además una condición de cantidad mínima de dados seleccionados.
-• Hay objetivos de suma (exacta, mínima, máxima, rango, múltiplos, par/impar), combinaciones (par, trío, póker, full, escalera, todos distintos) y colección/prohibición de valores.
-• El nivel se completa cuando todas las condiciones activas se cumplen a la vez con los dados seleccionados.
+    <string name="rules_objectives_cards_title">Objetivos</string>
+    <string name="rules_objectives_cards_body">Cada nivel tiene 1 o más condiciones y además una condición de cantidad mínima de dados seleccionados.
+Hay objetivos de suma (exacta, mínima, máxima, rango, múltiplos, par/impar), combinaciones (par, trío, póker, full, escalera, todos distintos) y colección/prohibición de valores.
+El nivel se completa cuando todas las condiciones activas se cumplen a la vez con los dados seleccionados.</string>
 
-Cartas
-• Al empezar una partida nueva recibes 3 cartas aleatorias.
-• Inventario global: las cartas se acumulan entre niveles y pueden repetirse.
-• Cada uso consume 1 carta de ese tipo.
-• Cartas que pueden salir actualmente:
-  - Ajustar ±1: sube o baja en 1 el valor de un dado.
-  - Voltear: cambia un dado a su cara opuesta (en d6, 1↔6, 2↔5, 3↔4).
-  - Relanzar uno: vuelves a tirar un único dado.
-  - Relanzar varios: eliges varios dados y los relanzas.
-  - Elegir valor: fijas el valor de un dado dentro de los límites de su tipo.
-  - Repetir carta: repite el efecto de la última carta usada (si existe).
-  - Minijuegos: añade 3 intentos de minijuego.</string>
+    <string name="rules_cards_title">Cartas</string>
+    <string name="rules_cards_body">Al empezar una partida nueva recibes 3 cartas aleatorias.
+Inventario global: las cartas se acumulan entre niveles y pueden repetirse.
+Cada uso consume 1 carta de ese tipo.
+
+Cartas que pueden salir actualmente:
+- Ajustar ±1: sube o baja en 1 el valor de un dado.
+- Voltear: cambia un dado a su cara opuesta.
+- Relanzar uno: vuelves a tirar un único dado.
+- Relanzar varios: eliges varios dados y los relanzas.
+- Elegir valor: fijas el valor de un dado dentro de los límites de su tipo.
+- Repetir carta: repite el efecto de la última carta usada (si existe).
+- Minijuegos: añade 3 intentos de minijuego.</string>
 
     <string name="rules_minigames_title">Minijuegos</string>
-    <string name="rules_minigames_body">• Los minijuegos son un modo separado para ganar cartas para el juego principal.
-• Al ganar un minijuego recibes entre 2 y 3 cartas aleatorias.
-• Además, cada nivel completado en el juego principal suma 2 intentos de minijuego.</string>
+    <string name="rules_minigames_body">Los minijuegos son un modo separado para ganar cartas para el juego principal.
+Al ganar un minijuego recibes entre 2 y 3 cartas aleatorias.
+Además, cada nivel completado en el juego principal suma 2 intentos de minijuego.</string>
 
     <string name="rules_minigame_odd_even_title">Minijuego: Par o impar</string>
     <string name="rules_minigame_odd_even_body">• Elige par o impar antes de cada tirada.

@@ -25,10 +25,12 @@ class RulesStringsTest {
     }
 
     @Test
-    fun `rules include one subsection per minigame`() {
+    fun `rules include cards subsection and one subsection per minigame`() {
         val stringsFile = resolveProjectPath("app/src/main/res/values/strings.xml")
         val content = stringsFile.readText()
 
+        assertTrue(content.contains("name=\"rules_cards_title\""))
+        assertTrue(content.contains("name=\"rules_cards_body\""))
         assertTrue(content.contains("name=\"rules_minigame_odd_even_title\""))
         assertTrue(content.contains("name=\"rules_minigame_higher_lower_title\""))
         assertTrue(content.contains("name=\"rules_minigame_sequence_title\""))
