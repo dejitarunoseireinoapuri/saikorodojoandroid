@@ -14,6 +14,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGame
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameSessionRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.MainGameSnapshot
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GameUiSnapshot
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SavedSession
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -578,6 +580,113 @@ class GameViewModelTest {
         assertEquals(1, updatedCards.size)
         assertEquals(CardId.REROLL_ALL, updatedCards.first().id)
         assertEquals(1, updatedCards.first().count)
+    }
+
+    @Test
+    fun `restoring session before first roll starts initial roll and creates objective`() = runTest {
+        val sessionRepository = InMemoryGameSessionRepository().apply {
+            saveSession(
+                SavedSession.MainGame(
+                    snapshot = MainGameSnapshot(
+                        uiSnapshot = GameUiSnapshot(
+                            diceValues = listOf(1, 1, 1),
+                            diceCount = 3,
+                            diceType = DiceType.D6,
+                            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6),
+                            layoutSeed = 0L,
+                            isRolling = false,
+                            isAwaitingRerollSingle = false,
+                            isAwaitingRerollSelected = false,
+                            isAwaitingFlipFace = false,
+                            isAwaitingAdjustPlusMinus = false,
+                            isAwaitingSetValue = false,
+                            selectedDice = emptySet(),
+                            selectedRerollDice = emptySet(),
+                            selectedRerollSingleDieIndex = null,
+                            selectedFlipDieIndex = null,
+                            selectedAdjustmentDieIndex = null,
+                            selectedSetValueDieIndex = null,
+                            selectedDiceSum = 0,
+                            shouldShowSelectedSum = false,
+                            cardCounts = emptyMap(),
+                            selectedCardIndex = null,
+                            lastAppliedCardId = null,
+                            levelNumber = 1,
+                            isLevelComplete = false,
+                            showLevelCompleteMessage = false,
+                            minigamesAvailable = 3,
+                            minigamesPlayedSinceInterstitial = 0
+                        ),
+                        baseSeed = 42L,
+                        currentObjective = null,
+                        initialRollSnapshot = null
+                    )
+                )
+            )
+        }
+
+        val viewModel = buildViewModel(sessionRepository = sessionRepository)
+
+        assertTrue(viewModel.shouldStartRollOnLaunch())
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val restored = viewModel.uiState.value
+        assertTrue(restored.objectiveLines.isNotEmpty())
+        assertTrue(!restored.isRolling)
+    }
+
+    @Test
+    fun `restoring interrupted roll starts roll again`() = runTest {
+        val sessionRepository = InMemoryGameSessionRepository().apply {
+            saveSession(
+                SavedSession.MainGame(
+                    snapshot = MainGameSnapshot(
+                        uiSnapshot = GameUiSnapshot(
+                            diceValues = listOf(2, 3, 4),
+                            diceCount = 3,
+                            diceType = DiceType.D6,
+                            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6),
+                            layoutSeed = 999L,
+                            isRolling = true,
+                            isAwaitingRerollSingle = false,
+                            isAwaitingRerollSelected = false,
+                            isAwaitingFlipFace = false,
+                            isAwaitingAdjustPlusMinus = false,
+                            isAwaitingSetValue = false,
+                            selectedDice = emptySet(),
+                            selectedRerollDice = emptySet(),
+                            selectedRerollSingleDieIndex = null,
+                            selectedFlipDieIndex = null,
+                            selectedAdjustmentDieIndex = null,
+                            selectedSetValueDieIndex = null,
+                            selectedDiceSum = 0,
+                            shouldShowSelectedSum = false,
+                            cardCounts = emptyMap(),
+                            selectedCardIndex = null,
+                            lastAppliedCardId = null,
+                            levelNumber = 1,
+                            isLevelComplete = false,
+                            showLevelCompleteMessage = false,
+                            minigamesAvailable = 2,
+                            minigamesPlayedSinceInterstitial = 0
+                        ),
+                        baseSeed = 77L,
+                        currentObjective = null,
+                        initialRollSnapshot = null
+                    )
+                )
+            )
+        }
+
+        val viewModel = buildViewModel(sessionRepository = sessionRepository)
+
+        assertTrue(viewModel.shouldStartRollOnLaunch())
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(!viewModel.uiState.value.isRolling)
+        assertTrue(viewModel.uiState.value.objectiveLines.isNotEmpty())
     }
 
     private fun buildViewModel(
