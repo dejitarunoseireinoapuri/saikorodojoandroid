@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 private const val DEFAULT_ROLL_DURATION_MS = 1_500L
 private const val DEFAULT_TICK_MS = 150L
@@ -993,8 +992,7 @@ class GameViewModel(
     }
 
     private fun pickMinigame(): MinigameType {
-        val values = MinigameType.entries
-        return values[Random.nextInt(values.size)]
+        return MinigameType.SEQUENCE
     }
 
 }

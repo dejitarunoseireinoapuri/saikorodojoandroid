@@ -192,6 +192,12 @@ fun SequenceGameScreen(
         }
         previousFailureDieValue = uiState.failureDieValue
     }
+    val hasPendingSavedDieAnimation = shouldHidePendingSavedDie(
+        savedValuesSize = uiState.savedValues.size,
+        previousSavedCount = previousSavedCount,
+        animatingSaveValue = animatingSaveValue,
+        isAnimatingToFailure = animatingToFailureDie
+    )
     val hasPendingFailureDieAnimation = shouldHidePendingFailureDie(
         failureDieValue = uiState.failureDieValue,
         previousFailureDieValue = previousFailureDieValue,
@@ -451,7 +457,8 @@ fun SequenceGameScreen(
                                         value = savedDie.value,
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
-                                            isVisible = savedDie.isVisible,
+                                            isVisible = savedDie.isVisible &&
+                                                (!savedDie.isLatest || !hasPendingSavedDieAnimation),
                                             isLatest = savedDie.isLatest,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
@@ -705,6 +712,18 @@ internal fun shouldShowSequenceSavedDie(
     } else {
         !isLatest
     }
+}
+
+internal fun shouldHidePendingSavedDie(
+    savedValuesSize: Int,
+    previousSavedCount: Int,
+    animatingSaveValue: Int?,
+    isAnimatingToFailure: Boolean
+): Boolean {
+    if (savedValuesSize <= previousSavedCount) {
+        return false
+    }
+    return animatingSaveValue == null || isAnimatingToFailure
 }
 
 internal fun shouldHidePendingFailureDie(

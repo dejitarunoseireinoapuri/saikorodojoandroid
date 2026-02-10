@@ -111,4 +111,40 @@ class SequenceGameScreenLogicTest {
 
         assertFalse(hidden)
     }
+
+    @Test
+    fun `new saved die stays hidden until save animation starts`() {
+        val hidden = shouldHidePendingSavedDie(
+            savedValuesSize = 2,
+            previousSavedCount = 1,
+            animatingSaveValue = null,
+            isAnimatingToFailure = false
+        )
+
+        assertTrue(hidden)
+    }
+
+    @Test
+    fun `new saved die remains hidden while failure animation flag is active`() {
+        val hidden = shouldHidePendingSavedDie(
+            savedValuesSize = 2,
+            previousSavedCount = 1,
+            animatingSaveValue = 7,
+            isAnimatingToFailure = true
+        )
+
+        assertTrue(hidden)
+    }
+
+    @Test
+    fun `saved die is not pending when save animation is active`() {
+        val hidden = shouldHidePendingSavedDie(
+            savedValuesSize = 2,
+            previousSavedCount = 1,
+            animatingSaveValue = 7,
+            isAnimatingToFailure = false
+        )
+
+        assertFalse(hidden)
+    }
 }
