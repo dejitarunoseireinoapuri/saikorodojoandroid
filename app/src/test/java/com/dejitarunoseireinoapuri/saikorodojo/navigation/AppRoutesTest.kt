@@ -8,4 +8,9 @@ class AppRoutesTest {
     fun `play destination points to main game`() {
         assertEquals(AppRoutes.GAME, AppRoutes.PLAY_DESTINATION)
     }
+
+    @Test
+    fun `rules route is stable`() {
+        assertEquals("rules", AppRoutes.RULES)
+    }
 }
