@@ -148,7 +148,8 @@ fun SequenceGameScreen(
     val soundPlayer = rememberSoundPlayer()
     var wasRolling by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
-    var previousSavedCount by remember { mutableStateOf(0) }
+    var previousSavedCount by remember { mutableStateOf(uiState.savedValues.size) }
+    var displayedSavedCount by remember { mutableIntStateOf(uiState.savedValues.size) }
     var previousHasFailure by remember { mutableStateOf(false) }
     var previousFailureDieValue by remember { mutableStateOf<Int?>(null) }
     var animatingSaveValue by remember { mutableStateOf<Int?>(null) }
@@ -174,6 +175,8 @@ fun SequenceGameScreen(
             animatingSaveValue = uiState.savedValues.lastOrNull()
             animatingToFailureDie = false
             animationTrigger += 1
+        } else if (uiState.savedValues.size < previousSavedCount) {
+            displayedSavedCount = uiState.savedValues.size
         }
         previousSavedCount = uiState.savedValues.size
     }
@@ -198,11 +201,6 @@ fun SequenceGameScreen(
         animatingSaveValue = animatingSaveValue,
         isAnimatingToFailure = animatingToFailureDie
     )
-    val hideLatestSavedSlot = shouldHideLatestSavedSlotUntilAnimationEnds(
-        isLatestSavedValueHidden = uiState.isLatestSavedValueHidden,
-        animatingSaveValue = animatingSaveValue,
-        isAnimatingToFailure = animatingToFailureDie
-    )
     LaunchedEffect(animationTrigger) {
         if (animatingSaveValue == null) {
             return@LaunchedEffect
@@ -216,6 +214,9 @@ fun SequenceGameScreen(
                 easing = LinearOutSlowInEasing
             )
         )
+        if (!animatingToFailureDie) {
+            displayedSavedCount = uiState.savedValues.size
+        }
         animatingSaveValue = null
         animatingToFailureDie = false
     }
@@ -451,13 +452,16 @@ fun SequenceGameScreen(
                                 sequenceSavedDiceUiState(
                                     savedValues = uiState.savedValues,
                                     isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
-                                ).forEach { savedDie ->
+                                ).forEachIndexed { index, savedDie ->
                                     SequenceSavedDie(
                                         value = savedDie.value,
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
                                             isVisible = savedDie.isVisible &&
-                                                !(savedDie.isLatest && hideLatestSavedSlot),
+                                                shouldShowSavedSlotByIndex(
+                                                    index = index,
+                                                    displayedSavedCount = displayedSavedCount
+                                                ),
                                             isLatest = savedDie.isLatest,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
@@ -713,13 +717,11 @@ internal fun shouldShowSequenceSavedDie(
     }
 }
 
-internal fun shouldHideLatestSavedSlotUntilAnimationEnds(
-    isLatestSavedValueHidden: Boolean,
-    animatingSaveValue: Int?,
-    isAnimatingToFailure: Boolean
+internal fun shouldShowSavedSlotByIndex(
+    index: Int,
+    displayedSavedCount: Int
 ): Boolean {
-    val saveAnimationInProgress = animatingSaveValue != null && !isAnimatingToFailure
-    return isLatestSavedValueHidden || saveAnimationInProgress
+    return index < displayedSavedCount
 }
 
 internal fun shouldHidePendingFailureDie(

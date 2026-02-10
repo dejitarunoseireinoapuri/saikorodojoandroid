@@ -144,35 +144,8 @@ class SequenceGameScreenLogicTest {
     }
 
     @Test
-    fun `latest saved slot stays hidden when save is pending before animation starts`() {
-        val hidden = shouldHideLatestSavedSlotUntilAnimationEnds(
-            isLatestSavedValueHidden = true,
-            animatingSaveValue = null,
-            isAnimatingToFailure = false
-        )
-
-        assertTrue(hidden)
-    }
-
-    @Test
-    fun `latest saved slot stays hidden while save animation is running`() {
-        val hidden = shouldHideLatestSavedSlotUntilAnimationEnds(
-            isLatestSavedValueHidden = false,
-            animatingSaveValue = 7,
-            isAnimatingToFailure = false
-        )
-
-        assertTrue(hidden)
-    }
-
-    @Test
-    fun `latest saved slot is visible when no save animation is pending`() {
-        val hidden = shouldHideLatestSavedSlotUntilAnimationEnds(
-            isLatestSavedValueHidden = false,
-            animatingSaveValue = null,
-            isAnimatingToFailure = false
-        )
-
-        assertFalse(hidden)
+    fun `saved slot is visible only within displayed saved count`() {
+        assertTrue(shouldShowSavedSlotByIndex(index = 0, displayedSavedCount = 1))
+        assertFalse(shouldShowSavedSlotByIndex(index = 1, displayedSavedCount = 1))
     }
 }
