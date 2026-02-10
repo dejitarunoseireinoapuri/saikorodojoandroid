@@ -1,5 +1,4 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="200dp"
     android:height="200dp"
     android:viewportWidth="1024"
@@ -15,7 +14,7 @@
       android:pivotY="512">
     <path
         android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
-            android:fillColor="#33000000"/>
+        android:fillColor="#33000000"/>
   </group>
 
   <!-- Main shape -->
@@ -23,17 +22,7 @@
       android:pathData="M512,151.2L872.8,872.8L151.2,872.8Z"
       android:strokeLineJoin="round"
       android:strokeWidth="8"
-      android:strokeColor="#3A4663"
-      android:strokeLineCap="round">
-    <aapt:attr name="android:fillColor">
-      <gradient
-          android:type="linear"
-          android:startX="151.2"
-          android:startY="151.2"
-          android:endX="872.8"
-          android:endY="872.8"
-          android:startColor="#1B2233"
-          android:endColor="#2B3552"/>
-    </aapt:attr>
-  </path>
+      android:strokeColor="@color/dice_default_outer"
+      android:strokeLineCap="round"
+      android:fillColor="@color/dice_default_inner"/>
 </vector>

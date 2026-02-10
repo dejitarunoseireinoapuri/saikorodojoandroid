@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="dice_default_outer">#1B2233</color>
+    <color name="dice_default_inner">#2B3552</color>
+    <color name="dice_selected_outer">#56BD88</color>
+    <color name="dice_selected_inner">#7FD7A6</color>
 </resources>

@@ -1,5 +1,4 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="200dp"
     android:height="200dp"
     android:viewportWidth="1024"
@@ -15,7 +14,7 @@
       android:pivotY="512">
     <path
         android:pathData="M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
-            android:fillColor="#33000000"/>
+        android:fillColor="#33000000"/>
   </group>
 
   <!-- Main shape -->
@@ -23,17 +22,7 @@
       android:pathData="M550.8,914.1L910.5,588.3Q949.3,552.9 914.1,514.5L547.2,113.2Q512,74.7 476.8,113.2L109.9,514.5Q74.7,552.9 113.5,588.3L473.2,914.1Q512,949.3 550.8,914.1Z"
       android:strokeLineJoin="round"
       android:strokeWidth="8"
-      android:strokeColor="#3A4663"
-      android:strokeLineCap="round">
-    <aapt:attr name="android:fillColor">
-      <gradient
-          android:type="linear"
-          android:startX="109.9"
-          android:startY="113.2"
-          android:endX="910.5"
-          android:endY="914.1"
-          android:startColor="#1B2233"
-          android:endColor="#2B3552"/>
-    </aapt:attr>
-  </path>
+      android:strokeColor="@color/dice_default_outer"
+      android:strokeLineCap="round"
+      android:fillColor="@color/dice_default_inner"/>
 </vector>
