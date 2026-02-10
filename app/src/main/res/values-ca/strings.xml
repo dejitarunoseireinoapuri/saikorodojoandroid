@@ -174,7 +174,7 @@ Cada ús consumeix aquesta carta.</string>
     <string name="rules_card_set_value_title">Triar valor</string>
     <string name="rules_card_set_value_body">Fixes el valor d’un dau dins dels límits del seu tipus.</string>
     <string name="rules_card_repeat_title">Repetir carta</string>
-    <string name="rules_card_repeat_body">Repeteix l’efecte de l’última carta usada si existeix.</string>
+    <string name="rules_card_repeat_body">Repeteix l’efecte de l’última carta usada.</string>
     <string name="rules_card_minigames_title">Minijocs</string>
     <string name="rules_card_minigames_body">Afegeix 3 intents de minijoc.</string>
 
@@ -183,22 +183,22 @@ Cada ús consumeix aquesta carta.</string>
 Quan guanyes un minijoc reps entre 2 i 3 cartes aleatòries.
 A més, cada nivell completat al joc principal suma 2 intents de minijoc.</string>
 
-    <string name="rules_minigame_odd_even_title">Minijoc: Parell o senar</string>
+    <string name="rules_minigame_odd_even_title">Parell o senar</string>
     <string name="rules_minigame_odd_even_body">Tria parell o senar abans de cada tirada.
 Objectiu: encertar 3 vegades.
 Límit: màxim 7 rondes.</string>
 
-    <string name="rules_minigame_higher_lower_title">Minijoc: Més alt o més baix</string>
+    <string name="rules_minigame_higher_lower_title">Més alt o més baix</string>
     <string name="rules_minigame_higher_lower_body">Endevina si la suma següent serà més alta o més baixa que la suma anterior.
 Guanyes quan arribes a 3 encerts.
 També guanyes si es repeteix exactament la mateixa suma en dues rondes seguides.</string>
 
-    <string name="rules_minigame_sequence_title">Minijoc: Seqüència</string>
+    <string name="rules_minigame_sequence_title">Seqüència</string>
     <string name="rules_minigame_sequence_body">Has de formar una seqüència de 3 daus no decreixent, on cada valor és igual o més alt que l’anterior.
 Després de cada ronda decideixes si guardes o descartes el dau mostrat.
 Tens 5 rondes per completar-la.</string>
 
-    <string name="rules_minigame_blackjack_title">Minijoc: Blackjack</string>
+    <string name="rules_minigame_blackjack_title">Blackjack</string>
     <string name="rules_minigame_blackjack_body">Objectiu: acostar-te a 21 sense passar-te.
 Comences amb una tirada inicial i després decideixes si demanes un dau de 10 cares addicional o et plantes.
 Després juga la banca i es planta amb 17 o més.

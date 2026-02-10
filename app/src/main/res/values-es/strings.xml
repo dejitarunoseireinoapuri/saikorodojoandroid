@@ -174,7 +174,7 @@ Cada uso consume esa carta.</string>
     <string name="rules_card_set_value_title">Elegir valor</string>
     <string name="rules_card_set_value_body">Fijas el valor de un dado dentro de los límites de su tipo.</string>
     <string name="rules_card_repeat_title">Repetir carta</string>
-    <string name="rules_card_repeat_body">Repite el efecto de la última carta usada si existe.</string>
+    <string name="rules_card_repeat_body">Repite el efecto de la última carta usada.</string>
     <string name="rules_card_minigames_title">Minijuegos</string>
     <string name="rules_card_minigames_body">Añade 3 intentos de minijuego.</string>
 
@@ -183,22 +183,22 @@ Cada uso consume esa carta.</string>
 Al ganar un minijuego recibes entre 2 y 3 cartas aleatorias.
 Además, cada nivel completado en el juego principal suma 2 intentos de minijuego.</string>
 
-    <string name="rules_minigame_odd_even_title">Minijuego: Par o impar</string>
+    <string name="rules_minigame_odd_even_title">Par o impar</string>
     <string name="rules_minigame_odd_even_body">Elige par o impar antes de cada tirada.
 Objetivo: acertar 3 veces.
 Límite: máximo 7 rondas.</string>
 
-    <string name="rules_minigame_higher_lower_title">Minijuego: Mayor o menor</string>
+    <string name="rules_minigame_higher_lower_title">Mayor o menor</string>
     <string name="rules_minigame_higher_lower_body">Adivina si la siguiente suma será mayor o menor que la suma anterior.
 Ganas al llegar a 3 aciertos.
 También ganas si se repite exactamente la misma suma en dos rondas seguidas.</string>
 
-    <string name="rules_minigame_sequence_title">Minijuego: Secuencia</string>
+    <string name="rules_minigame_sequence_title">Secuencia</string>
     <string name="rules_minigame_sequence_body">Debes formar una secuencia de 3 dados no decreciente, donde cada valor es igual o mayor que el anterior.
 Tras cada ronda decides si guardar o descartar el dado mostrado.
 Tienes 5 rondas para completarla.</string>
 
-    <string name="rules_minigame_blackjack_title">Minijuego: Blackjack</string>
+    <string name="rules_minigame_blackjack_title">Blackjack</string>
     <string name="rules_minigame_blackjack_body">Objetivo: acercarte a 21 sin pasarte.
 Empiezas con una tirada inicial y luego decides si pides un dado de 10 caras adicional o te plantas.
 Después juega la banca y se planta con 17 o más.
