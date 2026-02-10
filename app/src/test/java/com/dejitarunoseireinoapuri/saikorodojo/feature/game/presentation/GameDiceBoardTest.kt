@@ -2,7 +2,6 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -74,11 +73,6 @@ class GameDiceBoardTest {
         cornerPositions.forEach { corner ->
             assertTrue(positions.contains(corner))
         }
-    }
-
-    @Test
-    fun `dice option number color matches die dot white`() {
-        assertEquals(DiceOptionNumberColor, diceOptionNumberColor())
     }
 
     @Test

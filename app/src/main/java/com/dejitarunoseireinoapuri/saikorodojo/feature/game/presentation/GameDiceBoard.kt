@@ -35,7 +35,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -248,7 +247,8 @@ internal fun DiceBoard(
                                             faceDrawable = diceTypeOptionDrawable(selectedType),
                                             size = optionSize,
                                             numberTextScale = textScale,
-                                            numberTextColor = diceOptionNumberColor(),
+                                            numberTextColor = diceFaceNumberColor(isSelected = true),
+                                            showSelectedStyle = true,
                                             onClick = {
                                                 soundPlayer.play(SoundEffect.USE)
                                                 onSetSelectedDieValue(value)
@@ -433,6 +433,7 @@ private fun DiceOption(
     size: Dp,
     numberTextScale: Float,
     numberTextColor: Color,
+    showSelectedStyle: Boolean = false,
     onClick: () -> Unit
 ) {
     Box(
@@ -445,15 +446,13 @@ private fun DiceOption(
             number = value,
             size = size,
             faceDrawable = faceDrawable,
-            isSelected = false,
+            isSelected = showSelectedStyle,
             showSelectionBorder = false,
             numberTextScale = numberTextScale,
             numberTextColor = numberTextColor
         )
     }
 }
-
-internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
 
 internal fun diceFaceNumberColor(isSelected: Boolean): Color =
     if (isSelected) DiceSelectedNumberColor else DiceDefaultNumberColor
