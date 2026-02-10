@@ -36,8 +36,8 @@ class ResourcesTest {
 
 
     @Test
-    fun `eight sided drawables use the octagon geometry across states`() {
-        val octagonPath = "M350,120L674,120L904,350L904,674L674,904L350,904L120,674L120,350Z"
+    fun `eight sided drawables keep rounded triangle geometry across states`() {
+        val roundedTrianglePath = "M512,151.2C530,151.2 546,161 555,177L857,780C866,798 859,820 842,828L182,828C165,820 158,798 167,780L469,177C478,161 494,151.2 512,151.2Z"
         val drawablePaths = listOf(
             "app/src/main/res/drawable/eigth_sides.xml",
             "app/src/main/res/drawable/eigth_sides_selected.xml",
@@ -47,7 +47,7 @@ class ResourcesTest {
 
         drawablePaths.forEach { file ->
             val contents = file.readText()
-            assertTrue(contents.contains(octagonPath))
+            assertTrue(contents.contains(roundedTrianglePath))
         }
     }
 
