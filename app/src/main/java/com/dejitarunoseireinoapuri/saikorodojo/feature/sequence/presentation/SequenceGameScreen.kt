@@ -183,7 +183,6 @@ fun SequenceGameScreen(
         if (uiState.savedValues.size > previousSavedCount) {
             animatingSaveValue = uiState.savedValues.lastOrNull()
             animatingToFailureDie = false
-            pendingMoveTarget = null
             animationTrigger += 1
         }
         previousSavedCount = uiState.savedValues.size
@@ -199,7 +198,6 @@ fun SequenceGameScreen(
         if (uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue) {
             animatingSaveValue = uiState.failureDieValue
             animatingToFailureDie = true
-            pendingMoveTarget = null
             animationTrigger += 1
         }
         previousFailureDieValue = uiState.failureDieValue
@@ -219,6 +217,7 @@ fun SequenceGameScreen(
         )
         animatingSaveValue = null
         animatingToFailureDie = false
+        pendingMoveTarget = null
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
@@ -405,10 +404,11 @@ fun SequenceGameScreen(
                     modifier = Modifier.height(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (!uiState.isComplete && !hideCenterDie) {
+                    if (!uiState.isComplete) {
                         SequenceDiceFace(
                             value = uiState.diceValue,
                             size = 140.dp,
+                            showDice = !hideCenterDie,
                             modifier = Modifier
                                 .testTag(SEQUENCE_DICE_TAG)
                                 .onGloballyPositioned { coordinates ->
@@ -791,6 +791,7 @@ private fun SequenceMat(
 private fun SequenceDiceFace(
     value: Int?,
     size: Dp,
+    showDice: Boolean,
     modifier: Modifier = Modifier
 ) {
     val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
@@ -802,7 +803,7 @@ private fun SequenceDiceFace(
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (value != null) {
+        if (showDice && value != null) {
             Image(
                 painter = painterResource(id = R.drawable.ten_sides),
                 contentDescription = stringResource(R.string.cd_dice_face, value),
