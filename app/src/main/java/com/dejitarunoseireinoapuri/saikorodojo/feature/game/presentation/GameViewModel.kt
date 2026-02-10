@@ -97,11 +97,10 @@ class GameViewModel(
             null -> null
         }
         if (restoredSnapshot != null) {
-            restoreFromSnapshot(restoredSnapshot)
+            shouldAutoStartRoll = restoreFromSnapshot(restoredSnapshot)
             if (restoredSession is SavedSession.Minigame) {
                 savePendingMainGameSnapshotUseCase.execute(restoredSnapshot)
             }
-            shouldAutoStartRoll = false
         } else {
             val initialCards = cardUiModels.ifEmpty { loadInventoryCardModels() }
             applyLevelDefinition(
@@ -865,8 +864,10 @@ class GameViewModel(
         return shouldAutoStartRoll
     }
 
-    private fun restoreFromSnapshot(snapshot: MainGameSnapshot) {
+    private fun restoreFromSnapshot(snapshot: MainGameSnapshot): Boolean {
         val uiSnapshot = snapshot.uiSnapshot
+        val shouldResumeInterruptedRoll = uiSnapshot.isRolling
+        val shouldStartInitialRoll = snapshot.currentObjective == null && snapshot.initialRollSnapshot == null
         baseSeed = snapshot.baseSeed
         currentObjective = snapshot.currentObjective
         initialRollSnapshot = snapshot.initialRollSnapshot
@@ -880,7 +881,7 @@ class GameViewModel(
                 diceType = uiSnapshot.diceType,
                 diceTypes = uiSnapshot.diceTypes,
                 layoutSeed = uiSnapshot.layoutSeed,
-                isRolling = uiSnapshot.isRolling,
+                isRolling = false,
                 interactionMode = restoreInteractionMode(uiSnapshot),
                 selectedDice = uiSnapshot.selectedDice,
                 selectedRerollDice = uiSnapshot.selectedRerollDice,
@@ -903,6 +904,7 @@ class GameViewModel(
             )
         }
         refreshObjectiveProgress()
+        return shouldResumeInterruptedRoll || shouldStartInitialRoll
     }
 
     private fun buildMainGameSnapshot(): MainGameSnapshot {
@@ -996,4 +998,3 @@ class GameViewModel(
     }
 
 }
-
