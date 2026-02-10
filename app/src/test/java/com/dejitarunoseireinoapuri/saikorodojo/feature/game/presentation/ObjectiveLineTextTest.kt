@@ -14,7 +14,7 @@ class ObjectiveLineTextTest {
     fun `selected dice progress uses minimum count text`() {
         val condition = MinSelectedDiceCondition(minCount = 3)
 
-        val result = objectiveLineText(condition, selectedCount = 5)
+        val result = objectiveLineText(condition)
 
         val expected = ObjectiveLineText.StringRes(
             resId = R.string.objective_selected_progress,
@@ -28,7 +28,7 @@ class ObjectiveLineTextTest {
     fun `selected dice progress ignores current selection count`() {
         val condition = MinSelectedDiceCondition(minCount = 3)
 
-        val result = objectiveLineText(condition, selectedCount = 2)
+        val result = objectiveLineText(condition)
 
         val expected = ObjectiveLineText.StringRes(
             resId = R.string.objective_selected_progress,
@@ -42,7 +42,7 @@ class ObjectiveLineTextTest {
     fun `distinct values objective uses string resource`() {
         val condition = ExactlyDistinctValuesCondition(distinctCount = 4)
 
-        val result = objectiveLineText(condition, selectedCount = 4)
+        val result = objectiveLineText(condition)
 
         val expected = ObjectiveLineText.StringRes(
             resId = R.string.objective_exact_distinct_values,
@@ -56,7 +56,7 @@ class ObjectiveLineTextTest {
     fun `parity count objective uses string resource`() {
         val condition = AtLeastParityCountCondition(minCount = 2, even = true)
 
-        val result = objectiveLineText(condition, selectedCount = 2)
+        val result = objectiveLineText(condition)
 
         val expected = ObjectiveLineText.StringRes(
             resId = R.string.objective_at_least_even_values,
