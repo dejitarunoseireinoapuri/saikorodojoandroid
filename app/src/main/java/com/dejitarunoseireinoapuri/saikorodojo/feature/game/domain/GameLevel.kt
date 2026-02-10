@@ -324,7 +324,6 @@ internal fun buildObjectiveCandidates(
         candidates.add(AllDistinctCondition)
         candidates.add(HasPairCondition(requiredPairs = 1))
         candidates.add(HasPairCondition(requiredPairs = 2))
-        candidates.add(HasPairCondition(requiredPairs = 3))
         candidates.add(ExactlyDistinctValuesCondition(distinctCount = minOf(3, maxSelectable)))
         val containsCount = minOf(2 + stage / 2, maxSelectable).coerceAtLeast(1)
         candidates.add(
@@ -345,6 +344,7 @@ internal fun buildObjectiveCandidates(
     }
 
     if (stage >= 3) {
+        candidates.add(HasPairCondition(requiredPairs = 3))
         candidates.add(HasThreeOfKindCondition(requiredTrios = 2))
         candidates.add(ThreeOfKindWithValueCondition(requiredValue = randomValuesPool.random(random)))
         val multiplicityTargetValue = randomValuesPool.random(random)
@@ -368,7 +368,28 @@ internal fun buildObjectiveCandidates(
         candidates.add(ForbidValuesCondition(values = forbiddenValues))
     }
 
-    return candidates
+    return candidates.filter { condition ->
+        minimumRequiredDice(condition) <= maxSelectable
+    }
+}
+
+internal fun minimumRequiredDice(condition: ObjectiveCondition): Int {
+    return when (condition) {
+        is HasPairCondition -> condition.requiredPairs * 2
+        is HasThreeOfKindCondition -> condition.requiredTrios * 3
+        is ThreeOfKindWithValueCondition -> 3
+        is HasFourOfKindCondition -> if (condition.required) 4 else 0
+        is FullHouseCondition -> 5
+        is AllDistinctCondition -> 1
+        is ExactlyDistinctValuesCondition -> condition.distinctCount
+        is StraightCondition -> condition.length
+        is ContainsValuesCondition -> condition.values.distinct().size
+        is ContainsValuesWithMultiplicityCondition -> condition.values.size
+        is ForbidValuesCondition -> 1
+        is MinSelectedDiceCondition -> condition.minCount
+        is AtLeastParityCountCondition -> condition.minCount
+        else -> 1
+    }
 }
 
 
