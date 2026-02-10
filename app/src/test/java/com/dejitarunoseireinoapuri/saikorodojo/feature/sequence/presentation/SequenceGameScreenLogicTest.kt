@@ -75,4 +75,40 @@ class SequenceGameScreenLogicTest {
 
         assertTrue(visible)
     }
+
+    @Test
+    fun `new failure die stays hidden until failure animation starts`() {
+        val hidden = shouldHidePendingFailureDie(
+            failureDieValue = 6,
+            previousFailureDieValue = null,
+            animatingSaveValue = null,
+            isAnimatingToFailure = false
+        )
+
+        assertTrue(hidden)
+    }
+
+    @Test
+    fun `failure die is visible once failure animation is active`() {
+        val hidden = shouldHidePendingFailureDie(
+            failureDieValue = 6,
+            previousFailureDieValue = null,
+            animatingSaveValue = 6,
+            isAnimatingToFailure = true
+        )
+
+        assertFalse(hidden)
+    }
+
+    @Test
+    fun `already known failure die is never treated as pending`() {
+        val hidden = shouldHidePendingFailureDie(
+            failureDieValue = 6,
+            previousFailureDieValue = 6,
+            animatingSaveValue = null,
+            isAnimatingToFailure = false
+        )
+
+        assertFalse(hidden)
+    }
 }

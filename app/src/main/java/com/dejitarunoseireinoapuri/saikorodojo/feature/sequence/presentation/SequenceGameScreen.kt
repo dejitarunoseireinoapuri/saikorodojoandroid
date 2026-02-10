@@ -192,6 +192,12 @@ fun SequenceGameScreen(
         }
         previousFailureDieValue = uiState.failureDieValue
     }
+    val hasPendingFailureDieAnimation = shouldHidePendingFailureDie(
+        failureDieValue = uiState.failureDieValue,
+        previousFailureDieValue = previousFailureDieValue,
+        animatingSaveValue = animatingSaveValue,
+        isAnimatingToFailure = animatingToFailureDie
+    )
     LaunchedEffect(animationTrigger) {
         if (animatingSaveValue == null) {
             return@LaunchedEffect
@@ -469,7 +475,7 @@ fun SequenceGameScreen(
                                         value = value,
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
-                                            isVisible = true,
+                                            isVisible = !hasPendingFailureDieAnimation,
                                             isLatest = false,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
@@ -699,6 +705,18 @@ internal fun shouldShowSequenceSavedDie(
     } else {
         !isLatest
     }
+}
+
+internal fun shouldHidePendingFailureDie(
+    failureDieValue: Int?,
+    previousFailureDieValue: Int?,
+    animatingSaveValue: Int?,
+    isAnimatingToFailure: Boolean
+): Boolean {
+    if (failureDieValue == null || failureDieValue == previousFailureDieValue) {
+        return false
+    }
+    return animatingSaveValue == null || !isAnimatingToFailure
 }
 
 @Composable
