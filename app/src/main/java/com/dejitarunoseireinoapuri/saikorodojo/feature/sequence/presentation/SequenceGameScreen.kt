@@ -198,6 +198,10 @@ fun SequenceGameScreen(
         animatingSaveValue = animatingSaveValue,
         isAnimatingToFailure = animatingToFailureDie
     )
+    val hasPendingSavedDieAnimation = shouldHidePendingSavedDieAnimation(
+        savedValuesSize = uiState.savedValues.size,
+        previousSavedCount = previousSavedCount
+    )
     LaunchedEffect(animationTrigger) {
         if (animatingSaveValue == null) {
             return@LaunchedEffect
@@ -451,7 +455,11 @@ fun SequenceGameScreen(
                                         value = savedDie.value,
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
-                                            isVisible = savedDie.isVisible,
+                                            isVisible = savedDie.isVisible &&
+                                                !shouldHideLatestSavedDieBeforeAnimationStarts(
+                                                    isLatest = savedDie.isLatest,
+                                                    hasPendingSavedDieAnimation = hasPendingSavedDieAnimation
+                                                ),
                                             isLatest = savedDie.isLatest,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
@@ -705,6 +713,20 @@ internal fun shouldShowSequenceSavedDie(
     } else {
         !isLatest
     }
+}
+
+internal fun shouldHidePendingSavedDieAnimation(
+    savedValuesSize: Int,
+    previousSavedCount: Int
+): Boolean {
+    return savedValuesSize > previousSavedCount
+}
+
+internal fun shouldHideLatestSavedDieBeforeAnimationStarts(
+    isLatest: Boolean,
+    hasPendingSavedDieAnimation: Boolean
+): Boolean {
+    return isLatest && hasPendingSavedDieAnimation
 }
 
 internal fun shouldHidePendingFailureDie(
