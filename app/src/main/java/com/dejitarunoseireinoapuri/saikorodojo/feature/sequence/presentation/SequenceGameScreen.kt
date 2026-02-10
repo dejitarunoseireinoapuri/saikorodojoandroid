@@ -131,6 +131,7 @@ fun SequenceGameRoute(
         uiState = uiState,
         onStartClick = { viewModel.onEvent(SequenceGameUiEvent.StartGame) },
         onSaveClick = { viewModel.onEvent(SequenceGameUiEvent.SaveRoll) },
+        onSaveAnimationFinished = { viewModel.onEvent(SequenceGameUiEvent.SaveAnimationFinished) },
         onDiscardClick = { viewModel.onEvent(SequenceGameUiEvent.DiscardRoll) },
         onContinueClick = onContinueClick,
         onExitToMenu = {
@@ -148,6 +149,7 @@ fun SequenceGameScreen(
     uiState: SequenceGameUiState,
     onStartClick: () -> Unit,
     onSaveClick: () -> Unit,
+    onSaveAnimationFinished: () -> Unit,
     onDiscardClick: () -> Unit,
     onContinueClick: () -> Unit,
     onExitToMenu: () -> Unit
@@ -182,12 +184,15 @@ fun SequenceGameScreen(
         if (shouldPlaySequenceSuccess(previousSavedCount, uiState.savedValues.size)) {
             soundPlayer.play(SoundEffect.SUCCESS)
         }
-        if (uiState.savedValues.size > previousSavedCount) {
-            animatingSaveValue = uiState.savedValues.lastOrNull()
-            animatingToFailureDie = false
-            animationTrigger += 1
-        }
         previousSavedCount = uiState.savedValues.size
+    }
+    LaunchedEffect(uiState.pendingSavedValue) {
+        if (uiState.pendingSavedValue == null) {
+            return@LaunchedEffect
+        }
+        animatingSaveValue = uiState.pendingSavedValue
+        animatingToFailureDie = false
+        animationTrigger += 1
     }
     LaunchedEffect(uiState.failureReason) {
         val hasFailure = uiState.failureReason != null
@@ -196,13 +201,13 @@ fun SequenceGameScreen(
         }
         previousHasFailure = hasFailure
     }
-    LaunchedEffect(uiState.failureDieValue) {
-        if (uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue) {
-            animatingSaveValue = uiState.failureDieValue
+    LaunchedEffect(uiState.pendingFailureDieValue) {
+        if (uiState.pendingFailureDieValue != null && uiState.pendingFailureDieValue != previousFailureDieValue) {
+            animatingSaveValue = uiState.pendingFailureDieValue
             animatingToFailureDie = true
             animationTrigger += 1
         }
-        previousFailureDieValue = uiState.failureDieValue
+        previousFailureDieValue = uiState.pendingFailureDieValue
     }
     LaunchedEffect(animationTrigger) {
         if (animatingSaveValue == null) {
@@ -229,6 +234,7 @@ fun SequenceGameScreen(
                 easing = LinearOutSlowInEasing
             )
         )
+        onSaveAnimationFinished()
         animatingSaveValue = null
         animatingToFailureDie = false
         pendingMoveTarget = null
@@ -301,7 +307,7 @@ fun SequenceGameScreen(
             val rulesModifier = if (showRules) {
                 Modifier
             } else {
-                Modifier.alpha(0f).clearAndSetSemantics { }
+                Modifier.clearAndSetSemantics { }
             }
             if (hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -472,8 +478,7 @@ fun SequenceGameScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 sequenceSavedDiceUiState(
-                                    savedValues = uiState.savedValues,
-                                    isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
+                                    savedValues = uiState.savedValues
                                 ).forEach { savedDie ->
                                     SequenceSavedDie(
                                         value = savedDie.value,
@@ -688,17 +693,15 @@ internal data class SequenceSavedDieUi(
 )
 
 internal fun sequenceSavedDiceUiState(
-    savedValues: List<Int>,
-    isLatestSavedValueHidden: Boolean
+    savedValues: List<Int>
 ): List<SequenceSavedDieUi> {
     if (savedValues.isEmpty()) {
         return emptyList()
     }
-    val hiddenIndex = if (isLatestSavedValueHidden) savedValues.lastIndex else -1
     return savedValues.mapIndexed { index, value ->
         SequenceSavedDieUi(
             value = value,
-            isVisible = index != hiddenIndex,
+            isVisible = true,
             isLatest = index == savedValues.lastIndex
         )
     }

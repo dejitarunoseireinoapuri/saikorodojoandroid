@@ -110,6 +110,7 @@ class MinigameSessionClearingTest {
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
         advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        viewModel.onEvent(SequenceGameUiEvent.SaveAnimationFinished)
         advanceUntilIdle()
         viewModel.saveSession()
 

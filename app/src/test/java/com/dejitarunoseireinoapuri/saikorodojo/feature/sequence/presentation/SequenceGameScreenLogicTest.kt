@@ -16,18 +16,8 @@ class SequenceGameScreenLogicTest {
 
 
     @Test
-    fun `latest saved die stays hidden while transition is active`() {
-        val hidden = sequenceSavedDiceUiState(
-            savedValues = listOf(2, 5, 8),
-            isLatestSavedValueHidden = true
-        )
-
-        assertEquals(listOf(true, true, false), hidden.map { it.isVisible })
-
-        val shown = sequenceSavedDiceUiState(
-            savedValues = listOf(2, 5, 8),
-            isLatestSavedValueHidden = false
-        )
+    fun `saved dice remain visible while overlay handles pending movement`() {
+        val shown = sequenceSavedDiceUiState(savedValues = listOf(2, 5, 8))
 
         assertEquals(listOf(true, true, true), shown.map { it.isVisible })
     }
