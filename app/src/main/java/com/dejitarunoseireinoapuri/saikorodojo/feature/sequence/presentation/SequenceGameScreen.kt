@@ -153,6 +153,7 @@ fun SequenceGameScreen(
     var previousFailureDieValue by remember { mutableStateOf<Int?>(null) }
     var animatingSaveValue by remember { mutableStateOf<Int?>(null) }
     var animatingToFailureDie by remember { mutableStateOf(false) }
+    var hideLatestSavedDieUntilAnimationEnds by remember { mutableStateOf(false) }
     var diceCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
@@ -173,6 +174,7 @@ fun SequenceGameScreen(
         if (uiState.savedValues.size > previousSavedCount) {
             animatingSaveValue = uiState.savedValues.lastOrNull()
             animatingToFailureDie = false
+            hideLatestSavedDieUntilAnimationEnds = true
             animationTrigger += 1
         }
         previousSavedCount = uiState.savedValues.size
@@ -192,12 +194,6 @@ fun SequenceGameScreen(
         }
         previousFailureDieValue = uiState.failureDieValue
     }
-    val hasPendingSavedDieAnimation = shouldHidePendingSavedDie(
-        savedValuesSize = uiState.savedValues.size,
-        previousSavedCount = previousSavedCount,
-        animatingSaveValue = animatingSaveValue,
-        isAnimatingToFailure = animatingToFailureDie
-    )
     val hasPendingFailureDieAnimation = shouldHidePendingFailureDie(
         failureDieValue = uiState.failureDieValue,
         previousFailureDieValue = previousFailureDieValue,
@@ -208,6 +204,7 @@ fun SequenceGameScreen(
         if (animatingSaveValue == null) {
             return@LaunchedEffect
         }
+        val isFailureAnimation = animatingToFailureDie
         soundPlayer.play(SoundEffect.MOVE_DICE)
         saveAnimationProgress.snapTo(0f)
         saveAnimationProgress.animateTo(
@@ -217,6 +214,9 @@ fun SequenceGameScreen(
                 easing = LinearOutSlowInEasing
             )
         )
+        if (!isFailureAnimation) {
+            hideLatestSavedDieUntilAnimationEnds = false
+        }
         animatingSaveValue = null
         animatingToFailureDie = false
     }
@@ -458,7 +458,7 @@ fun SequenceGameScreen(
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
                                             isVisible = savedDie.isVisible &&
-                                                (!savedDie.isLatest || !hasPendingSavedDieAnimation),
+                                                (!savedDie.isLatest || !hideLatestSavedDieUntilAnimationEnds),
                                             isLatest = savedDie.isLatest,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
@@ -712,18 +712,6 @@ internal fun shouldShowSequenceSavedDie(
     } else {
         !isLatest
     }
-}
-
-internal fun shouldHidePendingSavedDie(
-    savedValuesSize: Int,
-    previousSavedCount: Int,
-    animatingSaveValue: Int?,
-    isAnimatingToFailure: Boolean
-): Boolean {
-    if (savedValuesSize <= previousSavedCount) {
-        return false
-    }
-    return animatingSaveValue == null || isAnimatingToFailure
 }
 
 internal fun shouldHidePendingFailureDie(
