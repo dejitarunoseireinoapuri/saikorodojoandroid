@@ -63,6 +63,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
@@ -74,7 +75,6 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackgroun
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.snapshotFlow
 
 internal const val SEQUENCE_DICE_TAG = "sequence_dice"
 internal const val SEQUENCE_DICE_VALUE_TAG = "sequence_dice_value"
