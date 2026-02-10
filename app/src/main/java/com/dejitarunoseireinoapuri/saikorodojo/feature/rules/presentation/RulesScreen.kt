@@ -91,6 +91,22 @@ fun RulesScreen(
                 title = stringResource(R.string.rules_minigames_title),
                 body = stringResource(R.string.rules_minigames_body)
             )
+            RulesSection(
+                title = stringResource(R.string.rules_minigame_odd_even_title),
+                body = stringResource(R.string.rules_minigame_odd_even_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_minigame_higher_lower_title),
+                body = stringResource(R.string.rules_minigame_higher_lower_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_minigame_sequence_title),
+                body = stringResource(R.string.rules_minigame_sequence_body)
+            )
+            RulesSection(
+                title = stringResource(R.string.rules_minigame_blackjack_title),
+                body = stringResource(R.string.rules_minigame_blackjack_body)
+            )
         }
     }
 }

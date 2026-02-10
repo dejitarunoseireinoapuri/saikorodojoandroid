@@ -146,40 +146,56 @@
 
     <string name="rules_screen_title">Reglas</string>
     <string name="rules_screen_back">Volver</string>
+
     <string name="rules_main_game_title">Juego principal</string>
-    <string name="rules_main_game_body">• Objetivo general: superar niveles de puzle con dados y cartas.
-• En cada nivel se lanza un conjunto de dados y debes cumplir un objetivo con los dados que selecciones.
-• Puedes usar todos los dados o solo un subconjunto, según te convenga para el objetivo.
-• La dificultad sube progresivamente: más dados, objetivos más complejos y restricciones adicionales.</string>
+    <string name="rules_main_game_body">• Supera niveles de puzle cumpliendo todos los objetivos que aparecen en pantalla.
+• En cada nivel primero se hace una tirada animada y luego eliges qué dados usar.
+• Al principio puedes dejar dados sin seleccionar, pero en niveles más avanzados se exige seleccionar un mínimo y, a partir de etapas altas, normalmente todos.
+• La dificultad sube por etapas: más dados y mezcla progresiva de d6, d8 y d10.</string>
+
     <string name="rules_objectives_cards_title">Objetivos y cartas</string>
-    <string name="rules_objectives_cards_body">• Los objetivos se evalúan sobre la tirada final, después de usar cartas.
-• Tipos de objetivo más comunes:
-  - Combinaciones: par, trío, póker, full, escaleras o todos distintos.
-  - Colecciones: incluir valores concretos, con o sin repeticiones.
-  - Numéricos: suma exacta, dentro de un rango, mínimo o máximo.
-  - Propiedades: paridad, múltiplos, residuos o rango comprimido.
-• Las cartas son un inventario global y se pueden repetir.
-• Las cartas permiten modificar dados (ajustar, invertir, relanzar, fijar valor, repetir efecto, etc.).
-• Algunos niveles limitan cartas disponibles o exigen usar cartas concretas que ya tengas.</string>
+    <string name="rules_objectives_cards_body">Objetivos
+• Cada nivel tiene 1 o más condiciones y además una condición de cantidad mínima de dados seleccionados.
+• Hay objetivos de suma (exacta, mínima, máxima, rango, múltiplos, par/impar), combinaciones (par, trío, póker, full, escalera, todos distintos) y colección/prohibición de valores.
+• El nivel se completa cuando todas las condiciones activas se cumplen a la vez con los dados seleccionados.
+
+Cartas
+• Al empezar una partida nueva recibes 3 cartas aleatorias.
+• Inventario global: las cartas se acumulan entre niveles y pueden repetirse.
+• Cada uso consume 1 carta de ese tipo.
+• Cartas que pueden salir actualmente:
+  - Ajustar ±1: sube o baja en 1 el valor de un dado.
+  - Voltear: cambia un dado a su cara opuesta (en d6, 1↔6, 2↔5, 3↔4).
+  - Relanzar uno: vuelves a tirar un único dado.
+  - Relanzar varios: eliges varios dados y los relanzas.
+  - Elegir valor: fijas el valor de un dado dentro de los límites de su tipo.
+  - Repetir carta: repite el efecto de la última carta usada (si existe).
+  - Minijuegos: añade 3 intentos de minijuego.</string>
+
     <string name="rules_minigames_title">Minijuegos</string>
-    <string name="rules_minigames_body">• Los minijuegos son un modo separado para conseguir cartas.
+    <string name="rules_minigames_body">• Los minijuegos son un modo separado para ganar cartas para el juego principal.
+• Al ganar un minijuego recibes entre 2 y 3 cartas aleatorias.
+• Además, cada nivel completado en el juego principal suma 2 intentos de minijuego.</string>
 
-1) Par o impar
-   - Adivina si el resultado de la tirada será par o impar.
-   - Ganas al acertar 3 veces dentro de un máximo de 7 rondas.
+    <string name="rules_minigame_odd_even_title">Minijuego: Par o impar</string>
+    <string name="rules_minigame_odd_even_body">• Elige par o impar antes de cada tirada.
+• Objetivo: acertar 3 veces.
+• Límite: máximo 7 rondas.</string>
 
-2) Mayor o menor
-   - Adivina si la siguiente suma será mayor o menor que la anterior.
-   - Ganas con 3 aciertos, o si sale la misma suma dos veces seguidas.
+    <string name="rules_minigame_higher_lower_title">Minijuego: Mayor o menor</string>
+    <string name="rules_minigame_higher_lower_body">• Adivina si la siguiente suma será mayor o menor que la suma anterior.
+• Ganas al llegar a 3 aciertos.
+• También ganas si se repite exactamente la misma suma en dos rondas seguidas.</string>
 
-3) Secuencia
-   - Debes formar una secuencia de 3 valores no decreciente.
-   - Tras cada ronda decides si guardas o descartas el dado obtenido.
-   - Tienes 5 rondas para completar la secuencia.
+    <string name="rules_minigame_sequence_title">Minijuego: Secuencia</string>
+    <string name="rules_minigame_sequence_body">• Debes formar una secuencia de 3 dados no decreciente (cada valor igual o mayor que el anterior).
+• Tras cada ronda decides si guardar o descartar el dado mostrado.
+• Tienes 5 rondas para completarla.</string>
 
-4) Blackjack
-   - Intenta llegar a 21 sin pasarte.
-   - Tras la primera tirada decides si pides un d10 más o te plantas.
-   - Luego juega la banca; gana quien quede más cerca de 21.
-   - Si hay empate, gana la banca.</string>
+    <string name="rules_minigame_blackjack_title">Minijuego: Blackjack</string>
+    <string name="rules_minigame_blackjack_body">• Objetivo: acercarte a 21 sin pasarte.
+• Empiezas con una tirada inicial y luego decides si pides un d10 adicional o te plantas.
+• Después juega la banca y se planta con 17 o más.
+• Si hay empate, gana la banca.
+• El 1 cuenta como 1 u 11 según convenga.</string>
 </resources>

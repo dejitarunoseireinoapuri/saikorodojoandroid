@@ -7,7 +7,7 @@ import java.io.File
 
 class RulesStringsTest {
     @Test
-    fun `rules describe main game before minigames and avoid ads`() {
+    fun `rules describe main game before minigames and avoid ad mentions`() {
         val stringsFile = resolveProjectPath("app/src/main/res/values/strings.xml")
         val content = stringsFile.readText()
 
@@ -16,12 +16,23 @@ class RulesStringsTest {
 
         assertTrue(mainGameIndex in 0 until minigamesIndex)
 
-        val minigamesBodyStart = content.indexOf("name=\"rules_minigames_body\"")
-        val minigamesBodyEnd = content.indexOf("</string>", minigamesBodyStart)
-        val minigamesBody = content.substring(minigamesBodyStart, minigamesBodyEnd)
+        val rulesSectionStart = content.indexOf("name=\"rules_minigames_body\"")
+        val rulesSectionEnd = content.indexOf("name=\"rules_minigame_blackjack_body\"")
+        val minigamesSection = content.substring(rulesSectionStart, rulesSectionEnd)
 
-        assertFalse(minigamesBody.contains("anuncio", ignoreCase = true))
-        assertFalse(minigamesBody.contains("ad", ignoreCase = true))
+        assertFalse(minigamesSection.contains("anuncio", ignoreCase = true))
+        assertFalse(minigamesSection.contains("watch an ad", ignoreCase = true))
+    }
+
+    @Test
+    fun `rules include one subsection per minigame`() {
+        val stringsFile = resolveProjectPath("app/src/main/res/values/strings.xml")
+        val content = stringsFile.readText()
+
+        assertTrue(content.contains("name=\"rules_minigame_odd_even_title\""))
+        assertTrue(content.contains("name=\"rules_minigame_higher_lower_title\""))
+        assertTrue(content.contains("name=\"rules_minigame_sequence_title\""))
+        assertTrue(content.contains("name=\"rules_minigame_blackjack_title\""))
     }
 
     private fun resolveProjectPath(path: String): File {
