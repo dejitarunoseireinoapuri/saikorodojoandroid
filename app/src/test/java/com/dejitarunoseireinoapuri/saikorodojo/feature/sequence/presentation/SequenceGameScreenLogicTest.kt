@@ -75,4 +75,34 @@ class SequenceGameScreenLogicTest {
 
         assertTrue(visible)
     }
+
+    @Test
+    fun `top die is hidden while transfer animation is active`() {
+        assertFalse(
+            shouldShowSequenceTopDie(
+                isComplete = false,
+                animatingSaveValue = 6
+            )
+        )
+    }
+
+    @Test
+    fun `top die stays hidden when round is complete`() {
+        assertFalse(
+            shouldShowSequenceTopDie(
+                isComplete = true,
+                animatingSaveValue = null
+            )
+        )
+    }
+
+    @Test
+    fun `top die is visible during active round without transfer animation`() {
+        assertTrue(
+            shouldShowSequenceTopDie(
+                isComplete = false,
+                animatingSaveValue = null
+            )
+        )
+    }
 }

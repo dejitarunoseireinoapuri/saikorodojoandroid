@@ -385,7 +385,7 @@ fun SequenceGameScreen(
                     modifier = Modifier.height(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (!uiState.isComplete) {
+                    if (shouldShowSequenceTopDie(uiState.isComplete, animatingSaveValue)) {
                         SequenceDiceFace(
                             value = uiState.diceValue,
                             size = 140.dp,
@@ -671,6 +671,13 @@ internal fun shouldShowSequenceContinueButton(
     hasLoss: Boolean
 ): Boolean {
     return hasReward || hasLoss
+}
+
+internal fun shouldShowSequenceTopDie(isComplete: Boolean, animatingSaveValue: Int?): Boolean {
+    if (isComplete) {
+        return false
+    }
+    return animatingSaveValue == null
 }
 
 internal fun shouldPlaySequenceSuccess(previousSavedCount: Int, currentSavedCount: Int): Boolean {

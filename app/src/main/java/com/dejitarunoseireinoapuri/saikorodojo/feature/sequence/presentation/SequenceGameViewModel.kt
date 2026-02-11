@@ -360,15 +360,25 @@ class SequenceGameViewModel(
                 pendingRewardCards = rewardCards,
                 failureReason = null,
                 failureDieValue = null,
-                isLatestSavedValueHidden = false
+                isLatestSavedValueHidden = true
             )
         }
         viewModelScope.launch(dispatcher) {
-            delay(rewardRevealDelayMs)
+            if (saveAnimationMs > 0L) {
+                delay(saveAnimationMs)
+                _uiState.update { current ->
+                    current.copy(isLatestSavedValueHidden = false)
+                }
+            }
+            val remainingRevealDelayMs = (rewardRevealDelayMs - saveAnimationMs).coerceAtLeast(0L)
+            if (remainingRevealDelayMs > 0L) {
+                delay(remainingRevealDelayMs)
+            }
             _uiState.update { current ->
                 current.copy(
                     rewardCards = current.pendingRewardCards,
-                    pendingRewardCards = emptyList()
+                    pendingRewardCards = emptyList(),
+                    isLatestSavedValueHidden = false
                 )
             }
         }
