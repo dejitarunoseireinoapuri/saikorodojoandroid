@@ -2,6 +2,7 @@ package com.dejitarunoseireinoapuri.saikorodojo
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -23,6 +24,10 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.settings.presentation.Set
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundPlayerProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundSettingsRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.navigation.AppRoutes
+import androidx.compose.ui.graphics.toArgb
+import com.dejitarunoseireinoapuri.saikorodojo.ui.SystemBarAppearance
+import com.dejitarunoseireinoapuri.saikorodojo.ui.resolveSystemBarAppearance
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.google.android.gms.ads.MobileAds
 
@@ -33,7 +38,11 @@ class MainActivity : ComponentActivity() {
         GameSessionRepositoryProvider.initialize(this)
         SoundSettingsRepositoryProvider.initialize(this)
         SoundPlayerProvider.initialize(this)
-        enableEdgeToEdge()
+        val systemBarAppearance = resolveSystemBarAppearance(AppBackground.toArgb())
+        enableEdgeToEdge(
+            statusBarStyle = systemBarStyle(systemBarAppearance),
+            navigationBarStyle = systemBarStyle(systemBarAppearance)
+        )
         AdConsentManager.initialize(this)
         AdConsentManager.requestConsentInfoUpdate(this)
         MobileAds.initialize(this)
@@ -194,5 +203,16 @@ private fun minigameRoute(minigame: MinigameType): String {
         MinigameType.SEQUENCE -> AppRoutes.SEQUENCE_GAME
         MinigameType.BLACKJACK -> AppRoutes.BLACKJACK_GAME
         MinigameType.HIGHER_LOWER -> AppRoutes.HIGHER_LOWER_GAME
+    }
+}
+
+private fun systemBarStyle(appearance: SystemBarAppearance): SystemBarStyle {
+    return if (appearance.useDarkIcons) {
+        SystemBarStyle.light(
+            scrim = appearance.backgroundColor,
+            darkScrim = appearance.backgroundColor
+        )
+    } else {
+        SystemBarStyle.dark(scrim = appearance.backgroundColor)
     }
 }
