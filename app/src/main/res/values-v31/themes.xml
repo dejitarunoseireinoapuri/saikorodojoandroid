@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.SaikoroDojo" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.SaikoroDojo" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
 
     <style name="Theme.SaikoroDojo.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_menu_background</item>

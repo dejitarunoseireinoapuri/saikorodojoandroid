@@ -134,8 +134,15 @@ fun MenuScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(start = 48.dp, end = 48.dp, bottom = 64.dp)
+                .padding(top = 96.dp, start = 48.dp, end = 48.dp, bottom = 64.dp)
         ) {
+            Text(
+                text = stringResource(R.string.game_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+
             Image(
                 painter = painterResource(R.drawable.saikoro_dojo_die),
                 contentDescription = null,

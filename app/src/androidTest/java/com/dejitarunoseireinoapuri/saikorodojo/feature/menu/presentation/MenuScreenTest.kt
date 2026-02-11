@@ -18,7 +18,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.unit.dp
 
 @RunWith(AndroidJUnit4::class)
@@ -96,7 +95,7 @@ class MenuScreenTest {
     }
 
     @Test
-    fun menuDoesNotShowTopTitleText() {
+    fun menuShowsTopTitleText() {
         composeRule.setContent {
             SaikoroDojoTheme {
                 MenuScreen(
@@ -115,7 +114,7 @@ class MenuScreenTest {
         }
 
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.game_title))
-            .assertDoesNotExist()
+            .assertIsDisplayed()
     }
 
     @Test
