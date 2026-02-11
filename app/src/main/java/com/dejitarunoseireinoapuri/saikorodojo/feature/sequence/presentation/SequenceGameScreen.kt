@@ -172,19 +172,22 @@ fun SequenceGameScreen(
     }
     LaunchedEffect(uiState.pendingSavedValue) {
         val pendingValue = uiState.pendingSavedValue ?: return@LaunchedEffect
-        saveAnimationProgress.snapTo(0f)
-        animatingSaveValue = pendingValue
-        animatingToFailureDie = false
-        soundPlayer.play(SoundEffect.MOVE_DICE)
-        saveAnimationProgress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
-                easing = LinearOutSlowInEasing
+        try {
+            saveAnimationProgress.snapTo(0f)
+            animatingSaveValue = pendingValue
+            animatingToFailureDie = false
+            soundPlayer.play(SoundEffect.MOVE_DICE)
+            saveAnimationProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
+                    easing = LinearOutSlowInEasing
+                )
             )
-        )
-        animatingSaveValue = null
-        animatingToFailureDie = false
+        } finally {
+            animatingSaveValue = null
+            animatingToFailureDie = false
+        }
     }
     LaunchedEffect(uiState.failureReason) {
         val hasFailure = uiState.failureReason != null
@@ -196,19 +199,22 @@ fun SequenceGameScreen(
     LaunchedEffect(uiState.failureDieValue) {
         val failureValue = uiState.failureDieValue
         if (failureValue != null && failureValue != previousFailureDieValue) {
-            saveAnimationProgress.snapTo(0f)
-            animatingSaveValue = failureValue
-            animatingToFailureDie = true
-            soundPlayer.play(SoundEffect.MOVE_DICE)
-            saveAnimationProgress.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
-                    easing = LinearOutSlowInEasing
+            try {
+                saveAnimationProgress.snapTo(0f)
+                animatingSaveValue = failureValue
+                animatingToFailureDie = true
+                soundPlayer.play(SoundEffect.MOVE_DICE)
+                saveAnimationProgress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(
+                        durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
+                        easing = LinearOutSlowInEasing
+                    )
                 )
-            )
-            animatingSaveValue = null
-            animatingToFailureDie = false
+            } finally {
+                animatingSaveValue = null
+                animatingToFailureDie = false
+            }
         }
         previousFailureDieValue = failureValue
     }
