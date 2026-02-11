@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -148,7 +147,6 @@ fun SequenceGameScreen(
     val soundPlayer = rememberSoundPlayer()
     var wasRolling by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
-    var previousSavedCount by remember { mutableStateOf(0) }
     var previousHasFailure by remember { mutableStateOf(false) }
     var previousFailureDieValue by remember { mutableStateOf<Int?>(null) }
     var animatingSaveValue by remember { mutableStateOf<Int?>(null) }
@@ -159,23 +157,37 @@ fun SequenceGameScreen(
     var animatedDieSize by remember { mutableStateOf(0.dp) }
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
-    var animationTrigger by remember { mutableIntStateOf(0) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
         }
         wasRolling = uiState.isRolling
     }
+    var previousSavedCount by remember { mutableStateOf(0) }
     LaunchedEffect(uiState.savedValues.size) {
         if (shouldPlaySequenceSuccess(previousSavedCount, uiState.savedValues.size)) {
             soundPlayer.play(SoundEffect.SUCCESS)
         }
-        if (uiState.savedValues.size > previousSavedCount) {
-            animatingSaveValue = uiState.savedValues.lastOrNull()
-            animatingToFailureDie = false
-            animationTrigger += 1
-        }
         previousSavedCount = uiState.savedValues.size
+    }
+    LaunchedEffect(uiState.pendingSavedValue) {
+        val pendingValue = uiState.pendingSavedValue ?: return@LaunchedEffect
+        try {
+            saveAnimationProgress.snapTo(0f)
+            animatingSaveValue = pendingValue
+            animatingToFailureDie = false
+            soundPlayer.play(SoundEffect.MOVE_DICE)
+            saveAnimationProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
+                    easing = LinearOutSlowInEasing
+                )
+            )
+        } finally {
+            animatingSaveValue = null
+            animatingToFailureDie = false
+        }
     }
     LaunchedEffect(uiState.failureReason) {
         val hasFailure = uiState.failureReason != null
@@ -185,28 +197,26 @@ fun SequenceGameScreen(
         previousHasFailure = hasFailure
     }
     LaunchedEffect(uiState.failureDieValue) {
-        if (uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue) {
-            animatingSaveValue = uiState.failureDieValue
-            animatingToFailureDie = true
-            animationTrigger += 1
+        val failureValue = uiState.failureDieValue
+        if (failureValue != null && failureValue != previousFailureDieValue) {
+            try {
+                saveAnimationProgress.snapTo(0f)
+                animatingSaveValue = failureValue
+                animatingToFailureDie = true
+                soundPlayer.play(SoundEffect.MOVE_DICE)
+                saveAnimationProgress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(
+                        durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
+                        easing = LinearOutSlowInEasing
+                    )
+                )
+            } finally {
+                animatingSaveValue = null
+                animatingToFailureDie = false
+            }
         }
-        previousFailureDieValue = uiState.failureDieValue
-    }
-    LaunchedEffect(animationTrigger) {
-        if (animatingSaveValue == null) {
-            return@LaunchedEffect
-        }
-        soundPlayer.play(SoundEffect.MOVE_DICE)
-        saveAnimationProgress.snapTo(0f)
-        saveAnimationProgress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
-                easing = LinearOutSlowInEasing
-            )
-        )
-        animatingSaveValue = null
-        animatingToFailureDie = false
+        previousFailureDieValue = failureValue
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
@@ -446,30 +456,45 @@ fun SequenceGameScreen(
                                 )
                                 sequenceSavedDiceUiState(
                                     savedValues = uiState.savedValues,
-                                    isLatestSavedValueHidden = isLatestSavedValueHidden
+                                    isLatestSavedValueHidden = isLatestSavedValueHidden,
+                                    hasPendingSavedValue = uiState.pendingSavedValue != null
                                 ).forEach { savedDie ->
-                                    SequenceSavedDie(
-                                        value = savedDie.value,
-                                        size = dieSize,
-                                        isVisible = shouldShowSequenceSavedDie(
-                                            isVisible = savedDie.isVisible,
-                                            isLatest = savedDie.isLatest,
-                                            animatingSaveValue = animatingSaveValue,
-                                            isAnimatingToFailure = animatingToFailureDie,
-                                            value = savedDie.value
-                                        ),
-                                        modifier = if (savedDie.isLatest) {
-                                            Modifier.onGloballyPositioned { coordinates ->
-                                                val position = coordinates.positionInRoot()
-                                                savedDieCenterInRoot = Offset(
-                                                    x = position.x + coordinates.size.width / 2f,
-                                                    y = position.y + coordinates.size.height / 2f
-                                                )
+                                    if (savedDie.value != null) {
+                                        SequenceSavedDie(
+                                            value = savedDie.value,
+                                            size = dieSize,
+                                            isVisible = shouldShowSequenceSavedDie(
+                                                isVisible = savedDie.isVisible,
+                                                isLatest = savedDie.isLatest,
+                                                animatingSaveValue = animatingSaveValue,
+                                                isAnimatingToFailure = animatingToFailureDie,
+                                                value = savedDie.value
+                                            ),
+                                            modifier = if (savedDie.isLatest) {
+                                                Modifier.onGloballyPositioned { coordinates ->
+                                                    val position = coordinates.positionInRoot()
+                                                    savedDieCenterInRoot = Offset(
+                                                        x = position.x + coordinates.size.width / 2f,
+                                                        y = position.y + coordinates.size.height / 2f
+                                                    )
+                                                }
+                                            } else {
+                                                Modifier
                                             }
-                                        } else {
-                                            Modifier
-                                        }
-                                    )
+                                        )
+                                    } else {
+                                        Spacer(
+                                            modifier = Modifier
+                                                .size(dieSize)
+                                                .onGloballyPositioned { coordinates ->
+                                                    val position = coordinates.positionInRoot()
+                                                    savedDieCenterInRoot = Offset(
+                                                        x = position.x + coordinates.size.width / 2f,
+                                                        y = position.y + coordinates.size.height / 2f
+                                                    )
+                                                }
+                                        )
+                                    }
                                 }
                                 uiState.failureDieValue?.let { value ->
                                     SequenceSavedDie(
@@ -651,7 +676,7 @@ fun SequenceGameScreen(
 
 
 internal data class SequenceSavedDieUi(
-    val value: Int,
+    val value: Int?,
     val isVisible: Boolean,
     val isLatest: Boolean
 )
@@ -661,27 +686,33 @@ internal fun shouldHideLatestSavedValue(
     previousSavedCount: Int,
     currentSavedCount: Int
 ): Boolean {
-    if (isLatestSavedValueHidden) {
-        return true
-    }
-    return currentSavedCount > previousSavedCount
+    return isLatestSavedValueHidden
 }
 
 internal fun sequenceSavedDiceUiState(
     savedValues: List<Int>,
-    isLatestSavedValueHidden: Boolean
+    isLatestSavedValueHidden: Boolean,
+    hasPendingSavedValue: Boolean
 ): List<SequenceSavedDieUi> {
-    if (savedValues.isEmpty()) {
+    if (savedValues.isEmpty() && !hasPendingSavedValue) {
         return emptyList()
     }
     val hiddenIndex = if (isLatestSavedValueHidden) savedValues.lastIndex else -1
-    return savedValues.mapIndexed { index, value ->
+    val savedDice = savedValues.mapIndexed { index, value ->
         SequenceSavedDieUi(
             value = value,
             isVisible = index != hiddenIndex,
-            isLatest = index == savedValues.lastIndex
+            isLatest = index == savedValues.lastIndex && !hasPendingSavedValue
         )
     }
+    if (!hasPendingSavedValue) {
+        return savedDice
+    }
+    return savedDice + SequenceSavedDieUi(
+        value = null,
+        isVisible = false,
+        isLatest = true
+    )
 }
 
 internal fun shouldShowSequenceContinueButton(

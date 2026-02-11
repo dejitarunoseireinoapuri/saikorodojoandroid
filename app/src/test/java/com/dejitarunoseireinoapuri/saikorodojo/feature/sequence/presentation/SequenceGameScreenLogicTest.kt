@@ -19,17 +19,37 @@ class SequenceGameScreenLogicTest {
     fun `latest saved die stays hidden while transition is active`() {
         val hidden = sequenceSavedDiceUiState(
             savedValues = listOf(2, 5, 8),
-            isLatestSavedValueHidden = true
+            isLatestSavedValueHidden = true,
+            hasPendingSavedValue = false
         )
 
         assertEquals(listOf(true, true, false), hidden.map { it.isVisible })
 
         val shown = sequenceSavedDiceUiState(
             savedValues = listOf(2, 5, 8),
-            isLatestSavedValueHidden = false
+            isLatestSavedValueHidden = false,
+            hasPendingSavedValue = false
         )
 
         assertEquals(listOf(true, true, true), shown.map { it.isVisible })
+    }
+
+
+    @Test
+    fun `pending saved value keeps destination slot hidden on first logical frame`() {
+        val dice = sequenceSavedDiceUiState(
+            savedValues = listOf(4),
+            isLatestSavedValueHidden = false,
+            hasPendingSavedValue = true
+        )
+
+        assertEquals(2, dice.size)
+        assertEquals(4, dice[0].value)
+        assertTrue(dice[0].isVisible)
+        assertFalse(dice[0].isLatest)
+        assertEquals(null, dice[1].value)
+        assertFalse(dice[1].isVisible)
+        assertTrue(dice[1].isLatest)
     }
 
     @Test
@@ -107,22 +127,11 @@ class SequenceGameScreenLogicTest {
     }
 
     @Test
-    fun `latest saved value is hidden immediately when saved count increases`() {
-        assertTrue(
-            shouldHideLatestSavedValue(
-                isLatestSavedValueHidden = false,
-                previousSavedCount = 1,
-                currentSavedCount = 2
-            )
-        )
-    }
-
-    @Test
-    fun `latest saved value visibility follows state when count does not increase`() {
+    fun `latest saved value visibility follows explicit transition state`() {
         assertFalse(
             shouldHideLatestSavedValue(
                 isLatestSavedValueHidden = false,
-                previousSavedCount = 2,
+                previousSavedCount = 1,
                 currentSavedCount = 2
             )
         )
