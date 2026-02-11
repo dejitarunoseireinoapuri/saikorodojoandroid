@@ -176,7 +176,7 @@ class SequenceGameViewModelTest {
         targetSequence: Int = 3,
         rollAnimationMs: Long = 0L,
         tickMs: Long = 1L,
-        saveAnimationMs: Long = 0L
+        saveAnimationMs: Long = 1L
     ): SequenceGameViewModel {
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
