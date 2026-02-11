@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="splash_menu_background">#1B1236</color>
     <color name="dice_default_outer">#24263A</color>
     <color name="dice_default_inner">#2A2D3D</color>
     <color name="dice_selected_inner">#F0F3FA</color>
