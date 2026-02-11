@@ -274,6 +274,7 @@ class GameViewModel(
 
     private fun handleDiceClick(index: Int) {
         val state = _uiState.value
+        if (isDiceInteractionBlocked(state)) return
         if (state.isAwaitingRerollSingle) {
             selectRerollSingleDie(index)
         } else if (state.isAwaitingRerollSelected) {
