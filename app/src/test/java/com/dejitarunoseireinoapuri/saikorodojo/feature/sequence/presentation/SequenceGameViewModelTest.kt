@@ -25,7 +25,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SequenceGameViewModelTest {
-    private val dispatcher = StandardTestDispatcher()
+    private lateinit var dispatcher: StandardTestDispatcher
 
     @Test
     fun `start game rolls the first die and waits for decision`() = runTest {
@@ -99,7 +99,7 @@ class SequenceGameViewModelTest {
     }
 
     @Test
-    fun `winning save keeps latest die hidden until save animation ends`() = runTest {
+    fun `winning save does not hide latest die and reveals rewards after configured delay`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(1, 2, 3),
             rewardRolls = listOf(0.4f, 0.2f, 0.3f),
@@ -116,15 +116,11 @@ class SequenceGameViewModelTest {
 
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
         dispatcher.scheduler.runCurrent()
-        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
-
-        dispatcher.scheduler.advanceTimeBy(199L)
-        dispatcher.scheduler.runCurrent()
-        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
-
-        dispatcher.scheduler.advanceTimeBy(1L)
-        dispatcher.scheduler.runCurrent()
         assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
+        assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
+
+        dispatcher.scheduler.advanceTimeBy(200L)
+        dispatcher.scheduler.runCurrent()
         assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
 
         dispatcher.scheduler.advanceTimeBy(799L)
@@ -191,7 +187,7 @@ class SequenceGameViewModelTest {
 
 
     @Test
-    fun `save action hides latest saved die until the animation completes`() = runTest {
+    fun `save action keeps latest saved die visible while waiting next roll`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(3, 7),
             rollAnimationMs = 200L,
@@ -205,10 +201,10 @@ class SequenceGameViewModelTest {
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
         dispatcher.scheduler.runCurrent()
 
-        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
         dispatcher.scheduler.advanceTimeBy(199L)
         dispatcher.scheduler.runCurrent()
-        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
         dispatcher.scheduler.advanceTimeBy(1L)
         dispatcher.scheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
@@ -357,6 +353,7 @@ class SequenceGameViewModelTest {
         tickMs: Long = 1L,
         saveAnimationMs: Long = 0L
     ): SequenceGameViewModel {
+        dispatcher = StandardTestDispatcher()
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
         val rewardUseCase = SelectMinigameRewardCardsUseCase(
