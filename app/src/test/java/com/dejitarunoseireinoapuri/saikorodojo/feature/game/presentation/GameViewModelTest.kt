@@ -403,7 +403,7 @@ class GameViewModelTest {
 
         assertEquals(1, effects.size)
         val effect = effects.single() as GameUiEffect.NavigateToMinigame
-        assertTrue(MinigameType.entries.contains(effect.minigame))
+        assertEquals(MinigameType.SEQUENCE, effect.minigame)
         assertEquals(startingMinigames - 1, viewModel.uiState.value.minigamesAvailable)
         collectorJob.cancel()
     }
@@ -423,6 +423,10 @@ class GameViewModelTest {
 
         assertEquals(2, effects.size)
         assertTrue(effects.all { it is GameUiEffect.NavigateToMinigame })
+        effects.forEach { effect ->
+            val minigameEffect = effect as GameUiEffect.NavigateToMinigame
+            assertEquals(MinigameType.SEQUENCE, minigameEffect.minigame)
+        }
         assertEquals(1, viewModel.uiState.value.minigamesAvailable)
         collectorJob.cancel()
     }
