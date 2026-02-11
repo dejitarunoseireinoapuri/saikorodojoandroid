@@ -700,6 +700,7 @@ internal fun calculateDiceTextScale(diceSize: Dp, referenceSize: Dp = 72.dp): Fl
 internal fun diceNumberYOffset(faceDrawable: Int): Dp {
     return when (faceDrawable) {
         R.drawable.eigth_sides,
+        R.drawable.eigth_sides_selected,
         R.drawable.eigth_sides_contrast,
         R.drawable.eigth_sides_set_value -> 3.dp
         else -> 0.dp
