@@ -32,7 +32,7 @@ class SequenceGameViewModelTest {
         val viewModel = buildViewModel(diceRolls = listOf(4))
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isStarted)
@@ -49,13 +49,13 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
@@ -75,25 +75,25 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
 
-        dispatcher.scheduler.runCurrent()
+        testScheduler.runCurrent()
         val pendingState = viewModel.uiState.value
         assertTrue(pendingState.isComplete)
         assertTrue(pendingState.rewardCards.isEmpty())
         assertEquals(2, pendingState.pendingRewardCards.size)
 
-        dispatcher.scheduler.advanceTimeBy(999L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(999L)
+        testScheduler.runCurrent()
         assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
 
-        dispatcher.scheduler.advanceTimeBy(1L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(1L)
+        testScheduler.runCurrent()
         assertEquals(2, viewModel.uiState.value.rewardCards.size)
         assertTrue(viewModel.uiState.value.pendingRewardCards.isEmpty())
     }
@@ -108,27 +108,27 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.runCurrent()
         assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
         assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
 
-        dispatcher.scheduler.advanceTimeBy(200L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(200L)
+        testScheduler.runCurrent()
         assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
 
-        dispatcher.scheduler.advanceTimeBy(799L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(799L)
+        testScheduler.runCurrent()
         assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
 
-        dispatcher.scheduler.advanceTimeBy(1L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(1L)
+        testScheduler.runCurrent()
         assertEquals(2, viewModel.uiState.value.rewardCards.size)
     }
 
@@ -137,11 +137,11 @@ class SequenceGameViewModelTest {
         val viewModel = buildViewModel(diceRolls = listOf(6, 4))
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
@@ -153,11 +153,11 @@ class SequenceGameViewModelTest {
         val viewModel = buildViewModel(diceRolls = listOf(4, 4, 5))
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete.not())
@@ -174,7 +174,7 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         assertEquals(7, viewModel.uiState.value.diceValue)
 
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
@@ -196,17 +196,17 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.runCurrent()
 
         assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
-        dispatcher.scheduler.advanceTimeBy(199L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(199L)
+        testScheduler.runCurrent()
         assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
-        dispatcher.scheduler.advanceTimeBy(1L)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceTimeBy(1L)
+        testScheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
     }
 
@@ -220,11 +220,11 @@ class SequenceGameViewModelTest {
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
 
-        dispatcher.scheduler.runCurrent()
+        testScheduler.runCurrent()
         assertTrue(viewModel.uiState.value.isRolling)
 
-        dispatcher.scheduler.advanceTimeBy(100L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(100L)
+        testScheduler.runCurrent()
         assertTrue(viewModel.uiState.value.isAwaitingDecision)
         assertTrue(viewModel.uiState.value.isRolling.not())
     }
@@ -239,18 +239,18 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.runCurrent()
         assertEquals(3, viewModel.uiState.value.diceValue)
 
-        dispatcher.scheduler.advanceTimeBy(199L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(199L)
+        testScheduler.runCurrent()
         assertEquals(3, viewModel.uiState.value.diceValue)
 
-        dispatcher.scheduler.advanceTimeBy(1L)
-        dispatcher.scheduler.runCurrent()
+        testScheduler.advanceTimeBy(1L)
+        testScheduler.runCurrent()
         assertEquals(7, viewModel.uiState.value.diceValue)
     }
 
@@ -262,9 +262,9 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
@@ -284,13 +284,13 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
@@ -308,9 +308,9 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete.not())
@@ -328,11 +328,11 @@ class SequenceGameViewModelTest {
         )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
         viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
-        dispatcher.scheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
