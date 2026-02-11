@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -158,7 +157,6 @@ fun SequenceGameScreen(
     var animatedDieSize by remember { mutableStateOf(0.dp) }
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
-    var animationTrigger by remember { mutableIntStateOf(0) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
@@ -173,33 +171,11 @@ fun SequenceGameScreen(
         previousSavedCount = uiState.savedValues.size
     }
     LaunchedEffect(uiState.pendingSavedValue) {
-        if (uiState.pendingSavedValue != null) {
-            animatingSaveValue = uiState.pendingSavedValue
-            animatingToFailureDie = false
-            animationTrigger += 1
-        }
-    }
-    LaunchedEffect(uiState.failureReason) {
-        val hasFailure = uiState.failureReason != null
-        if (shouldPlaySequenceLoss(previousHasFailure, hasFailure)) {
-            soundPlayer.play(SoundEffect.LOSS)
-        }
-        previousHasFailure = hasFailure
-    }
-    LaunchedEffect(uiState.failureDieValue) {
-        if (uiState.failureDieValue != null && uiState.failureDieValue != previousFailureDieValue) {
-            animatingSaveValue = uiState.failureDieValue
-            animatingToFailureDie = true
-            animationTrigger += 1
-        }
-        previousFailureDieValue = uiState.failureDieValue
-    }
-    LaunchedEffect(animationTrigger) {
-        if (animatingSaveValue == null) {
-            return@LaunchedEffect
-        }
-        soundPlayer.play(SoundEffect.MOVE_DICE)
+        val pendingValue = uiState.pendingSavedValue ?: return@LaunchedEffect
         saveAnimationProgress.snapTo(0f)
+        animatingSaveValue = pendingValue
+        animatingToFailureDie = false
+        soundPlayer.play(SoundEffect.MOVE_DICE)
         saveAnimationProgress.animateTo(
             targetValue = 1f,
             animationSpec = tween(
@@ -209,6 +185,32 @@ fun SequenceGameScreen(
         )
         animatingSaveValue = null
         animatingToFailureDie = false
+    }
+    LaunchedEffect(uiState.failureReason) {
+        val hasFailure = uiState.failureReason != null
+        if (shouldPlaySequenceLoss(previousHasFailure, hasFailure)) {
+            soundPlayer.play(SoundEffect.LOSS)
+        }
+        previousHasFailure = hasFailure
+    }
+    LaunchedEffect(uiState.failureDieValue) {
+        val failureValue = uiState.failureDieValue
+        if (failureValue != null && failureValue != previousFailureDieValue) {
+            saveAnimationProgress.snapTo(0f)
+            animatingSaveValue = failureValue
+            animatingToFailureDie = true
+            soundPlayer.play(SoundEffect.MOVE_DICE)
+            saveAnimationProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = SEQUENCE_SAVE_ANIMATION_MS,
+                    easing = LinearOutSlowInEasing
+                )
+            )
+            animatingSaveValue = null
+            animatingToFailureDie = false
+        }
+        previousFailureDieValue = failureValue
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
