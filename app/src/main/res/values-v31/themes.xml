@@ -4,8 +4,8 @@
     <style name="Theme.SaikoroDojo" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.SaikoroDojo.Splash" parent="Theme.SaikoroDojo">
-        <item name="android:windowSplashScreenBackground">@color/splash_menu_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-        <item name="android:postSplashScreenTheme">@style/Theme.SaikoroDojo</item>
+        <item name="windowSplashScreenBackground">@color/splash_menu_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.SaikoroDojo</item>
     </style>
 </resources>
