@@ -354,7 +354,7 @@ class SequenceGameViewModelTest {
         tickMs: Long = 1L,
         saveAnimationMs: Long = 0L
     ): SequenceGameViewModel {
-        dispatcher = UnconfinedTestDispatcher(testScheduler)
+        dispatcher = UnconfinedTestDispatcher()
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
         val rewardUseCase = SelectMinigameRewardCardsUseCase(
