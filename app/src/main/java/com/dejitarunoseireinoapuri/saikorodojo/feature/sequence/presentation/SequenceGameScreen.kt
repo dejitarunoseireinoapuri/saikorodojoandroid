@@ -385,21 +385,23 @@ fun SequenceGameScreen(
                     modifier = Modifier.height(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (shouldShowSequenceTopDie(uiState.isComplete)) {
-                        SequenceDiceFace(
-                            value = uiState.diceValue,
-                            size = 140.dp,
-                            modifier = Modifier
-                                .testTag(SEQUENCE_DICE_TAG)
-                                .onGloballyPositioned { coordinates ->
-                                    val position = coordinates.positionInRoot()
-                                    diceCenterInRoot = Offset(
-                                        x = position.x + coordinates.size.width / 2f,
-                                        y = position.y + coordinates.size.height / 2f
-                                    )
-                                }
-                        )
-                    }
+                    SequenceDiceFace(
+                        value = uiState.diceValue,
+                        size = 140.dp,
+                        showDie = shouldShowSequenceTopDie(
+                            isComplete = uiState.isComplete,
+                            animatingSaveValue = animatingSaveValue
+                        ),
+                        modifier = Modifier
+                            .testTag(SEQUENCE_DICE_TAG)
+                            .onGloballyPositioned { coordinates ->
+                                val position = coordinates.positionInRoot()
+                                diceCenterInRoot = Offset(
+                                    x = position.x + coordinates.size.width / 2f,
+                                    y = position.y + coordinates.size.height / 2f
+                                )
+                            }
+                    )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
                 if (uiState.rewardCards.isEmpty()) {
@@ -673,8 +675,11 @@ internal fun shouldShowSequenceContinueButton(
     return hasReward || hasLoss
 }
 
-internal fun shouldShowSequenceTopDie(isComplete: Boolean): Boolean {
-    return !isComplete
+internal fun shouldShowSequenceTopDie(isComplete: Boolean, animatingSaveValue: Int?): Boolean {
+    if (isComplete) {
+        return false
+    }
+    return animatingSaveValue == null
 }
 
 internal fun shouldPlaySequenceSuccess(previousSavedCount: Int, currentSavedCount: Int): Boolean {
@@ -756,6 +761,7 @@ private fun SequenceMat(
 private fun SequenceDiceFace(
     value: Int?,
     size: Dp,
+    showDie: Boolean,
     modifier: Modifier = Modifier
 ) {
     val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
@@ -767,7 +773,7 @@ private fun SequenceDiceFace(
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (value != null) {
+        if (showDie && value != null) {
             Image(
                 painter = painterResource(id = R.drawable.ten_sides),
                 contentDescription = stringResource(R.string.cd_dice_face, value),
