@@ -527,6 +527,7 @@ fun GameScreen(
                     Spacer(modifier = Modifier.weight(1f))
                     MinigamesAvailableBadge(
                         minigamesAvailable = uiState.minigamesAvailable,
+                        isLocked = uiState.isMinigameButtonLocked,
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             onOpenRandomMinigame()
@@ -780,6 +781,7 @@ private fun AutoResizingLevelTitle(
 @Composable
 private fun MinigamesAvailableBadge(
     minigamesAvailable: Int,
+    isLocked: Boolean,
     onClick: () -> Unit
 ) {
     val badgeContentDescription = stringResource(R.string.cd_minigames_available)
@@ -795,7 +797,9 @@ private fun MinigamesAvailableBadge(
                 color = Color.White,
                 shape = RoundedCornerShape(percent = 50)
             )
+            .alpha(if (isLocked) 0.55f else 1f)
             .clickable(
+                enabled = !isLocked,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {

@@ -87,6 +87,7 @@ class GameViewModel(
     private var shouldAutoStartRoll = true
     private var allowSessionSaving = true
     private var awaitingLevelInterstitialAd = false
+    private val minigameTypes = MinigameType.entries
 
     init {
         baseSeed = baseSeedProvider()
@@ -155,6 +156,9 @@ class GameViewModel(
 
     private fun openRandomMinigame() {
         val currentState = _uiState.value
+        if (currentState.isMinigameButtonLocked) {
+            return
+        }
         if (currentState.minigamesAvailable <= 0) {
             _uiState.update { it.copy(showMinigamesAdPrompt = true) }
             return
@@ -163,7 +167,8 @@ class GameViewModel(
             it.copy(
                 minigamesAvailable = (it.minigamesAvailable - 1).coerceAtLeast(0),
                 showMinigamesAdPrompt = false,
-                minigamesPlayedSinceInterstitial = it.minigamesPlayedSinceInterstitial + 1
+                minigamesPlayedSinceInterstitial = it.minigamesPlayedSinceInterstitial + 1,
+                isMinigameButtonLocked = true
             )
         }
         val snapshot = buildMainGameSnapshot()
@@ -803,7 +808,8 @@ class GameViewModel(
                 showLevelCompleteMessage = false,
                 minigamesAvailable = clampMinigamesAvailable(minigamesAvailable),
                 showMinigamesAdPrompt = false,
-                minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial
+                minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial,
+                isMinigameButtonLocked = false
             )
         }
         initialRollSnapshot = null
@@ -811,7 +817,12 @@ class GameViewModel(
 
     private fun refreshCardInventory() {
         val updatedCards = loadInventoryCardModels()
-        _uiState.update { it.copy(cardUiModels = updatedCards) }
+        _uiState.update {
+            it.copy(
+                cardUiModels = updatedCards,
+                isMinigameButtonLocked = false
+            )
+        }
     }
 
     private fun loadInventoryCardModels(): List<CardUiModel> {
@@ -901,7 +912,8 @@ class GameViewModel(
                 showLevelCompleteMessage = uiSnapshot.showLevelCompleteMessage,
                 minigamesAvailable = clampMinigamesAvailable(uiSnapshot.minigamesAvailable),
                 showMinigamesAdPrompt = false,
-                minigamesPlayedSinceInterstitial = uiSnapshot.minigamesPlayedSinceInterstitial
+                minigamesPlayedSinceInterstitial = uiSnapshot.minigamesPlayedSinceInterstitial,
+                isMinigameButtonLocked = false
             )
         }
         refreshObjectiveProgress()
@@ -994,7 +1006,7 @@ class GameViewModel(
     }
 
     private fun pickMinigame(): MinigameType {
-        return MinigameType.SEQUENCE
+        return minigameTypes.random()
     }
 
 }
