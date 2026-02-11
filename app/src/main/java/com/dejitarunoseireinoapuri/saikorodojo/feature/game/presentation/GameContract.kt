@@ -40,7 +40,7 @@ data class GameUiState(
     val objectiveLines: List<ObjectiveLineUiState> = emptyList(),
     val isLevelComplete: Boolean = false,
     val showLevelCompleteMessage: Boolean = false,
-    val minigamesAvailable: Int = DEFAULT_MINIGAMES_AVAILABLE,
+    val minigamesAvailable: Int = clampMinigamesAvailable(DEFAULT_MINIGAMES_AVAILABLE),
     val showMinigamesAdPrompt: Boolean = false,
     val minigamesPlayedSinceInterstitial: Int = 0
 ) {

@@ -184,12 +184,13 @@ Cada ús consumeix aquesta carta.</string>
     <string name="rules_card_repeat_title">Repetir carta</string>
     <string name="rules_card_repeat_body">Repeteix l’efecte de l’última carta usada.</string>
     <string name="rules_card_minigames_title">Minijocs</string>
-    <string name="rules_card_minigames_body">Afegeix 3 intents de minijoc.</string>
+    <string name="rules_card_minigames_body">Afegeix 3 intents de minijoc, fins a un màxim de 99.</string>
 
     <string name="rules_minigames_title">Minijocs</string>
     <string name="rules_minigames_body">Els minijocs són un mode separat per guanyar cartes per al joc principal.
 Quan guanyes un minijoc reps entre 2 i 3 cartes aleatòries.
-A més, cada nivell completat al joc principal suma 2 intents de minijoc.</string>
+A més, cada nivell completat al joc principal suma 2 intents de minijoc.
+Pots acumular fins a 99 intents de minijoc.</string>
 
     <string name="rules_minigame_odd_even_title">Parell o senar</string>
     <string name="rules_minigame_odd_even_body">Tria parell o senar abans de cada tirada.

@@ -38,7 +38,7 @@ internal object GameCardEffectReducer {
             CardId.REPEAT_LAST -> state.copy(selectedCardIndex = null)
             CardId.MINIGAMES -> state.copy(
                 selectedCardIndex = null,
-                minigamesAvailable = state.minigamesAvailable + minigamesRewardAmount,
+                minigamesAvailable = clampMinigamesAvailable(state.minigamesAvailable + minigamesRewardAmount),
                 showMinigamesAdPrompt = false
             )
         }

@@ -56,14 +56,17 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
@@ -499,10 +502,11 @@ fun GameScreen(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
+                AutoResizingLevelTitle(
                     text = stringResource(R.string.level_title, uiState.levelNumber),
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
-                    color = MaterialTheme.colorScheme.onBackground
+                    modifier = Modifier.width(190.dp),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -731,6 +735,45 @@ fun GameScreen(
                 )
             }
         }
+    }
+}
+
+
+@Composable
+private fun AutoResizingLevelTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color,
+    style: TextStyle,
+    minFontSize: TextUnit = 14.sp
+) {
+    BoxWithConstraints(modifier = modifier) {
+        val textMeasurer = rememberTextMeasurer()
+        val density = androidx.compose.ui.platform.LocalDensity.current
+        val maxWidthPx = with(density) { maxWidth.roundToPx() }
+        val measuredFontSize = remember(text, style, minFontSize, maxWidthPx) {
+            var currentSize = if (style.fontSize == TextUnit.Unspecified) 24.sp else style.fontSize
+            while (currentSize > minFontSize) {
+                val layout = textMeasurer.measure(
+                    text = text,
+                    style = style.copy(fontSize = currentSize),
+                    maxLines = 1
+                )
+                if (layout.size.width <= maxWidthPx) {
+                    break
+                }
+                currentSize -= 1.sp
+            }
+            currentSize
+        }
+        Text(
+            text = text,
+            maxLines = 1,
+            style = style.copy(fontSize = measuredFontSize),
+            color = color,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

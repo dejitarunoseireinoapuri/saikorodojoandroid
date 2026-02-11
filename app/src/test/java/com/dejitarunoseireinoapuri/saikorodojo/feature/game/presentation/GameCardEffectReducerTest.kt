@@ -51,4 +51,22 @@ class GameCardEffectReducerTest {
         assertTrue(reduced.interactionMode is DiceInteractionMode.Normal)
         assertEquals(null, reduced.selectedCardIndex)
     }
+
+    @Test
+    fun `reduce minigames card caps minigames to maximum`() {
+        val state = GameUiState(
+            minigamesAvailable = 98,
+            interactionMode = DiceInteractionMode.Normal,
+            selectedCardIndex = 0
+        )
+
+        val reduced = GameCardEffectReducer.reduce(
+            state = state,
+            cardId = CardId.MINIGAMES,
+            minigamesRewardAmount = 3
+        )
+
+        assertEquals(MAX_MINIGAMES_AVAILABLE, reduced.minigamesAvailable)
+    }
+
 }

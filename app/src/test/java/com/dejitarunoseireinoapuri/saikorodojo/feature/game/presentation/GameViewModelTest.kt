@@ -483,6 +483,35 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `minigames ad reward is capped to maximum`() = runTest {
+        val viewModel = buildViewModel()
+
+        repeat(40) {
+            viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
+        }
+
+        assertEquals(MAX_MINIGAMES_AVAILABLE, viewModel.uiState.value.minigamesAvailable)
+    }
+
+    @Test
+    fun `level completion reward is capped to maximum`() = runTest {
+        val viewModel = buildViewModel()
+
+        repeat(40) {
+            viewModel.onEvent(GameUiEvent.MinigamesAdCompleted)
+        }
+
+        val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
+        method.isAccessible = true
+        method.invoke(viewModel)
+
+        testDispatcher.scheduler.advanceTimeBy(1_000L)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(MAX_MINIGAMES_AVAILABLE, viewModel.uiState.value.minigamesAvailable)
+    }
+
+    @Test
     fun `level completion waits before moving to next level`() = runTest {
         val viewModel = buildViewModel()
 
