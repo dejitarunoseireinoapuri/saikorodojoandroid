@@ -1,5 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -49,5 +50,27 @@ class OddEvenSoundTest {
                 currentHasLoss = true
             )
         )
+    }
+
+    @Test
+    fun `show dice after loss while no rewards are present`() {
+        val uiState = OddEvenGameUiState(
+            isStarted = true,
+            isComplete = true,
+            rewardCards = emptyList()
+        )
+
+        assertTrue(shouldShowOddEvenDice(uiState))
+    }
+
+    @Test
+    fun `hide dice when reward cards are shown`() {
+        val uiState = OddEvenGameUiState(
+            isStarted = true,
+            isComplete = true,
+            rewardCards = listOf(defaultCardUiModels().first().copy(count = 1))
+        )
+
+        assertFalse(shouldShowOddEvenDice(uiState))
     }
 }
