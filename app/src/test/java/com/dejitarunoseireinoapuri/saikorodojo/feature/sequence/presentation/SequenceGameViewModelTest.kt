@@ -16,7 +16,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPending
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -25,7 +26,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SequenceGameViewModelTest {
-    private lateinit var dispatcher: StandardTestDispatcher
+    private lateinit var dispatcher: TestDispatcher
 
     @Test
     fun `start game rolls the first die and waits for decision`() = runTest {
@@ -353,7 +354,7 @@ class SequenceGameViewModelTest {
         tickMs: Long = 1L,
         saveAnimationMs: Long = 0L
     ): SequenceGameViewModel {
-        dispatcher = StandardTestDispatcher()
+        dispatcher = UnconfinedTestDispatcher(testScheduler)
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
         val rewardUseCase = SelectMinigameRewardCardsUseCase(
