@@ -65,7 +65,8 @@ fun MenuScreen(
     onContinueGame: () -> Unit,
     onStartNewGame: () -> Unit,
     onDismissDialog: () -> Unit,
-    onSoundToggleClick: () -> Unit
+    onSoundToggleClick: () -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
     var scaffoldModifier = modifier
@@ -113,7 +114,12 @@ fun MenuScreen(
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
-                    IconButton(onClick = { soundPlayer.play(SoundEffect.QUESTION) }) {
+                    IconButton(
+                        onClick = {
+                            soundPlayer.play(SoundEffect.QUESTION)
+                            onSettingsClick()
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(R.string.cd_settings),
@@ -254,7 +260,8 @@ fun MenuRoute(
     modifier: Modifier = Modifier,
     viewModel: MenuViewModel = viewModel(),
     onNavigateToDestination: (MenuDestination) -> Unit,
-    onRulesClick: () -> Unit
+    onRulesClick: () -> Unit,
+    onPlayClick: (((() -> Unit) -> Unit))? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -274,11 +281,19 @@ fun MenuRoute(
         modifier = modifier,
         showContinueDialog = uiState.showContinueDialog,
         isSoundEnabled = uiState.isSoundEnabled,
-        onPlayClick = { viewModel.onEvent(MenuUiEvent.PlayClicked) },
+        onPlayClick = {
+            val proceed = { viewModel.onEvent(MenuUiEvent.PlayClicked) }
+            if (onPlayClick == null) {
+                proceed()
+            } else {
+                onPlayClick(proceed)
+            }
+        },
         onRulesClick = onRulesClick,
         onContinueGame = { viewModel.onEvent(MenuUiEvent.ContinueGame) },
         onStartNewGame = { viewModel.onEvent(MenuUiEvent.StartNewGame) },
         onDismissDialog = { viewModel.onEvent(MenuUiEvent.DismissDialog) },
-        onSoundToggleClick = { viewModel.onEvent(MenuUiEvent.SoundToggleClicked) }
+        onSoundToggleClick = { viewModel.onEvent(MenuUiEvent.SoundToggleClicked) },
+        onSettingsClick = { viewModel.onEvent(MenuUiEvent.SettingsClicked) }
     )
 }

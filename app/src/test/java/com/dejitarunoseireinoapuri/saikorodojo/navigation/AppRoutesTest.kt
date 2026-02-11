@@ -13,4 +13,9 @@ class AppRoutesTest {
     fun `rules route is stable`() {
         assertEquals("rules", AppRoutes.RULES)
     }
+
+    @Test
+    fun `settings route is stable`() {
+        assertEquals("settings", AppRoutes.SETTINGS)
+    }
 }
