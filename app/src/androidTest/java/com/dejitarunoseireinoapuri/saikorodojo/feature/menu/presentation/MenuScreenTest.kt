@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OxaniunFontFamily
 import org.junit.Assert.assertEquals
@@ -16,6 +17,8 @@ import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.unit.dp
 
 @RunWith(AndroidJUnit4::class)
@@ -55,7 +58,8 @@ class MenuScreenTest {
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
-                    onSoundToggleClick = {}
+                    onSoundToggleClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
@@ -79,7 +83,8 @@ class MenuScreenTest {
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
-                    onSoundToggleClick = {}
+                    onSoundToggleClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
@@ -88,6 +93,29 @@ class MenuScreenTest {
             .assertHeightIsEqualTo(expectedHeight)
         composeRule.onNodeWithTag(MENU_RULES_BUTTON_TAG)
             .assertHeightIsEqualTo(expectedHeight)
+    }
+
+    @Test
+    fun menuDoesNotShowTopTitleText() {
+        composeRule.setContent {
+            SaikoroDojoTheme {
+                MenuScreen(
+                    applySystemBarsPadding = false,
+                    showContinueDialog = false,
+                    isSoundEnabled = true,
+                    onPlayClick = {},
+                    onRulesClick = {},
+                    onContinueGame = {},
+                    onStartNewGame = {},
+                    onDismissDialog = {},
+                    onSoundToggleClick = {},
+                    onSettingsClick = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(composeRule.activity.getString(R.string.game_title))
+            .assertDoesNotExist()
     }
 
     @Test
@@ -103,7 +131,8 @@ class MenuScreenTest {
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
-                    onSoundToggleClick = {}
+                    onSoundToggleClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
