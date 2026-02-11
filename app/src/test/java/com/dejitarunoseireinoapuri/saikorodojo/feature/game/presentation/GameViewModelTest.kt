@@ -531,6 +531,38 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `dice and card interactions are blocked while level completion message is shown`() = runTest {
+        val viewModel = buildViewModel(
+            cardUiModels = listOf(
+                CardUiModel(
+                    id = CardId.REROLL_ALL,
+                    titleRes = 0,
+                    descriptionRes = 0,
+                    iconRes = 0
+                )
+            )
+        )
+
+        val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
+        method.isAccessible = true
+        method.invoke(viewModel)
+
+        val completedState = viewModel.uiState.value
+        assertTrue(completedState.isLevelComplete)
+        assertTrue(completedState.showLevelCompleteMessage)
+
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        viewModel.onEvent(GameUiEvent.SelectCard(0))
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+
+        val blockedState = viewModel.uiState.value
+        assertTrue(blockedState.selectedDice.isEmpty())
+        assertEquals(0, blockedState.selectedDiceSum)
+        assertEquals(null, blockedState.selectedCardIndex)
+        assertEquals(1, blockedState.cardUiModels.first().count)
+    }
+
+    @Test
     fun `level completion shows interstitial after threshold minigames`() = runTest {
         val viewModel = buildViewModel()
 
