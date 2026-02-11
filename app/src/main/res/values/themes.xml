@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.SaikoroDojo" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.SaikoroDojo.App" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.SaikoroDojo" parent="Theme.SaikoroDojo.App">
+        <item name="android:windowBackground">@drawable/splash_screen_background</item>
+    </style>
 </resources>
