@@ -183,12 +183,13 @@ Each use consumes that card.</string>
     <string name="rules_card_repeat_title">Repeat card</string>
     <string name="rules_card_repeat_body">Repeat the effect of the last card used.</string>
     <string name="rules_card_minigames_title">Minigames</string>
-    <string name="rules_card_minigames_body">Adds 3 minigame attempts.</string>
+    <string name="rules_card_minigames_body">Adds 3 minigame attempts, up to a maximum of 99.</string>
 
     <string name="rules_minigames_title">Minigames</string>
     <string name="rules_minigames_body">Minigames are a separate mode to earn cards for the main game.
 When you win a minigame you receive 2 to 3 random cards.
-Also, each level completed in the main game adds 2 minigame attempts.</string>
+Also, each level completed in the main game adds 2 minigame attempts.
+You can store up to 99 minigame attempts.</string>
 
     <string name="rules_minigame_odd_even_title">Odd or even</string>
     <string name="rules_minigame_odd_even_body">Choose odd or even before each roll.

@@ -11,7 +11,7 @@ class SettingsStringsTest {
         val catalan = resolveProjectPath("app/src/main/res/values-ca/strings.xml").readText()
 
         assertTrue(spanish.contains("<string name=\"settings_manage_ads_button\">Gestionar opciones de anuncios</string>"))
-        assertTrue(catalan.contains("<string name=\"settings_manage_ads_button\">Gestiona les opcions d'anuncis</string>"))
+        assertTrue(catalan.contains("<string name=\"settings_manage_ads_button\">Gestiona les opcions d\\'anuncis</string>"))
     }
 
     @Test

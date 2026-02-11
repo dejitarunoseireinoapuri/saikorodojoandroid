@@ -184,12 +184,13 @@ Cada uso consume esa carta.</string>
     <string name="rules_card_repeat_title">Repetir carta</string>
     <string name="rules_card_repeat_body">Repite el efecto de la última carta usada.</string>
     <string name="rules_card_minigames_title">Minijuegos</string>
-    <string name="rules_card_minigames_body">Añade 3 intentos de minijuego.</string>
+    <string name="rules_card_minigames_body">Añade 3 intentos de minijuego, hasta un máximo de 99.</string>
 
     <string name="rules_minigames_title">Minijuegos</string>
     <string name="rules_minigames_body">Los minijuegos son un modo separado para ganar cartas para el juego principal.
 Al ganar un minijuego recibes entre 2 y 3 cartas aleatorias.
-Además, cada nivel completado en el juego principal suma 2 intentos de minijuego.</string>
+Además, cada nivel completado en el juego principal suma 2 intentos de minijuego.
+Puedes acumular hasta 99 intentos de minijuego.</string>
 
     <string name="rules_minigame_odd_even_title">Par o impar</string>
     <string name="rules_minigame_odd_even_body">Elige par o impar antes de cada tirada.

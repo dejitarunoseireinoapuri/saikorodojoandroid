@@ -186,7 +186,7 @@ class GameViewModel(
 
     private fun grantMinigamesFromAd() {
         _uiState.update {
-            it.copy(minigamesAvailable = it.minigamesAvailable + MINIGAMES_REWARD_AMOUNT)
+            it.copy(minigamesAvailable = clampMinigamesAvailable(it.minigamesAvailable + MINIGAMES_REWARD_AMOUNT))
         }
     }
 
@@ -498,7 +498,7 @@ class GameViewModel(
                     val updatedCards = consumeCard(cards, index)
                     val updatedState = state.copy(
                         selectedCardIndex = null,
-                        minigamesAvailable = state.minigamesAvailable + MINIGAMES_REWARD_AMOUNT,
+                        minigamesAvailable = clampMinigamesAvailable(state.minigamesAvailable + MINIGAMES_REWARD_AMOUNT),
                         showMinigamesAdPrompt = false
                     )
                     updatedState.copy(
@@ -800,7 +800,7 @@ class GameViewModel(
                 objectiveLines = emptyList(),
                 isLevelComplete = false,
                 showLevelCompleteMessage = false,
-                minigamesAvailable = minigamesAvailable,
+                minigamesAvailable = clampMinigamesAvailable(minigamesAvailable),
                 showMinigamesAdPrompt = false,
                 minigamesPlayedSinceInterstitial = minigamesPlayedSinceInterstitial
             )
@@ -898,7 +898,7 @@ class GameViewModel(
                 objectiveLines = emptyList(),
                 isLevelComplete = uiSnapshot.isLevelComplete,
                 showLevelCompleteMessage = uiSnapshot.showLevelCompleteMessage,
-                minigamesAvailable = uiSnapshot.minigamesAvailable,
+                minigamesAvailable = clampMinigamesAvailable(uiSnapshot.minigamesAvailable),
                 showMinigamesAdPrompt = false,
                 minigamesPlayedSinceInterstitial = uiSnapshot.minigamesPlayedSinceInterstitial
             )
@@ -973,7 +973,7 @@ class GameViewModel(
     }
 
     private fun advanceToNextLevel(resetMinigamesPlayed: Boolean) {
-        val updatedMinigames = _uiState.value.minigamesAvailable + LEVEL_MINIGAMES_REWARD_AMOUNT
+        val updatedMinigames = clampMinigamesAvailable(_uiState.value.minigamesAvailable + LEVEL_MINIGAMES_REWARD_AMOUNT)
         val nextLevel = (_uiState.value.levelNumber + 1).coerceAtLeast(1)
         val nextDefinition = generateLevelUseCase.execute(
             levelNumber = nextLevel,
