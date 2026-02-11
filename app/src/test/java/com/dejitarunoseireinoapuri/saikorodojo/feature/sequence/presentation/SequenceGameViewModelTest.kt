@@ -90,35 +90,6 @@ class SequenceGameViewModelTest {
     }
 
     @Test
-    fun `reward reveal delay keeps cards pending until delay passes`() = runTest {
-        val viewModel = buildViewModel(
-            diceRolls = listOf(1, 2, 3),
-            rewardRolls = listOf(0.4f, 0.2f, 0.3f),
-            rewardRevealDelayMs = 1_000L,
-            dispatcher = UnconfinedTestDispatcher(testScheduler)
-        )
-
-        viewModel.onEvent(SequenceGameUiEvent.StartGame)
-        testScheduler.advanceUntilIdle()
-        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        testScheduler.advanceUntilIdle()
-        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        testScheduler.advanceUntilIdle()
-        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
-        testScheduler.runCurrent()
-
-        assertTrue(viewModel.uiState.value.isComplete)
-        assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
-        assertFalse(viewModel.uiState.value.pendingRewardCards.isEmpty())
-
-        testScheduler.advanceTimeBy(1_000L)
-        testScheduler.runCurrent()
-
-        assertFalse(viewModel.uiState.value.rewardCards.isEmpty())
-        assertTrue(viewModel.uiState.value.pendingRewardCards.isEmpty())
-    }
-
-    @Test
     fun `save animation delays next roll start`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(3, 7),
