@@ -120,28 +120,41 @@ fun BlackjackGameScreen(
     onExitToMenu: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
-    var wasComplete by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
     var previousPlayerDiceCount by remember { mutableStateOf(0) }
     var previousDealerDiceCount by remember { mutableStateOf(0) }
-    LaunchedEffect(uiState.playerDice.size, uiState.isRolling) {
-        if (shouldPlayDiceRollForNewDie(previousPlayerDiceCount, uiState.playerDice.size, uiState.isRolling)) {
+    var previousResult by remember { mutableStateOf<BlackjackOutcome?>(null) }
+    LaunchedEffect(uiState.playerDice.size, uiState.dealerDice.size, uiState.isRolling) {
+        if (shouldPlayDiceRollSound(
+                previousPlayerCount = previousPlayerDiceCount,
+                currentPlayerCount = uiState.playerDice.size,
+                previousDealerCount = previousDealerDiceCount,
+                currentDealerCount = uiState.dealerDice.size,
+                isRolling = uiState.isRolling
+            )
+        ) {
             soundPlayer.play(SoundEffect.DICE_ROLL)
         }
         previousPlayerDiceCount = uiState.playerDice.size
-    }
-    LaunchedEffect(uiState.dealerDice.size, uiState.isRolling) {
-        if (shouldPlayDiceRollForNewDie(previousDealerDiceCount, uiState.dealerDice.size, uiState.isRolling)) {
-            soundPlayer.play(SoundEffect.DICE_ROLL)
-        }
         previousDealerDiceCount = uiState.dealerDice.size
     }
-    LaunchedEffect(uiState.isComplete, uiState.rewardCards) {
-        val hasLoss = uiState.isComplete && uiState.rewardCards.isEmpty() && uiState.isStarted
-        if (uiState.isComplete && !wasComplete) {
-            soundPlayer.play(if (hasLoss) SoundEffect.LOSS else SoundEffect.SUCCESS)
+    LaunchedEffect(uiState.result, uiState.isStarted) {
+        if (shouldPlayOutcomeSound(
+                previousOutcome = previousResult,
+                currentOutcome = uiState.result,
+                isStarted = uiState.isStarted
+            )
+        ) {
+            val effect = when (uiState.result) {
+                BlackjackOutcome.PLAYER_WIN -> SoundEffect.SUCCESS
+                BlackjackOutcome.PLAYER_LOSE -> SoundEffect.LOSS
+                null -> null
+            }
+            if (effect != null) {
+                soundPlayer.play(effect)
+            }
         }
-        wasComplete = uiState.isComplete
+        previousResult = uiState.result
     }
     LaunchedEffect(uiState.rewardCards) {
         val hasRewards = uiState.rewardCards.isNotEmpty()
