@@ -125,7 +125,7 @@ fun BlackjackGameScreen(
     var previousDealerDiceCount by remember { mutableStateOf(0) }
     var previousResult by remember { mutableStateOf<BlackjackOutcome?>(null) }
     LaunchedEffect(uiState.playerDice.size, uiState.dealerDice.size, uiState.isRolling) {
-        if (shouldPlayInitialDealDiceRoll(
+        if (shouldPlayDiceRollSound(
                 previousPlayerCount = previousPlayerDiceCount,
                 currentPlayerCount = uiState.playerDice.size,
                 previousDealerCount = previousDealerDiceCount,

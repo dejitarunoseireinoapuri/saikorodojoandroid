@@ -2,18 +2,16 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation
 
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
 
-internal fun shouldPlayInitialDealDiceRoll(
+internal fun shouldPlayDiceRollSound(
     previousPlayerCount: Int,
     currentPlayerCount: Int,
     previousDealerCount: Int,
     currentDealerCount: Int,
     isRolling: Boolean
 ): Boolean {
-    return isRolling &&
-        previousPlayerCount == 0 &&
-        previousDealerCount == 0 &&
-        currentPlayerCount > 0 &&
-        currentDealerCount > 0
+    val playerAddedDie = currentPlayerCount > previousPlayerCount
+    val dealerAddedDie = currentDealerCount > previousDealerCount
+    return isRolling && (playerAddedDie || dealerAddedDie)
 }
 
 internal fun shouldPlayOutcomeSound(
