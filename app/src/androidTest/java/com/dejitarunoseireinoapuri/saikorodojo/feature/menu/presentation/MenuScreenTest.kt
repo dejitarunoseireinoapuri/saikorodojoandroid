@@ -55,7 +55,8 @@ class MenuScreenTest {
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
-                    onSoundToggleClick = {}
+                    onSoundToggleClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
@@ -79,7 +80,8 @@ class MenuScreenTest {
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
-                    onSoundToggleClick = {}
+                    onSoundToggleClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
@@ -103,7 +105,8 @@ class MenuScreenTest {
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
-                    onSoundToggleClick = {}
+                    onSoundToggleClick = {},
+                    onSettingsClick = {}
                 )
             }
         }
