@@ -2,7 +2,6 @@
 <resources>
 
     <style name="Theme.SaikoroDojo" parent="Theme.SaikoroDojo.App">
-        <item name="android:windowSplashScreenBackground">@color/splash_screen_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/saikoro_dojo_die</item>
+        <item name="android:windowBackground">@drawable/splash_screen_background</item>
     </style>
 </resources>
