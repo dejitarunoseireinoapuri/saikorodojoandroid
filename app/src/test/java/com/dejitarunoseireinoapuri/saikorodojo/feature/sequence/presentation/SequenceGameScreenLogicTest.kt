@@ -46,8 +46,10 @@ class SequenceGameScreenLogicTest {
         assertEquals(2, dice.size)
         assertEquals(4, dice[0].value)
         assertTrue(dice[0].isVisible)
+        assertFalse(dice[0].isLatest)
         assertEquals(null, dice[1].value)
         assertFalse(dice[1].isVisible)
+        assertTrue(dice[1].isLatest)
     }
 
     @Test

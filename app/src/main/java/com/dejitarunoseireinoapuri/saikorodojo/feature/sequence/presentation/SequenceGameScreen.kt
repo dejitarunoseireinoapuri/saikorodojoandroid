@@ -475,7 +475,17 @@ fun SequenceGameScreen(
                                             }
                                         )
                                     } else {
-                                        Spacer(modifier = Modifier.size(dieSize))
+                                        Spacer(
+                                            modifier = Modifier
+                                                .size(dieSize)
+                                                .onGloballyPositioned { coordinates ->
+                                                    val position = coordinates.positionInRoot()
+                                                    savedDieCenterInRoot = Offset(
+                                                        x = position.x + coordinates.size.width / 2f,
+                                                        y = position.y + coordinates.size.height / 2f
+                                                    )
+                                                }
+                                        )
                                     }
                                 }
                                 uiState.failureDieValue?.let { value ->
