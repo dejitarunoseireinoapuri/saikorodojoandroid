@@ -92,6 +92,44 @@ class SequenceGameViewModelTest {
     }
 
     @Test
+    fun `winning save keeps latest die hidden until save animation ends`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(1, 2, 3),
+            rewardRolls = listOf(0.4f, 0.2f, 0.3f),
+            saveAnimationMs = 200L,
+            rewardRevealDelayMs = 1_000L
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+
+        dispatcher.scheduler.advanceTimeBy(199L)
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden)
+
+        dispatcher.scheduler.advanceTimeBy(1L)
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isLatestSavedValueHidden.not())
+        assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
+
+        dispatcher.scheduler.advanceTimeBy(799L)
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.rewardCards.isEmpty())
+
+        dispatcher.scheduler.advanceTimeBy(1L)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(2, viewModel.uiState.value.rewardCards.size)
+    }
+
+    @Test
     fun `saving a lower value ends the game`() = runTest {
         val viewModel = buildViewModel(diceRolls = listOf(6, 4))
 
