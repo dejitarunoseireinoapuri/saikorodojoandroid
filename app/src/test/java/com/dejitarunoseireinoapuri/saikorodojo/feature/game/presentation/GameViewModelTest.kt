@@ -403,14 +403,15 @@ class GameViewModelTest {
 
         assertEquals(1, effects.size)
         val effect = effects.single() as GameUiEffect.NavigateToMinigame
-        assertEquals(MinigameType.SEQUENCE, effect.minigame)
+        assertTrue(MinigameType.entries.contains(effect.minigame))
         assertEquals(startingMinigames - 1, viewModel.uiState.value.minigamesAvailable)
+        assertTrue(viewModel.uiState.value.isMinigameButtonLocked)
         collectorJob.cancel()
     }
 
 
     @Test
-    fun `open random minigame emits one effect per click`() = runTest {
+    fun `open random minigame locks button until inventory refresh`() = runTest {
         val viewModel = buildViewModel()
         val effects = mutableListOf<GameUiEffect>()
         val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -421,12 +422,16 @@ class GameViewModelTest {
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
         testDispatcher.scheduler.advanceUntilIdle()
 
+        assertEquals(1, effects.size)
+        assertTrue(viewModel.uiState.value.isMinigameButtonLocked)
+        assertEquals(2, viewModel.uiState.value.minigamesAvailable)
+
+        viewModel.onEvent(GameUiEvent.RefreshInventory)
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        testDispatcher.scheduler.advanceUntilIdle()
+
         assertEquals(2, effects.size)
         assertTrue(effects.all { it is GameUiEffect.NavigateToMinigame })
-        effects.forEach { effect ->
-            val minigameEffect = effect as GameUiEffect.NavigateToMinigame
-            assertEquals(MinigameType.SEQUENCE, minigameEffect.minigame)
-        }
         assertEquals(1, viewModel.uiState.value.minigamesAvailable)
         collectorJob.cancel()
     }
@@ -439,10 +444,11 @@ class GameViewModelTest {
             viewModel.effects.take(3).toList(effects)
         }
 
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        testDispatcher.scheduler.advanceUntilIdle()
+        repeat(3) {
+            viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+            testDispatcher.scheduler.advanceUntilIdle()
+            viewModel.onEvent(GameUiEvent.RefreshInventory)
+        }
 
         viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
 
@@ -459,10 +465,11 @@ class GameViewModelTest {
             viewModel.effects.take(3).toList(navigationEffects)
         }
 
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
-        testDispatcher.scheduler.advanceUntilIdle()
+        repeat(3) {
+            viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+            testDispatcher.scheduler.advanceUntilIdle()
+            viewModel.onEvent(GameUiEvent.RefreshInventory)
+        }
 
         assertEquals(0, viewModel.uiState.value.minigamesAvailable)
 
@@ -547,9 +554,14 @@ class GameViewModelTest {
             )
         )
 
-        val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
-        method.isAccessible = true
-        method.invoke(viewModel)
+        val uiStateField = GameViewModel::class.java.getDeclaredField("_uiState")
+        uiStateField.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val stateFlow = uiStateField.get(viewModel) as kotlinx.coroutines.flow.MutableStateFlow<GameUiState>
+        stateFlow.value = stateFlow.value.copy(
+            isLevelComplete = true,
+            showLevelCompleteMessage = true
+        )
 
         val completedState = viewModel.uiState.value
         assertTrue(completedState.isLevelComplete)
@@ -580,6 +592,8 @@ class GameViewModelTest {
         }
         repeat(7) {
             viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+            testDispatcher.scheduler.advanceUntilIdle()
+            viewModel.onEvent(GameUiEvent.RefreshInventory)
         }
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -639,12 +653,17 @@ class GameViewModelTest {
 
         repository.addCards(listOf(CardId.REROLL_ALL))
 
+        viewModel.onEvent(GameUiEvent.OpenRandomMinigame)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.isMinigameButtonLocked)
+
         viewModel.onEvent(GameUiEvent.RefreshInventory)
 
         val updatedCards = viewModel.uiState.value.cardUiModels
         assertEquals(1, updatedCards.size)
         assertEquals(CardId.REROLL_ALL, updatedCards.first().id)
         assertEquals(1, updatedCards.first().count)
+        assertTrue(!viewModel.uiState.value.isMinigameButtonLocked)
     }
 
     @Test

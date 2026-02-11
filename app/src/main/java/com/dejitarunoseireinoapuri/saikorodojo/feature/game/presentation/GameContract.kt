@@ -42,7 +42,8 @@ data class GameUiState(
     val showLevelCompleteMessage: Boolean = false,
     val minigamesAvailable: Int = clampMinigamesAvailable(DEFAULT_MINIGAMES_AVAILABLE),
     val showMinigamesAdPrompt: Boolean = false,
-    val minigamesPlayedSinceInterstitial: Int = 0
+    val minigamesPlayedSinceInterstitial: Int = 0,
+    val isMinigameButtonLocked: Boolean = false
 ) {
     val isAwaitingRerollSingle: Boolean
         get() = interactionMode is DiceInteractionMode.AwaitingRerollSingle
