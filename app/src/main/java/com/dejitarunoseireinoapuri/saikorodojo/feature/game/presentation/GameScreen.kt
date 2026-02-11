@@ -762,7 +762,7 @@ private fun AutoResizingLevelTitle(
                 if (layout.size.width <= maxWidthPx) {
                     break
                 }
-                currentSize -= 1.sp
+                currentSize = (currentSize.value - 1f).sp
             }
             currentSize
         }
