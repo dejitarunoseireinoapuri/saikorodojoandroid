@@ -365,7 +365,11 @@ internal fun DiceBoard(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) {
-                            if (shouldPlayMoveSound(uiState.isRolling)) {
+                            if (shouldPlayMoveSound(
+                                    isRolling = uiState.isRolling,
+                                    isLevelComplete = uiState.isLevelComplete
+                                )
+                            ) {
                                 soundPlayer.play(SoundEffect.MOVE)
                             }
                             onDiceClick(index)
@@ -478,7 +482,8 @@ internal fun contrastRatio(foreground: Color, background: Color): Float {
 internal fun diceFaceNumberColor(isSelected: Boolean): Color =
     if (isSelected) DiceSelectedNumberColor else DiceDefaultNumberColor
 
-internal fun shouldPlayMoveSound(isRolling: Boolean): Boolean = !isRolling
+internal fun shouldPlayMoveSound(isRolling: Boolean, isLevelComplete: Boolean): Boolean =
+    !isRolling && !isLevelComplete
 
 internal fun shouldShowDiceSelectionBorder(
     isAwaitingRerollSelected: Boolean,

@@ -104,9 +104,10 @@ class GameDiceBoardTest {
     }
 
     @Test
-    fun `move sound is suppressed during roll`() {
-        assertEquals(false, shouldPlayMoveSound(isRolling = true))
-        assertEquals(true, shouldPlayMoveSound(isRolling = false))
+    fun `move sound is suppressed during roll and after level completion`() {
+        assertEquals(false, shouldPlayMoveSound(isRolling = true, isLevelComplete = false))
+        assertEquals(false, shouldPlayMoveSound(isRolling = false, isLevelComplete = true))
+        assertEquals(true, shouldPlayMoveSound(isRolling = false, isLevelComplete = false))
     }
 
     @Test
