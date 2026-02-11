@@ -134,7 +134,7 @@ fun MenuScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(top = 72.dp, start = 48.dp, end = 48.dp, bottom = 64.dp)
+                .padding(top = 40.dp, start = 48.dp, end = 48.dp, bottom = 64.dp)
         ) {
             Text(
                 text = stringResource(R.string.game_title),
