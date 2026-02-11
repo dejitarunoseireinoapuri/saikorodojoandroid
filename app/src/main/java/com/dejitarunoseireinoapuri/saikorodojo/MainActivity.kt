@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
         AdConsentManager.initialize(this)
         AdConsentManager.requestConsentInfoUpdate(this)
         MobileAds.initialize(this)
+        val activity = this
 
         setContent {
             val navController = rememberNavController()
@@ -85,8 +86,8 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(AppRoutes.RULES)
                             },
                             onPlayClick = { proceed ->
-                                if (AdConsentManager.shouldShowConsentFormBeforePlay(this)) {
-                                    AdConsentManager.showConsentFormIfRequired(this) {
+                                if (AdConsentManager.shouldShowConsentFormBeforePlay(activity)) {
+                                    AdConsentManager.showConsentFormIfRequired(activity) {
                                         proceed()
                                     }
                                 } else {
@@ -101,7 +102,7 @@ class MainActivity : ComponentActivity() {
                                 navController.popBackStack()
                             },
                             onManageAdsClick = {
-                                AdConsentManager.showPrivacyOptionsForm(this) {}
+                                AdConsentManager.showPrivacyOptionsForm(activity) {}
                             }
                         )
                     }
