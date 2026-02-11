@@ -26,11 +26,13 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SequenceGameViewModelTest {
-    private lateinit var dispatcher: TestDispatcher
 
     @Test
     fun `start game rolls the first die and waits for decision`() = runTest {
-        val viewModel = buildViewModel(diceRolls = listOf(4))
+        val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
+            diceRolls = listOf(4)
+        )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
         testScheduler.advanceUntilIdle()
@@ -45,6 +47,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `saving three ascending dice awards cards`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(1, 2, 3),
             rewardRolls = listOf(0.4f, 0.2f, 0.3f)
         )
@@ -70,6 +73,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `success keeps pending rewards visible for one second before revealing cards`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(1, 2, 3),
             rewardRolls = listOf(0.4f, 0.2f, 0.3f),
             rewardRevealDelayMs = 1_000L
@@ -102,6 +106,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `winning save does not hide latest die and reveals rewards after configured delay`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(1, 2, 3),
             rewardRolls = listOf(0.4f, 0.2f, 0.3f),
             saveAnimationMs = 200L,
@@ -135,7 +140,10 @@ class SequenceGameViewModelTest {
 
     @Test
     fun `saving a lower value ends the game`() = runTest {
-        val viewModel = buildViewModel(diceRolls = listOf(6, 4))
+        val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
+            diceRolls = listOf(6, 4)
+        )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
         testScheduler.advanceUntilIdle()
@@ -151,7 +159,10 @@ class SequenceGameViewModelTest {
 
     @Test
     fun `saving an equal value keeps the sequence alive`() = runTest {
-        val viewModel = buildViewModel(diceRolls = listOf(4, 4, 5))
+        val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
+            diceRolls = listOf(4, 4, 5)
+        )
 
         viewModel.onEvent(SequenceGameUiEvent.StartGame)
         testScheduler.advanceUntilIdle()
@@ -169,6 +180,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `starting a new roll keeps previous dice visible before animation ticks`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(4, 7),
             rollAnimationMs = 1_000L,
             tickMs = 100L
@@ -190,6 +202,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `save action keeps latest saved die visible while waiting next roll`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(3, 7),
             rollAnimationMs = 200L,
             tickMs = 100L,
@@ -214,6 +227,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `roll finishes without extra trailing delay after last animation tick`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(2, 5, 7),
             rollAnimationMs = 200L,
             tickMs = 100L
@@ -233,6 +247,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `roll starts after save animation completes`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(3, 7),
             rollAnimationMs = 0L,
             tickMs = 1L,
@@ -258,6 +273,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `discarding until the final round ends the game`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(2, 4, 6),
             totalRolls = 3
         )
@@ -279,6 +295,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `game ends before round four when target is no longer reachable`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(2, 3, 4),
             totalRolls = 5,
             maxDiscards = 10
@@ -303,6 +320,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `saving ten keeps the game alive while rolls remain`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(10),
             totalRolls = 5,
             maxDiscards = 10
@@ -322,6 +340,7 @@ class SequenceGameViewModelTest {
     @Test
     fun `reaching the maximum rolls without success ends the game`() = runTest {
         val viewModel = buildViewModel(
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
             diceRolls = listOf(1, 2),
             totalRolls = 2,
             maxDiscards = 10,
@@ -345,6 +364,7 @@ class SequenceGameViewModelTest {
 
     private fun buildViewModel(
         diceRolls: List<Int>,
+        dispatcher: TestDispatcher,
         rewardRolls: List<Float> = listOf(0.4f, 0.2f, 0.3f),
         totalRolls: Int = 5,
         maxDiscards: Int = 3,
@@ -354,7 +374,6 @@ class SequenceGameViewModelTest {
         tickMs: Long = 1L,
         saveAnimationMs: Long = 0L
     ): SequenceGameViewModel {
-        dispatcher = UnconfinedTestDispatcher()
         val diceRoller = SequenceDiceRoller(diceRolls)
         val rollUseCase = RollSequenceUseCase(diceRoller)
         val rewardUseCase = SelectMinigameRewardCardsUseCase(
