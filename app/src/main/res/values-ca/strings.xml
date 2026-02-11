@@ -13,7 +13,7 @@
 
     <string name="settings_screen_title">Ajustos</string>
     <string name="settings_screen_back">Enrere</string>
-    <string name="settings_manage_ads_button">Gestiona les opcions d'anuncis</string>
+    <string name="settings_manage_ads_button">Gestiona les opcions d\'anuncis</string>
     <string name="cd_dice_face">Cara del dau %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
 
