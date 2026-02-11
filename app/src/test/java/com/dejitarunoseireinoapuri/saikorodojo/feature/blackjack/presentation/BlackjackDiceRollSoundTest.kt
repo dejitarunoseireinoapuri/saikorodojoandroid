@@ -6,33 +6,39 @@ import org.junit.Test
 
 class BlackjackDiceRollSoundTest {
     @Test
-    fun `should play dice roll when a new die is added while rolling`() {
+    fun `should play dice roll for first shared deal while rolling`() {
         assertTrue(
-            shouldPlayDiceRollForNewDie(
-                previousCount = 1,
-                currentCount = 2,
+            shouldPlayInitialDealDiceRoll(
+                previousPlayerCount = 0,
+                currentPlayerCount = 2,
+                previousDealerCount = 0,
+                currentDealerCount = 1,
                 isRolling = true
             )
         )
     }
 
     @Test
-    fun `should not play dice roll when die count does not increase`() {
+    fun `should not play dice roll when player adds die after initial deal`() {
         assertFalse(
-            shouldPlayDiceRollForNewDie(
-                previousCount = 2,
-                currentCount = 2,
+            shouldPlayInitialDealDiceRoll(
+                previousPlayerCount = 2,
+                currentPlayerCount = 3,
+                previousDealerCount = 1,
+                currentDealerCount = 1,
                 isRolling = true,
             )
         )
     }
 
     @Test
-    fun `should not play dice roll when not rolling even if die count increases`() {
+    fun `should not play dice roll when not rolling`() {
         assertFalse(
-            shouldPlayDiceRollForNewDie(
-                previousCount = 1,
-                currentCount = 2,
+            shouldPlayInitialDealDiceRoll(
+                previousPlayerCount = 0,
+                currentPlayerCount = 2,
+                previousDealerCount = 0,
+                currentDealerCount = 1,
                 isRolling = false,
             )
         )

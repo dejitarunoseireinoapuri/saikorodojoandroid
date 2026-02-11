@@ -5,6 +5,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.Blackjac
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BlackjackGameScreenLogicTest {
@@ -26,6 +28,40 @@ class BlackjackGameScreenLogicTest {
         )
 
         assertEquals(VictoryMatBackground, color)
+    }
+
+
+    @Test
+    fun shouldPlayOutcomeSound_returnsTrue_whenResultAppearsAfterRoundStart() {
+        assertTrue(
+            shouldPlayOutcomeSound(
+                previousOutcome = null,
+                currentOutcome = BlackjackOutcome.PLAYER_WIN,
+                isStarted = true
+            )
+        )
+    }
+
+    @Test
+    fun shouldPlayOutcomeSound_returnsFalse_whenGameIsNotStarted() {
+        assertFalse(
+            shouldPlayOutcomeSound(
+                previousOutcome = null,
+                currentOutcome = BlackjackOutcome.PLAYER_LOSE,
+                isStarted = false
+            )
+        )
+    }
+
+    @Test
+    fun shouldPlayOutcomeSound_returnsFalse_whenOutcomeIsUnchanged() {
+        assertFalse(
+            shouldPlayOutcomeSound(
+                previousOutcome = BlackjackOutcome.PLAYER_WIN,
+                currentOutcome = BlackjackOutcome.PLAYER_WIN,
+                isStarted = true
+            )
+        )
     }
 
     @Test
