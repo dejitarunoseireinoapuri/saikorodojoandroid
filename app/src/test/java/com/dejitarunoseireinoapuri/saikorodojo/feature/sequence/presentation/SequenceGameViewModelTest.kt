@@ -3,11 +3,18 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.RewardCardsRandomProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.SelectMinigameRewardCardsUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.AddCardsToInventoryUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.rewardCardIds
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardUiModel
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.DiceRoller
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.RollSequenceUseCase
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.domain.SequenceFailureReason
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.InMemoryGameSessionRepository
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.ClearGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.GetPendingMainGameSnapshotUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.LoadGameSessionUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.session.domain.SaveGameSessionUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -355,9 +362,16 @@ class SequenceGameViewModelTest {
         val rewardUseCase = SelectMinigameRewardCardsUseCase(
             TestRewardRandomProvider(rewardRolls)
         )
+        val cardInventoryRepository = InMemoryCardInventoryRepository()
+        val sessionRepository = InMemoryGameSessionRepository()
         return SequenceGameViewModel(
             rollSequenceUseCase = rollUseCase,
             selectMinigameRewardCardsUseCase = rewardUseCase,
+            addCardsToInventoryUseCase = AddCardsToInventoryUseCase(cardInventoryRepository),
+            loadGameSessionUseCase = LoadGameSessionUseCase(sessionRepository),
+            saveGameSessionUseCase = SaveGameSessionUseCase(sessionRepository),
+            getPendingMainGameSnapshotUseCase = GetPendingMainGameSnapshotUseCase(sessionRepository),
+            clearGameSessionUseCase = ClearGameSessionUseCase(sessionRepository),
             dispatcher = dispatcher,
             rollAnimationMs = rollAnimationMs,
             tickMs = tickMs,

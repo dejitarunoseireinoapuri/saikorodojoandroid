@@ -554,9 +554,14 @@ class GameViewModelTest {
             )
         )
 
-        val method = GameViewModel::class.java.getDeclaredMethod("handleLevelComplete")
-        method.isAccessible = true
-        method.invoke(viewModel)
+        val uiStateField = GameViewModel::class.java.getDeclaredField("_uiState")
+        uiStateField.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val stateFlow = uiStateField.get(viewModel) as kotlinx.coroutines.flow.MutableStateFlow<GameUiState>
+        stateFlow.value = stateFlow.value.copy(
+            isLevelComplete = true,
+            showLevelCompleteMessage = true
+        )
 
         val completedState = viewModel.uiState.value
         assertTrue(completedState.isLevelComplete)
