@@ -89,6 +89,32 @@ class MenuViewModelTest {
         assertTrue(viewModel.uiState.value.showContinueDialog)
     }
 
+
+    @Test
+    fun `settings click navigates to settings`() = runTest {
+        val cardRepo = FakeCardInventoryRepository()
+        val sessionRepo = FakeGameSessionRepository()
+        val soundRepo = FakeSoundSettingsRepository(isEnabled = true)
+        val viewModel = MenuViewModel(
+            hasSavedGameSessionUseCase = HasSavedGameSessionUseCase(sessionRepo),
+            loadGameSessionUseCase = LoadGameSessionUseCase(sessionRepo),
+            clearGameSessionUseCase = ClearGameSessionUseCase(sessionRepo),
+            resetCardInventoryUseCase = ResetCardInventoryUseCase(cardRepo),
+            addCardsToInventoryUseCase = AddCardsToInventoryUseCase(cardRepo),
+            selectStartingCardsUseCase = SelectStartingCardsUseCase(
+                randomProvider = { 0f }
+            ),
+            getSoundEnabledUseCase = GetSoundEnabledUseCase(soundRepo),
+            observeSoundEnabledUseCase = ObserveSoundEnabledUseCase(soundRepo),
+            toggleSoundEnabledUseCase = ToggleSoundEnabledUseCase(soundRepo)
+        )
+
+        viewModel.onEvent(MenuUiEvent.SettingsClicked)
+
+        val effect = viewModel.effects.first()
+        assertEquals(MenuUiEffect.NavigateTo(MenuDestination.Settings), effect)
+    }
+
     @Test
     fun `continue navigates to saved minigame`() = runTest {
         val cardRepo = FakeCardInventoryRepository()

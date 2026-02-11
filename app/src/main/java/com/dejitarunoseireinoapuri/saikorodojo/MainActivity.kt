@@ -7,10 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.ads.MobileAds
+import com.dejitarunoseireinoapuri.saikorodojo.feature.ads.data.AdConsentManager
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation.BlackjackGameRoute
-import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation.GameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation.HigherLowerGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuDestination
 import com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation.MenuRoute
@@ -18,10 +18,12 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation.OddE
 import com.dejitarunoseireinoapuri.saikorodojo.feature.rules.presentation.RulesRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation.SequenceGameRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.session.data.GameSessionRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.settings.presentation.SettingsRoute
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundPlayerProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundSettingsRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.navigation.AppRoutes
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +32,10 @@ class MainActivity : ComponentActivity() {
         SoundSettingsRepositoryProvider.initialize(this)
         SoundPlayerProvider.initialize(this)
         enableEdgeToEdge()
+        AdConsentManager.initialize(this)
+        AdConsentManager.requestConsentInfoUpdate(this)
         MobileAds.initialize(this)
+
         setContent {
             val navController = rememberNavController()
             SaikoroDojoTheme {
@@ -70,10 +75,33 @@ class MainActivity : ComponentActivity() {
                                         }
                                         navController.navigate(minigameRoute(destination.minigameType))
                                     }
+
+                                    MenuDestination.Settings -> {
+                                        navController.navigate(AppRoutes.SETTINGS)
+                                    }
                                 }
                             },
                             onRulesClick = {
                                 navController.navigate(AppRoutes.RULES)
+                            },
+                            onPlayClick = { proceed ->
+                                if (AdConsentManager.shouldShowConsentFormBeforePlay(this)) {
+                                    AdConsentManager.showConsentFormIfRequired(this) {
+                                        proceed()
+                                    }
+                                } else {
+                                    proceed()
+                                }
+                            }
+                        )
+                    }
+                    composable(AppRoutes.SETTINGS) {
+                        SettingsRoute(
+                            onNavigateBack = {
+                                navController.popBackStack()
+                            },
+                            onManageAdsClick = {
+                                AdConsentManager.showPrivacyOptionsForm(this) {}
                             }
                         )
                     }

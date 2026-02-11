@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 sealed interface MenuDestination {
     data class MainGame(val resetSession: Boolean) : MenuDestination
     data class Minigame(val minigameType: MinigameType) : MenuDestination
+    data object Settings : MenuDestination
 }
 
 data class MenuUiState(
@@ -40,6 +41,7 @@ sealed interface MenuUiEvent {
     data object StartNewGame : MenuUiEvent
     data object DismissDialog : MenuUiEvent
     data object SoundToggleClicked : MenuUiEvent
+    data object SettingsClicked : MenuUiEvent
 }
 
 sealed interface MenuUiEffect {
@@ -88,6 +90,7 @@ class MenuViewModel(
             MenuUiEvent.StartNewGame -> startNewGame()
             MenuUiEvent.DismissDialog -> _uiState.update { it.copy(showContinueDialog = false) }
             MenuUiEvent.SoundToggleClicked -> handleSoundToggle()
+            MenuUiEvent.SettingsClicked -> navigateToSettings()
         }
     }
 
@@ -121,6 +124,13 @@ class MenuViewModel(
     private fun handleSoundToggle() {
         val isEnabled = toggleSoundEnabledUseCase.execute()
         _uiState.update { it.copy(isSoundEnabled = isEnabled) }
+    }
+
+
+    private fun navigateToSettings() {
+        viewModelScope.launch {
+            _effects.emit(MenuUiEffect.NavigateTo(MenuDestination.Settings))
+        }
     }
 
     private fun startNewGame() {
