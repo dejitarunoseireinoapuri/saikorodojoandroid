@@ -319,7 +319,9 @@ fun OddEvenGameScreen(
             }
         }
 
-        if (uiState.isStarted && uiState.rewardCards.isEmpty() && !uiState.isComplete) {
+        if (shouldShowOddEvenDice(uiState)) {
+            val hasReward = uiState.rewardCards.isNotEmpty()
+            val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -331,7 +333,7 @@ fun OddEvenGameScreen(
                     value = uiState.diceValue,
                     size = ODD_EVEN_DICE_SIZE,
                     isSuccess = uiState.showFireworks,
-                    isFailure = uiState.showFailure,
+                    isFailure = uiState.showFailure || hasLoss,
                     modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
                 )
             }
@@ -517,4 +519,8 @@ internal fun shouldPlayOddEvenLoss(
     currentHasLoss: Boolean
 ): Boolean {
     return currentWrong > previousWrong || (currentHasLoss && !previousHasLoss)
+}
+
+internal fun shouldShowOddEvenDice(uiState: OddEvenGameUiState): Boolean {
+    return uiState.isStarted && uiState.rewardCards.isEmpty()
 }
