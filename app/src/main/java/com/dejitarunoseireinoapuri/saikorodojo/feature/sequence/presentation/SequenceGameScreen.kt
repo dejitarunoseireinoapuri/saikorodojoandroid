@@ -439,9 +439,14 @@ fun SequenceGameScreen(
                                 horizontalArrangement = Arrangement.spacedBy(spacing),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                val isLatestSavedValueHidden = shouldHideLatestSavedValue(
+                                    isLatestSavedValueHidden = uiState.isLatestSavedValueHidden,
+                                    previousSavedCount = previousSavedCount,
+                                    currentSavedCount = uiState.savedValues.size
+                                )
                                 sequenceSavedDiceUiState(
                                     savedValues = uiState.savedValues,
-                                    isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
+                                    isLatestSavedValueHidden = isLatestSavedValueHidden
                                 ).forEach { savedDie ->
                                     SequenceSavedDie(
                                         value = savedDie.value,
@@ -650,6 +655,17 @@ internal data class SequenceSavedDieUi(
     val isVisible: Boolean,
     val isLatest: Boolean
 )
+
+internal fun shouldHideLatestSavedValue(
+    isLatestSavedValueHidden: Boolean,
+    previousSavedCount: Int,
+    currentSavedCount: Int
+): Boolean {
+    if (isLatestSavedValueHidden) {
+        return true
+    }
+    return currentSavedCount > previousSavedCount
+}
 
 internal fun sequenceSavedDiceUiState(
     savedValues: List<Int>,
