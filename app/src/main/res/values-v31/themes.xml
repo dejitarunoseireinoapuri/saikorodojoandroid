@@ -4,9 +4,11 @@
     <style name="Theme.SaikoroDojo" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <style name="Theme.SaikoroDojo.Splash" parent="Theme.SplashScreen">
+        <item name="android:windowFullscreen">true</item>
         <item name="windowSplashScreenBackground">@color/splash_menu_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_menu_die</item>
         <item name="postSplashScreenTheme">@style/Theme.SaikoroDojo</item>
