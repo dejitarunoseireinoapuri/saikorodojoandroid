@@ -385,21 +385,23 @@ fun SequenceGameScreen(
                     modifier = Modifier.height(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (shouldShowSequenceTopDie(uiState.isComplete, animatingSaveValue)) {
-                        SequenceDiceFace(
-                            value = uiState.diceValue,
-                            size = 140.dp,
-                            modifier = Modifier
-                                .testTag(SEQUENCE_DICE_TAG)
-                                .onGloballyPositioned { coordinates ->
-                                    val position = coordinates.positionInRoot()
-                                    diceCenterInRoot = Offset(
-                                        x = position.x + coordinates.size.width / 2f,
-                                        y = position.y + coordinates.size.height / 2f
-                                    )
-                                }
-                        )
-                    }
+                    SequenceDiceFace(
+                        value = uiState.diceValue,
+                        size = 140.dp,
+                        showDie = shouldShowSequenceTopDie(
+                            isComplete = uiState.isComplete,
+                            animatingSaveValue = animatingSaveValue
+                        ),
+                        modifier = Modifier
+                            .testTag(SEQUENCE_DICE_TAG)
+                            .onGloballyPositioned { coordinates ->
+                                val position = coordinates.positionInRoot()
+                                diceCenterInRoot = Offset(
+                                    x = position.x + coordinates.size.width / 2f,
+                                    y = position.y + coordinates.size.height / 2f
+                                )
+                            }
+                    )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
                 if (uiState.rewardCards.isEmpty()) {
@@ -437,9 +439,14 @@ fun SequenceGameScreen(
                                 horizontalArrangement = Arrangement.spacedBy(spacing),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                val isLatestSavedValueHidden = shouldHideLatestSavedValue(
+                                    isLatestSavedValueHidden = uiState.isLatestSavedValueHidden,
+                                    previousSavedCount = previousSavedCount,
+                                    currentSavedCount = uiState.savedValues.size
+                                )
                                 sequenceSavedDiceUiState(
                                     savedValues = uiState.savedValues,
-                                    isLatestSavedValueHidden = uiState.isLatestSavedValueHidden
+                                    isLatestSavedValueHidden = isLatestSavedValueHidden
                                 ).forEach { savedDie ->
                                     SequenceSavedDie(
                                         value = savedDie.value,
@@ -649,6 +656,17 @@ internal data class SequenceSavedDieUi(
     val isLatest: Boolean
 )
 
+internal fun shouldHideLatestSavedValue(
+    isLatestSavedValueHidden: Boolean,
+    previousSavedCount: Int,
+    currentSavedCount: Int
+): Boolean {
+    if (isLatestSavedValueHidden) {
+        return true
+    }
+    return currentSavedCount > previousSavedCount
+}
+
 internal fun sequenceSavedDiceUiState(
     savedValues: List<Int>,
     isLatestSavedValueHidden: Boolean
@@ -759,6 +777,7 @@ private fun SequenceMat(
 private fun SequenceDiceFace(
     value: Int?,
     size: Dp,
+    showDie: Boolean,
     modifier: Modifier = Modifier
 ) {
     val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
@@ -770,7 +789,7 @@ private fun SequenceDiceFace(
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (value != null) {
+        if (showDie && value != null) {
             Image(
                 painter = painterResource(id = R.drawable.ten_sides),
                 contentDescription = stringResource(R.string.cd_dice_face, value),

@@ -105,4 +105,34 @@ class SequenceGameScreenLogicTest {
             )
         )
     }
+
+    @Test
+    fun `latest saved value is hidden immediately when saved count increases`() {
+        assertTrue(
+            shouldHideLatestSavedValue(
+                isLatestSavedValueHidden = false,
+                previousSavedCount = 1,
+                currentSavedCount = 2
+            )
+        )
+    }
+
+    @Test
+    fun `latest saved value visibility follows state when count does not increase`() {
+        assertFalse(
+            shouldHideLatestSavedValue(
+                isLatestSavedValueHidden = false,
+                previousSavedCount = 2,
+                currentSavedCount = 2
+            )
+        )
+        assertTrue(
+            shouldHideLatestSavedValue(
+                isLatestSavedValueHidden = true,
+                previousSavedCount = 2,
+                currentSavedCount = 2
+            )
+        )
+    }
+
 }
