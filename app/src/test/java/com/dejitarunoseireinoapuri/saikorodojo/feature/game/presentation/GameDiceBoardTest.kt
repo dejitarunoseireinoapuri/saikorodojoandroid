@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameButtonPrimaryColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
@@ -108,6 +109,11 @@ class GameDiceBoardTest {
         assertEquals(false, shouldPlayMoveSound(isRolling = true, isLevelComplete = false))
         assertEquals(false, shouldPlayMoveSound(isRolling = false, isLevelComplete = true))
         assertEquals(true, shouldPlayMoveSound(isRolling = false, isLevelComplete = false))
+    }
+
+    @Test
+    fun `roll and flip action buttons use minigame orange color`() {
+        assertEquals(MinigameButtonPrimaryColor, DiceBoardActionButtonColor)
     }
 
     @Test

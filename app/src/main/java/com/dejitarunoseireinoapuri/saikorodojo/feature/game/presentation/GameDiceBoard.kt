@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameButtonPrimaryColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
@@ -42,6 +43,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSetValueOuterColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import kotlin.random.Random
+
+internal val DiceBoardActionButtonColor = MinigameButtonPrimaryColor
 
 @Composable
 internal fun DiceBoard(
@@ -278,8 +281,8 @@ internal fun DiceBoard(
                 enabled = isEnabled && !uiState.isRolling,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary
+                    containerColor = DiceBoardActionButtonColor,
+                    contentColor = Color.White
                 ),
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -303,8 +306,8 @@ internal fun DiceBoard(
                 enabled = uiState.selectedFlipDieIndex != null && !uiState.isRolling,
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary
+                    containerColor = DiceBoardActionButtonColor,
+                    contentColor = Color.White
                 ),
                 modifier = Modifier
                     .align(Alignment.Center)
