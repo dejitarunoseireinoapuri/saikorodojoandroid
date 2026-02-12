@@ -8,6 +8,9 @@ import com.google.android.ump.FormError
 import com.google.android.ump.UserMessagingPlatform
 
 object AdConsentManager {
+    private const val PREFERENCES_NAME = "ad_consent_preferences"
+    private const val KEY_INITIAL_ADS_NOTICE_SHOWN = "initial_ads_notice_shown"
+
     @Volatile
     private var consentInformation: ConsentInformation? = null
 
@@ -45,6 +48,22 @@ object AdConsentManager {
         } else {
             onFinished(null)
         }
+    }
+
+    fun hasShownInitialAdsNotice(context: Context): Boolean {
+        return context
+            .applicationContext
+            .getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_INITIAL_ADS_NOTICE_SHOWN, false)
+    }
+
+    fun markInitialAdsNoticeShown(context: Context) {
+        context
+            .applicationContext
+            .getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_INITIAL_ADS_NOTICE_SHOWN, true)
+            .apply()
     }
 
     private fun getConsentInformation(context: Context): ConsentInformation {

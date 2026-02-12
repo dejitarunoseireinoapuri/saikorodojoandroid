@@ -14,6 +14,8 @@
     <string name="settings_screen_title">Ajustes</string>
     <string name="settings_screen_back">Atrás</string>
     <string name="settings_manage_ads_button">Gestionar opciones de anuncios</string>
+    <string name="ads_notice_message">Para que la app siga siendo gratuita mostramos anuncios. Ahora se abrirán las opciones de privacidad y publicidad exigidas en tu región para que elijas tus preferencias.</string>
+    <string name="ads_notice_accept">Aceptar</string>
     <string name="cd_dice_face">Cara del dado %1$d</string>
     <string name="selected_dice_sum">Suma seleccionada: %1$d</string>
 
