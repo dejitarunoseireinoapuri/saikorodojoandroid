@@ -177,8 +177,8 @@ Pots acumular fins a 99 intents de minijoc.</string>
     <string name="rules_minigame_odd_even_title">Parell o senar</string>
     <string name="rules_minigame_odd_even_body">Tria parell o senar abans de cada tirada.\nObjectiu: aconseguir 3 encerts en un màxim de 7 rondes.</string>
 
-    <string name="rules_minigame_higher_lower_title">Més alt o més baix</string>
-    <string name="rules_minigame_higher_lower_body">Endevina si la suma següent serà més alta o més baixa que la suma anterior.\nGuanyes en arribar a 3 encerts.\nTambé guanyes si surt exactament la mateixa suma en dues rondes seguides.</string>
+    <string name="rules_minigame_higher_lower_title">Superior o inferior</string>
+    <string name="rules_minigame_higher_lower_body">Endevina si la suma següent serà superior o inferior que la suma anterior.\nGuanyes en arribar a 3 encerts.\nTambé guanyes si surt exactament la mateixa suma en dues rondes seguides.</string>
 
     <string name="rules_minigame_sequence_title">Seqüència</string>
     <string name="rules_minigame_sequence_body">Has de formar una seqüència no decreixent de 3 daus, on cada valor sigui igual o més alt que l’anterior.\nDesprés de cada ronda decideixes si conservar o descartar el dau mostrat.\nTens 5 rondes per completar-la.</string>

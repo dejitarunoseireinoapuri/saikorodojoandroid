@@ -177,8 +177,8 @@ Puedes acumular hasta 99 intentos de minijuego.</string>
     <string name="rules_minigame_odd_even_title">Par o impar</string>
     <string name="rules_minigame_odd_even_body">Elige par o impar antes de cada tirada.\nObjetivo: conseguir 3 aciertos en un máximo de 7 rondas.</string>
 
-    <string name="rules_minigame_higher_lower_title">Mayor o menor</string>
-    <string name="rules_minigame_higher_lower_body">Adivina si la siguiente suma será mayor o menor que la suma anterior.\nGanas al conseguir 3 aciertos.\nTambién ganas si sale exactamente la misma suma en dos rondas seguidas.</string>
+    <string name="rules_minigame_higher_lower_title">Superior o inferior</string>
+    <string name="rules_minigame_higher_lower_body">Adivina si la siguiente suma será superior o inferior que la suma anterior.\nGanas al conseguir 3 aciertos.\nTambién ganas si sale exactamente la misma suma en dos rondas seguidas.</string>
 
     <string name="rules_minigame_sequence_title">Secuencia</string>
     <string name="rules_minigame_sequence_body">Debes formar una secuencia no decreciente de 3 dados, donde cada valor sea igual o mayor que el anterior.\nDespués de cada ronda decides si conservar o descartar el dado mostrado.\nTienes 5 rondas para completarla.</string>
