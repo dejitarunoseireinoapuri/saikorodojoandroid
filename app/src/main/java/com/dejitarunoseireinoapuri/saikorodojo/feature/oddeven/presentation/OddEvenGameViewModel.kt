@@ -33,7 +33,6 @@ private const val DEFAULT_TARGET_CORRECT = 3
 private const val DEFAULT_ROLL_ANIMATION_MS = 1_500L
 private const val DEFAULT_RESULT_ANIMATION_MS = 1_500L
 private const val DEFAULT_TICK_MS = 120L
-private const val DEFAULT_LOSS_MESSAGE_DELAY_MS = 1_000L
 
 data class OddEvenGameUiState(
     val isStarted: Boolean = false,
@@ -74,7 +73,6 @@ class OddEvenGameViewModel(
     private val rollAnimationMs: Long = DEFAULT_ROLL_ANIMATION_MS,
     private val resultAnimationMs: Long = DEFAULT_RESULT_ANIMATION_MS,
     private val tickMs: Long = DEFAULT_TICK_MS,
-    private val lossMessageDelayMs: Long = DEFAULT_LOSS_MESSAGE_DELAY_MS,
     private val totalRounds: Int = DEFAULT_TOTAL_ROUNDS,
     private val targetCorrect: Int = DEFAULT_TARGET_CORRECT,
     private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
@@ -191,12 +189,8 @@ class OddEvenGameViewModel(
                 }
             }
 
-            if (resultAnimationMs > 0L && (hasWon || hasLossOutcome)) {
+            if (resultAnimationMs > 0L && hasWon) {
                 delay(resultAnimationMs)
-            }
-
-            if (hasLossOutcome && lossMessageDelayMs > 0L) {
-                delay(lossMessageDelayMs)
             }
             val isComplete = hasWon || hasLossOutcome
             val rewardCards = if (hasWon) {

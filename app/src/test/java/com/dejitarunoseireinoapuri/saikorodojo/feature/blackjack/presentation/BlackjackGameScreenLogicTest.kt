@@ -32,7 +32,7 @@ class BlackjackGameScreenLogicTest {
 
 
     @Test
-    fun shouldPlayOutcomeSound_returnsTrue_whenResultAppearsAfterRoundStart() {
+    fun shouldPlayOutcomeSound_returnsTrue_whenWinAppearsAfterRoundStart() {
         assertTrue(
             shouldPlayOutcomeSound(
                 previousOutcome = null,
@@ -59,6 +59,17 @@ class BlackjackGameScreenLogicTest {
             shouldPlayOutcomeSound(
                 previousOutcome = BlackjackOutcome.PLAYER_WIN,
                 currentOutcome = BlackjackOutcome.PLAYER_WIN,
+                isStarted = true
+            )
+        )
+    }
+
+    @Test
+    fun shouldPlayOutcomeSound_returnsTrue_whenLossAppearsAfterRoundStart() {
+        assertTrue(
+            shouldPlayOutcomeSound(
+                previousOutcome = null,
+                currentOutcome = BlackjackOutcome.PLAYER_LOSE,
                 isStarted = true
             )
         )

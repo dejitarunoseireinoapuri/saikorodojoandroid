@@ -115,7 +115,7 @@ class BlackjackGameViewModelTest {
     }
 
     @Test
-    fun `player bust highlights loss before completing defeat state`() = runTest {
+    fun `player bust completes defeat state immediately`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
                 TestDiceRoller(ArrayDeque(listOf(10, 10, 5, 6)))
@@ -139,14 +139,7 @@ class BlackjackGameViewModelTest {
 
         val immediateState = viewModel.uiState.value
         assertEquals(BlackjackOutcome.PLAYER_LOSE, immediateState.result)
-        assertFalse(immediateState.isComplete)
-
-        advanceTimeBy(1_000L)
-        advanceUntilIdle()
-
-        val finalState = viewModel.uiState.value
-        assertEquals(BlackjackOutcome.PLAYER_LOSE, finalState.result)
-        assertTrue(finalState.isComplete)
+        assertTrue(immediateState.isComplete)
     }
 
     @Test
