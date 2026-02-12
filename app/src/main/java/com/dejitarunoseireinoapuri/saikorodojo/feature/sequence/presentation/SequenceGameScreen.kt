@@ -418,13 +418,12 @@ fun SequenceGameScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
-                if (shouldReserveSequenceSavedMatSpace(isStarted = uiState.isStarted)) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp)
-                    ) {
-                        if (shouldShowSequenceSavedMat(
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                ) {
+                    if (shouldShowSequenceSavedMat(
                             isStarted = uiState.isStarted,
                             hasReward = hasReward,
                             hasPendingReward = hasPendingReward
@@ -532,7 +531,6 @@ fun SequenceGameScreen(
                                     }
                                 }
                             }
-                        }
                     }
                 }
             }
@@ -728,10 +726,6 @@ internal fun shouldShowSequenceContinueButton(
     hasLoss: Boolean
 ): Boolean {
     return hasReward || hasLoss
-}
-
-internal fun shouldReserveSequenceSavedMatSpace(isStarted: Boolean): Boolean {
-    return isStarted
 }
 
 internal fun shouldShowSequenceSavedMat(
