@@ -297,27 +297,30 @@ internal fun DiceBoard(
             }
         }
         if (uiState.isAwaitingFlipFace) {
-            val buttonOffset = boardHeight / 2 + 64.dp
-            Button(
-                onClick = {
-                    soundPlayer.play(SoundEffect.USE)
-                    onFlipSelectedDie()
-                },
-                enabled = uiState.selectedFlipDieIndex != null && !uiState.isRolling,
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = DiceBoardActionButtonColor,
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .offset(y = buttonOffset)
-                    .padding(top = 8.dp)
-                    .height(48.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.flip_selected_die),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            val selectedIndex = uiState.selectedFlipDieIndex
+            if (selectedIndex != null) {
+                val flipOffset = boardHeight / 2 + diceSize + 24.dp
+                val selectedType = uiState.diceTypes.getOrElse(selectedIndex) { DiceType.D6 }
+                val currentValue = uiState.diceValues.getOrNull(selectedIndex) ?: 1
+                val flippedValue = calculateFlippedDiceValue(
+                    currentValue = currentValue,
+                    diceType = selectedType
+                )
+                DiceOption(
+                    value = flippedValue,
+                    faceDrawable = diceTypeSetValueDrawable(selectedType),
+                    size = diceSize,
+                    numberTextScale = 1f,
+                    numberTextColor = diceSetValueNumberColor(),
+                    onClick = {
+                        if (!uiState.isRolling) {
+                            soundPlayer.play(SoundEffect.USE)
+                            onFlipSelectedDie()
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .offset(y = flipOffset)
                 )
             }
         }
@@ -442,10 +445,11 @@ private fun DiceOption(
     size: Dp,
     numberTextScale: Float,
     numberTextColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier.clickable(
+        modifier = modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null
         ) { onClick() }
@@ -460,6 +464,10 @@ private fun DiceOption(
             numberTextColor = numberTextColor
         )
     }
+}
+
+internal fun calculateFlippedDiceValue(currentValue: Int, diceType: DiceType): Int {
+    return (diceType.sides + 1 - currentValue).coerceIn(1, diceType.sides)
 }
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor

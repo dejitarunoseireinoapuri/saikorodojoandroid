@@ -99,6 +99,21 @@ class GameDiceBoardTest {
     }
 
     @Test
+    fun `flip preview calculates opposite face constrained by dice type`() {
+        assertEquals(6, calculateFlippedDiceValue(currentValue = 1, diceType = DiceType.D6))
+        assertEquals(1, calculateFlippedDiceValue(currentValue = 6, diceType = DiceType.D6))
+        assertEquals(5, calculateFlippedDiceValue(currentValue = 4, diceType = DiceType.D8))
+        assertEquals(1, calculateFlippedDiceValue(currentValue = 99, diceType = DiceType.D10))
+    }
+
+    @Test
+    fun `flip preview uses orange dice style for each dice type`() {
+        assertEquals(R.drawable.six_sides_set_value, diceTypeSetValueDrawable(DiceType.D6))
+        assertEquals(R.drawable.eigth_sides_set_value, diceTypeSetValueDrawable(DiceType.D8))
+        assertEquals(R.drawable.ten_sides_set_value, diceTypeSetValueDrawable(DiceType.D10))
+    }
+
+    @Test
     fun `dice face number color swaps when die is selected`() {
         assertEquals(DiceDefaultNumberColor, diceFaceNumberColor(isSelected = false))
         assertEquals(DiceSelectedNumberColor, diceFaceNumberColor(isSelected = true))
