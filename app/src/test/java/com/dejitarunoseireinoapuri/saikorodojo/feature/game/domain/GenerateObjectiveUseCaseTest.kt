@@ -262,7 +262,7 @@ class GenerateObjectiveUseCaseTest {
             exactTarget = 12,
             atLeastThreshold = 14,
             rangeCondition = SumInRangeCondition(min = 8, max = 16),
-            random = FixedSequenceRandom(listOf(0, 5, 0, 0, 0))
+            random = FixedSequenceRandom(listOf(0, 0, 5, 0, 0))
         )
 
         assertFalse(candidates.any { it is StraightCondition })
