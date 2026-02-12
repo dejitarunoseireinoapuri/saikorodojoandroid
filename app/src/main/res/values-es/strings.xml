@@ -84,7 +84,7 @@
     <string name="objective_two_three_of_kind">Dos tríos</string>
     <string name="objective_two_three_of_kind_explain">Selecciona dos grupos de tres dados del mismo valor</string>
     <string name="objective_four_of_kind">Póker</string>
-    <string name="objective_four_of_kind_explain">Selecciona cuatro dados del mismo valorr</string>
+    <string name="objective_four_of_kind_explain">Selecciona cuatro dados del mismo valor</string>
     <string name="objective_full_house">Full</string>
     <string name="objective_full_house_explain">Selecciona dos dados del mismo valor y tres dados del mismo valor</string>
     <string name="objective_all_distinct">Todos distintos</string>
@@ -113,7 +113,7 @@
     <string name="objective_sum_max_difference_explain">La suma de los dados seleccionados de estar a una distancia máxima de %2$d respecto a %1$d</string>
 
     <string name="objective_exact_distinct_values">%1$d valores distintos</string>
-    <string name="objective_exact_distinct_values_explain">Selecciona %1$d valores distintos</string>
+    <string name="objective_exact_distinct_values_explain">Solo puedes seleccionar dados de %1$d valores distintos</string>
     <string name="objective_at_least_even_values">%1$d dados pares</string>
     <string name="objective_at_least_even_values_explain">Selecciona al menos %1$d dados pares</string>
     <string name="objective_at_least_odd_values">%1$d dados impares</string>

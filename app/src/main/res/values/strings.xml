@@ -113,7 +113,7 @@
     <string name="objective_sum_max_difference_explain">The sum of the selected dice must be within a maximum distance of %2$d from %1$d</string>
 
     <string name="objective_exact_distinct_values">%1$d distinct values</string>
-    <string name="objective_exact_distinct_values_explain">Select %1$d distinct values</string>
+    <string name="objective_exact_distinct_values_explain">You can only select dice from %1$d distinct values</string>
     <string name="objective_at_least_even_values">%1$d even dice</string>
     <string name="objective_at_least_even_values_explain">Select at least %1$d even dice</string>
     <string name="objective_at_least_odd_values">%1$d odd dice</string>

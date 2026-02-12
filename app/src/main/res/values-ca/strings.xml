@@ -113,7 +113,7 @@
     <string name="objective_sum_max_difference_explain">La suma dels daus seleccionats ha d’estar a una distància màxima de %2$d respecte de %1$d</string>
 
     <string name="objective_exact_distinct_values">%1$d valors diferents</string>
-    <string name="objective_exact_distinct_values_explain">Selecciona %1$d valors diferents</string>
+    <string name="objective_exact_distinct_values_explain">Només pots seleccionar daus de %1$d valors diferents</string>
     <string name="objective_at_least_even_values">%1$d daus parells</string>
     <string name="objective_at_least_even_values_explain">Selecciona com a mínim %1$d daus parells</string>
     <string name="objective_at_least_odd_values">%1$d daus senars</string>
