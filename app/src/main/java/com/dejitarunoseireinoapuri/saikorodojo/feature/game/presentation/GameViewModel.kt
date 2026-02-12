@@ -878,6 +878,7 @@ class GameViewModel(
 
     private fun restoreFromSnapshot(snapshot: MainGameSnapshot): Boolean {
         val uiSnapshot = snapshot.uiSnapshot
+        val shouldAdvanceCompletedLevel = uiSnapshot.isLevelComplete
         val shouldResumeInterruptedRoll = uiSnapshot.isRolling
         val shouldStartInitialRoll = snapshot.currentObjective == null && snapshot.initialRollSnapshot == null
         baseSeed = snapshot.baseSeed
@@ -917,6 +918,10 @@ class GameViewModel(
             )
         }
         refreshObjectiveProgress()
+        if (shouldAdvanceCompletedLevel && _uiState.value.isLevelComplete) {
+            advanceToNextLevel(resetMinigamesPlayed = false)
+            return false
+        }
         return shouldResumeInterruptedRoll || shouldStartInitialRoll
     }
 

@@ -773,6 +773,60 @@ class GameViewModelTest {
         assertTrue(viewModel.uiState.value.objectiveLines.isNotEmpty())
     }
 
+    @Test
+    fun `restoring completed level advances to next level`() = runTest {
+        val sessionRepository = InMemoryGameSessionRepository().apply {
+            saveSession(
+                SavedSession.MainGame(
+                    snapshot = MainGameSnapshot(
+                        uiSnapshot = GameUiSnapshot(
+                            diceValues = listOf(1, 1, 1),
+                            diceCount = 3,
+                            diceType = DiceType.D6,
+                            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6),
+                            layoutSeed = 999L,
+                            isRolling = false,
+                            isAwaitingRerollSingle = false,
+                            isAwaitingRerollSelected = false,
+                            isAwaitingFlipFace = false,
+                            isAwaitingAdjustPlusMinus = false,
+                            isAwaitingSetValue = false,
+                            selectedDice = setOf(0),
+                            selectedRerollDice = emptySet(),
+                            selectedRerollSingleDieIndex = null,
+                            selectedFlipDieIndex = null,
+                            selectedAdjustmentDieIndex = null,
+                            selectedSetValueDieIndex = null,
+                            selectedDiceSum = 1,
+                            shouldShowSelectedSum = false,
+                            cardCounts = emptyMap(),
+                            selectedCardIndex = null,
+                            lastAppliedCardId = null,
+                            levelNumber = 1,
+                            isLevelComplete = true,
+                            showLevelCompleteMessage = true,
+                            minigamesAvailable = 3,
+                            minigamesPlayedSinceInterstitial = 2
+                        ),
+                        baseSeed = 77L,
+                        currentObjective = null,
+                        initialRollSnapshot = null
+                    )
+                )
+            )
+        }
+
+        val viewModel = buildViewModel(sessionRepository = sessionRepository)
+
+        val restored = viewModel.uiState.value
+        assertEquals(2, restored.levelNumber)
+        assertTrue(!viewModel.shouldStartRollOnLaunch())
+        assertTrue(!restored.isLevelComplete)
+        assertTrue(!restored.showLevelCompleteMessage)
+        assertEquals(5, restored.minigamesAvailable)
+        assertEquals(2, restored.minigamesPlayedSinceInterstitial)
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(
