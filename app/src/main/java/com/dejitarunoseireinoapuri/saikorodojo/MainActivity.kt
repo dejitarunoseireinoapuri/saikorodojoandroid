@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.dejitarunoseireinoapuri.saikorodojo.ui.SystemBarAppearance
 import com.dejitarunoseireinoapuri.saikorodojo.ui.resolveSystemBarAppearance
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSetValueOuterColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -94,7 +95,7 @@ class MainActivity : ComponentActivity() {
                                         Text(
                                             text = stringResource(R.string.ads_notice_accept),
                                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = MaterialTheme.colorScheme.primary
+                                            color = DiceSetValueOuterColor
                                         )
                                     }
                                 }
