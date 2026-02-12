@@ -296,46 +296,75 @@ fun SequenceGameScreen(
             } else {
                 Modifier.alpha(0f).clearAndSetSemantics { }
             }
-            if (hasReward) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Win,
-                        titleColor = titleColor
+            if (uiState.isStarted) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(96.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.rules_minigame_sequence_body),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                        color = titleColor,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .alpha(0f)
+                            .clearAndSetSemantics { }
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
                     )
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_cards_message),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.WinCards,
-                        titleColor = titleColor
-                    )
-                )
-            } else if (hasLoss) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_lose_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Lose,
-                        titleColor = titleColor
-                    ),
-                    textAlign = TextAlign.Center
-                )
-            } else if (hasPendingReward) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Win,
-                        titleColor = titleColor
-                    )
-                )
+                    when {
+                        hasReward -> Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = stringResource(R.string.minigame_win_message),
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                                color = minigameMessageColor(
+                                    MinigameMessageType.Win,
+                                    titleColor = titleColor
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(R.string.minigame_win_cards_message),
+                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                                color = minigameMessageColor(
+                                    MinigameMessageType.WinCards,
+                                    titleColor = titleColor
+                                )
+                            )
+                        }
+
+                        hasLoss -> Text(
+                            text = stringResource(R.string.minigame_lose_message),
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                            color = minigameMessageColor(
+                                MinigameMessageType.Lose,
+                                titleColor = titleColor
+                            ),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = 16.dp)
+                        )
+
+                        hasPendingReward -> Text(
+                            text = stringResource(R.string.minigame_win_message),
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                            color = minigameMessageColor(
+                                MinigameMessageType.Win,
+                                titleColor = titleColor
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = 16.dp)
+                        )
+                    }
+                }
             } else {
                 Text(
                     text = stringResource(R.string.rules_minigame_sequence_body),
@@ -413,8 +442,8 @@ fun SequenceGameScreen(
                             animatingSaveValue = animatingSaveValue,
                             keepTopDieOnFailure = uiState.keepTopDieOnFailure
                         ),
-                        backgroundColor = if (hasLoss) FailureMatBackground else SequenceSaveMatBackground,
-                        borderColor = if (hasLoss) FailureMatBackground else SequenceSaveMatBorder,
+                        backgroundColor = SequenceSaveMatBackground,
+                        borderColor = SequenceSaveMatBorder,
                         modifier = Modifier
                             .testTag(SEQUENCE_DICE_TAG)
                             .onGloballyPositioned { coordinates ->
