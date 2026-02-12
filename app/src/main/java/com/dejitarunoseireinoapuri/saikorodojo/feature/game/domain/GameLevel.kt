@@ -339,7 +339,12 @@ internal fun buildObjectiveCandidates(
             until = (maxStraightLength + 1).coerceAtLeast(minStraightLength + 1)
         )
         candidates.add(StraightCondition(length = straightLength))
-        candidates.add(AtLeastParityCountCondition(minCount = 2, even = random.nextBoolean()))
+        candidates.add(
+            AtLeastParityCountCondition(
+                minCount = minimumParityCountForObjective(maxSelectable),
+                even = random.nextBoolean()
+            )
+        )
         candidates.add(HasThreeOfKindCondition(requiredTrios = 1))
     }
 
@@ -390,6 +395,10 @@ internal fun minimumRequiredDice(condition: ObjectiveCondition): Int {
         is AtLeastParityCountCondition -> condition.minCount
         else -> 1
     }
+}
+
+internal fun minimumParityCountForObjective(diceCount: Int): Int {
+    return (diceCount / 2) + 1
 }
 
 
