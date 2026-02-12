@@ -302,7 +302,21 @@ class GenerateObjectiveUseCaseTest {
     }
 
     @Test
-    fun `candidate pre feasibility rejects impossible four of a kind on mixed dice`() {
+    fun `candidate pre feasibility rejects four of a kind when fewer than four dice are selectable`() {
+        val feasible = isConditionTheoreticallyFeasible(
+            condition = HasFourOfKindCondition(required = true),
+            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D8),
+            minSelectable = 3,
+            maxSelectable = 3,
+            valueSupportCounts = buildValueSupportCounts(listOf(DiceType.D6, DiceType.D6, DiceType.D8))
+        )
+
+        assertFalse(feasible)
+    }
+
+
+    @Test
+    fun `candidate pre feasibility accepts four of a kind when four dice share values`() {
         val feasible = isConditionTheoreticallyFeasible(
             condition = HasFourOfKindCondition(required = true),
             diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D8),
@@ -311,7 +325,7 @@ class GenerateObjectiveUseCaseTest {
             valueSupportCounts = buildValueSupportCounts(listOf(DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D8))
         )
 
-        assertFalse(feasible)
+        assertTrue(feasible)
     }
 
     @Test(timeout = 15_000)
