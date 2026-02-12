@@ -135,6 +135,7 @@ class SequenceGameViewModelTest {
         assertTrue(state.isComplete)
         assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
         assertEquals(1, state.discardCount)
+        assertEquals(2, state.diceValue)
     }
 
 

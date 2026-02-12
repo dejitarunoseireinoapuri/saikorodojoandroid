@@ -101,6 +101,7 @@ class SequenceGameScreenLogicTest {
         assertFalse(
             shouldShowSequenceTopDie(
                 isComplete = false,
+                failureDieValue = null,
                 animatingSaveValue = 6
             )
         )
@@ -111,6 +112,7 @@ class SequenceGameScreenLogicTest {
         assertFalse(
             shouldShowSequenceTopDie(
                 isComplete = true,
+                failureDieValue = 2,
                 animatingSaveValue = null
             )
         )
@@ -121,7 +123,41 @@ class SequenceGameScreenLogicTest {
         assertTrue(
             shouldShowSequenceTopDie(
                 isComplete = false,
+                failureDieValue = null,
                 animatingSaveValue = null
+            )
+        )
+    }
+
+    @Test
+    fun `top die remains visible on complete loss without failure die`() {
+        assertTrue(
+            shouldShowSequenceTopDie(
+                isComplete = true,
+                failureDieValue = null,
+                animatingSaveValue = null
+            )
+        )
+    }
+
+    @Test
+    fun `saved mat is hidden while cards are being shown`() {
+        assertFalse(
+            shouldShowSequenceSavedMat(
+                isStarted = true,
+                hasReward = false,
+                hasPendingReward = true
+            )
+        )
+    }
+
+    @Test
+    fun `saved mat is visible during active rounds`() {
+        assertTrue(
+            shouldShowSequenceSavedMat(
+                isStarted = true,
+                hasReward = false,
+                hasPendingReward = false
             )
         )
     }

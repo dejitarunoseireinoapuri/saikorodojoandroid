@@ -403,6 +403,7 @@ fun SequenceGameScreen(
                         size = 140.dp,
                         showDie = shouldShowSequenceTopDie(
                             isComplete = uiState.isComplete,
+                            failureDieValue = uiState.failureDieValue,
                             animatingSaveValue = animatingSaveValue
                         ),
                         modifier = Modifier
@@ -417,7 +418,11 @@ fun SequenceGameScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
-                if (uiState.rewardCards.isEmpty()) {
+                if (shouldShowSequenceSavedMat(
+                    isStarted = uiState.isStarted,
+                    hasReward = hasReward,
+                    hasPendingReward = hasPendingReward
+                )) {
                     val matBackground = when {
                         uiState.failureReason != null -> FailureMatBackground
                         uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
@@ -719,8 +724,20 @@ internal fun shouldShowSequenceContinueButton(
     return hasReward || hasLoss
 }
 
-internal fun shouldShowSequenceTopDie(isComplete: Boolean, animatingSaveValue: Int?): Boolean {
-    if (isComplete) {
+internal fun shouldShowSequenceSavedMat(
+    isStarted: Boolean,
+    hasReward: Boolean,
+    hasPendingReward: Boolean
+): Boolean {
+    return isStarted && !hasReward && !hasPendingReward
+}
+
+internal fun shouldShowSequenceTopDie(
+    isComplete: Boolean,
+    failureDieValue: Int?,
+    animatingSaveValue: Int?
+): Boolean {
+    if (isComplete && failureDieValue != null) {
         return false
     }
     return animatingSaveValue == null
