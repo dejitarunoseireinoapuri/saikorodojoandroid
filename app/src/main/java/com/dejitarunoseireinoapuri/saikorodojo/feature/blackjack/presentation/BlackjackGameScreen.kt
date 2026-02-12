@@ -196,13 +196,14 @@ fun BlackjackGameScreen(
                 )
             }
             Text(
-                text = stringResource(R.string.blackjack_title),
+                text = stringResource(R.string.rules_minigame_blackjack_title),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 26.sp
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -292,11 +293,11 @@ fun BlackjackGameScreen(
                 }
                 else -> {
                     Text(
-                        text = stringResource(R.string.blackjack_subtitle),
+                        text = stringResource(R.string.rules_minigame_blackjack_body),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                         color = titleColor,
-                        textAlign = TextAlign.Center,
-                        modifier = rulesModifier
+                        textAlign = TextAlign.Start,
+                        modifier = rulesModifier.fillMaxWidth()
                     )
                 }
             }

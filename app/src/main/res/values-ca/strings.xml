@@ -40,33 +40,20 @@
     <string name="card_repeat_last_none">Cap</string>
     <string name="card_minigames_title">Minijocs</string>
     <string name="card_minigames_description">Guanya tres minijocs</string>
-
-    <string name="odd_even_title">Parell o Senar</string>
-    <string name="odd_even_subtitle">Endevina si el resultat serà parell o senar. Aconsegueix 3 encerts en un màxim de 7 rondes.</string>
     <string name="odd_even_start">Començar</string>
     <string name="odd_even_round_status">Ronda %1$d de %2$d</string>
     <string name="odd_even_hits_status">Encerts: %1$d de %2$d</string>
     <string name="odd_even_even">Parell</string>
     <string name="odd_even_odd">Senar</string>
     <string name="odd_even_continue">Continuar</string>
-
-    <string name="higher_lower_title">Superior o Inferior</string>
-    <string name="higher_lower_subtitle">Endevina si la tirada següent tindrà un resultat superior o inferior a la tirada anterior. Victòria: 3 encerts o que la suma dels daus sigui la mateixa en dues ocasions consecutives.
-</string>
     <string name="higher_lower_start">Començar</string>
     <string name="higher_lower_higher">Superior</string>
     <string name="higher_lower_lower">Inferior</string>
     <string name="higher_lower_total">Total: %1$d</string>
-
-    <string name="sequence_title">Seqüència</string>
-    <string name="sequence_subtitle">Has d’aconseguir una seqüència de 3 en què cada valor sigui igual o superior a l’anterior. Després de cada ronda, queda’t o descarta el dau. Tens 5 rondes per aconseguir-ho. </string>
     <string name="flip_selected_die">Capgirar</string>
     <string name="sequence_start">Començar</string>
     <string name="sequence_save">Guardar</string>
     <string name="sequence_discard">Descartar</string>
-
-    <string name="blackjack_title">Blackjack</string>
-    <string name="blackjack_subtitle">Arriba a 21 sense passar-te. \n Després de la primera tirada, tria si vols tirar un dau de 10 més o plantar-te. Quan et plantis serà el torn de la banca. La banca es planta amb 17 o més. \n Qui s’acosti més a 21 guanya. Si empateu, guanya la banca. \n L’1 val com 1 o 11 segons convingui.</string>
     <string name="blackjack_start">Començar</string>
     <string name="blackjack_hit">Demanar</string>
     <string name="blackjack_stand">Plantar-se</string>
@@ -188,24 +175,14 @@ A més, cada nivell completat al joc principal suma 2 intents de minijoc.
 Pots acumular fins a 99 intents de minijoc.</string>
 
     <string name="rules_minigame_odd_even_title">Parell o senar</string>
-    <string name="rules_minigame_odd_even_body">Tria parell o senar abans de cada tirada.
-Objectiu: encertar 3 vegades.
-Límit: màxim 7 rondes.</string>
+    <string name="rules_minigame_odd_even_body">Tria parell o senar abans de cada tirada.\nObjectiu: aconseguir 3 encerts.\nLímit: màxim 7 rondes.</string>
 
     <string name="rules_minigame_higher_lower_title">Més alt o més baix</string>
-    <string name="rules_minigame_higher_lower_body">Endevina si la suma següent serà més alta o més baixa que la suma anterior.
-Guanyes quan arribes a 3 encerts.
-També guanyes si es repeteix exactament la mateixa suma en dues rondes seguides.</string>
+    <string name="rules_minigame_higher_lower_body">Endevina si la suma següent serà més alta o més baixa que la suma anterior.\nGuanyes en arribar a 3 encerts.\nTambé guanyes si surt exactament la mateixa suma en dues rondes seguides.</string>
 
     <string name="rules_minigame_sequence_title">Seqüència</string>
-    <string name="rules_minigame_sequence_body">Has de formar una seqüència de 3 daus no decreixent, on cada valor és igual o més alt que l’anterior.
-Després de cada ronda decideixes si guardes o descartes el dau mostrat.
-Tens 5 rondes per completar-la.</string>
+    <string name="rules_minigame_sequence_body">Has de formar una seqüència no decreixent de 3 daus, on cada valor sigui igual o més alt que l’anterior.\nDesprés de cada ronda decideixes si conservar o descartar el dau mostrat.\nTens 5 rondes per completar-la.</string>
 
     <string name="rules_minigame_blackjack_title">Blackjack</string>
-    <string name="rules_minigame_blackjack_body">Objectiu: acostar-te a 21 sense passar-te.
-Comences amb una tirada inicial i després decideixes si demanes un dau de 10 cares addicional o et plantes.
-Després juga la banca i es planta amb 17 o més.
-Si hi ha empat, guanya la banca.
-L’1 compta com 1 o 11 segons convingui.</string>
+    <string name="rules_minigame_blackjack_body">Objectiu: acostar-te a 21 sense passar-te.\nComences amb una tirada inicial i després decideixes si demanar (tirar un dau addicional de 10 cares) o plantar-te.\nDesprés juga la banca i es planta amb 17 o més.\nSi hi ha empat, guanya la banca.\nL’1 compta com a 1 o 11, el que convingui més.</string>
 </resources>

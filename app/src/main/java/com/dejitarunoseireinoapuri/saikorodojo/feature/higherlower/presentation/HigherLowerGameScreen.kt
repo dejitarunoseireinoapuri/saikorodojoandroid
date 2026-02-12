@@ -198,13 +198,14 @@ fun HigherLowerGameScreen(
                 )
             }
             Text(
-                text = stringResource(R.string.higher_lower_title),
+                text = stringResource(R.string.rules_minigame_higher_lower_title),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 26.sp
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -259,11 +260,11 @@ fun HigherLowerGameScreen(
                 }
                 else -> {
                     Text(
-                        text = stringResource(R.string.higher_lower_subtitle),
+                        text = stringResource(R.string.rules_minigame_higher_lower_body),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                         color = titleColor,
-                        textAlign = TextAlign.Center,
-                        modifier = rulesModifier
+                        textAlign = TextAlign.Start,
+                        modifier = rulesModifier.fillMaxWidth()
                     )
                 }
             }

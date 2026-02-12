@@ -264,13 +264,14 @@ fun SequenceGameScreen(
                 )
             }
             Text(
-                text = stringResource(R.string.sequence_title),
+                text = stringResource(R.string.rules_minigame_sequence_title),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 26.sp
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -330,11 +331,11 @@ fun SequenceGameScreen(
                 )
             } else {
                 Text(
-                    text = stringResource(R.string.sequence_subtitle),
+                    text = stringResource(R.string.rules_minigame_sequence_body),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                     color = titleColor,
-                    textAlign = TextAlign.Center,
-                    modifier = rulesModifier
+                    textAlign = TextAlign.Start,
+                    modifier = rulesModifier.fillMaxWidth()
                 )
             }
             if (uiState.isStarted && !hasReward) {
