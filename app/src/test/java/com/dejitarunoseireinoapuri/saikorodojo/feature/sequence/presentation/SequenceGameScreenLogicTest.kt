@@ -8,6 +8,12 @@ import org.junit.Test
 
 class SequenceGameScreenLogicTest {
     @Test
+    fun `reward overlay appears only when reward cards exist`() {
+        assertTrue(shouldShowSequenceRewardOverlay(hasRewardCards = true))
+        assertFalse(shouldShowSequenceRewardOverlay(hasRewardCards = false))
+    }
+
+    @Test
     fun `mats are hidden while reward cards are shown`() {
         assertFalse(shouldShowSequenceMats(hasRewardCards = true))
         assertTrue(shouldShowSequenceMats(hasRewardCards = false))

@@ -314,31 +314,6 @@ fun SequenceGameScreen(
                             .padding(top = 12.dp)
                     )
                     when {
-                        hasReward -> Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = stringResource(R.string.minigame_win_message),
-                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                                color = minigameMessageColor(
-                                    MinigameMessageType.Win,
-                                    titleColor = titleColor
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(R.string.minigame_win_cards_message),
-                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                                color = minigameMessageColor(
-                                    MinigameMessageType.WinCards,
-                                    titleColor = titleColor
-                                )
-                            )
-                        }
-
                         hasLoss -> Text(
                             text = stringResource(R.string.minigame_lose_message),
                             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
@@ -584,7 +559,7 @@ fun SequenceGameScreen(
             }
         }
 
-        if (uiState.rewardCards.isNotEmpty()) {
+        if (shouldShowSequenceRewardOverlay(hasRewardCards = uiState.rewardCards.isNotEmpty())) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -593,7 +568,29 @@ fun SequenceGameScreen(
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
             ) {
-                RewardCardStack(cards = uiState.rewardCards)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.minigame_win_message),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                        color = minigameMessageColor(
+                            MinigameMessageType.Win,
+                            titleColor = MaterialTheme.colorScheme.onBackground
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.minigame_win_cards_message),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                        color = minigameMessageColor(
+                            MinigameMessageType.WinCards,
+                            titleColor = MaterialTheme.colorScheme.onBackground
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    RewardCardStack(cards = uiState.rewardCards)
+                }
             }
         }
 
@@ -750,6 +747,10 @@ internal fun sequenceSavedDiceUiState(
         isVisible = false,
         isLatest = true
     )
+}
+
+internal fun shouldShowSequenceRewardOverlay(hasRewardCards: Boolean): Boolean {
+    return hasRewardCards
 }
 
 internal fun shouldShowSequenceMats(hasRewardCards: Boolean): Boolean {
