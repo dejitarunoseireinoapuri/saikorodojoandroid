@@ -289,47 +289,12 @@ fun SequenceGameScreen(
             } else {
                 Modifier.alpha(0f).clearAndSetSemantics { }
             }
-            if (hasReward) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Win,
-                        titleColor = titleColor
-                    )
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_cards_message),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.WinCards,
-                        titleColor = titleColor
-                    )
-                )
-            } else if (hasLoss) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_lose_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Lose,
-                        titleColor = titleColor
-                    ),
-                    textAlign = TextAlign.Center
-                )
-            } else if (hasPendingReward) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Win,
-                        titleColor = titleColor
-                    )
-                )
-            } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
                 Text(
                     text = stringResource(R.string.rules_minigame_sequence_body),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
@@ -337,8 +302,52 @@ fun SequenceGameScreen(
                     textAlign = TextAlign.Start,
                     modifier = rulesModifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp)
                 )
+                if (hasReward) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.minigame_win_message),
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                            color = minigameMessageColor(
+                                MinigameMessageType.Win,
+                                titleColor = titleColor
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.minigame_win_cards_message),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                            color = minigameMessageColor(
+                                MinigameMessageType.WinCards,
+                                titleColor = titleColor
+                            )
+                        )
+                    }
+                } else if (hasLoss) {
+                    Text(
+                        text = stringResource(R.string.minigame_lose_message),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                        color = minigameMessageColor(
+                            MinigameMessageType.Lose,
+                            titleColor = titleColor
+                        ),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                } else if (hasPendingReward) {
+                    Text(
+                        text = stringResource(R.string.minigame_win_message),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                        color = minigameMessageColor(
+                            MinigameMessageType.Win,
+                            titleColor = titleColor
+                        ),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
             if (uiState.isStarted && !hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -421,7 +430,6 @@ fun SequenceGameScreen(
                     }
                     Spacer(modifier = Modifier.height(32.dp))
                 }
-                Spacer(modifier = Modifier.weight(1f))
                 if (uiState.rewardCards.isEmpty()) {
                     val matBackground = when {
                         uiState.failureReason != null -> FailureMatBackground
