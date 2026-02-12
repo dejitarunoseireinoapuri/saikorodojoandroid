@@ -269,28 +269,49 @@ class GenerateObjectiveUseCase {
             stage <= 4 -> 2
             else -> 3
         }
-        val primaryCondition = selectPrimaryCondition(candidates, random)
-        val selectedConditions = buildList {
-            add(primaryCondition)
-            candidates
-                .filterNot { it == primaryCondition }
-                .shuffled(random)
-                .forEach { condition ->
-                    if (size < selectedConditionsCount && areConditionsCompatible(this, condition, diceTypes)) {
-                        add(condition)
-                    }
-                }
-        }
-
         val minimumSelectionCount = minimumSelectionCountForLevel(
             diceCount = diceCount,
             stage = stage
         )
-        val enrichedConditions = selectedConditions.toMutableList().apply {
-            add(MinSelectedDiceCondition(minimumSelectionCount))
+        repeat(OBJECTIVE_GENERATION_MAX_ATTEMPTS) {
+            val primaryCondition = selectPrimaryCondition(candidates, random)
+            val selectedConditions = buildList {
+                add(primaryCondition)
+                candidates
+                    .filterNot { it == primaryCondition }
+                    .shuffled(random)
+                    .forEach { condition ->
+                        if (size < selectedConditionsCount && areConditionsCompatible(this, condition, diceTypes)) {
+                            add(condition)
+                        }
+                    }
+            }
+
+            val enrichedConditions = selectedConditions.toMutableList().apply {
+                add(MinSelectedDiceCondition(minimumSelectionCount))
+            }.distinct()
+            if (isObjectiveSetSatisfiable(enrichedConditions, diceTypes)) {
+                return LevelObjective(conditions = enrichedConditions)
+            }
         }
-        return LevelObjective(conditions = enrichedConditions.distinct())
+        return LevelObjective(
+            conditions = buildDeterministicFallbackObjective(
+                minimumSelectionCount = minimumSelectionCount,
+                diceCount = diceCount
+            )
+        )
     }
+}
+
+private fun buildDeterministicFallbackObjective(
+    minimumSelectionCount: Int,
+    diceCount: Int
+): List<ObjectiveCondition> {
+    val safeSelection = minimumSelectionCount.coerceIn(1, diceCount.coerceAtLeast(1))
+    return listOf(
+        SumExactCondition(target = safeSelection),
+        MinSelectedDiceCondition(minCount = safeSelection)
+    )
 }
 
 internal fun selectPrimaryCondition(
@@ -407,7 +428,14 @@ internal fun buildObjectiveCandidates(
     }
 
     return candidates.filter { condition ->
-        minimumRequiredDice(condition) <= maxSelectable
+        minimumRequiredDice(condition) <= maxSelectable &&
+            isConditionTheoreticallyFeasible(
+                condition = condition,
+                diceTypes = diceTypes,
+                minSelectable = minSelectable,
+                maxSelectable = maxSelectable,
+                valueSupportCounts = valueSupportCounts
+            )
     }
 }
 
@@ -420,6 +448,134 @@ internal fun areConditionsCompatible(
         return false
     }
     return areSumConditionsFeasible(selectedConditions + candidate)
+}
+
+internal fun isObjectiveSetSatisfiable(
+    conditions: List<ObjectiveCondition>,
+    diceTypes: List<DiceType>
+): Boolean {
+    if (conditions.isEmpty() || diceTypes.isEmpty()) return false
+    val minSelected = conditions
+        .filterIsInstance<MinSelectedDiceCondition>()
+        .maxOfOrNull { it.minCount }
+        ?.coerceAtLeast(1)
+        ?: 1
+    if (minSelected > diceTypes.size) return false
+    if (!areSumConditionsFeasible(conditions)) return false
+
+    val sortedDice = diceTypes.sortedByDescending { it.sides }
+    for (selectionSize in minSelected..sortedDice.size) {
+        val selectedSides = sortedDice.take(selectionSize).map { it.sides }
+        if (isSelectionSatisfiable(conditions, selectedSides)) {
+            return true
+        }
+    }
+    return false
+}
+
+private fun isSelectionSatisfiable(
+    conditions: List<ObjectiveCondition>,
+    selectedSides: List<Int>
+): Boolean {
+    val sumLowerBound = resolveSumLowerBound(conditions)
+    val sumUpperBound = resolveSumUpperBound(conditions)
+    val requiredExactSum = conditions.filterIsInstance<SumExactCondition>().firstOrNull()?.target
+    val nodeBudget = SearchBudget(maxNodes = 250_000)
+    val values = IntArray(selectedSides.size)
+
+    fun search(index: Int, currentSum: Int): Boolean {
+        if (!nodeBudget.consume()) return false
+        if (index == selectedSides.size) {
+            val candidateValues = values.toList()
+            return conditions.all { it.isMet(candidateValues) }
+        }
+        val remainingMin = selectedSides.size - (index + 1)
+        val remainingMax = selectedSides.drop(index + 1).sum()
+        for (value in 1..selectedSides[index]) {
+            val nextSum = currentSum + value
+            if (nextSum + remainingMin > sumUpperBound) continue
+            if (nextSum + remainingMax < sumLowerBound) continue
+            if (requiredExactSum != null) {
+                if (nextSum + remainingMin > requiredExactSum) continue
+                if (nextSum + remainingMax < requiredExactSum) continue
+            }
+            values[index] = value
+            if (search(index + 1, nextSum)) return true
+        }
+        return false
+    }
+
+    return search(index = 0, currentSum = 0)
+}
+
+private data class SearchBudget(
+    val maxNodes: Int,
+    var nodes: Int = 0
+) {
+    fun consume(): Boolean {
+        nodes += 1
+        return nodes <= maxNodes
+    }
+}
+
+private fun resolveSumLowerBound(conditions: List<ObjectiveCondition>): Int {
+    var lowerBound = 0
+    conditions.filterIsInstance<SumAtLeastCondition>().forEach { lowerBound = maxOf(lowerBound, it.threshold) }
+    conditions.filterIsInstance<SumInRangeCondition>().forEach { lowerBound = maxOf(lowerBound, it.min) }
+    conditions.filterIsInstance<SumMaxDifferenceCondition>().forEach {
+        lowerBound = maxOf(lowerBound, it.target - it.maxDifference)
+    }
+    conditions.filterIsInstance<SumExactCondition>().firstOrNull()?.let { lowerBound = maxOf(lowerBound, it.target) }
+    return lowerBound
+}
+
+private fun resolveSumUpperBound(conditions: List<ObjectiveCondition>): Int {
+    var upperBound = Int.MAX_VALUE
+    conditions.filterIsInstance<SumAtMostCondition>().forEach { upperBound = minOf(upperBound, it.threshold) }
+    conditions.filterIsInstance<SumInRangeCondition>().forEach { upperBound = minOf(upperBound, it.max) }
+    conditions.filterIsInstance<SumMaxDifferenceCondition>().forEach {
+        upperBound = minOf(upperBound, it.target + it.maxDifference)
+    }
+    conditions.filterIsInstance<SumExactCondition>().firstOrNull()?.let { upperBound = minOf(upperBound, it.target) }
+    return upperBound
+}
+
+internal fun isConditionTheoreticallyFeasible(
+    condition: ObjectiveCondition,
+    diceTypes: List<DiceType>,
+    minSelectable: Int,
+    maxSelectable: Int,
+    valueSupportCounts: Map<Int, Int>
+): Boolean {
+    if (minSelectable > maxSelectable || maxSelectable <= 0) return false
+    return when (condition) {
+        is HasPairCondition -> valueSupportCounts.values.sumOf { it / 2 } >= condition.requiredPairs
+        is HasThreeOfKindCondition -> valueSupportCounts.values.sumOf { it / 3 } >= condition.requiredTrios
+        is ThreeOfKindWithValueCondition -> (valueSupportCounts[condition.requiredValue] ?: 0) >= 3
+        is HasFourOfKindCondition -> if (condition.required) valueSupportCounts.values.any { it >= 4 } else true
+        is FullHouseCondition -> {
+            if (maxSelectable < 5) {
+                false
+            } else {
+                val valuesWithAtLeastTwo = valueSupportCounts.values.count { it >= 2 }
+                val valuesWithAtLeastThree = valueSupportCounts.values.count { it >= 3 }
+                valuesWithAtLeastThree >= 1 && valuesWithAtLeastTwo >= 2
+            }
+        }
+        is ExactlyDistinctValuesCondition -> condition.distinctCount in 1..maxSelectable
+        is StraightCondition -> isStraightFeasible(diceTypes, condition.length, forbiddenValues = emptySet())
+        is ContainsValuesCondition -> condition.values.all { (valueSupportCounts[it] ?: 0) > 0 }
+        is ContainsValuesWithMultiplicityCondition -> condition.values.groupingBy { it }
+            .eachCount()
+            .all { (value, requiredCount) -> (valueSupportCounts[value] ?: 0) >= requiredCount }
+        is ForbidValuesCondition -> {
+            val forbidden = condition.values.toSet()
+            val availableDice = diceTypes.count { diceType -> (1..diceType.sides).any { it !in forbidden } }
+            availableDice >= minSelectable
+        }
+        is MinSelectedDiceCondition -> condition.minCount in 1..maxSelectable
+        else -> true
+    }
 }
 
 private fun areConditionsIncompatible(
@@ -665,6 +821,7 @@ private const val LEVELS_PER_STAGE_AFTER_FIRST = 25
 private const val MIN_DICE = 5
 private const val DICE_INCREMENT = 3
 private const val MAX_DICE = 20
+private const val OBJECTIVE_GENERATION_MAX_ATTEMPTS = 40
 
 private fun valueCounts(values: List<Int>): Map<Int, Int> {
     return values.groupingBy { it }.eachCount()

@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.math.min
 import kotlin.random.Random
 
 class GenerateObjectiveUseCaseTest {
@@ -272,6 +273,76 @@ class GenerateObjectiveUseCaseTest {
         )
     }
 
+    @Test
+    fun `global satisfiability validates objective with min selected dice`() {
+        val satisfiable = isObjectiveSetSatisfiable(
+            conditions = listOf(
+                SumExactCondition(target = 9),
+                HasPairCondition(requiredPairs = 1),
+                MinSelectedDiceCondition(minCount = 3)
+            ),
+            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D6)
+        )
+
+        assertTrue(satisfiable)
+    }
+
+    @Test
+    fun `global satisfiability rejects impossible objective`() {
+        val satisfiable = isObjectiveSetSatisfiable(
+            conditions = listOf(
+                SumExactCondition(target = 5),
+                ContainsValuesCondition(values = listOf(6)),
+                MinSelectedDiceCondition(minCount = 3)
+            ),
+            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6)
+        )
+
+        assertFalse(satisfiable)
+    }
+
+    @Test
+    fun `candidate pre feasibility rejects impossible four of a kind on mixed dice`() {
+        val feasible = isConditionTheoreticallyFeasible(
+            condition = HasFourOfKindCondition(required = true),
+            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D8),
+            minSelectable = 3,
+            maxSelectable = 4,
+            valueSupportCounts = buildValueSupportCounts(listOf(DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D8))
+        )
+
+        assertFalse(feasible)
+    }
+
+    @Test
+    fun `generated objectives are satisfiable for many levels and seeds`() {
+        val objectiveUseCase = GenerateObjectiveUseCase()
+        val levelUseCase = GenerateLevelUseCase()
+
+        for (level in 1..120) {
+            for (seed in 1L..150L) {
+                val levelDefinition = levelUseCase.execute(levelNumber = level, seedBase = seed)
+                val objective = objectiveUseCase.execute(
+                    levelNumber = level,
+                    diceTypes = levelDefinition.diceTypes,
+                    seedBase = seed
+                )
+
+                assertTrue(
+                    "Objective must be satisfiable for level=$level seed=$seed conditions=${objective.conditions}",
+                    isObjectiveSetSatisfiable(objective.conditions, levelDefinition.diceTypes)
+                )
+
+                val expectedMinSelected = minimumSelectionCountForLevel(
+                    diceCount = levelDefinition.diceCount,
+                    stage = stageForLevel(level)
+                )
+                val minSelectedCondition = objective.conditions.filterIsInstance<MinSelectedDiceCondition>().single()
+                assertEquals(min(expectedMinSelected, levelDefinition.diceCount), minSelectedCondition.minCount)
+            }
+        }
+    }
+
 }
 
 private class FixedIndexRandom(
@@ -281,4 +352,3 @@ private class FixedIndexRandom(
 
     override fun nextInt(until: Int): Int = fixedIndex
 }
-
