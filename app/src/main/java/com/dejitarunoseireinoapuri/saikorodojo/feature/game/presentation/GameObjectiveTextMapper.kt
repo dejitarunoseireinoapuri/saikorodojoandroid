@@ -107,13 +107,10 @@ internal fun objectiveLineText(condition: ObjectiveCondition): ObjectiveLineText
             formatArgs = listOf(condition.distinctCount)
         )
 
-        is StraightCondition -> {
-            ObjectiveLineText.PluralRes(
-                resId = R.plurals.objective_straight,
-                quantity = condition.length,
-                formatArgs = listOf(condition.length)
-            )
-        }
+        is StraightCondition -> ObjectiveLineText.StringRes(
+            resId = R.string.objective_straight,
+            formatArgs = listOf(condition.length)
+        )
 
         is ContainsValuesCondition -> {
             ObjectiveLineText.StringRes(
@@ -233,7 +230,10 @@ internal fun objectiveLineExplainText(
             formatArgs = listOf(condition.distinctCount)
         )
 
-        is StraightCondition -> null
+        is StraightCondition -> ObjectiveLineText.StringRes(
+            resId = R.string.objective_straight_explain,
+            formatArgs = listOf(condition.length)
+        )
         is ContainsValuesCondition -> ObjectiveLineText.StringRes(
             resId = R.string.objective_contains_values_explain,
             formatArgs = listOf(formatValues(condition.values))
