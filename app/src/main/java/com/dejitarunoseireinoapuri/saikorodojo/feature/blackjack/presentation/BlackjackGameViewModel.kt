@@ -351,10 +351,10 @@ class BlackjackGameViewModel(
                 rewardCards = emptyList()
             )
         }
-        if (rewardRevealDelayMs > 0L) {
-            delay(rewardRevealDelayMs)
-        }
         if (outcome == BlackjackOutcome.PLAYER_WIN) {
+            if (rewardRevealDelayMs > 0L) {
+                delay(rewardRevealDelayMs)
+            }
             _uiState.update {
                 it.copy(
                     rewardCards = resolveRewardCards(),
