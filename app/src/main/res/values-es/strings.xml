@@ -102,13 +102,8 @@
     <string name="objective_full_house_explain">Selecciona dos dados del mismo valor y tres dados del mismo valor</string>
     <string name="objective_all_distinct">Todos distintos</string>
     <string name="objective_all_distinct_explain">Selecciona solo dados con distinto valor</string>
-
-    <plurals name="objective_straight">
-        <item quantity="one">Consigue una escalera de %1$d dado</item>
-        <item quantity="other">Consigue una escalera de %1$d dados</item>
-        <item quantity="many">Consigue una escalera de %1$d dados</item>
-    </plurals>
-
+    <string name="objective_straight">Escalera de %1$d dados</string>
+    <string name="objective_straight_explain">Consigue una escalera de %1$d dados</string>
     <string name="objective_sum_at_least">Total igual o superior a %1$d</string>
     <string name="objective_sum_at_least_explain">La suma de los dados seleccionados debe ser al menos %1$d</string>
     <string name="objective_sum_exact">Total igual a %1$d</string>

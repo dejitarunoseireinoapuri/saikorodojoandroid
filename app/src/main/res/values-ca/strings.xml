@@ -102,13 +102,8 @@
     <string name="objective_full_house_explain">Selecciona dos daus del mateix valor i tres daus del mateix valor</string>
     <string name="objective_all_distinct">Tots diferents</string>
     <string name="objective_all_distinct_explain">Selecciona només daus amb valors diferents</string>
-
-    <plurals name="objective_straight">
-        <item quantity="one">Aconsegueix una escala de %1$d dau</item>
-        <item quantity="other">Aconsegueix una escala de %1$d daus</item>
-        <item quantity="many">Aconsegueix una escala de %1$d daus</item>
-    </plurals>
-
+    <string name="objective_straight">Escala de %1$d dados</string>
+    <string name="objective_straight_explain">Aconsegueix una escala de %1$d daus</string>
     <string name="objective_sum_at_least">Total igual o superior a %1$d</string>
     <string name="objective_sum_at_least_explain">La suma dels daus seleccionats ha de ser com a mínim %1$d</string>
     <string name="objective_sum_exact">Total igual a %1$d</string>

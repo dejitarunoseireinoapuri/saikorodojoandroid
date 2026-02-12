@@ -101,13 +101,8 @@
     <string name="objective_full_house_explain">Select two dice with the same value and three dice with the same value</string>
     <string name="objective_all_distinct">All different</string>
     <string name="objective_all_distinct_explain">Select only dice with different values</string>
-
-    <plurals name="objective_straight">
-        <item quantity="one">Get a straight of %1$d die</item>
-        <item quantity="other">Get a straight of %1$d dice</item>
-        <item quantity="many">Get a straight of %1$d dice</item>
-    </plurals>
-
+    <string name="objective_straight">Straight de %1$d dados</string>
+    <string name="objective_straight_explain">Get a straight of %1$d dice</string>
     <string name="objective_sum_at_least">Total at least %1$d</string>
     <string name="objective_sum_at_least_explain">The sum of the selected dice must be at least %1$d</string>
     <string name="objective_sum_exact">Total exactly %1$d</string>
