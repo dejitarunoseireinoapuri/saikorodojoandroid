@@ -192,7 +192,7 @@ fun OddEvenGameScreen(
                     fontSize = 26.sp
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Start,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
         }

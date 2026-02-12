@@ -103,7 +103,7 @@ class RulesStringsTest {
         localeFiles.forEach { file ->
             val content = file.readText()
             targetKeys.forEach { key ->
-                val raw = Regex("""<string name=\"$key\">([\\s\\S]*?)</string>""")
+                val raw = Regex("""<string name=\"$key\">([\s\S]*?)</string>""")
                     .find(content)
                     ?.groupValues
                     ?.get(1)
