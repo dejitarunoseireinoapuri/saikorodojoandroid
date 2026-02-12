@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain
 
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.random.Random
@@ -54,7 +55,19 @@ class GenerateObjectiveUseCaseTest {
         assertTrue(candidates.any { it is HasPairCondition && it.requiredPairs == 2 })
         assertFalse(candidates.any { it is HasPairCondition && it.requiredPairs == 3 })
         assertTrue(candidates.any { it is HasThreeOfKindCondition && it.requiredTrios == 1 })
+        assertTrue(
+            candidates.any {
+                it is AtLeastParityCountCondition && it.minCount == minimumParityCountForObjective(5)
+            }
+        )
         assertFalse(candidates.any { it is HasThreeOfKindCondition && it.requiredTrios == 2 })
+    }
+
+    @Test
+    fun `minimum parity count is at least half dice plus one`() {
+        assertEquals(3, minimumParityCountForObjective(diceCount = 5))
+        assertEquals(4, minimumParityCountForObjective(diceCount = 6))
+        assertEquals(5, minimumParityCountForObjective(diceCount = 8))
     }
 
     @Test
