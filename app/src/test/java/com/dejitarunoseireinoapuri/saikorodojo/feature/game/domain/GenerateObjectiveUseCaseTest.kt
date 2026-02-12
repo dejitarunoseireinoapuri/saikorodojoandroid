@@ -24,6 +24,7 @@ class GenerateObjectiveUseCaseTest {
     fun `stage one objectives include pair and double pair candidates only`() {
         val candidates = buildObjectiveCandidates(
             stage = 1,
+            diceTypes = List(5) { DiceType.D6 },
             minSelectable = 3,
             maxSelectable = 5,
             maxDieValue = 6,
@@ -44,6 +45,7 @@ class GenerateObjectiveUseCaseTest {
     fun `stage two objectives include pair and one trio candidates only`() {
         val candidates = buildObjectiveCandidates(
             stage = 2,
+            diceTypes = List(5) { DiceType.D6 },
             minSelectable = 3,
             maxSelectable = 5,
             maxDieValue = 6,
@@ -78,6 +80,7 @@ class GenerateObjectiveUseCaseTest {
     fun `stage three objectives include advanced pair and trio candidates`() {
         val candidates = buildObjectiveCandidates(
             stage = 3,
+            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D8, DiceType.D8, DiceType.D10, DiceType.D10, DiceType.D10),
             minSelectable = 6,
             maxSelectable = 8,
             maxDieValue = 8,
@@ -97,6 +100,7 @@ class GenerateObjectiveUseCaseTest {
     fun `candidates exclude conditions requiring more dice than available`() {
         val candidates = buildObjectiveCandidates(
             stage = 3,
+            diceTypes = List(5) { DiceType.D6 },
             minSelectable = 3,
             maxSelectable = 5,
             maxDieValue = 6,
@@ -149,6 +153,7 @@ class GenerateObjectiveUseCaseTest {
     fun `all distinct is excluded when minimum selection exceeds distinct values`() {
         val candidates = buildObjectiveCandidates(
             stage = 4,
+            diceTypes = List(12) { DiceType.D10 },
             minSelectable = 12,
             maxSelectable = 12,
             maxDieValue = 10,
@@ -180,6 +185,7 @@ class GenerateObjectiveUseCaseTest {
         }
         val candidates = buildObjectiveCandidates(
             stage = 3,
+            diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D10, DiceType.D10),
             minSelectable = 8,
             maxSelectable = 8,
             maxDieValue = 10,
@@ -222,6 +228,50 @@ class GenerateObjectiveUseCaseTest {
             )
         )
     }
+
+
+
+    @Test
+    fun `compatibility rejects opposite parity for exact sum`() {
+        assertFalse(
+            areConditionsCompatible(
+                selectedConditions = listOf(SumExactCondition(target = 9)),
+                candidate = SumParityCondition(shouldBeEven = true)
+            )
+        )
+    }
+
+    @Test
+    fun `compatibility rejects non multiple exact sum`() {
+        assertFalse(
+            areConditionsCompatible(
+                selectedConditions = listOf(SumExactCondition(target = 10)),
+                candidate = SumMultipleCondition(factor = 3)
+            )
+        )
+    }
+
+    @Test
+    fun `compatibility rejects impossible sum bounds`() {
+        assertFalse(
+            areConditionsCompatible(
+                selectedConditions = listOf(SumAtLeastCondition(threshold = 20), SumInRangeCondition(min = 1, max = 10)),
+                candidate = SumAtMostCondition(threshold = 12)
+            )
+        )
+    }
+
+    @Test
+    fun `compatibility rejects straight blocked by forbidden values`() {
+        assertFalse(
+            areConditionsCompatible(
+                selectedConditions = listOf(StraightCondition(length = 4)),
+                candidate = ForbidValuesCondition(values = listOf(1, 2, 3, 4, 5, 6)),
+                diceTypes = listOf(DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D6)
+            )
+        )
+    }
+
 }
 
 private class FixedIndexRandom(
@@ -231,3 +281,4 @@ private class FixedIndexRandom(
 
     override fun nextInt(until: Int): Int = fixedIndex
 }
+

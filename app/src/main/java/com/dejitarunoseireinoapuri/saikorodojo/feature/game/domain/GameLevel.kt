@@ -252,6 +252,7 @@ class GenerateObjectiveUseCase {
         )
         val candidates = buildObjectiveCandidates(
             stage = stage,
+            diceTypes = diceTypes,
             minSelectable = minSelectable,
             maxSelectable = diceCount,
             maxDieValue = maxDieValue,
@@ -275,7 +276,7 @@ class GenerateObjectiveUseCase {
                 .filterNot { it == primaryCondition }
                 .shuffled(random)
                 .forEach { condition ->
-                    if (size < selectedConditionsCount && areConditionsCompatible(this, condition)) {
+                    if (size < selectedConditionsCount && areConditionsCompatible(this, condition, diceTypes)) {
                         add(condition)
                     }
                 }
@@ -301,6 +302,7 @@ internal fun selectPrimaryCondition(
 
 internal fun buildObjectiveCandidates(
     stage: Int,
+    diceTypes: List<DiceType>,
     minSelectable: Int,
     maxSelectable: Int,
     maxDieValue: Int,
@@ -352,7 +354,9 @@ internal fun buildObjectiveCandidates(
             from = minStraightLength,
             until = (maxStraightLength + 1).coerceAtLeast(minStraightLength + 1)
         )
-        candidates.add(StraightCondition(length = straightLength))
+        if (isStraightFeasible(diceTypes = diceTypes, length = straightLength, forbiddenValues = emptySet())) {
+            candidates.add(StraightCondition(length = straightLength))
+        }
         candidates.add(
             AtLeastParityCountCondition(
                 minCount = minimumParityCountForObjective(maxSelectable),
@@ -409,14 +413,20 @@ internal fun buildObjectiveCandidates(
 
 internal fun areConditionsCompatible(
     selectedConditions: List<ObjectiveCondition>,
-    candidate: ObjectiveCondition
+    candidate: ObjectiveCondition,
+    diceTypes: List<DiceType> = emptyList()
 ): Boolean {
-    return selectedConditions.none { existing ->
-        areConditionsIncompatible(existing, candidate)
+    if (selectedConditions.any { existing -> areConditionsIncompatible(existing, candidate, diceTypes) }) {
+        return false
     }
+    return areSumConditionsFeasible(selectedConditions + candidate)
 }
 
-private fun areConditionsIncompatible(first: ObjectiveCondition, second: ObjectiveCondition): Boolean {
+private fun areConditionsIncompatible(
+    first: ObjectiveCondition,
+    second: ObjectiveCondition,
+    diceTypes: List<DiceType>
+): Boolean {
     if (first is AllDistinctCondition && second is HasPairCondition) return true
     if (first is AllDistinctCondition && second is HasThreeOfKindCondition) return true
     if (first is AllDistinctCondition && second is HasFourOfKindCondition && second.required) return true
@@ -431,8 +441,88 @@ private fun areConditionsIncompatible(first: ObjectiveCondition, second: Objecti
     val firstRequired = requiredValuesForCompatibility(first)
     val secondRequired = requiredValuesForCompatibility(second)
 
+    if (first is StraightCondition && second is ForbidValuesCondition &&
+        !isStraightFeasible(diceTypes, first.length, second.values.toSet())
+    ) {
+        return true
+    }
+    if (second is StraightCondition && first is ForbidValuesCondition &&
+        !isStraightFeasible(diceTypes, second.length, first.values.toSet())
+    ) {
+        return true
+    }
+
     return firstForbidden.intersect(secondRequired).isNotEmpty() ||
         secondForbidden.intersect(firstRequired).isNotEmpty()
+}
+
+private fun areSumConditionsFeasible(conditions: List<ObjectiveCondition>): Boolean {
+    val exactTarget = conditions.filterIsInstance<SumExactCondition>().map { it.target }.distinct()
+    if (exactTarget.size > 1) return false
+
+    var lowerBound = Int.MIN_VALUE
+    var upperBound = Int.MAX_VALUE
+
+    conditions.filterIsInstance<SumAtLeastCondition>().forEach { lowerBound = maxOf(lowerBound, it.threshold) }
+    conditions.filterIsInstance<SumAtMostCondition>().forEach { upperBound = minOf(upperBound, it.threshold) }
+    conditions.filterIsInstance<SumInRangeCondition>().forEach {
+        lowerBound = maxOf(lowerBound, it.min)
+        upperBound = minOf(upperBound, it.max)
+    }
+    if (lowerBound > upperBound) return false
+
+    val exact = exactTarget.firstOrNull()
+    if (exact != null) {
+        if (exact !in lowerBound..upperBound) return false
+        conditions.filterIsInstance<SumParityCondition>().forEach {
+            if ((exact % 2 == 0) != it.shouldBeEven) return false
+        }
+        conditions.filterIsInstance<SumMultipleCondition>().forEach {
+            if (it.factor <= 0 || exact % it.factor != 0) return false
+        }
+        return true
+    }
+
+    val parityConditions = conditions.filterIsInstance<SumParityCondition>().map { it.shouldBeEven }.distinct()
+    if (parityConditions.size > 1) return false
+
+    val multipleConditions = conditions.filterIsInstance<SumMultipleCondition>().map { it.factor }
+    if (multipleConditions.any { it <= 0 }) return false
+
+    return true
+}
+
+private fun isStraightFeasible(
+    diceTypes: List<DiceType>,
+    length: Int,
+    forbiddenValues: Set<Int>
+): Boolean {
+    if (length <= 1) return true
+    if (diceTypes.isEmpty() || diceTypes.size < length) return false
+    val maxValue = diceTypes.maxOfOrNull { it.sides } ?: return false
+    for (start in 1..(maxValue - length + 1)) {
+        val run = (start until start + length).filterNot { it in forbiddenValues }
+        if (run.size != length) continue
+        if (canAssignDistinctRunValues(run, diceTypes)) return true
+    }
+    return false
+}
+
+private fun canAssignDistinctRunValues(run: List<Int>, diceTypes: List<DiceType>): Boolean {
+    val usedDice = BooleanArray(diceTypes.size)
+    fun backtrack(index: Int): Boolean {
+        if (index == run.size) return true
+        val requiredValue = run[index]
+        for (diceIndex in diceTypes.indices) {
+            if (!usedDice[diceIndex] && diceTypes[diceIndex].sides >= requiredValue) {
+                usedDice[diceIndex] = true
+                if (backtrack(index + 1)) return true
+                usedDice[diceIndex] = false
+            }
+        }
+        return false
+    }
+    return backtrack(0)
 }
 
 private fun requiredValuesForCompatibility(condition: ObjectiveCondition): Set<Int> {
