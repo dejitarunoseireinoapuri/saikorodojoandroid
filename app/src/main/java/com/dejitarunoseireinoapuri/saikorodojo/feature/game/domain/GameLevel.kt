@@ -223,36 +223,40 @@ class GenerateObjectiveUseCase {
         val random = Random(seedBase + levelNumber * 13L)
         val diceCount = diceTypes.size.coerceAtLeast(1)
         val maxDieValue = diceTypes.maxOfOrNull { it.sides } ?: DiceType.D6.sides
+        val valueSupportCounts = buildValueSupportCounts(diceTypes)
+        val supportedValues = valueSupportCounts.keys.sorted()
         val minSelectable = minimumSelectionCountForLevel(
             diceCount = diceCount,
             stage = stage
         ).coerceIn(1, diceCount)
-        val maximumPossibleSum = diceCount * maxDieValue
-        val randomValuesPool = List(maxDieValue) { it + 1 }
+        val minimumPossibleSum = minSelectable
+        val maximumPossibleSum = maximumPossibleSum(diceTypes)
         val sumDifficultyFactor = (stage - 1).coerceAtLeast(0)
         val exactTarget = buildRandomExactTarget(
-            minimumPossibleSum = minSelectable,
+            minimumPossibleSum = minimumPossibleSum,
             maximumPossibleSum = maximumPossibleSum,
             sumDifficultyFactor = sumDifficultyFactor,
             random = random
         )
         val atLeastThreshold = buildRandomAtLeastThreshold(
-            minimumPossibleSum = minSelectable,
+            minimumPossibleSum = minimumPossibleSum,
             maximumPossibleSum = maximumPossibleSum,
             sumDifficultyFactor = sumDifficultyFactor,
             random = random
         )
         val rangeCondition = buildRandomRangeCondition(
-            minimumPossibleSum = minSelectable,
+            minimumPossibleSum = minimumPossibleSum,
             maximumPossibleSum = maximumPossibleSum,
             sumDifficultyFactor = sumDifficultyFactor,
             random = random
         )
         val candidates = buildObjectiveCandidates(
             stage = stage,
+            minSelectable = minSelectable,
             maxSelectable = diceCount,
             maxDieValue = maxDieValue,
-            randomValuesPool = randomValuesPool,
+            supportedValues = supportedValues,
+            valueSupportCounts = valueSupportCounts,
             exactTarget = exactTarget,
             atLeastThreshold = atLeastThreshold,
             rangeCondition = rangeCondition,
@@ -267,12 +271,14 @@ class GenerateObjectiveUseCase {
         val primaryCondition = selectPrimaryCondition(candidates, random)
         val selectedConditions = buildList {
             add(primaryCondition)
-            addAll(
-                candidates
-                    .filterNot { it == primaryCondition }
-                    .shuffled(random)
-                    .take((selectedConditionsCount - 1).coerceAtLeast(0))
-            )
+            candidates
+                .filterNot { it == primaryCondition }
+                .shuffled(random)
+                .forEach { condition ->
+                    if (size < selectedConditionsCount && areConditionsCompatible(this, condition)) {
+                        add(condition)
+                    }
+                }
         }
 
         val minimumSelectionCount = minimumSelectionCountForLevel(
@@ -295,9 +301,11 @@ internal fun selectPrimaryCondition(
 
 internal fun buildObjectiveCandidates(
     stage: Int,
+    minSelectable: Int,
     maxSelectable: Int,
     maxDieValue: Int,
-    randomValuesPool: List<Int>,
+    supportedValues: List<Int>,
+    valueSupportCounts: Map<Int, Int>,
     exactTarget: Int,
     atLeastThreshold: Int,
     rangeCondition: SumInRangeCondition,
@@ -321,16 +329,22 @@ internal fun buildObjectiveCandidates(
     candidates.add(SumParityCondition(shouldBeEven = random.nextBoolean()))
 
     if (stage >= 1) {
-        candidates.add(AllDistinctCondition)
+        if (minSelectable <= supportedValues.size) {
+            candidates.add(AllDistinctCondition)
+        }
         candidates.add(HasPairCondition(requiredPairs = 1))
         candidates.add(HasPairCondition(requiredPairs = 2))
         candidates.add(ExactlyDistinctValuesCondition(distinctCount = minOf(3, maxSelectable)))
-        val containsCount = minOf(2 + stage / 2, maxSelectable).coerceAtLeast(1)
-        candidates.add(
-            ContainsValuesCondition(
-                values = randomValuesPool.shuffled(random).take(containsCount)
-            )
+        val containsValues = supportedValues.shuffled(random).take(
+            minOf(2 + stage / 2, maxSelectable, supportedValues.size).coerceAtLeast(1)
         )
+        if (containsValues.isNotEmpty()) {
+            candidates.add(
+                ContainsValuesCondition(
+                    values = containsValues
+                )
+            )
+        }
     }
 
     if (stage >= 2 && maxDieValue >= 3) {
@@ -351,30 +365,82 @@ internal fun buildObjectiveCandidates(
     if (stage >= 3) {
         candidates.add(HasPairCondition(requiredPairs = 3))
         candidates.add(HasThreeOfKindCondition(requiredTrios = 2))
-        candidates.add(ThreeOfKindWithValueCondition(requiredValue = randomValuesPool.random(random)))
-        val multiplicityTargetValue = randomValuesPool.random(random)
-        val secondaryValue = randomValuesPool.random(random)
-        candidates.add(
-            ContainsValuesWithMultiplicityCondition(
-                values = listOf(
-                    multiplicityTargetValue,
-                    multiplicityTargetValue,
-                    secondaryValue
-                )
+        val trioEligibleValues = supportedValues.filter { value ->
+            (valueSupportCounts[value] ?: 0) >= 3
+        }
+        if (trioEligibleValues.isNotEmpty()) {
+            candidates.add(ThreeOfKindWithValueCondition(requiredValue = trioEligibleValues.random(random)))
+        }
+        val multiplicityTargetValues = supportedValues.filter { value ->
+            (valueSupportCounts[value] ?: 0) >= 2
+        }
+        if (multiplicityTargetValues.isNotEmpty() && supportedValues.isNotEmpty()) {
+            val multiplicityTargetValue = multiplicityTargetValues.random(random)
+            val secondaryValue = supportedValues.random(random)
+            val multiplicityConditionValues = listOf(
+                multiplicityTargetValue,
+                multiplicityTargetValue,
+                secondaryValue
             )
-        )
+            if (isMultiplicityConditionSupported(multiplicityConditionValues, valueSupportCounts)) {
+                candidates.add(
+                    ContainsValuesWithMultiplicityCondition(
+                        values = multiplicityConditionValues
+                    )
+                )
+            }
+        }
     }
 
     if (stage >= 4) {
         candidates.add(HasFourOfKindCondition(required = true))
         candidates.add(FullHouseCondition)
-        val forbiddenCount = minOf(stage - 2, maxDieValue - 1).coerceAtLeast(1)
-        val forbiddenValues = randomValuesPool.shuffled(random).take(forbiddenCount)
-        candidates.add(ForbidValuesCondition(values = forbiddenValues))
+        val forbiddenCount = minOf(stage - 2, supportedValues.size - 1).coerceAtLeast(1)
+        val forbiddenValues = supportedValues.shuffled(random).take(forbiddenCount)
+        if (forbiddenValues.isNotEmpty()) {
+            candidates.add(ForbidValuesCondition(values = forbiddenValues))
+        }
     }
 
     return candidates.filter { condition ->
         minimumRequiredDice(condition) <= maxSelectable
+    }
+}
+
+internal fun areConditionsCompatible(
+    selectedConditions: List<ObjectiveCondition>,
+    candidate: ObjectiveCondition
+): Boolean {
+    return selectedConditions.none { existing ->
+        areConditionsIncompatible(existing, candidate)
+    }
+}
+
+private fun areConditionsIncompatible(first: ObjectiveCondition, second: ObjectiveCondition): Boolean {
+    if (first is AllDistinctCondition && second is HasPairCondition) return true
+    if (first is AllDistinctCondition && second is HasThreeOfKindCondition) return true
+    if (first is AllDistinctCondition && second is HasFourOfKindCondition && second.required) return true
+    if (first is AllDistinctCondition && second is FullHouseCondition) return true
+    if (second is AllDistinctCondition && first is HasPairCondition) return true
+    if (second is AllDistinctCondition && first is HasThreeOfKindCondition) return true
+    if (second is AllDistinctCondition && first is HasFourOfKindCondition && first.required) return true
+    if (second is AllDistinctCondition && first is FullHouseCondition) return true
+
+    val firstForbidden = (first as? ForbidValuesCondition)?.values?.toSet().orEmpty()
+    val secondForbidden = (second as? ForbidValuesCondition)?.values?.toSet().orEmpty()
+    val firstRequired = requiredValuesForCompatibility(first)
+    val secondRequired = requiredValuesForCompatibility(second)
+
+    return firstForbidden.intersect(secondRequired).isNotEmpty() ||
+        secondForbidden.intersect(firstRequired).isNotEmpty()
+}
+
+private fun requiredValuesForCompatibility(condition: ObjectiveCondition): Set<Int> {
+    return when (condition) {
+        is ContainsValuesCondition -> condition.values.toSet()
+        is ThreeOfKindWithValueCondition -> setOf(condition.requiredValue)
+        is ContainsValuesWithMultiplicityCondition -> condition.values.toSet()
+        else -> emptySet()
     }
 }
 
@@ -399,6 +465,32 @@ internal fun minimumRequiredDice(condition: ObjectiveCondition): Int {
 
 internal fun minimumParityCountForObjective(diceCount: Int): Int {
     return (diceCount / 2) + 1
+}
+
+internal fun buildValueSupportCounts(diceTypes: List<DiceType>): Map<Int, Int> {
+    val supportCounts = mutableMapOf<Int, Int>()
+    diceTypes.forEach { diceType ->
+        for (value in 1..diceType.sides) {
+            supportCounts[value] = (supportCounts[value] ?: 0) + 1
+        }
+    }
+    return supportCounts
+}
+
+internal fun maximumPossibleSum(diceTypes: List<DiceType>): Int {
+    if (diceTypes.isEmpty()) {
+        return DiceType.D6.sides
+    }
+    return diceTypes.sumOf { it.sides }
+}
+
+private fun isMultiplicityConditionSupported(
+    values: List<Int>,
+    valueSupportCounts: Map<Int, Int>
+): Boolean {
+    return valueCounts(values).all { (value, requiredCount) ->
+        (valueSupportCounts[value] ?: 0) >= requiredCount
+    }
 }
 
 

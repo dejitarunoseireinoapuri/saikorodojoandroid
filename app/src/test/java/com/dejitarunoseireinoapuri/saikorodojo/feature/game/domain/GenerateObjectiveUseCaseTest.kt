@@ -1,7 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain
 
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.random.Random
@@ -24,9 +24,11 @@ class GenerateObjectiveUseCaseTest {
     fun `stage one objectives include pair and double pair candidates only`() {
         val candidates = buildObjectiveCandidates(
             stage = 1,
+            minSelectable = 3,
             maxSelectable = 5,
             maxDieValue = 6,
-            randomValuesPool = (1..6).toList(),
+            supportedValues = (1..6).toList(),
+            valueSupportCounts = (1..6).associateWith { 5 },
             exactTarget = 10,
             atLeastThreshold = 12,
             rangeCondition = SumInRangeCondition(min = 5, max = 9),
@@ -42,9 +44,11 @@ class GenerateObjectiveUseCaseTest {
     fun `stage two objectives include pair and one trio candidates only`() {
         val candidates = buildObjectiveCandidates(
             stage = 2,
+            minSelectable = 3,
             maxSelectable = 5,
             maxDieValue = 6,
-            randomValuesPool = (1..6).toList(),
+            supportedValues = (1..6).toList(),
+            valueSupportCounts = (1..6).associateWith { 5 },
             exactTarget = 10,
             atLeastThreshold = 12,
             rangeCondition = SumInRangeCondition(min = 5, max = 9),
@@ -74,9 +78,11 @@ class GenerateObjectiveUseCaseTest {
     fun `stage three objectives include advanced pair and trio candidates`() {
         val candidates = buildObjectiveCandidates(
             stage = 3,
+            minSelectable = 6,
             maxSelectable = 8,
             maxDieValue = 8,
-            randomValuesPool = (1..8).toList(),
+            supportedValues = (1..8).toList(),
+            valueSupportCounts = (1..8).associateWith { 8 },
             exactTarget = 18,
             atLeastThreshold = 21,
             rangeCondition = SumInRangeCondition(min = 10, max = 16),
@@ -91,9 +97,11 @@ class GenerateObjectiveUseCaseTest {
     fun `candidates exclude conditions requiring more dice than available`() {
         val candidates = buildObjectiveCandidates(
             stage = 3,
+            minSelectable = 3,
             maxSelectable = 5,
             maxDieValue = 6,
-            randomValuesPool = (1..6).toList(),
+            supportedValues = (1..6).toList(),
+            valueSupportCounts = (1..6).associateWith { 5 },
             exactTarget = 10,
             atLeastThreshold = 12,
             rangeCondition = SumInRangeCondition(min = 5, max = 9),
@@ -119,6 +127,100 @@ class GenerateObjectiveUseCaseTest {
         )
 
         assertTrue(selected is HasPairCondition)
+    }
+
+    @Test
+    fun `maximum possible sum uses real sides per die`() {
+        val sum = maximumPossibleSum(listOf(DiceType.D6, DiceType.D6, DiceType.D10))
+
+        assertEquals(22, sum)
+    }
+
+    @Test
+    fun `build value support counts reflects mixed dice capabilities`() {
+        val supportCounts = buildValueSupportCounts(listOf(DiceType.D6, DiceType.D6, DiceType.D10))
+
+        assertEquals(3, supportCounts[1])
+        assertEquals(3, supportCounts[6])
+        assertEquals(1, supportCounts[10])
+    }
+
+    @Test
+    fun `all distinct is excluded when minimum selection exceeds distinct values`() {
+        val candidates = buildObjectiveCandidates(
+            stage = 4,
+            minSelectable = 12,
+            maxSelectable = 12,
+            maxDieValue = 10,
+            supportedValues = (1..10).toList(),
+            valueSupportCounts = (1..10).associateWith { 12 },
+            exactTarget = 20,
+            atLeastThreshold = 24,
+            rangeCondition = SumInRangeCondition(min = 15, max = 25),
+            random = Random(9)
+        )
+
+        assertFalse(candidates.any { it is AllDistinctCondition })
+    }
+
+    @Test
+    fun `value based candidates use only supported values and multiplicity`() {
+        val supportedValues = (1..10).toList()
+        val supportCounts = buildMap {
+            put(1, 3)
+            put(2, 3)
+            put(3, 3)
+            put(4, 3)
+            put(5, 3)
+            put(6, 3)
+            put(7, 1)
+            put(8, 1)
+            put(9, 1)
+            put(10, 1)
+        }
+        val candidates = buildObjectiveCandidates(
+            stage = 3,
+            minSelectable = 8,
+            maxSelectable = 8,
+            maxDieValue = 10,
+            supportedValues = supportedValues,
+            valueSupportCounts = supportCounts,
+            exactTarget = 18,
+            atLeastThreshold = 20,
+            rangeCondition = SumInRangeCondition(min = 12, max = 18),
+            random = Random(10)
+        )
+
+        val trio = candidates.filterIsInstance<ThreeOfKindWithValueCondition>().single()
+        assertTrue(trio.requiredValue in 1..6)
+
+        val multiplicity = candidates.filterIsInstance<ContainsValuesWithMultiplicityCondition>().single()
+        val multiplicityCounts = multiplicity.values.groupingBy { it }.eachCount()
+        multiplicityCounts.forEach { (value, requiredCount) ->
+            assertTrue(requiredCount <= (supportCounts[value] ?: 0))
+        }
+    }
+
+    @Test
+    fun `compatibility check rejects contradictory conditions`() {
+        assertFalse(
+            areConditionsCompatible(
+                selectedConditions = listOf(AllDistinctCondition),
+                candidate = HasPairCondition(requiredPairs = 1)
+            )
+        )
+        assertFalse(
+            areConditionsCompatible(
+                selectedConditions = listOf(ForbidValuesCondition(values = listOf(4))),
+                candidate = ContainsValuesCondition(values = listOf(4, 5))
+            )
+        )
+        assertTrue(
+            areConditionsCompatible(
+                selectedConditions = listOf(ContainsValuesCondition(values = listOf(2, 3))),
+                candidate = ForbidValuesCondition(values = listOf(6))
+            )
+        )
     }
 }
 
