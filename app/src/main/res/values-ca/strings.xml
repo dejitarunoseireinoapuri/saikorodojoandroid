@@ -175,7 +175,7 @@ A més, cada nivell completat al joc principal suma 2 intents de minijoc.
 Pots acumular fins a 99 intents de minijoc.</string>
 
     <string name="rules_minigame_odd_even_title">Parell o senar</string>
-    <string name="rules_minigame_odd_even_body">Tria parell o senar abans de cada tirada.\nObjectiu: aconseguir 3 encerts.\nLímit: màxim 7 rondes.</string>
+    <string name="rules_minigame_odd_even_body">Tria parell o senar abans de cada tirada.\nObjectiu: aconseguir 3 encerts en un màxim de 7 rondes.</string>
 
     <string name="rules_minigame_higher_lower_title">Més alt o més baix</string>
     <string name="rules_minigame_higher_lower_body">Endevina si la suma següent serà més alta o més baixa que la suma anterior.\nGuanyes en arribar a 3 encerts.\nTambé guanyes si surt exactament la mateixa suma en dues rondes seguides.</string>

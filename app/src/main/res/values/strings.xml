@@ -175,7 +175,7 @@ Also, each level completed in the main game adds 2 minigame attempts.
 You can store up to 99 minigame attempts.</string>
 
     <string name="rules_minigame_odd_even_title">Odd or even</string>
-    <string name="rules_minigame_odd_even_body">Choose odd or even before each roll.\nGoal: get 3 correct guesses.\nLimit: maximum 7 rounds.</string>
+    <string name="rules_minigame_odd_even_body">Choose even or odd before each roll.\nObjective: get 3 correct guesses within a maximum of 7 rounds.</string>
 
     <string name="rules_minigame_higher_lower_title">Higher or lower</string>
     <string name="rules_minigame_higher_lower_body">Guess whether the next total will be higher or lower than the previous total.\nYou win by reaching 3 correct guesses.\nYou also win if the exact same total happens in two rounds in a row.</string>
