@@ -137,6 +137,72 @@ class SequenceGameViewModelTest {
         assertEquals(1, state.discardCount)
     }
 
+
+    @Test
+    fun `saving second die on round four keeps game alive when still reachable`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 1, 5, 3, 7),
+            totalRolls = 5,
+            targetSequence = 3,
+            rollAnimationMs = 0L,
+            saveAnimationMs = 0L,
+            dispatcher = UnconfinedTestDispatcher(testScheduler)
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        testScheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        testScheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isComplete)
+        assertEquals(5, state.currentRoll)
+        assertTrue(state.isAwaitingDecision)
+        assertEquals(listOf(2, 3), state.savedValues)
+        assertEquals(2, state.discardCount)
+    }
+
+    @Test
+    fun `discarding in round four with one saved die fails because target is unreachable`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 6, 8, 9),
+            totalRolls = 5,
+            targetSequence = 3,
+            rollAnimationMs = 0L,
+            saveAnimationMs = 0L,
+            dispatcher = UnconfinedTestDispatcher(testScheduler)
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        testScheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete)
+        assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
+        assertEquals(3, state.discardCount)
+        assertEquals(listOf(2), state.savedValues)
+    }
+
     private fun buildViewModel(
         diceRolls: List<Int>,
         dispatcher: TestDispatcher,

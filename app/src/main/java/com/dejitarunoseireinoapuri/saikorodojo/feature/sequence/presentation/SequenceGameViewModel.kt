@@ -219,20 +219,22 @@ class SequenceGameViewModel(
         rollDelayMs: Long
     ) {
         val state = _uiState.value
+        val committedSaveCount = savedValues.size + if (pendingSavedValue != null) 1 else 0
+        val committedSavedValues = pendingSavedValue?.let { savedValues + it } ?: savedValues
         val remainingRolls = (state.totalRolls - nextRoll + 1).coerceAtLeast(0)
-        val maxSavesByRounds = savedValues.size + remainingRolls
+        val maxSavesByRounds = committedSaveCount + remainingRolls
         val lastSaved = savedValues.lastOrNull()
         val maxSavesByValue = if (lastSaved == null) {
             state.targetSequence
         } else {
-            savedValues.size + remainingRolls
+            committedSaveCount + remainingRolls
         }
         val canStillWin =
             maxSavesByRounds >= state.targetSequence && maxSavesByValue >= state.targetSequence
 
         if (nextRoll > state.totalRolls || !canStillWin) {
             completeFailure(
-                savedValues = savedValues,
+                savedValues = committedSavedValues,
                 discardCount = discardCount,
                 reason = SequenceFailureReason.ROUNDS,
                 failureDieValue = null
@@ -251,8 +253,8 @@ class SequenceGameViewModel(
         } else {
             startRoll(
                 nextRoll = nextRoll,
-                savedValues = savedValues,
-                pendingSavedValue = pendingSavedValue,
+                savedValues = committedSavedValues,
+                pendingSavedValue = null,
                 discardCount = discardCount,
                 hideLatestSavedValue = hideLatestSavedValue
             )
