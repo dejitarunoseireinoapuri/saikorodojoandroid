@@ -6,6 +6,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ExactlyDistin
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasThreeOfKindCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.HasPairCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinSelectedDiceCondition
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.StraightCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumAtLeastCondition
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -100,6 +101,34 @@ class ObjectiveLineTextTest {
         val expected = ObjectiveLineText.StringRes(
             resId = R.string.objective_sum_at_least_explain,
             formatArgs = listOf(12)
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `straight objective uses string resource and not plurals`() {
+        val condition = StraightCondition(length = 5)
+
+        val result = objectiveLineText(condition)
+
+        val expected = ObjectiveLineText.StringRes(
+            resId = R.string.objective_straight,
+            formatArgs = listOf(5)
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `straight objective explain uses dedicated explain string`() {
+        val condition = StraightCondition(length = 5)
+
+        val result = objectiveLineExplainText(condition, selectedCount = 5)
+
+        val expected = ObjectiveLineText.StringRes(
+            resId = R.string.objective_straight_explain,
+            formatArgs = listOf(5)
         )
 
         assertEquals(expected, result)
