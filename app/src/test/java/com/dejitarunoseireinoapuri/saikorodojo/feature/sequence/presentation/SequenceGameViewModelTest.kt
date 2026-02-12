@@ -21,6 +21,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -169,6 +170,42 @@ class SequenceGameViewModelTest {
         assertTrue(state.isAwaitingDecision)
         assertEquals(listOf(2, 3), state.savedValues)
         assertEquals(2, state.discardCount)
+    }
+
+    @Test
+    fun `losing after discarding last die keeps last rolled die on upper mat`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 6, 8, 9, 4),
+            totalRolls = 5,
+            targetSequence = 3,
+            rollAnimationMs = 0L,
+            saveAnimationMs = 0L,
+            dispatcher = UnconfinedTestDispatcher(testScheduler)
+        )
+
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        testScheduler.advanceUntilIdle()
+        viewModel.onEvent(SequenceGameUiEvent.SaveRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SequenceGameUiEvent.DiscardRoll)
+        testScheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete)
+        assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
+        assertEquals(4, state.diceValue)
+        assertTrue(state.keepTopDieOnFailure)
+        assertNull(state.failureDieValue)
     }
 
     @Test

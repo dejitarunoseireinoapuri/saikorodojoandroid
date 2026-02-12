@@ -97,6 +97,7 @@ internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 private const val SEQUENCE_SAVE_ANIMATION_MS = 320
+private val SEQUENCE_CONTINUE_BUTTON_SPACE = 96.dp
 
 @Composable
 fun SequenceGameRoute(
@@ -278,7 +279,12 @@ fun SequenceGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp),
+                .padding(
+                    start = 32.dp,
+                    end = 32.dp,
+                    top = 64.dp,
+                    bottom = SEQUENCE_CONTINUE_BUTTON_SPACE
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -403,8 +409,11 @@ fun SequenceGameScreen(
                         size = 140.dp,
                         showDie = shouldShowSequenceTopDie(
                             isComplete = uiState.isComplete,
-                            animatingSaveValue = animatingSaveValue
+                            animatingSaveValue = animatingSaveValue,
+                            keepTopDieOnFailure = uiState.keepTopDieOnFailure
                         ),
+                        backgroundColor = if (hasLoss) FailureMatBackground else SequenceSaveMatBackground,
+                        borderColor = if (hasLoss) FailureMatBackground else SequenceSaveMatBorder,
                         modifier = Modifier
                             .testTag(SEQUENCE_DICE_TAG)
                             .onGloballyPositioned { coordinates ->
@@ -719,8 +728,12 @@ internal fun shouldShowSequenceContinueButton(
     return hasReward || hasLoss
 }
 
-internal fun shouldShowSequenceTopDie(isComplete: Boolean, animatingSaveValue: Int?): Boolean {
-    if (isComplete) {
+internal fun shouldShowSequenceTopDie(
+    isComplete: Boolean,
+    animatingSaveValue: Int?,
+    keepTopDieOnFailure: Boolean
+): Boolean {
+    if (isComplete && !keepTopDieOnFailure) {
         return false
     }
     return animatingSaveValue == null
@@ -803,14 +816,16 @@ private fun SequenceDiceFace(
     value: Int?,
     size: Dp,
     showDie: Boolean,
+    backgroundColor: Color,
+    borderColor: Color,
     modifier: Modifier = Modifier
 ) {
     val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     Box(
         modifier = modifier
             .size(size)
-            .background(SequenceSaveMatBackground, RoundedCornerShape(18.dp))
-            .border(2.dp, SequenceSaveMatBorder, RoundedCornerShape(18.dp))
+            .background(backgroundColor, RoundedCornerShape(18.dp))
+            .border(2.dp, borderColor, RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
