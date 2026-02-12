@@ -34,9 +34,11 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.resolveSystemBarAppearance
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {
@@ -70,8 +72,13 @@ class MainActivity : ComponentActivity() {
                         if (showInitialAdsNoticeDialog) {
                             AlertDialog(
                                 onDismissRequest = {},
+                                containerColor = MaterialTheme.colorScheme.background,
                                 text = {
-                                    Text(text = stringResource(R.string.ads_notice_message))
+                                    Text(
+                                        text = stringResource(R.string.ads_notice_message),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
                                 },
                                 confirmButton = {
                                     TextButton(
@@ -84,7 +91,11 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                     ) {
-                                        Text(text = stringResource(R.string.ads_notice_accept))
+                                        Text(
+                                            text = stringResource(R.string.ads_notice_accept),
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
                                     }
                                 }
                             )
