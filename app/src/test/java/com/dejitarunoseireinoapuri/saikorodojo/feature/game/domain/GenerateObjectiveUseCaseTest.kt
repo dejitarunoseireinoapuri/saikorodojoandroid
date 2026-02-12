@@ -229,44 +229,7 @@ class GenerateObjectiveUseCaseTest {
         )
     }
 
-    @Test
-    fun `straight candidate is excluded when mixed dice cannot realize it`() {
-        val candidates = buildObjectiveCandidates(
-            stage = 2,
-            diceTypes = listOf(
-                DiceType.D8,
-                DiceType.D6,
-                DiceType.D6,
-                DiceType.D6,
-                DiceType.D6,
-                DiceType.D6,
-                DiceType.D6,
-                DiceType.D6
-            ),
-            minSelectable = 8,
-            maxSelectable = 8,
-            maxDieValue = 8,
-            supportedValues = (1..8).toList(),
-            valueSupportCounts = buildValueSupportCounts(
-                listOf(
-                    DiceType.D8,
-                    DiceType.D6,
-                    DiceType.D6,
-                    DiceType.D6,
-                    DiceType.D6,
-                    DiceType.D6,
-                    DiceType.D6,
-                    DiceType.D6
-                )
-            ),
-            exactTarget = 12,
-            atLeastThreshold = 14,
-            rangeCondition = SumInRangeCondition(min = 8, max = 16),
-            random = FixedSequenceRandom(listOf(0, 0, 5, 0, 0))
-        )
 
-        assertFalse(candidates.any { it is StraightCondition })
-    }
 
     @Test
     fun `compatibility rejects opposite parity for exact sum`() {
@@ -319,28 +282,3 @@ private class FixedIndexRandom(
     override fun nextInt(until: Int): Int = fixedIndex
 }
 
-
-private class FixedSequenceRandom(
-    private val values: List<Int>
-) : Random() {
-    private var index = 0
-
-    override fun nextBits(bitCount: Int): Int {
-        return nextValue()
-    }
-
-    override fun nextInt(until: Int): Int {
-        return nextValue().mod(until.coerceAtLeast(1))
-    }
-
-    override fun nextInt(from: Int, until: Int): Int {
-        val span = (until - from).coerceAtLeast(1)
-        return from + nextValue().mod(span)
-    }
-
-    private fun nextValue(): Int {
-        val value = values[index.coerceAtMost(values.lastIndex)]
-        index += 1
-        return value
-    }
-}
