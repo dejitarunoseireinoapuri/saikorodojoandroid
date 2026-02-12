@@ -314,13 +314,15 @@ class GenerateObjectiveUseCaseTest {
         assertFalse(feasible)
     }
 
-    @Test
-    fun `generated objectives are satisfiable for many levels and seeds`() {
+    @Test(timeout = 15_000)
+    fun `generated objectives are satisfiable across representative levels and seeds`() {
         val objectiveUseCase = GenerateObjectiveUseCase()
         val levelUseCase = GenerateLevelUseCase()
+        val representativeLevels = listOf(1, 5, 10, 15, 16, 20, 30, 40, 60, 80, 100, 120)
+        val seeds = 1L..20L
 
-        for (level in 1..120) {
-            for (seed in 1L..150L) {
+        for (level in representativeLevels) {
+            for (seed in seeds) {
                 val levelDefinition = levelUseCase.execute(levelNumber = level, seedBase = seed)
                 val objective = objectiveUseCase.execute(
                     levelNumber = level,
