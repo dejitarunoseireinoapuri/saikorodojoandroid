@@ -14,6 +14,8 @@
     <string name="settings_screen_title">Settings</string>
     <string name="settings_screen_back">Back</string>
     <string name="settings_manage_ads_button">Manage ad options</string>
+    <string name="ads_notice_message">To keep the app free, we show ads. The privacy and advertising options required in your region will now open so you can choose your preferences.</string>
+    <string name="ads_notice_accept">Accept</string>
     <string name="cd_dice_face">Die face %1$d</string>
     <string name="selected_dice_sum">Selected sum: %1$d</string>
 

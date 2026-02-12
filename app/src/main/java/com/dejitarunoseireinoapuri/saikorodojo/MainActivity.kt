@@ -24,11 +24,19 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.settings.presentation.Set
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundPlayerProvider
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundSettingsRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.navigation.AppRoutes
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import com.dejitarunoseireinoapuri.saikorodojo.ui.SystemBarAppearance
 import com.dejitarunoseireinoapuri.saikorodojo.ui.resolveSystemBarAppearance
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
 import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {
@@ -47,6 +55,7 @@ class MainActivity : ComponentActivity() {
         AdConsentManager.requestConsentInfoUpdate(this)
         MobileAds.initialize(this)
         val activity = this
+        var pendingPlayAction: (() -> Unit)? = null
 
         setContent {
             val navController = rememberNavController()
@@ -56,6 +65,31 @@ class MainActivity : ComponentActivity() {
                     startDestination = AppRoutes.START_DESTINATION
                 ) {
                     composable(AppRoutes.MENU) {
+                        var showInitialAdsNoticeDialog by rememberSaveable { mutableStateOf(false) }
+
+                        if (showInitialAdsNoticeDialog) {
+                            AlertDialog(
+                                onDismissRequest = {},
+                                text = {
+                                    Text(text = stringResource(R.string.ads_notice_message))
+                                },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = {
+                                            showInitialAdsNoticeDialog = false
+                                            AdConsentManager.markInitialAdsNoticeShown(activity)
+                                            AdConsentManager.showConsentFormIfRequired(activity) {
+                                                pendingPlayAction?.invoke()
+                                                pendingPlayAction = null
+                                            }
+                                        }
+                                    ) {
+                                        Text(text = stringResource(R.string.ads_notice_accept))
+                                    }
+                                }
+                            )
+                        }
+
                         MenuRoute(
                             onNavigateToDestination = { destination ->
                                 when (destination) {
@@ -98,8 +132,13 @@ class MainActivity : ComponentActivity() {
                             },
                             onPlayClick = { proceed ->
                                 if (AdConsentManager.shouldShowConsentFormBeforePlay(activity)) {
-                                    AdConsentManager.showConsentFormIfRequired(activity) {
-                                        proceed()
+                                    if (!AdConsentManager.hasShownInitialAdsNotice(activity)) {
+                                        pendingPlayAction = proceed
+                                        showInitialAdsNoticeDialog = true
+                                    } else {
+                                        AdConsentManager.showConsentFormIfRequired(activity) {
+                                            proceed()
+                                        }
                                     }
                                 } else {
                                     proceed()
