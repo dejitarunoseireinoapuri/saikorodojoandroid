@@ -394,29 +394,34 @@ fun SequenceGameScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
-                Box(
-                    modifier = Modifier.height(160.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    SequenceDiceFace(
-                        value = uiState.diceValue,
-                        size = 140.dp,
-                        showDie = shouldShowSequenceTopDie(
-                            isComplete = uiState.isComplete,
-                            animatingSaveValue = animatingSaveValue
-                        ),
-                        modifier = Modifier
-                            .testTag(SEQUENCE_DICE_TAG)
-                            .onGloballyPositioned { coordinates ->
-                                val position = coordinates.positionInRoot()
-                                diceCenterInRoot = Offset(
-                                    x = position.x + coordinates.size.width / 2f,
-                                    y = position.y + coordinates.size.height / 2f
-                                )
-                            }
-                    )
+                if (hasReward.not()) {
+                    Box(
+                        modifier = Modifier.height(160.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SequenceDiceFace(
+                            value = uiState.diceValue,
+                            size = 140.dp,
+                            showDie = shouldShowSequenceTopDie(
+                                isComplete = uiState.isComplete,
+                                animatingSaveValue = animatingSaveValue,
+                                hasFailure = uiState.failureReason != null,
+                                failureDieValue = uiState.failureDieValue
+                            ),
+                            modifier = Modifier
+                                .testTag(SEQUENCE_DICE_TAG)
+                                .onGloballyPositioned { coordinates ->
+                                    val position = coordinates.positionInRoot()
+                                    diceCenterInRoot = Offset(
+                                        x = position.x + coordinates.size.width / 2f,
+                                        y = position.y + coordinates.size.height / 2f
+                                    )
+                                }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.weight(1f))
                 if (uiState.rewardCards.isEmpty()) {
                     val matBackground = when {
                         uiState.failureReason != null -> FailureMatBackground
@@ -719,8 +724,13 @@ internal fun shouldShowSequenceContinueButton(
     return hasReward || hasLoss
 }
 
-internal fun shouldShowSequenceTopDie(isComplete: Boolean, animatingSaveValue: Int?): Boolean {
-    if (isComplete) {
+internal fun shouldShowSequenceTopDie(
+    isComplete: Boolean,
+    animatingSaveValue: Int?,
+    hasFailure: Boolean,
+    failureDieValue: Int?
+): Boolean {
+    if (isComplete && (!hasFailure || failureDieValue != null)) {
         return false
     }
     return animatingSaveValue == null

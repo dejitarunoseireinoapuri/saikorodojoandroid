@@ -101,7 +101,9 @@ class SequenceGameScreenLogicTest {
         assertFalse(
             shouldShowSequenceTopDie(
                 isComplete = false,
-                animatingSaveValue = 6
+                animatingSaveValue = 6,
+                hasFailure = false,
+                failureDieValue = null
             )
         )
     }
@@ -111,7 +113,9 @@ class SequenceGameScreenLogicTest {
         assertFalse(
             shouldShowSequenceTopDie(
                 isComplete = true,
-                animatingSaveValue = null
+                animatingSaveValue = null,
+                hasFailure = false,
+                failureDieValue = null
             )
         )
     }
@@ -121,7 +125,33 @@ class SequenceGameScreenLogicTest {
         assertTrue(
             shouldShowSequenceTopDie(
                 isComplete = false,
-                animatingSaveValue = null
+                animatingSaveValue = null,
+                hasFailure = false,
+                failureDieValue = null
+            )
+        )
+    }
+
+    @Test
+    fun `top die remains visible on complete failure without fixed failure die`() {
+        assertTrue(
+            shouldShowSequenceTopDie(
+                isComplete = true,
+                animatingSaveValue = null,
+                hasFailure = true,
+                failureDieValue = null
+            )
+        )
+    }
+
+    @Test
+    fun `top die hides on complete failure when failure die is fixed in upper mat`() {
+        assertFalse(
+            shouldShowSequenceTopDie(
+                isComplete = true,
+                animatingSaveValue = null,
+                hasFailure = true,
+                failureDieValue = 9
             )
         )
     }
