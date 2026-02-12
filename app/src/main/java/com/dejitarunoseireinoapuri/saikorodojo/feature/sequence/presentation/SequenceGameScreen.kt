@@ -314,19 +314,6 @@ fun SequenceGameScreen(
                             .padding(top = 12.dp)
                     )
                     when {
-                        hasLoss -> Text(
-                            text = stringResource(R.string.minigame_lose_message),
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            color = minigameMessageColor(
-                                MinigameMessageType.Lose,
-                                titleColor = titleColor
-                            ),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding(top = 16.dp)
-                        )
-
                         hasPendingReward -> Text(
                             text = stringResource(R.string.minigame_win_message),
                             style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
@@ -594,6 +581,26 @@ fun SequenceGameScreen(
             }
         }
 
+        if (shouldShowSequenceLossOverlay(hasLoss = hasLoss)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 64.dp)
+                    .zIndex(3f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.minigame_lose_message),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                    color = minigameMessageColor(
+                        MinigameMessageType.Lose,
+                        titleColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
         if (shouldShowSequenceContinueButton(hasReward = hasReward, hasLoss = hasLoss)) {
             Button(
                 onClick = {
@@ -751,6 +758,10 @@ internal fun sequenceSavedDiceUiState(
 
 internal fun shouldShowSequenceRewardOverlay(hasRewardCards: Boolean): Boolean {
     return hasRewardCards
+}
+
+internal fun shouldShowSequenceLossOverlay(hasLoss: Boolean): Boolean {
+    return hasLoss
 }
 
 internal fun shouldShowSequenceMats(hasRewardCards: Boolean): Boolean {

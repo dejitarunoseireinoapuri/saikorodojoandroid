@@ -14,6 +14,12 @@ class SequenceGameScreenLogicTest {
     }
 
     @Test
+    fun `loss overlay appears only when there is a loss`() {
+        assertTrue(shouldShowSequenceLossOverlay(hasLoss = true))
+        assertFalse(shouldShowSequenceLossOverlay(hasLoss = false))
+    }
+
+    @Test
     fun `mats are hidden while reward cards are shown`() {
         assertFalse(shouldShowSequenceMats(hasRewardCards = true))
         assertTrue(shouldShowSequenceMats(hasRewardCards = false))
