@@ -19,5 +19,5 @@ internal fun shouldPlayOutcomeSound(
     currentOutcome: BlackjackOutcome?,
     isStarted: Boolean
 ): Boolean {
-    return isStarted && previousOutcome == null && currentOutcome == BlackjackOutcome.PLAYER_WIN
+    return isStarted && previousOutcome == null && currentOutcome != null
 }
