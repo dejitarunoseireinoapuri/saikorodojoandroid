@@ -264,7 +264,9 @@ fun HigherLowerGameScreen(
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                         color = titleColor,
                         textAlign = TextAlign.Start,
-                        modifier = rulesModifier.fillMaxWidth()
+                        modifier = rulesModifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
                     )
                 }
             }
