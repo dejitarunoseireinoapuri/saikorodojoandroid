@@ -140,6 +140,13 @@ class SequenceGameScreenLogicTest {
         )
     }
 
+
+    @Test
+    fun `saved mat space is reserved once game starts`() {
+        assertTrue(shouldReserveSequenceSavedMatSpace(isStarted = true))
+        assertFalse(shouldReserveSequenceSavedMatSpace(isStarted = false))
+    }
+
     @Test
     fun `saved mat is hidden while cards are being shown`() {
         assertFalse(

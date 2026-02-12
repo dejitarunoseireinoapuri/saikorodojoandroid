@@ -418,33 +418,38 @@ fun SequenceGameScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
-                if (shouldShowSequenceSavedMat(
-                    isStarted = uiState.isStarted,
-                    hasReward = hasReward,
-                    hasPendingReward = hasPendingReward
-                )) {
-                    val matBackground = when {
-                        uiState.failureReason != null -> FailureMatBackground
-                        uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
-                        else -> SequenceSaveMatBackground
-                    }
-                    val matBorder = when {
-                        uiState.failureReason != null -> FailureMatBackground
-                        uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
-                        else -> SequenceSaveMatBorder
-                    }
-                    SequenceMat(
+                if (shouldReserveSequenceSavedMatSpace(isStarted = uiState.isStarted)) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(140.dp)
-                            .testTag(SEQUENCE_SAVED_MAT_TAG),
-                        backgroundColor = matBackground,
-                        borderColor = matBorder,
-                        contentAlignment = Alignment.CenterStart
                     ) {
-                        BoxWithConstraints(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                        if (shouldShowSequenceSavedMat(
+                            isStarted = uiState.isStarted,
+                            hasReward = hasReward,
+                            hasPendingReward = hasPendingReward
+                        )) {
+                            val matBackground = when {
+                                uiState.failureReason != null -> FailureMatBackground
+                                uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
+                                else -> SequenceSaveMatBackground
+                            }
+                            val matBorder = when {
+                                uiState.failureReason != null -> FailureMatBackground
+                                uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
+                                else -> SequenceSaveMatBorder
+                            }
+                            SequenceMat(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .testTag(SEQUENCE_SAVED_MAT_TAG),
+                                backgroundColor = matBackground,
+                                borderColor = matBorder,
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                BoxWithConstraints(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
                             val horizontalPadding = 16.dp
                             val spacing = 10.dp
                             val availableWidth = maxWidth - horizontalPadding * 2 - spacing * 2
@@ -523,6 +528,7 @@ fun SequenceGameScreen(
                                             )
                                         }
                                     )
+                                }
                                 }
                             }
                         }
@@ -722,6 +728,10 @@ internal fun shouldShowSequenceContinueButton(
     hasLoss: Boolean
 ): Boolean {
     return hasReward || hasLoss
+}
+
+internal fun shouldReserveSequenceSavedMatSpace(isStarted: Boolean): Boolean {
+    return isStarted
 }
 
 internal fun shouldShowSequenceSavedMat(
