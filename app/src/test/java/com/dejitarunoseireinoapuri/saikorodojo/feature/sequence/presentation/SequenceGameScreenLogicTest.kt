@@ -8,6 +8,12 @@ import org.junit.Test
 
 class SequenceGameScreenLogicTest {
     @Test
+    fun `mats are hidden while reward cards are shown`() {
+        assertFalse(shouldShowSequenceMats(hasRewardCards = true))
+        assertTrue(shouldShowSequenceMats(hasRewardCards = false))
+    }
+
+    @Test
     fun `continue button is visible only for shown end states`() {
         assertTrue(shouldShowSequenceContinueButton(hasReward = true, hasLoss = false))
         assertTrue(shouldShowSequenceContinueButton(hasReward = false, hasLoss = true))
