@@ -97,7 +97,7 @@ internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 private const val SEQUENCE_SAVE_ANIMATION_MS = 320
-private val SEQUENCE_CONTINUE_BUTTON_SPACE = 96.dp
+private val SEQUENCE_ACTIVE_CONTENT_SHIFT = 72.dp
 
 @Composable
 fun SequenceGameRoute(
@@ -276,15 +276,16 @@ fun SequenceGameScreen(
             )
         }
 
+        val activeContentShiftPx = with(LocalDensity.current) { SEQUENCE_ACTIVE_CONTENT_SHIFT.toPx() }
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start = 32.dp,
-                    end = 32.dp,
-                    top = 64.dp,
-                    bottom = SEQUENCE_CONTINUE_BUTTON_SPACE
-                ),
+                .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp)
+                .graphicsLayer {
+                    if (uiState.isStarted) {
+                        translationY = -activeContentShiftPx
+                    }
+                },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
