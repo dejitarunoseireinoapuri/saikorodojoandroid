@@ -219,13 +219,14 @@ class SequenceGameViewModel(
         rollDelayMs: Long
     ) {
         val state = _uiState.value
+        val committedSaveCount = savedValues.size + if (pendingSavedValue != null) 1 else 0
         val remainingRolls = (state.totalRolls - nextRoll + 1).coerceAtLeast(0)
-        val maxSavesByRounds = savedValues.size + remainingRolls
+        val maxSavesByRounds = committedSaveCount + remainingRolls
         val lastSaved = savedValues.lastOrNull()
         val maxSavesByValue = if (lastSaved == null) {
             state.targetSequence
         } else {
-            savedValues.size + remainingRolls
+            committedSaveCount + remainingRolls
         }
         val canStillWin =
             maxSavesByRounds >= state.targetSequence && maxSavesByValue >= state.targetSequence
