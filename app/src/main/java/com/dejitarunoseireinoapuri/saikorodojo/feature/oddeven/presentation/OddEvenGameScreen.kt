@@ -186,13 +186,14 @@ fun OddEvenGameScreen(
                 )
             }
             Text(
-                text = stringResource(R.string.odd_even_title),
+                text = stringResource(R.string.rules_minigame_odd_even_title),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 26.sp
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -243,11 +244,13 @@ fun OddEvenGameScreen(
                 )
             } else {
                 Text(
-                    text = stringResource(R.string.odd_even_subtitle),
+                    text = stringResource(R.string.rules_minigame_odd_even_body),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                     color = titleColor,
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Start,
                     modifier = rulesModifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
                 )
                 if (uiState.isStarted) {
                     Spacer(modifier = Modifier.height(24.dp))

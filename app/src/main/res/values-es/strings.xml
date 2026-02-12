@@ -40,33 +40,20 @@
     <string name="card_repeat_last_none">Ninguna</string>
     <string name="card_minigames_title">Minijuegos</string>
     <string name="card_minigames_description">Gana tres minijuegos</string>
-
-    <string name="odd_even_title">Par o Impar</string>
-    <string name="odd_even_subtitle">Acierta si el resultado será par o impar. Consigue 3 aciertos en un máximo 7 rondas.</string>
     <string name="odd_even_start">Empezar</string>
     <string name="odd_even_round_status">Ronda %1$d de %2$d</string>
     <string name="odd_even_hits_status">Aciertos: %1$d de %2$d</string>
     <string name="odd_even_even">Par</string>
     <string name="odd_even_odd">Impar</string>
     <string name="odd_even_continue">Continuar</string>
-
-    <string name="higher_lower_title">Superior o Inferior</string>
-    <string name="higher_lower_subtitle">Adivina si la siguiente tirada tendrá un resultado superior o inferior a la anterior tirada.Victoria: 3 aciertos o que la suma de los dados sea la misma en dos ocasiones consecutivas.
-</string>
     <string name="higher_lower_start">Empezar</string>
     <string name="higher_lower_higher">Superior</string>
     <string name="higher_lower_lower">Inferior</string>
     <string name="higher_lower_total">Total: %1$d</string>
-
-    <string name="sequence_title">Secuencia</string>
-    <string name="sequence_subtitle">Debes conseguir una secuencia de 3 en la que cada valor sea igual o superior al anterior. Después de cada ronda, quédate o descarta el dado. Tienes 5 rondas para conseguirlo. </string>
     <string name="flip_selected_die">Voltear</string>
     <string name="sequence_start">Empezar</string>
     <string name="sequence_save">Guardar</string>
     <string name="sequence_discard">Descartar</string>
-
-    <string name="blackjack_title">Blackjack</string>
-    <string name="blackjack_subtitle">Llega a 21 sin pasarte. \n Después de la primera tirada, elige si quieres tirar un dado de 10 más o plantarte. Cuando te plantes será el turno de la banca. La banca se planta en 17 o más. \n El que se acerque más a 21 gana. Si empatáis, gana la banca. \n El 1 vale como 1 u 11 según convenga.</string>
     <string name="blackjack_start">Empezar</string>
     <string name="blackjack_hit">Pedir</string>
     <string name="blackjack_stand">Plantarse</string>
@@ -188,24 +175,14 @@ Además, cada nivel completado en el juego principal suma 2 intentos de minijueg
 Puedes acumular hasta 99 intentos de minijuego.</string>
 
     <string name="rules_minigame_odd_even_title">Par o impar</string>
-    <string name="rules_minigame_odd_even_body">Elige par o impar antes de cada tirada.
-Objetivo: acertar 3 veces.
-Límite: máximo 7 rondas.</string>
+    <string name="rules_minigame_odd_even_body">Elige par o impar antes de cada tirada.\nObjetivo: conseguir 3 aciertos en un máximo de 7 rondas.</string>
 
     <string name="rules_minigame_higher_lower_title">Mayor o menor</string>
-    <string name="rules_minigame_higher_lower_body">Adivina si la siguiente suma será mayor o menor que la suma anterior.
-Ganas al llegar a 3 aciertos.
-También ganas si se repite exactamente la misma suma en dos rondas seguidas.</string>
+    <string name="rules_minigame_higher_lower_body">Adivina si la siguiente suma será mayor o menor que la suma anterior.\nGanas al conseguir 3 aciertos.\nTambién ganas si sale exactamente la misma suma en dos rondas seguidas.</string>
 
     <string name="rules_minigame_sequence_title">Secuencia</string>
-    <string name="rules_minigame_sequence_body">Debes formar una secuencia de 3 dados no decreciente, donde cada valor es igual o mayor que el anterior.
-Tras cada ronda decides si guardar o descartar el dado mostrado.
-Tienes 5 rondas para completarla.</string>
+    <string name="rules_minigame_sequence_body">Debes formar una secuencia no decreciente de 3 dados, donde cada valor sea igual o mayor que el anterior.\nDespués de cada ronda decides si conservar o descartar el dado mostrado.\nTienes 5 rondas para completarla.</string>
 
     <string name="rules_minigame_blackjack_title">Blackjack</string>
-    <string name="rules_minigame_blackjack_body">Objetivo: acercarte a 21 sin pasarte.
-Empiezas con una tirada inicial y luego decides si pides un dado de 10 caras adicional o te plantas.
-Después juega la banca y se planta con 17 o más.
-Si hay empate, gana la banca.
-El 1 cuenta como 1 u 11 según convenga.</string>
+    <string name="rules_minigame_blackjack_body">Objetivo: acercarte a 21 sin pasarte.\nEmpiezas con una tirada inicial y luego decides si pedir (tirar un dado adicional de 10 caras) o plantarte.\nDespués juega la banca y se planta con 17 o más.\nSi hay empate, gana la banca.\nEl 1 cuenta como 1 u 11, lo que más convenga.</string>
 </resources>

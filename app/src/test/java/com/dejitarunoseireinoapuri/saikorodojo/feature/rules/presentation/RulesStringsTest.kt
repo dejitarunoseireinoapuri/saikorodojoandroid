@@ -79,6 +79,39 @@ class RulesStringsTest {
         assertTrue(defaultContent.contains("name=\"rules_card_adjust_title\""))
         assertTrue(esContent.contains("name=\"rules_card_adjust_title\""))
         assertTrue(caContent.contains("name=\"rules_card_adjust_title\""))
+
+        assertFalse(defaultContent.contains("name=\"odd_even_subtitle\""))
+        assertFalse(esContent.contains("name=\"odd_even_subtitle\""))
+        assertFalse(caContent.contains("name=\"odd_even_subtitle\""))
+    }
+
+    @Test
+    fun `minigame rules bodies use explicit newline escapes`() {
+        val localeFiles = listOf(
+            "app/src/main/res/values/strings.xml",
+            "app/src/main/res/values-es/strings.xml",
+            "app/src/main/res/values-ca/strings.xml"
+        ).map(::resolveProjectPath)
+
+        val targetKeys = listOf(
+            "rules_minigame_odd_even_body",
+            "rules_minigame_higher_lower_body",
+            "rules_minigame_sequence_body",
+            "rules_minigame_blackjack_body"
+        )
+
+        localeFiles.forEach { file ->
+            val content = file.readText()
+            targetKeys.forEach { key ->
+                val raw = Regex("""<string name=\"$key\">([\s\S]*?)</string>""")
+                    .find(content)
+                    ?.groupValues
+                    ?.get(1)
+                    ?: ""
+                assertTrue(raw.contains("\\n"))
+                assertFalse(raw.contains("\n"))
+            }
+        }
     }
 
     private fun resolveProjectPath(path: String): File {

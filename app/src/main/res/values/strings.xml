@@ -40,32 +40,20 @@
     <string name="card_repeat_last_none">None</string>
     <string name="card_minigames_title">Minigames</string>
     <string name="card_minigames_description">Win three minigames</string>
-
-    <string name="odd_even_title">Odd or Even</string>
-    <string name="odd_even_subtitle">Guess whether the result will be odd or even. Get 3 correct guesses within a maximum of 7 rounds.</string>
     <string name="odd_even_start">Start</string>
     <string name="odd_even_round_status">Round %1$d of %2$d</string>
     <string name="odd_even_hits_status">Correct: %1$d of %2$d</string>
     <string name="odd_even_even">Even</string>
     <string name="odd_even_odd">Odd</string>
     <string name="odd_even_continue">Continue</string>
-
-    <string name="higher_lower_title">Higher or Lower</string>
-    <string name="higher_lower_subtitle">Guess whether the next roll will have a higher or lower total than the previous roll. Victory: 3 correct guesses or getting the same total twice in a row.</string>
     <string name="higher_lower_start">Start</string>
     <string name="higher_lower_higher">Higher</string>
     <string name="higher_lower_lower">Lower</string>
     <string name="higher_lower_total">Total: %1$d</string>
-
-    <string name="sequence_title">Sequence</string>
-    <string name="sequence_subtitle">You must get a sequence of 3 where each value is equal to or higher than the previous one. After each round, keep or discard the die. You have 5 rounds to do it.</string>
     <string name="flip_selected_die">Flip</string>
     <string name="sequence_start">Start</string>
     <string name="sequence_save">Keep</string>
     <string name="sequence_discard">Discard</string>
-
-    <string name="blackjack_title">Blackjack</string>
-    <string name="blackjack_subtitle">Get to 21 without going over.\nAfter the first roll, choose whether to roll one more 10-sided die or stand. When you stand, it’s the dealer’s turn. The dealer stands on 17 or more.\nWhoever gets closer to 21 wins. If there’s a tie, the dealer wins.\nA 1 counts as 1 or 11, whichever is best.</string>
     <string name="blackjack_start">Start</string>
     <string name="blackjack_hit">Hit</string>
     <string name="blackjack_stand">Stand</string>
@@ -187,24 +175,14 @@ Also, each level completed in the main game adds 2 minigame attempts.
 You can store up to 99 minigame attempts.</string>
 
     <string name="rules_minigame_odd_even_title">Odd or even</string>
-    <string name="rules_minigame_odd_even_body">Choose odd or even before each roll.
-Goal: get 3 correct guesses.
-Limit: maximum 7 rounds.</string>
+    <string name="rules_minigame_odd_even_body">Choose even or odd before each roll.\nObjective: get 3 correct guesses within a maximum of 7 rounds.</string>
 
     <string name="rules_minigame_higher_lower_title">Higher or lower</string>
-    <string name="rules_minigame_higher_lower_body">Guess whether the next total will be higher or lower than the previous total.
-You win by reaching 3 correct guesses.
-You also win if the exact same total happens in two rounds in a row.</string>
+    <string name="rules_minigame_higher_lower_body">Guess whether the next total will be higher or lower than the previous total.\nYou win by reaching 3 correct guesses.\nYou also win if the exact same total happens in two rounds in a row.</string>
 
     <string name="rules_minigame_sequence_title">Sequence</string>
-    <string name="rules_minigame_sequence_body">You must form a non-decreasing sequence of 3 dice, where each value is equal to or higher than the previous one.
-After each round you decide whether to keep or discard the shown die.
-You have 5 rounds to complete it.</string>
+    <string name="rules_minigame_sequence_body">You must form a non-decreasing sequence of 3 dice, where each value is equal to or higher than the previous one.\nAfter each round you decide whether to keep or discard the shown die.\nYou have 5 rounds to complete it.</string>
 
     <string name="rules_minigame_blackjack_title">Blackjack</string>
-    <string name="rules_minigame_blackjack_body">Goal: get close to 21 without going over.
-You start with an initial roll and then decide whether to hit (roll an additional 10-sided die) or stand.
-Then the dealer plays and stands on 17 or more.
-If there is a tie, the dealer wins.
-A 1 counts as 1 or 11, whichever is best.</string>
+    <string name="rules_minigame_blackjack_body">Goal: get close to 21 without going over.\nYou start with an initial roll and then decide whether to hit (roll an additional 10-sided die) or stand.\nThen the dealer plays and stands on 17 or more.\nIf there is a tie, the dealer wins.\nA 1 counts as 1 or 11, whichever is best.</string>
 </resources>
