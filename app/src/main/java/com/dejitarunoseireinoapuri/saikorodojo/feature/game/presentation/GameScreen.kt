@@ -704,6 +704,7 @@ fun GameScreen(
                     message = stringResource(R.string.surrender_message),
                     confirmLabel = stringResource(R.string.surrender_confirm),
                     dismissLabel = stringResource(R.string.dialog_cancel),
+                    dismissUsesAccentColor = true,
                     confirmSoundEffect = SoundEffect.LOSS,
                     onConfirm = {
                         showSurrenderDialog = false
@@ -731,6 +732,7 @@ fun GameScreen(
                     message = stringResource(R.string.minigames_ad_message),
                     confirmLabel = stringResource(R.string.minigames_ad_confirm),
                     dismissLabel = stringResource(R.string.dialog_cancel),
+                    confirmUsesAccentColor = true,
                     onConfirm = onConfirmMinigamesAd,
                     onDismiss = onDismissMinigamesAdPrompt
                 )
@@ -824,10 +826,18 @@ private fun GameAlertDialog(
     dismissLabel: String,
     confirmSoundEffect: SoundEffect = SoundEffect.USE,
     dismissSoundEffect: SoundEffect = SoundEffect.USE,
+    confirmUsesAccentColor: Boolean = false,
+    dismissUsesAccentColor: Boolean = false,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
+    val buttonColors = gameDialogButtonColors(
+        confirmUsesAccent = confirmUsesAccentColor,
+        dismissUsesAccent = dismissUsesAccentColor,
+        defaultConfirmColor = MaterialTheme.colorScheme.primary,
+        defaultDismissColor = MaterialTheme.colorScheme.onBackground
+    )
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.background,
@@ -857,7 +867,7 @@ private fun GameAlertDialog(
                     onConfirm()
                 },
                 colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
+                    contentColor = buttonColors.confirmColor
                 )
             ) {
                 Text(
@@ -873,7 +883,7 @@ private fun GameAlertDialog(
                     onDismiss()
                 },
                 colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onBackground
+                    contentColor = buttonColors.dismissColor
                 )
             ) {
                 Text(
