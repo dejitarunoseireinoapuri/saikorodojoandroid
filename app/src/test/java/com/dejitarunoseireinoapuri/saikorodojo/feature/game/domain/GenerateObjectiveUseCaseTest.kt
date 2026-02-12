@@ -233,12 +233,32 @@ class GenerateObjectiveUseCaseTest {
     fun `straight candidate is excluded when mixed dice cannot realize it`() {
         val candidates = buildObjectiveCandidates(
             stage = 2,
-            diceTypes = listOf(DiceType.D8, DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D6),
-            minSelectable = 5,
-            maxSelectable = 5,
+            diceTypes = listOf(
+                DiceType.D8,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6
+            ),
+            minSelectable = 8,
+            maxSelectable = 8,
             maxDieValue = 8,
             supportedValues = (1..8).toList(),
-            valueSupportCounts = buildValueSupportCounts(listOf(DiceType.D8, DiceType.D6, DiceType.D6, DiceType.D6, DiceType.D6)),
+            valueSupportCounts = buildValueSupportCounts(
+                listOf(
+                    DiceType.D8,
+                    DiceType.D6,
+                    DiceType.D6,
+                    DiceType.D6,
+                    DiceType.D6,
+                    DiceType.D6,
+                    DiceType.D6,
+                    DiceType.D6
+                )
+            ),
             exactTarget = 12,
             atLeastThreshold = 14,
             rangeCondition = SumInRangeCondition(min = 8, max = 16),
