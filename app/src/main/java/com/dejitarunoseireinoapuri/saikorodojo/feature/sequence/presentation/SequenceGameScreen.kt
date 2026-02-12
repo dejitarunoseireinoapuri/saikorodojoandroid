@@ -97,6 +97,7 @@ internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 private const val SEQUENCE_SAVE_ANIMATION_MS = 320
+private val SEQUENCE_ACTIVE_CONTENT_SHIFT = 72.dp
 
 @Composable
 fun SequenceGameRoute(
@@ -275,10 +276,16 @@ fun SequenceGameScreen(
             )
         }
 
+        val activeContentShiftPx = with(LocalDensity.current) { SEQUENCE_ACTIVE_CONTENT_SHIFT.toPx() }
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp),
+                .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp)
+                .graphicsLayer {
+                    if (uiState.isStarted && !uiState.isComplete) {
+                        translationY = -activeContentShiftPx
+                    }
+                },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -289,56 +296,64 @@ fun SequenceGameScreen(
             } else {
                 Modifier.alpha(0f).clearAndSetSemantics { }
             }
-            if (hasReward) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Win,
-                        titleColor = titleColor
+            when {
+                hasReward -> {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.minigame_win_message),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                        color = minigameMessageColor(
+                            MinigameMessageType.Win,
+                            titleColor = titleColor
+                        )
                     )
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_cards_message),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.WinCards,
-                        titleColor = titleColor
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.minigame_win_cards_message),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                        color = minigameMessageColor(
+                            MinigameMessageType.WinCards,
+                            titleColor = titleColor
+                        )
                     )
-                )
-            } else if (hasLoss) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_lose_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Lose,
-                        titleColor = titleColor
-                    ),
-                    textAlign = TextAlign.Center
-                )
-            } else if (hasPendingReward) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.minigame_win_message),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = minigameMessageColor(
-                        MinigameMessageType.Win,
-                        titleColor = titleColor
+                }
+
+                hasLoss -> {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.minigame_lose_message),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                        color = minigameMessageColor(
+                            MinigameMessageType.Lose,
+                            titleColor = titleColor
+                        ),
+                        textAlign = TextAlign.Center
                     )
-                )
-            } else {
-                Text(
-                    text = stringResource(R.string.rules_minigame_sequence_body),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = titleColor,
-                    textAlign = TextAlign.Start,
-                    modifier = rulesModifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                )
+                }
+
+                hasPendingReward -> {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.minigame_win_message),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                        color = minigameMessageColor(
+                            MinigameMessageType.Win,
+                            titleColor = titleColor
+                        )
+                    )
+                }
+
+                else -> {
+                    Text(
+                        text = stringResource(R.string.rules_minigame_sequence_body),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                        color = titleColor,
+                        textAlign = TextAlign.Start,
+                        modifier = rulesModifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                    )
+                }
             }
             if (uiState.isStarted && !hasReward) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -394,30 +409,34 @@ fun SequenceGameScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
-                Box(
-                    modifier = Modifier.height(160.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    SequenceDiceFace(
-                        value = uiState.diceValue,
-                        size = 140.dp,
-                        showDie = shouldShowSequenceTopDie(
-                            isComplete = uiState.isComplete,
-                            animatingSaveValue = animatingSaveValue
-                        ),
-                        modifier = Modifier
-                            .testTag(SEQUENCE_DICE_TAG)
-                            .onGloballyPositioned { coordinates ->
-                                val position = coordinates.positionInRoot()
-                                diceCenterInRoot = Offset(
-                                    x = position.x + coordinates.size.width / 2f,
-                                    y = position.y + coordinates.size.height / 2f
-                                )
-                            }
-                    )
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-                if (uiState.rewardCards.isEmpty()) {
+                val showMats = shouldShowSequenceMats(hasRewardCards = uiState.rewardCards.isNotEmpty())
+                if (showMats) {
+                    Box(
+                        modifier = Modifier.height(160.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SequenceDiceFace(
+                            value = uiState.diceValue,
+                            size = 140.dp,
+                            showDie = shouldShowSequenceTopDie(
+                                isComplete = uiState.isComplete,
+                                animatingSaveValue = animatingSaveValue,
+                                keepTopDieOnFailure = uiState.keepTopDieOnFailure
+                            ),
+                            backgroundColor = SequenceSaveMatBackground,
+                            borderColor = SequenceSaveMatBorder,
+                            modifier = Modifier
+                                .testTag(SEQUENCE_DICE_TAG)
+                                .onGloballyPositioned { coordinates ->
+                                    val position = coordinates.positionInRoot()
+                                    diceCenterInRoot = Offset(
+                                        x = position.x + coordinates.size.width / 2f,
+                                        y = position.y + coordinates.size.height / 2f
+                                    )
+                                }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(32.dp))
                     val matBackground = when {
                         uiState.failureReason != null -> FailureMatBackground
                         uiState.pendingRewardCards.isNotEmpty() -> VictoryMatBackground
@@ -712,6 +731,10 @@ internal fun sequenceSavedDiceUiState(
     )
 }
 
+internal fun shouldShowSequenceMats(hasRewardCards: Boolean): Boolean {
+    return !hasRewardCards
+}
+
 internal fun shouldShowSequenceContinueButton(
     hasReward: Boolean,
     hasLoss: Boolean
@@ -719,8 +742,12 @@ internal fun shouldShowSequenceContinueButton(
     return hasReward || hasLoss
 }
 
-internal fun shouldShowSequenceTopDie(isComplete: Boolean, animatingSaveValue: Int?): Boolean {
-    if (isComplete) {
+internal fun shouldShowSequenceTopDie(
+    isComplete: Boolean,
+    animatingSaveValue: Int?,
+    keepTopDieOnFailure: Boolean
+): Boolean {
+    if (isComplete && !keepTopDieOnFailure) {
         return false
     }
     return animatingSaveValue == null
@@ -803,14 +830,16 @@ private fun SequenceDiceFace(
     value: Int?,
     size: Dp,
     showDie: Boolean,
+    backgroundColor: Color,
+    borderColor: Color,
     modifier: Modifier = Modifier
 ) {
     val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     Box(
         modifier = modifier
             .size(size)
-            .background(SequenceSaveMatBackground, RoundedCornerShape(18.dp))
-            .border(2.dp, SequenceSaveMatBorder, RoundedCornerShape(18.dp))
+            .background(backgroundColor, RoundedCornerShape(18.dp))
+            .border(2.dp, borderColor, RoundedCornerShape(18.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {

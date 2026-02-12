@@ -52,7 +52,8 @@ data class SequenceGameUiState(
     val pendingRewardCards: List<CardUiModel> = emptyList(),
     val failureReason: SequenceFailureReason? = null,
     val failureDieValue: Int? = null,
-    val isLatestSavedValueHidden: Boolean = false
+    val isLatestSavedValueHidden: Boolean = false,
+    val keepTopDieOnFailure: Boolean = false
 )
 
 sealed interface SequenceGameUiEvent {
@@ -147,7 +148,8 @@ class SequenceGameViewModel(
                 pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null,
-                isLatestSavedValueHidden = false
+                isLatestSavedValueHidden = false,
+                keepTopDieOnFailure = false
             )
         }
         startRoll(
@@ -171,7 +173,8 @@ class SequenceGameViewModel(
                 savedValues = state.savedValues,
                 discardCount = state.discardCount,
                 reason = SequenceFailureReason.ORDER,
-                failureDieValue = value
+                failureDieValue = value,
+                keepTopDieOnFailure = false
             )
             return
         }
@@ -237,7 +240,8 @@ class SequenceGameViewModel(
                 savedValues = committedSavedValues,
                 discardCount = discardCount,
                 reason = SequenceFailureReason.ROUNDS,
-                failureDieValue = null
+                failureDieValue = null,
+                keepTopDieOnFailure = state.currentRoll >= state.totalRolls && state.diceValue != null
             )
             return
         }
@@ -282,7 +286,8 @@ class SequenceGameViewModel(
                 pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null,
-                isLatestSavedValueHidden = hideLatestSavedValue
+                isLatestSavedValueHidden = hideLatestSavedValue,
+                keepTopDieOnFailure = false
             )
         }
         if (hideLatestSavedValue) {
@@ -328,7 +333,8 @@ class SequenceGameViewModel(
                 pendingRewardCards = emptyList(),
                 failureReason = null,
                 failureDieValue = null,
-                isLatestSavedValueHidden = hideLatestSavedValue
+                isLatestSavedValueHidden = hideLatestSavedValue,
+                keepTopDieOnFailure = false
             )
         }
         if (hideLatestSavedValue) {
@@ -381,7 +387,8 @@ class SequenceGameViewModel(
                 isRolling = false,
                 failureReason = null,
                 failureDieValue = null,
-                isLatestSavedValueHidden = false
+                isLatestSavedValueHidden = false,
+                keepTopDieOnFailure = false
             )
         }
         pendingRollJob = viewModelScope.launch(dispatcher) {
@@ -412,7 +419,8 @@ class SequenceGameViewModel(
                 pendingRewardCards = rewardCards,
                 failureReason = null,
                 failureDieValue = null,
-                isLatestSavedValueHidden = false
+                isLatestSavedValueHidden = false,
+                keepTopDieOnFailure = false
             )
         }
         viewModelScope.launch(dispatcher) {
@@ -434,7 +442,8 @@ class SequenceGameViewModel(
         savedValues: List<Int>,
         discardCount: Int,
         reason: SequenceFailureReason,
-        failureDieValue: Int?
+        failureDieValue: Int?,
+        keepTopDieOnFailure: Boolean
     ) {
         rollJob?.cancel()
         hideLatestSavedJob?.cancel()
@@ -451,7 +460,8 @@ class SequenceGameViewModel(
                 pendingRewardCards = emptyList(),
                 failureReason = reason,
                 failureDieValue = failureDieValue,
-                isLatestSavedValueHidden = false
+                isLatestSavedValueHidden = false,
+                keepTopDieOnFailure = keepTopDieOnFailure
             )
         }
     }
@@ -483,7 +493,8 @@ class SequenceGameViewModel(
                 pendingRewardCards = mapRewardCards(snapshot.pendingRewardCardIds),
                 failureReason = snapshot.failureReason,
                 failureDieValue = snapshot.failureDieValue,
-                isLatestSavedValueHidden = snapshot.isLatestSavedValueHidden
+                isLatestSavedValueHidden = snapshot.isLatestSavedValueHidden,
+                keepTopDieOnFailure = false
             )
         }
     }
