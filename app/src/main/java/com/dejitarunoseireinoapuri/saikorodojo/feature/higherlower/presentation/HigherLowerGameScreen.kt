@@ -169,6 +169,11 @@ fun HigherLowerGameScreen(
     BackHandler(enabled = !showExitDialog) {
         showExitDialog = true
     }
+    val mainContentBottomPadding = if (uiState.isStarted) {
+        24.dp + HigherLowerContinueReservedSpace
+    } else {
+        24.dp
+    }
     var containerModifier = modifier.fillMaxSize()
     if (applySystemBarsPadding) {
         containerModifier = containerModifier.systemBarsPadding()
@@ -214,7 +219,7 @@ fun HigherLowerGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 24.dp, end = 24.dp, top = 64.dp, bottom = 24.dp),
+                .padding(start = 24.dp, end = 24.dp, top = 64.dp, bottom = mainContentBottomPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
