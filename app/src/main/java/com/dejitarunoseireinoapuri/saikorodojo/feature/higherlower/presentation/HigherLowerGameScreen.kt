@@ -78,6 +78,7 @@ internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_but
 internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
 private const val HIGHER_LOWER_TRANSITION_MS = 750
 private val HigherLowerButtonReserveHeight = 140.dp
+private val HigherLowerContinueReservedSpace = 56.dp + 24.dp + 8.dp
 private val HigherLowerChoiceButtonHeight = 56.dp
 private val HigherLowerChoiceButtonMinWidth = 140.dp
 
@@ -357,7 +358,12 @@ fun HigherLowerGameScreen(
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .padding(
+                        start = 24.dp,
+                        end = 24.dp,
+                        top = 12.dp,
+                        bottom = HigherLowerContinueReservedSpace
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(140.dp + HigherLowerButtonReserveHeight))

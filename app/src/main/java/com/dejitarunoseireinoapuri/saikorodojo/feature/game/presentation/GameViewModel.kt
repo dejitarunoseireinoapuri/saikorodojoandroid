@@ -87,7 +87,7 @@ class GameViewModel(
     private var shouldAutoStartRoll = true
     private var allowSessionSaving = true
     private var awaitingLevelInterstitialAd = false
-    private val minigameTypes = MinigameType.entries
+    private val minigameTypes = listOf(MinigameType.HIGHER_LOWER)
 
     init {
         baseSeed = baseSeedProvider()
@@ -1011,7 +1011,7 @@ class GameViewModel(
     }
 
     private fun pickMinigame(): MinigameType {
-        return minigameTypes.random()
+        return minigameTypes.first()
     }
 
 }
