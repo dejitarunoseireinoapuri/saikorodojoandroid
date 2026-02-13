@@ -5,6 +5,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -94,6 +95,12 @@ class HigherLowerGameScreenLogicTest {
             HigherLowerChoiceButtonsMode.Hidden,
             higherLowerChoiceButtonsMode(isChoiceVisible = false, selectedChoice = null)
         )
+    }
+
+    @Test
+    fun `started game always reserves continue button space`() {
+        assertEquals(24.dp, higherLowerStartedGameBottomPadding(isStarted = false))
+        assertEquals(112.dp, higherLowerStartedGameBottomPadding(isStarted = true))
     }
 
     @Test

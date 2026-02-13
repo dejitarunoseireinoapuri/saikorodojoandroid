@@ -80,6 +80,9 @@ private const val HIGHER_LOWER_TRANSITION_MS = 750
 private val HigherLowerButtonReserveHeight = 140.dp
 private val HigherLowerChoiceButtonHeight = 56.dp
 private val HigherLowerChoiceButtonMinWidth = 140.dp
+private val HigherLowerContinueButtonHeight = 56.dp
+private val HigherLowerContinueButtonBottomPadding = 24.dp
+private val HigherLowerContinueButtonSpacing = 8.dp
 
 @Composable
 fun HigherLowerGameRoute(
@@ -175,6 +178,7 @@ fun HigherLowerGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(MaterialTheme.colorScheme.background)
+    val startedGameBottomPadding = higherLowerStartedGameBottomPadding(uiState.isStarted)
     Box(
         modifier = containerModifier
     ) {
@@ -213,7 +217,7 @@ fun HigherLowerGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 24.dp, end = 24.dp, top = 64.dp, bottom = 24.dp),
+                .padding(start = 24.dp, end = 24.dp, top = 64.dp, bottom = startedGameBottomPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -357,7 +361,12 @@ fun HigherLowerGameScreen(
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .padding(
+                        start = 24.dp,
+                        end = 24.dp,
+                        top = 12.dp,
+                        bottom = 12.dp + startedGameBottomPadding
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(140.dp + HigherLowerButtonReserveHeight))
@@ -490,7 +499,7 @@ fun HigherLowerGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 64.dp)
+                    .padding(top = 64.dp, bottom = startedGameBottomPadding)
                     .testTag(HIGHER_LOWER_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
@@ -509,8 +518,8 @@ fun HigherLowerGameScreen(
                 colors = minigameButtonColors(),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 24.dp)
-                    .height(56.dp)
+                    .padding(bottom = HigherLowerContinueButtonBottomPadding)
+                    .height(HigherLowerContinueButtonHeight)
                     .zIndex(4f)
                     .testTag(HIGHER_LOWER_CONTINUE_BUTTON_TAG)
             ) {
@@ -574,6 +583,16 @@ fun HigherLowerGameScreen(
             )
         }
     }
+}
+
+internal fun higherLowerStartedGameBottomPadding(isStarted: Boolean): Dp {
+    if (!isStarted) {
+        return 24.dp
+    }
+    return 24.dp +
+        HigherLowerContinueButtonHeight +
+        HigherLowerContinueButtonBottomPadding +
+        HigherLowerContinueButtonSpacing
 }
 
 @Composable
