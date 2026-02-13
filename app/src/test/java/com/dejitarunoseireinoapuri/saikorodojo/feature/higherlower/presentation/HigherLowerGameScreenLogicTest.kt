@@ -101,6 +101,8 @@ class HigherLowerGameScreenLogicTest {
     fun `started game always reserves continue button space`() {
         assertEquals(24.dp, higherLowerStartedGameBottomPadding(isStarted = false))
         assertEquals(112.dp, higherLowerStartedGameBottomPadding(isStarted = true))
+        assertEquals(0.dp, higherLowerStartedGameVerticalOffset(isStarted = false))
+        assertEquals(88.dp, higherLowerStartedGameVerticalOffset(isStarted = true))
     }
 
     @Test

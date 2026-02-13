@@ -179,6 +179,9 @@ fun HigherLowerGameScreen(
         .padding(contentPadding)
         .background(MaterialTheme.colorScheme.background)
     val startedGameBottomPadding = higherLowerStartedGameBottomPadding(uiState.isStarted)
+    val startedGameVerticalOffsetPx = with(LocalDensity.current) {
+        higherLowerStartedGameVerticalOffset(uiState.isStarted).toPx()
+    }
     Box(
         modifier = containerModifier
     ) {
@@ -276,62 +279,69 @@ fun HigherLowerGameScreen(
                 }
             }
             if (uiState.isStarted && !uiState.isComplete) {
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = stringResource(
-                        R.string.odd_even_round_status,
-                        uiState.currentRound,
-                        uiState.totalRounds
-                    ),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = titleColor
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                when (higherLowerChoiceButtonsMode(uiState.isChoiceVisible, uiState.selectedChoice)) {
-                    HigherLowerChoiceButtonsMode.Hidden -> Unit
-                    HigherLowerChoiceButtonsMode.SelectedOnly -> {
-                        val selectedChoice = uiState.selectedChoice
-                        if (selectedChoice != null) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .testTag(HIGHER_LOWER_BUTTON_ROW_TAG)
-                            ) {
-                                HigherLowerChoiceButton(
-                                    label = stringResource(
-                                        if (selectedChoice == HigherLowerChoice.LOWER) {
-                                            R.string.higher_lower_lower
-                                        } else {
-                                            R.string.higher_lower_higher
-                                        }
-                                    ),
-                                    isEnabled = false,
-                                    onClick = {},
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
+                Column(
+                    modifier = Modifier.graphicsLayer {
+                        translationY = -startedGameVerticalOffsetPx
+                    },
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.odd_even_round_status,
+                            uiState.currentRound,
+                            uiState.totalRounds
+                        ),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                        color = titleColor
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    when (higherLowerChoiceButtonsMode(uiState.isChoiceVisible, uiState.selectedChoice)) {
+                        HigherLowerChoiceButtonsMode.Hidden -> Unit
+                        HigherLowerChoiceButtonsMode.SelectedOnly -> {
+                            val selectedChoice = uiState.selectedChoice
+                            if (selectedChoice != null) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag(HIGHER_LOWER_BUTTON_ROW_TAG)
+                                ) {
+                                    HigherLowerChoiceButton(
+                                        label = stringResource(
+                                            if (selectedChoice == HigherLowerChoice.LOWER) {
+                                                R.string.higher_lower_lower
+                                            } else {
+                                                R.string.higher_lower_higher
+                                            }
+                                        ),
+                                        isEnabled = false,
+                                        onClick = {},
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
                             }
                         }
-                    }
-                    HigherLowerChoiceButtonsMode.Both -> {
-                        Row(
-                            modifier = Modifier.testTag(HIGHER_LOWER_BUTTON_ROW_TAG),
-                            horizontalArrangement = Arrangement.spacedBy(24.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            HigherLowerChoiceButton(
-                                label = stringResource(R.string.higher_lower_lower),
-                                isEnabled = uiState.selectedChoice == null,
-                                onClick = {
-                                    onChoiceSelect(HigherLowerChoice.LOWER)
-                                }
-                            )
-                            HigherLowerChoiceButton(
-                                label = stringResource(R.string.higher_lower_higher),
-                                isEnabled = uiState.selectedChoice == null,
-                                onClick = {
-                                    onChoiceSelect(HigherLowerChoice.HIGHER)
-                                }
-                            )
+                        HigherLowerChoiceButtonsMode.Both -> {
+                            Row(
+                                modifier = Modifier.testTag(HIGHER_LOWER_BUTTON_ROW_TAG),
+                                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                HigherLowerChoiceButton(
+                                    label = stringResource(R.string.higher_lower_lower),
+                                    isEnabled = uiState.selectedChoice == null,
+                                    onClick = {
+                                        onChoiceSelect(HigherLowerChoice.LOWER)
+                                    }
+                                )
+                                HigherLowerChoiceButton(
+                                    label = stringResource(R.string.higher_lower_higher),
+                                    isEnabled = uiState.selectedChoice == null,
+                                    onClick = {
+                                        onChoiceSelect(HigherLowerChoice.HIGHER)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -593,6 +603,13 @@ internal fun higherLowerStartedGameBottomPadding(isStarted: Boolean): Dp {
         HigherLowerContinueButtonHeight +
         HigherLowerContinueButtonBottomPadding +
         HigherLowerContinueButtonSpacing
+}
+
+internal fun higherLowerStartedGameVerticalOffset(isStarted: Boolean): Dp {
+    if (!isStarted) {
+        return 0.dp
+    }
+    return higherLowerStartedGameBottomPadding(isStarted = true) - 24.dp
 }
 
 @Composable
