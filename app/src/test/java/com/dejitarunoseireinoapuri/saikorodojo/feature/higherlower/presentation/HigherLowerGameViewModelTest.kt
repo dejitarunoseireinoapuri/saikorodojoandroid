@@ -113,9 +113,9 @@ class HigherLowerGameViewModelTest {
     }
 
     @Test
-    fun `matching sums are rerolled and resolved with non tie result`() = runTest {
+    fun `matching sums are converted to strict higher lower result`() = runTest {
         val viewModel = buildViewModel(
-            diceValues = listOf(1, 1, 3, 3, 2, 2, 1, 4)
+            diceValues = listOf(1, 1, 3, 3, 2, 2)
         )
 
         viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
@@ -129,26 +129,9 @@ class HigherLowerGameViewModelTest {
         assertFalse(state.hasLoss)
         assertEquals(1, state.correctStreak)
         assertEquals(2, state.currentRound)
-        assertEquals(listOf(1, 4), state.currentDiceValues)
+        assertEquals(listOf(2, 3), state.currentDiceValues)
     }
 
-    @Test
-    fun `keeps tie result after reroll limit and resolves as loss`() = runTest {
-        val viewModel = buildViewModel(
-            diceValues = listOf(1, 1, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2)
-        )
-
-        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
-        advanceUntilIdle()
-
-        viewModel.onEvent(HigherLowerGameUiEvent.SelectChoice(HigherLowerChoice.HIGHER))
-        advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertTrue(state.isComplete)
-        assertTrue(state.hasLoss)
-        assertEquals(listOf(2, 2), state.currentDiceValues)
-    }
 
     @Test
     fun `selecting a choice hides buttons while rolling`() = runTest {
