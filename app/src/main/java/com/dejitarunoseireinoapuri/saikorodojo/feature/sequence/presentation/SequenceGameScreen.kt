@@ -644,41 +644,40 @@ fun SequenceGameScreen(
                 }
             )
         }
-    }
 
-    val currentAnimationValue = animatingSaveValue
-    if (currentAnimationValue != null) {
-        val start = diceCenterInRoot
-        val end = if (animatingToFailureDie) failureDieCenterInRoot else savedDieCenterInRoot
-        val dieSize = animatedDieSize
-        if (start != null && end != null && dieSize > 0.dp) {
-            val sizePx = with(LocalDensity.current) { dieSize.toPx() }
-            val progress = saveAnimationProgress.value
-            val offset = Offset(
-                x = start.x + (end.x - start.x) * progress,
-                y = start.y + (end.y - start.y) * progress
-            )
-            Box(
-                modifier = Modifier
-                    .size(dieSize)
-                    .graphicsLayer {
-                        translationX = offset.x - sizePx / 2f
-                        translationY = offset.y - sizePx / 2f
-                    }
-                    .zIndex(5f),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ten_sides),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
+        val currentAnimationValue = animatingSaveValue
+        if (currentAnimationValue != null) {
+            val start = diceCenterInRoot
+            val end = if (animatingToFailureDie) failureDieCenterInRoot else savedDieCenterInRoot
+            if (start != null && end != null && animatedDieSize > 0.dp) {
+                val sizePx = with(LocalDensity.current) { animatedDieSize.toPx() }
+                val progress = saveAnimationProgress.value
+                val offset = Offset(
+                    x = start.x + (end.x - start.x) * progress,
+                    y = start.y + (end.y - start.y) * progress
                 )
-                Text(
-                    text = currentAnimationValue.toString(),
-                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.graphicsLayer { translationY = animatedTextOffsetPx }
-                )
+                Box(
+                    modifier = Modifier
+                        .size(animatedDieSize)
+                        .graphicsLayer {
+                            translationX = offset.x - sizePx / 2f
+                            translationY = offset.y - sizePx / 2f
+                        }
+                        .zIndex(5f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ten_sides),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Text(
+                        text = currentAnimationValue.toString(),
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.graphicsLayer { translationY = animatedTextOffsetPx }
+                    )
+                }
             }
         }
     }
