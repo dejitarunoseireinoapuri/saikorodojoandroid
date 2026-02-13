@@ -719,6 +719,7 @@ fun GameScreen(
                     message = stringResource(R.string.exit_message),
                     confirmLabel = stringResource(R.string.exit_confirm),
                     dismissLabel = stringResource(R.string.dialog_cancel),
+                    dismissUsesAccentColor = true,
                     onConfirm = {
                         showExitDialog = false
                         onConfirmExit()

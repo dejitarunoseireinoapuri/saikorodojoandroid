@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSetValueOuterColor
 
 internal const val MENU_TOP_APP_BAR_TAG = "menu_top_app_bar"
 internal const val MENU_PLAY_BUTTON_TAG = "menu_play_button"
@@ -233,7 +234,7 @@ fun MenuScreen(
                     Text(
                         text = stringResource(R.string.menu_continue_confirm),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
+                        color = DiceSetValueOuterColor
                     )
                 }
             },
