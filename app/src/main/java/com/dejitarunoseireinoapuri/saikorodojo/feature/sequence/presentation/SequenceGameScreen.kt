@@ -156,7 +156,6 @@ fun SequenceGameScreen(
     var diceCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
-    var animatedDieSize by remember { mutableStateOf(0.dp) }
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     LaunchedEffect(uiState.isRolling) {
@@ -238,12 +237,17 @@ fun SequenceGameScreen(
     containerModifier = containerModifier
         .padding(contentPadding)
         .background(MaterialTheme.colorScheme.background)
-    Box(
+    BoxWithConstraints(
         modifier = containerModifier
     ) {
         val hasReward = uiState.rewardCards.isNotEmpty()
         val hasPendingReward = uiState.isComplete && uiState.pendingRewardCards.isNotEmpty()
         val hasLoss = uiState.isComplete && !hasReward && !hasPendingReward && uiState.isStarted
+        val horizontalPadding = 16.dp
+        val spacing = 10.dp
+        val availableWidth = maxWidth - horizontalPadding * 2 - spacing * 2
+        val dieSize = (availableWidth / 3f).coerceAtMost(104.dp)
+        val animatedDieSize = dieSize
 
         Box(
             modifier = Modifier
@@ -457,88 +461,77 @@ fun SequenceGameScreen(
                         borderColor = matBorder,
                         contentAlignment = Alignment.CenterStart
                     ) {
-                        BoxWithConstraints(
-                            modifier = Modifier.fillMaxWidth()
+                        Row(
+                            modifier = Modifier.padding(horizontal = horizontalPadding),
+                            horizontalArrangement = Arrangement.spacedBy(spacing),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val horizontalPadding = 16.dp
-                            val spacing = 10.dp
-                            val availableWidth = maxWidth - horizontalPadding * 2 - spacing * 2
-                            val dieSize = (availableWidth / 3f).coerceAtMost(104.dp)
-                            if (animatedDieSize != dieSize) {
-                                animatedDieSize = dieSize
-                            }
-                            Row(
-                                modifier = Modifier.padding(horizontal = horizontalPadding),
-                                horizontalArrangement = Arrangement.spacedBy(spacing),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val isLatestSavedValueHidden = shouldHideLatestSavedValue(
-                                    isLatestSavedValueHidden = uiState.isLatestSavedValueHidden,
-                                    previousSavedCount = previousSavedCount,
-                                    currentSavedCount = uiState.savedValues.size
-                                )
-                                sequenceSavedDiceUiState(
-                                    savedValues = uiState.savedValues,
-                                    isLatestSavedValueHidden = isLatestSavedValueHidden,
-                                    hasPendingSavedValue = uiState.pendingSavedValue != null
-                                ).forEach { savedDie ->
-                                    if (savedDie.value != null) {
-                                        SequenceSavedDie(
-                                            value = savedDie.value,
-                                            size = dieSize,
-                                            isVisible = shouldShowSequenceSavedDie(
-                                                isVisible = savedDie.isVisible,
-                                                isLatest = savedDie.isLatest,
-                                                animatingSaveValue = animatingSaveValue,
-                                                isAnimatingToFailure = animatingToFailureDie,
-                                                value = savedDie.value
-                                            ),
-                                            modifier = if (savedDie.isLatest) {
-                                                Modifier.onGloballyPositioned { coordinates ->
-                                                    val position = coordinates.positionInRoot()
-                                                    savedDieCenterInRoot = Offset(
-                                                        x = position.x + coordinates.size.width / 2f,
-                                                        y = position.y + coordinates.size.height / 2f
-                                                    )
-                                                }
-                                            } else {
-                                                Modifier
-                                            }
-                                        )
-                                    } else {
-                                        Spacer(
-                                            modifier = Modifier
-                                                .size(dieSize)
-                                                .onGloballyPositioned { coordinates ->
-                                                    val position = coordinates.positionInRoot()
-                                                    savedDieCenterInRoot = Offset(
-                                                        x = position.x + coordinates.size.width / 2f,
-                                                        y = position.y + coordinates.size.height / 2f
-                                                    )
-                                                }
-                                        )
-                                    }
-                                }
-                                uiState.failureDieValue?.let { value ->
+                            val isLatestSavedValueHidden = shouldHideLatestSavedValue(
+                                isLatestSavedValueHidden = uiState.isLatestSavedValueHidden,
+                                previousSavedCount = previousSavedCount,
+                                currentSavedCount = uiState.savedValues.size
+                            )
+                            sequenceSavedDiceUiState(
+                                savedValues = uiState.savedValues,
+                                isLatestSavedValueHidden = isLatestSavedValueHidden,
+                                hasPendingSavedValue = uiState.pendingSavedValue != null
+                            ).forEach { savedDie ->
+                                if (savedDie.value != null) {
                                     SequenceSavedDie(
-                                        value = value,
+                                        value = savedDie.value,
                                         size = dieSize,
                                         isVisible = shouldShowSequenceSavedDie(
-                                            isVisible = true,
-                                            isLatest = false,
+                                            isVisible = savedDie.isVisible,
+                                            isLatest = savedDie.isLatest,
                                             animatingSaveValue = animatingSaveValue,
                                             isAnimatingToFailure = animatingToFailureDie,
-                                            value = value
+                                            value = savedDie.value
                                         ),
-                                        modifier = Modifier.onGloballyPositioned { coordinates ->
-                                            val position = coordinates.positionInRoot()
-                                            failureDieCenterInRoot = Offset(
-                                                x = position.x + coordinates.size.width / 2f,
-                                                y = position.y + coordinates.size.height / 2f
-                                            )
+                                        modifier = if (savedDie.isLatest) {
+                                            Modifier.onGloballyPositioned { coordinates ->
+                                                val position = coordinates.positionInRoot()
+                                                savedDieCenterInRoot = Offset(
+                                                    x = position.x + coordinates.size.width / 2f,
+                                                    y = position.y + coordinates.size.height / 2f
+                                                )
+                                            }
+                                        } else {
+                                            Modifier
                                         }
                                     )
+                                } else {
+                                    Spacer(
+                                        modifier = Modifier
+                                            .size(dieSize)
+                                            .onGloballyPositioned { coordinates ->
+                                                val position = coordinates.positionInRoot()
+                                                savedDieCenterInRoot = Offset(
+                                                    x = position.x + coordinates.size.width / 2f,
+                                                    y = position.y + coordinates.size.height / 2f
+                                                )
+                                            }
+                                    )
                                 }
+                            }
+                            uiState.failureDieValue?.let { value ->
+                                SequenceSavedDie(
+                                    value = value,
+                                    size = dieSize,
+                                    isVisible = shouldShowSequenceSavedDie(
+                                        isVisible = true,
+                                        isLatest = false,
+                                        animatingSaveValue = animatingSaveValue,
+                                        isAnimatingToFailure = animatingToFailureDie,
+                                        value = value
+                                    ),
+                                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                                        val position = coordinates.positionInRoot()
+                                        failureDieCenterInRoot = Offset(
+                                            x = position.x + coordinates.size.width / 2f,
+                                            y = position.y + coordinates.size.height / 2f
+                                        )
+                                    }
+                                )
                             }
                         }
                     }
