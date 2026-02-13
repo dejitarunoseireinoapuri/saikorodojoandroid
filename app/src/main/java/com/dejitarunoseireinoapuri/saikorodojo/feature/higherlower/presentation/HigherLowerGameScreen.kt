@@ -509,7 +509,7 @@ fun HigherLowerGameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 64.dp, bottom = startedGameBottomPadding)
+                    .padding(top = 112.dp, bottom = startedGameBottomPadding)
                     .testTag(HIGHER_LOWER_REWARD_STACK_TAG)
                     .zIndex(3f),
                 contentAlignment = Alignment.Center
