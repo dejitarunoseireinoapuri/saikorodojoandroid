@@ -77,9 +77,15 @@ internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
 internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
 private const val HIGHER_LOWER_TRANSITION_MS = 750
-private val HigherLowerButtonReserveHeight = 140.dp
 private val HigherLowerChoiceButtonHeight = 56.dp
 private val HigherLowerChoiceButtonMinWidth = 140.dp
+private val HigherLowerContinueButtonHeight = 56.dp
+private val HigherLowerContinueButtonBottomPadding = 24.dp
+private val HigherLowerMatsToContinueSpacing = 8.dp
+private val HigherLowerMatsBottomPadding =
+    HigherLowerContinueButtonHeight +
+        HigherLowerContinueButtonBottomPadding +
+        HigherLowerMatsToContinueSpacing
 
 @Composable
 fun HigherLowerGameRoute(
@@ -356,11 +362,14 @@ fun HigherLowerGameScreen(
         if (showMats) {
             Column(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .align(Alignment.BottomCenter)
+                    .padding(
+                        start = 24.dp,
+                        end = 24.dp,
+                        bottom = higherLowerMatsBottomPadding()
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(140.dp + HigherLowerButtonReserveHeight))
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -509,8 +518,8 @@ fun HigherLowerGameScreen(
                 colors = minigameButtonColors(),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 24.dp)
-                    .height(56.dp)
+                    .padding(bottom = HigherLowerContinueButtonBottomPadding)
+                    .height(HigherLowerContinueButtonHeight)
                     .zIndex(4f)
                     .testTag(HIGHER_LOWER_CONTINUE_BUTTON_TAG)
             ) {
@@ -575,6 +584,8 @@ fun HigherLowerGameScreen(
         }
     }
 }
+
+internal fun higherLowerMatsBottomPadding(): Dp = HigherLowerMatsBottomPadding
 
 @Composable
 private fun HigherLowerChoiceButton(

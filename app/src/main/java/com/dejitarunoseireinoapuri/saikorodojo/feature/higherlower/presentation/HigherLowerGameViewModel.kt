@@ -38,6 +38,7 @@ private const val DEFAULT_TRANSITION_MS = 750L
 private const val DEFAULT_SUCCESS_HIGHLIGHT_MS = 1_000L
 private const val DEFAULT_SUCCESS_RESULT_DELAY_MS = 1_000L
 private const val DEFAULT_POST_TRANSITION_HOLD_MS = 250L
+private const val MAX_NON_TIE_REROLLS = 3
 
 @JvmInline
 value class DiceSum(val value: Int)
@@ -189,17 +190,26 @@ class HigherLowerGameViewModel(
             onTick = { roll -> updateCurrentDice(roll) },
             onComplete = { roll ->
                 val baseSum = DiceSum(state.baseDiceValues.sum())
-                val newSum = DiceSum(roll.sum)
-                if (newSum.value == baseSum.value) {
-                    _uiState.update { it.copy(correctStreak = state.correctStreak + 1) }
-                    resolveWin()
-                } else if (isCorrectGuess(choice, baseSum, newSum)) {
-                    resolveCorrectGuess(roll.values)
+                val resolvedRoll = resolveNonTieRoll(baseSum = baseSum, initialRoll = roll)
+                val newSum = DiceSum(resolvedRoll.sum)
+                if (isCorrectGuess(choice, baseSum, newSum)) {
+                    resolveCorrectGuess(resolvedRoll.values)
                 } else {
-                    resolveLoss(roll.values)
+                    resolveLoss(resolvedRoll.values)
                 }
             }
         )
+    }
+
+    private fun resolveNonTieRoll(baseSum: DiceSum, initialRoll: HigherLowerRoll): HigherLowerRoll {
+        if (initialRoll.sum != baseSum.value) return initialRoll
+        repeat(MAX_NON_TIE_REROLLS) {
+            val reroll = rollHigherLowerUseCase.execute()
+            if (reroll.sum != baseSum.value) {
+                return reroll
+            }
+        }
+        return initialRoll
     }
 
     private fun updateBaseDice(roll: HigherLowerRoll) {

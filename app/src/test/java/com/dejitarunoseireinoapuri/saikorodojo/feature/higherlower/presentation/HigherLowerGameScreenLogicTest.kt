@@ -1,5 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation
 
+import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.domain.HigherLowerChoice
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
@@ -122,5 +123,10 @@ class HigherLowerGameScreenLogicTest {
                 hasLoss = false
             )
         )
+    }
+
+    @Test
+    fun `mats keep fixed spacing from continue button area even when hidden`() {
+        assertEquals(88.dp, higherLowerMatsBottomPadding())
     }
 }
