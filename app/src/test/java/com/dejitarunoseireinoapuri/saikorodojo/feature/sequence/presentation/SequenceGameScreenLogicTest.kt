@@ -1,5 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -146,6 +147,48 @@ class SequenceGameScreenLogicTest {
                 keepTopDieOnFailure = true
             )
         )
+    }
+
+
+    @Test
+    fun `offset update skips state writes under threshold`() {
+        val previous = Offset(20f, 40f)
+
+        val updated = updateOffsetIfChanged(
+            previous = previous,
+            next = Offset(20.4f, 40.4f),
+            thresholdPx = 1f
+        )
+
+        assertEquals(previous, updated)
+    }
+
+    @Test
+    fun `offset update writes state when threshold is reached`() {
+        val previous = Offset(20f, 40f)
+        val next = Offset(21f, 40f)
+
+        val updated = updateOffsetIfChanged(
+            previous = previous,
+            next = next,
+            thresholdPx = 1f
+        )
+
+        assertEquals(next, updated)
+    }
+
+    @Test
+    fun `animation snapshot uses saved slot center when latest die is hidden`() {
+        val anchors = SequenceAnimationAnchors()
+        anchors.updateDiceCenter(x = 100f, y = 200f)
+        anchors.updateSavedSlotCenter(x = 300f, y = 400f)
+        anchors.updateDieSize(96.dp)
+
+        val snapshot = anchors.snapshot(animateToFailureDie = false)
+
+        assertEquals(Offset(100f, 200f), snapshot?.start)
+        assertEquals(Offset(300f, 400f), snapshot?.end)
+        assertEquals(96.dp, snapshot?.dieSize)
     }
 
     @Test

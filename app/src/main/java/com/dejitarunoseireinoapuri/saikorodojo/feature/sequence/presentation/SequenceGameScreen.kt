@@ -27,6 +27,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -99,6 +101,7 @@ internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 private const val SEQUENCE_SAVE_ANIMATION_MS = 320
 private val SEQUENCE_ACTIVE_CONTENT_SHIFT = 72.dp
+private const val SEQUENCE_POSITION_UPDATE_THRESHOLD_PX = 1f
 
 @Composable
 fun SequenceGameRoute(
@@ -153,10 +156,8 @@ fun SequenceGameScreen(
     var previousFailureDieValue by remember { mutableStateOf<Int?>(null) }
     var animatingSaveValue by remember { mutableStateOf<Int?>(null) }
     var animatingToFailureDie by remember { mutableStateOf(false) }
-    var diceCenterInRoot by remember { mutableStateOf<Offset?>(null) }
-    var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
-    var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
-    var animatedDieSize by remember { mutableStateOf(0.dp) }
+    val animationAnchors = remember { SequenceAnimationAnchors() }
+    var animationSnapshot by remember { mutableStateOf<SequenceAnimationSnapshot?>(null) }
     val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     LaunchedEffect(uiState.isRolling) {
@@ -175,6 +176,11 @@ fun SequenceGameScreen(
     LaunchedEffect(uiState.pendingSavedValue) {
         val pendingValue = uiState.pendingSavedValue ?: return@LaunchedEffect
         try {
+            animationSnapshot = animationAnchors.snapshot(animateToFailureDie = false)
+                ?: run {
+                    withFrameNanos { }
+                    animationAnchors.snapshot(animateToFailureDie = false)
+                }
             saveAnimationProgress.snapTo(0f)
             animatingSaveValue = pendingValue
             animatingToFailureDie = false
@@ -189,6 +195,7 @@ fun SequenceGameScreen(
         } finally {
             animatingSaveValue = null
             animatingToFailureDie = false
+            animationSnapshot = null
         }
     }
     LaunchedEffect(uiState.failureReason) {
@@ -202,6 +209,11 @@ fun SequenceGameScreen(
         val failureValue = uiState.failureDieValue
         if (failureValue != null && failureValue != previousFailureDieValue) {
             try {
+                animationSnapshot = animationAnchors.snapshot(animateToFailureDie = true)
+                    ?: run {
+                        withFrameNanos { }
+                        animationAnchors.snapshot(animateToFailureDie = true)
+                    }
                 saveAnimationProgress.snapTo(0f)
                 animatingSaveValue = failureValue
                 animatingToFailureDie = true
@@ -216,6 +228,7 @@ fun SequenceGameScreen(
             } finally {
                 animatingSaveValue = null
                 animatingToFailureDie = false
+                animationSnapshot = null
             }
         }
         previousFailureDieValue = failureValue
@@ -430,7 +443,7 @@ fun SequenceGameScreen(
                                 .testTag(SEQUENCE_DICE_TAG)
                                 .onGloballyPositioned { coordinates ->
                                     val position = coordinates.positionInRoot()
-                                    diceCenterInRoot = Offset(
+                                    animationAnchors.updateDiceCenter(
                                         x = position.x + coordinates.size.width / 2f,
                                         y = position.y + coordinates.size.height / 2f
                                     )
@@ -464,11 +477,18 @@ fun SequenceGameScreen(
                             val spacing = 10.dp
                             val availableWidth = maxWidth - horizontalPadding * 2 - spacing * 2
                             val dieSize = (availableWidth / 3f).coerceAtMost(104.dp)
-                            if (animatedDieSize != dieSize) {
-                                animatedDieSize = dieSize
-                            }
+                            animationAnchors.updateDieSize(dieSize)
                             Row(
-                                modifier = Modifier.padding(horizontal = horizontalPadding),
+                                modifier = Modifier
+                                    .padding(horizontal = horizontalPadding)
+                                    .onGloballyPositioned { coordinates ->
+                                        val position = coordinates.positionInRoot()
+                                        val dieHalfSize = coordinates.size.height / 2f
+                                        animationAnchors.updateSavedSlotCenter(
+                                            x = position.x + dieHalfSize,
+                                            y = position.y + coordinates.size.height / 2f
+                                        )
+                                    },
                                 horizontalArrangement = Arrangement.spacedBy(spacing),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -496,7 +516,7 @@ fun SequenceGameScreen(
                                             modifier = if (savedDie.isLatest) {
                                                 Modifier.onGloballyPositioned { coordinates ->
                                                     val position = coordinates.positionInRoot()
-                                                    savedDieCenterInRoot = Offset(
+                                                    animationAnchors.updateSavedDieCenter(
                                                         x = position.x + coordinates.size.width / 2f,
                                                         y = position.y + coordinates.size.height / 2f
                                                     )
@@ -509,13 +529,6 @@ fun SequenceGameScreen(
                                         Spacer(
                                             modifier = Modifier
                                                 .size(dieSize)
-                                                .onGloballyPositioned { coordinates ->
-                                                    val position = coordinates.positionInRoot()
-                                                    savedDieCenterInRoot = Offset(
-                                                        x = position.x + coordinates.size.width / 2f,
-                                                        y = position.y + coordinates.size.height / 2f
-                                                    )
-                                                }
                                         )
                                     }
                                 }
@@ -532,7 +545,7 @@ fun SequenceGameScreen(
                                         ),
                                         modifier = Modifier.onGloballyPositioned { coordinates ->
                                             val position = coordinates.positionInRoot()
-                                            failureDieCenterInRoot = Offset(
+                                            animationAnchors.updateFailureDieCenter(
                                                 x = position.x + coordinates.size.width / 2f,
                                                 y = position.y + coordinates.size.height / 2f
                                             )
@@ -655,10 +668,11 @@ fun SequenceGameScreen(
 
     val currentAnimationValue = animatingSaveValue
     if (currentAnimationValue != null) {
-        val start = diceCenterInRoot
-        val end = if (animatingToFailureDie) failureDieCenterInRoot else savedDieCenterInRoot
-        val dieSize = animatedDieSize
-        if (start != null && end != null && dieSize > 0.dp) {
+        val snapshot = animationSnapshot
+        if (snapshot != null) {
+            val start = snapshot.start
+            val end = snapshot.end
+            val dieSize = snapshot.dieSize
             val sizePx = with(LocalDensity.current) { dieSize.toPx() }
             val progress = saveAnimationProgress.value
             val offset = Offset(
@@ -689,6 +703,70 @@ fun SequenceGameScreen(
             }
         }
     }
+}
+
+@Stable
+internal class SequenceAnimationAnchors {
+    private var diceCenterInRoot by mutableStateOf<Offset?>(null)
+    private var savedDieCenterInRoot by mutableStateOf<Offset?>(null)
+    private var savedSlotCenterInRoot by mutableStateOf<Offset?>(null)
+    private var failureDieCenterInRoot by mutableStateOf<Offset?>(null)
+    private var animatedDieSize by mutableStateOf(0.dp)
+
+    fun updateDiceCenter(x: Float, y: Float) {
+        diceCenterInRoot = updateOffsetIfChanged(diceCenterInRoot, Offset(x, y))
+    }
+
+    fun updateSavedDieCenter(x: Float, y: Float) {
+        savedDieCenterInRoot = updateOffsetIfChanged(savedDieCenterInRoot, Offset(x, y))
+    }
+
+    fun updateSavedSlotCenter(x: Float, y: Float) {
+        savedSlotCenterInRoot = updateOffsetIfChanged(savedSlotCenterInRoot, Offset(x, y))
+    }
+
+    fun updateFailureDieCenter(x: Float, y: Float) {
+        failureDieCenterInRoot = updateOffsetIfChanged(failureDieCenterInRoot, Offset(x, y))
+    }
+
+    fun updateDieSize(size: Dp) {
+        val previous = animatedDieSize
+        if (kotlin.math.abs(size.value - previous.value) >= 0.5f) {
+            animatedDieSize = size
+        }
+    }
+
+    fun snapshot(animateToFailureDie: Boolean): SequenceAnimationSnapshot? {
+        val start = diceCenterInRoot ?: return null
+        val end = if (animateToFailureDie) {
+            failureDieCenterInRoot
+        } else {
+            savedDieCenterInRoot ?: savedSlotCenterInRoot
+        } ?: return null
+        if (animatedDieSize <= 0.dp) {
+            return null
+        }
+        return SequenceAnimationSnapshot(start = start, end = end, dieSize = animatedDieSize)
+    }
+}
+
+internal data class SequenceAnimationSnapshot(
+    val start: Offset,
+    val end: Offset,
+    val dieSize: Dp
+)
+
+internal fun updateOffsetIfChanged(
+    previous: Offset?,
+    next: Offset,
+    thresholdPx: Float = SEQUENCE_POSITION_UPDATE_THRESHOLD_PX
+): Offset {
+    if (previous == null) {
+        return next
+    }
+    val deltaX = kotlin.math.abs(next.x - previous.x)
+    val deltaY = kotlin.math.abs(next.y - previous.y)
+    return if (deltaX >= thresholdPx || deltaY >= thresholdPx) next else previous
 }
 
 
