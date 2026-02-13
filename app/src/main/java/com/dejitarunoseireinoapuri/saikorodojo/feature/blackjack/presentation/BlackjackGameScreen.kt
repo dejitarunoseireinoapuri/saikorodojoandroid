@@ -57,6 +57,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.domain.BlackjackOutcome
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
+import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameButtonPrimaryColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameButtonColors
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
@@ -487,7 +488,7 @@ fun BlackjackGameScreen(
                         Text(
                             text = stringResource(R.string.dialog_cancel),
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MinigameButtonPrimaryColor
                         )
                     }
                 }
