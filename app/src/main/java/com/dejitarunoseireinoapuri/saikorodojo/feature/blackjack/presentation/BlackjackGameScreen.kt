@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -327,7 +328,10 @@ fun BlackjackGameScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.blackjack_start),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -447,8 +451,11 @@ fun BlackjackGameScreen(
                     text = stringResource(R.string.blackjack_continue),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
+                        fontSize = 18.sp
+                    ),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -552,8 +559,11 @@ private fun BlackjackActionButton(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
+                fontSize = 16.sp
+            ),
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

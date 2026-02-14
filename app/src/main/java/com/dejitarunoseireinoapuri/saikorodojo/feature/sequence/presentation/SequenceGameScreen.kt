@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -566,7 +567,10 @@ fun SequenceGameScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.sequence_start),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -604,8 +608,11 @@ fun SequenceGameScreen(
                     text = stringResource(R.string.odd_even_continue),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
+                        fontSize = 18.sp
+                    ),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -809,8 +816,11 @@ private fun SequenceChoiceButton(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
+                fontSize = 16.sp
+            ),
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

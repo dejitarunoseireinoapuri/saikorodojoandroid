@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -366,7 +367,10 @@ fun HigherLowerGameScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.higher_lower_start),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -543,8 +547,11 @@ fun HigherLowerGameScreen(
                     text = stringResource(R.string.odd_even_continue),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
+                        fontSize = 18.sp
+                    ),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -639,9 +646,11 @@ private fun HigherLowerChoiceButton(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
+                fontSize = 16.sp
             ),
             maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
         )
     }
