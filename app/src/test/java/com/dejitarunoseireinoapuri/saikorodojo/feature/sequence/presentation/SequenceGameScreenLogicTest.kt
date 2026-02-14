@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -59,9 +60,20 @@ class SequenceGameScreenLogicTest {
     }
 
     @Test
-    fun `dice number y offset keeps values centered`() {
+    fun `dice number y offset keeps top value centered`() {
         assertEquals(0.dp, sequenceDiceNumberYOffset())
     }
+
+    @Test
+    fun `saved dice number y offset matches original position`() {
+        assertEquals(0.dp, sequenceSavedDiceNumberYOffset())
+    }
+
+    @Test
+    fun `saved dice number font size is larger for readability`() {
+        assertEquals(24.sp, sequenceSavedDiceNumberFontSize())
+    }
+
 
     @Test
     fun `saved die stays hidden while save animation is active`() {

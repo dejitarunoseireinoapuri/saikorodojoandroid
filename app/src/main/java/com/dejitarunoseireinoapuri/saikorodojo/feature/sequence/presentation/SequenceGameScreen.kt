@@ -95,6 +95,8 @@ internal fun sequenceDecisionActionOrder(): List<SequenceDecisionAction> = listO
 )
 
 internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
+internal fun sequenceSavedDiceNumberYOffset(): Dp = 0.dp
+internal fun sequenceSavedDiceNumberFontSize() = 24.sp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 private const val SEQUENCE_SAVE_ANIMATION_MS = 320
@@ -682,7 +684,7 @@ fun SequenceGameScreen(
                 )
                 Text(
                     text = currentAnimationValue.toString(),
-                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                    style = MaterialTheme.typography.displaySmall.copy(fontSize = sequenceSavedDiceNumberFontSize()),
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.graphicsLayer { translationY = animatedTextOffsetPx }
                 )
@@ -870,7 +872,7 @@ private fun SequenceSavedDie(
     modifier: Modifier = Modifier
 ) {
     val diceRes = R.drawable.ten_sides
-    val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
+    val textOffsetPx = with(LocalDensity.current) { sequenceSavedDiceNumberYOffset().toPx() }
     Box(
         modifier = modifier
             .size(size)
@@ -885,7 +887,7 @@ private fun SequenceSavedDie(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+            style = MaterialTheme.typography.displaySmall.copy(fontSize = sequenceSavedDiceNumberFontSize()),
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .graphicsLayer { translationY = textOffsetPx }
