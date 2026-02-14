@@ -391,6 +391,19 @@ class GenerateObjectiveUseCaseTest {
     }
 
     @Test
+    fun `objective minimum selection for later stages is also at least half plus one of dice count`() {
+        val minSelection = minimumSelectionCountForObjectiveSet(
+            stage = 3,
+            diceCount = 9,
+            conditions = listOf(
+                SumExactCondition(target = 10)
+            )
+        )
+
+        assertEquals(5, minSelection)
+    }
+
+    @Test
     fun `objective minimum selection for first stage keeps legacy rule`() {
         val minSelection = minimumSelectionCountForObjectiveSet(
             stage = 1,

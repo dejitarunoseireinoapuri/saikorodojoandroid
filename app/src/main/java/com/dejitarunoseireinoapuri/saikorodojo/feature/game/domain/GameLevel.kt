@@ -863,5 +863,7 @@ internal fun minimumSelectionCountForObjectiveSet(
         .maxOrNull()
         ?.coerceAtLeast(1)
         ?: 1
-    return (minimumRequiredDice + 2).coerceAtMost(diceCount)
+    val minimumByObjectives = minimumRequiredDice + 2
+    val minimumByDiceCount = minimumParityCountForObjective(diceCount)
+    return maxOf(minimumByObjectives, minimumByDiceCount).coerceAtMost(diceCount)
 }
