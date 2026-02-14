@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
@@ -44,6 +46,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -220,13 +223,21 @@ fun HigherLowerGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 24.dp, end = 24.dp, top = 64.dp, bottom = startedGameBottomPadding),
+                .padding(start = 24.dp, end = 24.dp, top = 64.dp, bottom = startedGameBottomPadding)
+                .then(
+                    if (!uiState.isStarted) {
+                        Modifier.verticalScroll(rememberScrollState())
+                    } else {
+                        Modifier
+                    }
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             val titleColor = MaterialTheme.colorScheme.onBackground
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.hasLoss && uiState.isComplete
+            val showStartButton = !uiState.isStarted && !uiState.isComplete && !hasReward
             val showRules = !uiState.isStarted
             val rulesModifier = if (showRules) {
                 Modifier
@@ -345,24 +356,24 @@ fun HigherLowerGameScreen(
                         }
                     }
                 }
-            }
-        }
-
-        if (!uiState.isStarted) {
-            Button(
-                onClick = {
-                    onStartClick()
-                },
-                shape = RoundedCornerShape(20.dp),
-                colors = minigameButtonColors(),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .height(64.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.higher_lower_start),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
-                )
+            } else if (showStartButton) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = {
+                        onStartClick()
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = minigameButtonColors(),
+                    modifier = Modifier.height(64.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.higher_lower_start),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
 
@@ -538,7 +549,10 @@ fun HigherLowerGameScreen(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
-                    )
+                    ),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -633,9 +647,11 @@ private fun HigherLowerChoiceButton(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
+                fontSize = 16.sp
             ),
             maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
         )
     }

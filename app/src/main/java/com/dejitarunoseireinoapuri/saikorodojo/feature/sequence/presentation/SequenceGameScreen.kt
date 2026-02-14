@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
@@ -41,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -284,6 +287,13 @@ fun SequenceGameScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp)
+                .then(
+                    if (!uiState.isStarted) {
+                        Modifier.verticalScroll(rememberScrollState())
+                    } else {
+                        Modifier
+                    }
+                )
                 .graphicsLayer {
                     if (uiState.isStarted && !uiState.isComplete) {
                         translationY = -activeContentShiftPx
@@ -294,6 +304,7 @@ fun SequenceGameScreen(
             Spacer(modifier = Modifier.height(8.dp))
             val titleColor = MaterialTheme.colorScheme.onBackground
             val showRules = !uiState.isStarted
+            val showStartButton = !uiState.isStarted && !uiState.isComplete && !hasReward && !hasPendingReward
             val rulesModifier = if (showRules) {
                 Modifier
             } else {
@@ -545,24 +556,24 @@ fun SequenceGameScreen(
                         }
                     }
                 }
-            }
-        }
-
-        if (!uiState.isStarted) {
-            Button(
-                onClick = {
-                    onStartClick()
-                },
-                shape = RoundedCornerShape(20.dp),
-                colors = minigameButtonColors(),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .height(64.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.sequence_start),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
-                )
+            } else if (showStartButton) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = {
+                        onStartClick()
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = minigameButtonColors(),
+                    modifier = Modifier.height(64.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.sequence_start),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
 
@@ -599,7 +610,10 @@ fun SequenceGameScreen(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
-                    )
+                    ),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -803,8 +817,11 @@ private fun SequenceChoiceButton(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
+                fontSize = 16.sp
+            ),
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
