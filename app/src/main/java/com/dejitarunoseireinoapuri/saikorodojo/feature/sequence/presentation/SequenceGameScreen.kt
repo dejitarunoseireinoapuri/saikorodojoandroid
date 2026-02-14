@@ -97,7 +97,6 @@ internal fun sequenceDecisionActionOrder(): List<SequenceDecisionAction> = listO
 internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
 internal fun sequenceSavedDiceNumberYOffset(): Dp = 2.dp
 internal fun sequenceSavedDiceNumberFontSize() = 18.sp
-internal fun sequenceSavedDiceNumberHorizontalPadding(): Dp = 1.dp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 private const val SEQUENCE_SAVE_ANIMATION_MS = 320
@@ -685,14 +684,9 @@ fun SequenceGameScreen(
                 )
                 Text(
                     text = currentAnimationValue.toString(),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = sequenceSavedDiceNumberFontSize(),
-                        lineHeight = sequenceSavedDiceNumberFontSize()
-                    ),
+                    style = MaterialTheme.typography.displaySmall.copy(fontSize = sequenceSavedDiceNumberFontSize()),
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier
-                        .padding(horizontal = sequenceSavedDiceNumberHorizontalPadding())
-                        .graphicsLayer { translationY = animatedTextOffsetPx }
+                    modifier = Modifier.graphicsLayer { translationY = animatedTextOffsetPx }
                 )
             }
         }
@@ -893,13 +887,9 @@ private fun SequenceSavedDie(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontSize = sequenceSavedDiceNumberFontSize(),
-                lineHeight = sequenceSavedDiceNumberFontSize()
-            ),
+            style = MaterialTheme.typography.displaySmall.copy(fontSize = sequenceSavedDiceNumberFontSize()),
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
-                .padding(horizontal = sequenceSavedDiceNumberHorizontalPadding())
                 .graphicsLayer { translationY = textOffsetPx }
                 .testTag("${SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX}_$value")
         )

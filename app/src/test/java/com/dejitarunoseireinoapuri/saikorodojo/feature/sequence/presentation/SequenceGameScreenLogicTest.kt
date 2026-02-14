@@ -74,11 +74,6 @@ class SequenceGameScreenLogicTest {
         assertEquals(18.sp, sequenceSavedDiceNumberFontSize())
     }
 
-    @Test
-    fun `saved dice number adds horizontal safety padding`() {
-        assertEquals(1.dp, sequenceSavedDiceNumberHorizontalPadding())
-    }
-
 
     @Test
     fun `saved die stays hidden while save animation is active`() {
