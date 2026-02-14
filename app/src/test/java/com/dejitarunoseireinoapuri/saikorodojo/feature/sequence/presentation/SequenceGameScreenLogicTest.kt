@@ -59,8 +59,13 @@ class SequenceGameScreenLogicTest {
     }
 
     @Test
-    fun `dice number y offset keeps values centered`() {
+    fun `dice number y offset keeps top value centered`() {
         assertEquals(0.dp, sequenceDiceNumberYOffset())
+    }
+
+    @Test
+    fun `saved dice number y offset lowers bottom mat value`() {
+        assertEquals(2.dp, sequenceSavedDiceNumberYOffset())
     }
 
     @Test
