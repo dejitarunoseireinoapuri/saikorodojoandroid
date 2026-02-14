@@ -228,6 +228,12 @@ class GenerateObjectiveUseCaseTest {
                 candidate = ForbidValuesCondition(values = listOf(6))
             )
         )
+        assertFalse(
+            areConditionsCompatible(
+                selectedConditions = listOf(HasPairCondition(requiredPairs = 1)),
+                candidate = HasThreeOfKindCondition(requiredTrios = 1)
+            )
+        )
     }
 
 
@@ -353,10 +359,46 @@ class GenerateObjectiveUseCaseTest {
                     diceCount = levelDefinition.diceCount,
                     stage = stageForLevel(level)
                 )
+                val selectedConditionsWithoutMinimum = objective.conditions.filterNot { it is MinSelectedDiceCondition }
+                val expectedObjectiveMinimum = minimumSelectionCountForObjectiveSet(
+                    stage = stageForLevel(level),
+                    diceCount = levelDefinition.diceCount,
+                    conditions = selectedConditionsWithoutMinimum
+                )
                 val minSelectedCondition = objective.conditions.filterIsInstance<MinSelectedDiceCondition>().single()
-                assertEquals(min(expectedMinSelected, levelDefinition.diceCount), minSelectedCondition.minCount)
+                val expectedMinimum = if (stageForLevel(level) <= 1) {
+                    min(expectedMinSelected, levelDefinition.diceCount)
+                } else {
+                    expectedObjectiveMinimum
+                }
+                assertEquals(expectedMinimum, minSelectedCondition.minCount)
             }
         }
+    }
+
+    @Test
+    fun `objective minimum selection for later stages is max requirement plus two bounded by dice count`() {
+        val minSelection = minimumSelectionCountForObjectiveSet(
+            stage = 3,
+            diceCount = 7,
+            conditions = listOf(
+                HasPairCondition(requiredPairs = 2),
+                SumExactCondition(target = 12)
+            )
+        )
+
+        assertEquals(6, minSelection)
+    }
+
+    @Test
+    fun `objective minimum selection for first stage keeps legacy rule`() {
+        val minSelection = minimumSelectionCountForObjectiveSet(
+            stage = 1,
+            diceCount = 8,
+            conditions = listOf(HasThreeOfKindCondition(requiredTrios = 2))
+        )
+
+        assertEquals(minimumSelectionCountForLevel(diceCount = 8, stage = 1), minSelection)
     }
 
 }

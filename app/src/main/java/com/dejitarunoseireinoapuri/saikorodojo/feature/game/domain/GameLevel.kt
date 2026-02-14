@@ -269,10 +269,6 @@ class GenerateObjectiveUseCase {
             stage <= 4 -> 2
             else -> 3
         }
-        val minimumSelectionCount = minimumSelectionCountForLevel(
-            diceCount = diceCount,
-            stage = stage
-        )
         repeat(OBJECTIVE_GENERATION_MAX_ATTEMPTS) {
             val primaryCondition = selectPrimaryCondition(candidates, random)
             val selectedConditions = buildList {
@@ -286,6 +282,11 @@ class GenerateObjectiveUseCase {
                         }
                     }
             }
+            val minimumSelectionCount = minimumSelectionCountForObjectiveSet(
+                stage = stage,
+                diceCount = diceCount,
+                conditions = selectedConditions
+            )
 
             val enrichedConditions = selectedConditions.toMutableList().apply {
                 add(MinSelectedDiceCondition(minimumSelectionCount))
@@ -294,6 +295,10 @@ class GenerateObjectiveUseCase {
                 return LevelObjective(conditions = enrichedConditions)
             }
         }
+        val minimumSelectionCount = minimumSelectionCountForLevel(
+            diceCount = diceCount,
+            stage = stage
+        )
         return LevelObjective(
             conditions = buildDeterministicFallbackObjective(
                 minimumSelectionCount = minimumSelectionCount,
@@ -592,6 +597,11 @@ private fun areConditionsIncompatible(
     if (second is AllDistinctCondition && first is HasFourOfKindCondition && first.required) return true
     if (second is AllDistinctCondition && first is FullHouseCondition) return true
 
+    if (first is HasPairCondition && second is HasThreeOfKindCondition) return true
+    if (first is HasThreeOfKindCondition && second is HasPairCondition) return true
+    if (first is HasPairCondition && second is ThreeOfKindWithValueCondition) return true
+    if (first is ThreeOfKindWithValueCondition && second is HasPairCondition) return true
+
     val firstForbidden = (first as? ForbidValuesCondition)?.values?.toSet().orEmpty()
     val secondForbidden = (second as? ForbidValuesCondition)?.values?.toSet().orEmpty()
     val firstRequired = requiredValuesForCompatibility(first)
@@ -837,4 +847,21 @@ internal fun minimumSelectionCountForLevel(
     } else {
         baseMinimum
     }
+}
+
+internal fun minimumSelectionCountForObjectiveSet(
+    stage: Int,
+    diceCount: Int,
+    conditions: List<ObjectiveCondition>
+): Int {
+    if (stage <= 1) {
+        return minimumSelectionCountForLevel(diceCount = diceCount, stage = stage)
+    }
+    val minimumRequiredDice = conditions
+        .asSequence()
+        .map { minimumRequiredDice(it) }
+        .maxOrNull()
+        ?.coerceAtLeast(1)
+        ?: 1
+    return (minimumRequiredDice + 2).coerceAtMost(diceCount)
 }
