@@ -22,6 +22,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumMaxDiffere
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumMultipleCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.SumParityCondition
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.ThreeOfKindWithValueCondition
+import java.util.Locale
 
 internal fun shouldShowSelectedSum(conditions: List<ObjectiveCondition>): Boolean {
     return conditions.any { condition ->
@@ -268,10 +269,34 @@ internal fun objectiveLineExplainText(
 }
 
 internal fun formatValues(values: List<Int>): String {
-    return values.distinct().sorted().joinToString(", ")
+    val counts = values.distinct().sorted().associateWith { 1 }
+    return formatDiceRequirements(counts)
 }
 
 internal fun formatMultiplicity(values: List<Int>): String {
     val counts = values.groupingBy { it }.eachCount().toSortedMap()
-    return counts.entries.joinToString(", ") { (value, count) -> "${count}x$value" }
+    return formatDiceRequirements(counts)
+}
+
+private fun formatDiceRequirements(countsByValue: Map<Int, Int>): String {
+    val locale = Locale.getDefault().language
+    val requirements = countsByValue.entries.map { (value, count) ->
+        when (locale) {
+            "es" -> if (count == 1) "$count dado de $value" else "$count dados de $value"
+            "ca" -> if (count == 1) "$count dau de $value" else "$count daus de $value"
+            else -> if (count == 1) "$count die showing $value" else "$count dice showing $value"
+        }
+    }
+    return when (requirements.size) {
+        0 -> ""
+        1 -> requirements.first()
+        else -> {
+            val conjunction = when (locale) {
+                "es" -> " y "
+                "ca" -> " i "
+                else -> " and "
+            }
+            requirements.dropLast(1).joinToString(", ") + conjunction + requirements.last()
+        }
+    }
 }
