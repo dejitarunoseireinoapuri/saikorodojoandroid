@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
@@ -211,7 +213,14 @@ fun BlackjackGameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp),
+                .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp)
+                .then(
+                    if (!uiState.isStarted) {
+                        Modifier.verticalScroll(rememberScrollState())
+                    } else {
+                        Modifier
+                    }
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -304,24 +313,23 @@ fun BlackjackGameScreen(
                     )
                 }
             }
-        }
-
-        if (!uiState.isStarted) {
-            Button(
-                onClick = {
-                    onStartClick()
-                },
-                shape = RoundedCornerShape(20.dp),
-                colors = minigameButtonColors(),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .height(64.dp)
-                    .testTag(BLACKJACK_START_BUTTON_TAG)
-            ) {
-                Text(
-                    text = stringResource(R.string.blackjack_start),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
-                )
+            if (!uiState.isStarted) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = {
+                        onStartClick()
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = minigameButtonColors(),
+                    modifier = Modifier
+                        .height(64.dp)
+                        .testTag(BLACKJACK_START_BUTTON_TAG)
+                ) {
+                    Text(
+                        text = stringResource(R.string.blackjack_start),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+                    )
+                }
             }
         }
 

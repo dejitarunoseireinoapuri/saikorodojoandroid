@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
@@ -284,6 +286,13 @@ fun SequenceGameScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 24.dp)
+                .then(
+                    if (!uiState.isStarted) {
+                        Modifier.verticalScroll(rememberScrollState())
+                    } else {
+                        Modifier
+                    }
+                )
                 .graphicsLayer {
                     if (uiState.isStarted && !uiState.isComplete) {
                         translationY = -activeContentShiftPx
@@ -545,24 +554,21 @@ fun SequenceGameScreen(
                         }
                     }
                 }
-            }
-        }
-
-        if (!uiState.isStarted) {
-            Button(
-                onClick = {
-                    onStartClick()
-                },
-                shape = RoundedCornerShape(20.dp),
-                colors = minigameButtonColors(),
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .height(64.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.sequence_start),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
-                )
+            } else {
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = {
+                        onStartClick()
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = minigameButtonColors(),
+                    modifier = Modifier.height(64.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.sequence_start),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+                    )
+                }
             }
         }
 
