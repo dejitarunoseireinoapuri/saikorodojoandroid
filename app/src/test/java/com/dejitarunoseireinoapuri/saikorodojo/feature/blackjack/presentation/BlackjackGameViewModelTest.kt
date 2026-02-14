@@ -39,7 +39,6 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            forceInitialPlayerBlackjackForTesting = false,
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -67,7 +66,6 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            forceInitialPlayerBlackjackForTesting = false,
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -90,7 +88,7 @@ class BlackjackGameViewModelTest {
     fun `initial 21 wins automatically without dealer turn`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
-                TestDiceRoller(ArrayDeque(listOf(10, 1, 8)))
+                TestDiceRoller(ArrayDeque(listOf(10, 1, 8, 9)))
             ),
             calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
             determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
@@ -101,7 +99,6 @@ class BlackjackGameViewModelTest {
             rollAnimationMs = 0L,
             tickMs = 1L,
             rewardRevealDelayMs = 0L,
-            forceInitialPlayerBlackjackForTesting = true
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -129,7 +126,6 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 4L,
             tickMs = 2L,
-            forceInitialPlayerBlackjackForTesting = false,
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -162,7 +158,6 @@ class BlackjackGameViewModelTest {
             rollAnimationMs = 0L,
             tickMs = 1L,
             rewardRevealDelayMs = 1_000L,
-            forceInitialPlayerBlackjackForTesting = false
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -191,7 +186,6 @@ class BlackjackGameViewModelTest {
             rollAnimationMs = 0L,
             tickMs = 1L,
             rewardRevealDelayMs = 1_000L,
-            forceInitialPlayerBlackjackForTesting = false
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
