@@ -1,6 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -66,6 +67,11 @@ class SequenceGameScreenLogicTest {
     @Test
     fun `saved dice number y offset lowers bottom mat value`() {
         assertEquals(2.dp, sequenceSavedDiceNumberYOffset())
+    }
+
+    @Test
+    fun `saved dice number font size is reduced to avoid clipping`() {
+        assertEquals(18.sp, sequenceSavedDiceNumberFontSize())
     }
 
     @Test
