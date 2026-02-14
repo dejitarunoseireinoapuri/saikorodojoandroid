@@ -390,7 +390,7 @@ class GameViewModelTest {
 
 
     @Test
-    fun `open random minigame emits navigation effect`() = runTest {
+    fun `open random minigame emits blackjack navigation effect in testing mode`() = runTest {
         val viewModel = buildViewModel()
         val effects = mutableListOf<GameUiEffect>()
         val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -403,7 +403,7 @@ class GameViewModelTest {
 
         assertEquals(1, effects.size)
         val effect = effects.single() as GameUiEffect.NavigateToMinigame
-        assertTrue(MinigameType.entries.contains(effect.minigame))
+        assertEquals(MinigameType.BLACKJACK, effect.minigame)
         assertEquals(startingMinigames - 1, viewModel.uiState.value.minigamesAvailable)
         assertTrue(viewModel.uiState.value.isMinigameButtonLocked)
         collectorJob.cancel()

@@ -37,6 +37,7 @@ private const val DEFAULT_TICK_MS = 120L
 private const val DEFAULT_DEALER_STAND_TOTAL = 17
 private const val DEFAULT_REWARD_REVEAL_DELAY_MS = 1_000L
 private const val BLACKJACK_LIMIT = 21
+private const val FORCE_INITIAL_PLAYER_BLACKJACK_FOR_TESTING = true
 
 data class BlackjackGameUiState(
     val isStarted: Boolean = false,
@@ -86,7 +87,9 @@ class BlackjackGameViewModel(
     private val initialPlayerDice: Int = DEFAULT_INITIAL_PLAYER_DICE,
     private val initialDealerDice: Int = DEFAULT_INITIAL_DEALER_DICE,
     private val rewardRevealDelayMs: Long = DEFAULT_REWARD_REVEAL_DELAY_MS,
-    private val cardUiModels: List<CardUiModel> = defaultCardUiModels()
+    private val cardUiModels: List<CardUiModel> = defaultCardUiModels(),
+    private val forceInitialPlayerBlackjackForTesting: Boolean =
+        FORCE_INITIAL_PLAYER_BLACKJACK_FOR_TESTING
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(BlackjackGameUiState())
     val uiState: StateFlow<BlackjackGameUiState> = _uiState
@@ -167,6 +170,9 @@ class BlackjackGameViewModel(
                 if (rollAnimationMs > 0L) {
                     delay(tickMs)
                 }
+            }
+            if (forceInitialPlayerBlackjackForTesting) {
+                playerValues = listOf(10, 1)
             }
             updateDiceState(
                 playerValues = playerValues,

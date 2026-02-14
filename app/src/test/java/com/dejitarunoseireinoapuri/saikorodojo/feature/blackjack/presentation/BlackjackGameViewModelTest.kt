@@ -39,6 +39,7 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
+            forceInitialPlayerBlackjackForTesting = false,
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -66,6 +67,7 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
+            forceInitialPlayerBlackjackForTesting = false,
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -98,7 +100,8 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            rewardRevealDelayMs = 0L
+            rewardRevealDelayMs = 0L,
+            forceInitialPlayerBlackjackForTesting = true
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -126,6 +129,7 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 4L,
             tickMs = 2L,
+            forceInitialPlayerBlackjackForTesting = false,
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -157,7 +161,8 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            rewardRevealDelayMs = 1_000L
+            rewardRevealDelayMs = 1_000L,
+            forceInitialPlayerBlackjackForTesting = false
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
@@ -185,7 +190,8 @@ class BlackjackGameViewModelTest {
             dispatcher = mainDispatcherRule.dispatcher,
             rollAnimationMs = 0L,
             tickMs = 1L,
-            rewardRevealDelayMs = 1_000L
+            rewardRevealDelayMs = 1_000L,
+            forceInitialPlayerBlackjackForTesting = false
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)

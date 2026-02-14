@@ -171,7 +171,8 @@ class MinigameSessionClearingTest {
             dealerStandTotal = 0,
             initialPlayerDice = 1,
             initialDealerDice = 1,
-            rewardRevealDelayMs = 0L
+            rewardRevealDelayMs = 0L,
+            forceInitialPlayerBlackjackForTesting = false
         )
 
         viewModel.onEvent(BlackjackGameUiEvent.StartGame)
