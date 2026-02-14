@@ -817,7 +817,7 @@ private fun SequenceChoiceButton(
             text = label,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+                fontSize = 18.sp
             ),
             maxLines = 1,
             softWrap = false,
