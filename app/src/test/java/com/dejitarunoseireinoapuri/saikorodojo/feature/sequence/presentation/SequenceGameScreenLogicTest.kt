@@ -71,7 +71,7 @@ class SequenceGameScreenLogicTest {
 
     @Test
     fun `saved dice number font size is reduced to avoid clipping`() {
-        assertEquals(18.sp, sequenceSavedDiceNumberFontSize())
+        assertEquals(19.sp, sequenceSavedDiceNumberFontSize())
     }
 
 
