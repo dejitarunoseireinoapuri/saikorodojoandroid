@@ -186,5 +186,5 @@ Pots acumular fins a 99 intents de minijoc.</string>
     <string name="rules_minigame_sequence_body">Has de formar una seqüència no decreixent de 3 daus, on cada valor sigui igual o més alt que l’anterior.\nDesprés de cada ronda decideixes si conservar o descartar el dau mostrat.\nTens 5 rondes per completar-la.</string>
 
     <string name="rules_minigame_blackjack_title">Blackjack</string>
-    <string name="rules_minigame_blackjack_body">Objectiu: acostar-te a 21 sense passar-te.\nComences amb una tirada inicial i després decideixes si demanar (tirar un dau addicional de 10 cares) o plantar-te.\nDesprés juga la banca i es planta amb 17 o més.\nSi hi ha empat, guanya la banca.\nL’1 compta com a 1 o 11, el que convingui més.</string>
+    <string name="rules_minigame_blackjack_body">Objectiu: acostar-te a 21 sense passar-te.\nComences amb una tirada inicial i després decideixes si demanar (tirar un dau addicional de 10 cares) o plantar-te.\nSi la teva tirada inicial suma 21, guanyes automàticament.\nDesprés juga la banca i es planta amb 17 o més.\nSi hi ha empat, guanya la banca.\nL’1 compta com a 1 o 11, el que convingui més.</string>
 </resources>

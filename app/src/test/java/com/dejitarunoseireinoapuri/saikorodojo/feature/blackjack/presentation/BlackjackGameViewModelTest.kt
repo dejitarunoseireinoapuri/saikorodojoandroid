@@ -83,6 +83,35 @@ class BlackjackGameViewModelTest {
         )
     }
 
+
+    @Test
+    fun `initial 21 wins automatically without dealer turn`() = runTest {
+        val viewModel = BlackjackGameViewModel(
+            rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
+                TestDiceRoller(ArrayDeque(listOf(10, 1, 8)))
+            ),
+            calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
+            determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
+            selectMinigameRewardCardsUseCase = SelectMinigameRewardCardsUseCase(
+                TestRewardRandomProvider(listOf(0.4f, 0.2f, 0.3f))
+            ),
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollAnimationMs = 0L,
+            tickMs = 1L,
+            rewardRevealDelayMs = 0L
+        )
+
+        viewModel.onEvent(BlackjackGameUiEvent.StartGame)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(21, state.playerTotal)
+        assertEquals(BlackjackOutcome.PLAYER_WIN, state.result)
+        assertTrue(state.isComplete)
+        assertFalse(state.isAwaitingDecision)
+        assertFalse(state.isDealerTurn)
+    }
+
     @Test
     fun `scores update after dice animation completes`() = runTest {
         val viewModel = BlackjackGameViewModel(
