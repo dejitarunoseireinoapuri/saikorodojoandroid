@@ -23,7 +23,7 @@
     <string name="select_dice_to_reroll">Selecciona els daus per tornar a tirar</string>
     <string name="select_die_to_flip">Selecciona un dau per capgirar</string>
     <string name="select_die_to_modify">Selecciona un dau per modificar</string>
-    <string name="apply">Usar</string>
+    <string name="apply">Utilitzar</string>
 
     <string name="card_adjust_plus_minus_one_title">Ajustar ±1</string>
     <string name="card_adjust_plus_minus_one_description">Augmenta o redueix el valor del dau en 1</string>
