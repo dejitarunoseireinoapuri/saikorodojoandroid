@@ -26,9 +26,9 @@
     <string name="apply">Use</string>
 
     <string name="card_adjust_plus_minus_one_title">Adjust ±1</string>
-    <string name="card_adjust_plus_minus_one_description">Increase or decrease a die value by 1</string>
+    <string name="card_adjust_plus_minus_one_description">Increase or decrease a die\'s value by 1</string>
     <string name="card_flip_face_title">Flip die</string>
-    <string name="card_flip_face_description">Invert the die value</string>
+    <string name="card_flip_face_description">Invert a die\'s value</string>
     <string name="card_reroll_single_title">Reroll one</string>
     <string name="card_reroll_single_description">Choose a die and roll it again</string>
     <string name="card_reroll_all_title">Reroll several</string>

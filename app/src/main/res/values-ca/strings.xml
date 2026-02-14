@@ -26,9 +26,9 @@
     <string name="apply">Utilitzar</string>
 
     <string name="card_adjust_plus_minus_one_title">Ajustar ±1</string>
-    <string name="card_adjust_plus_minus_one_description">Augmenta o redueix el valor del dau en 1</string>
+    <string name="card_adjust_plus_minus_one_description">Augmenta o redueix el valor d\'un dau en 1</string>
     <string name="card_flip_face_title">Capgirar dau</string>
-    <string name="card_flip_face_description">Inverteix el valor del dau</string>
+    <string name="card_flip_face_description">Inverteix el valor d\'un dau</string>
     <string name="card_reroll_single_title">Tornar a tirar-ne un</string>
     <string name="card_reroll_single_description">Tria un dau i torna’l a tirar</string>
     <string name="card_reroll_all_title">Tornar a tirar-ne diversos</string>

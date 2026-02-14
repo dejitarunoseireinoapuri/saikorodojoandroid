@@ -26,9 +26,9 @@
     <string name="apply">Usar</string>
 
     <string name="card_adjust_plus_minus_one_title">Ajustar ±1</string>
-    <string name="card_adjust_plus_minus_one_description">Aumenta o reduce el valor del dado en 1</string>
+    <string name="card_adjust_plus_minus_one_description">Aumenta o reduce el valor de un dado en 1</string>
     <string name="card_flip_face_title">Voltear dado</string>
-    <string name="card_flip_face_description">Invierte el valor del dado</string>
+    <string name="card_flip_face_description">Invierte el valor de un dado</string>
     <string name="card_reroll_single_title">Relanzar uno</string>
     <string name="card_reroll_single_description">Elige un dado y vuelve a lanzarlo</string>
     <string name="card_reroll_all_title">Relanzar varios</string>
