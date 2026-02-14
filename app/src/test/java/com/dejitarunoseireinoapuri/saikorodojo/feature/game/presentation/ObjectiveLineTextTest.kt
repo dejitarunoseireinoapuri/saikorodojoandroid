@@ -159,7 +159,7 @@ class ObjectiveLineTextTest {
     @Test
     fun `format multiplicity uses natural sentence in english`() {
         withDefaultLocale(Locale.ENGLISH) {
-            val result = formatMultiplicity(listOf(1, 4, 4))
+            val result = formatMultiplicityExplain(listOf(1, 4, 4))
 
             assertEquals("1 die showing 1 and 2 dice showing 4", result)
         }
@@ -168,7 +168,7 @@ class ObjectiveLineTextTest {
     @Test
     fun `format multiplicity uses natural sentence in spanish`() {
         withDefaultLocale(Locale("es")) {
-            val result = formatMultiplicity(listOf(1, 4, 4))
+            val result = formatMultiplicityExplain(listOf(1, 4, 4))
 
             assertEquals("1 dado de 1 y 2 dados de 4", result)
         }
@@ -177,7 +177,7 @@ class ObjectiveLineTextTest {
     @Test
     fun `format multiplicity uses natural sentence in catalan`() {
         withDefaultLocale(Locale("ca")) {
-            val result = formatMultiplicity(listOf(1, 4, 4))
+            val result = formatMultiplicityExplain(listOf(1, 4, 4))
 
             assertEquals("1 dau de 1 i 2 daus de 4", result)
         }
@@ -186,10 +186,25 @@ class ObjectiveLineTextTest {
     @Test
     fun `format values keeps singular noun when only one value is required`() {
         withDefaultLocale(Locale.ENGLISH) {
-            val result = formatValues(listOf(2, 2, 2))
+            val result = formatValuesExplain(listOf(2, 2, 2))
 
             assertEquals("1 die showing 2", result)
         }
+    }
+
+
+    @Test
+    fun `format multiplicity compact keeps legacy format`() {
+        val result = formatMultiplicityCompact(listOf(1, 4, 4))
+
+        assertEquals("1x1, 2x4", result)
+    }
+
+    @Test
+    fun `format values compact keeps legacy format`() {
+        val result = formatValuesCompact(listOf(4, 1, 4))
+
+        assertEquals("1, 4", result)
     }
 
     private fun withDefaultLocale(locale: Locale, block: () -> Unit) {

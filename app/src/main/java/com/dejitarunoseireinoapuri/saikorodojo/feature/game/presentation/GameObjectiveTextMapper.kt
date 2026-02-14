@@ -116,21 +116,21 @@ internal fun objectiveLineText(condition: ObjectiveCondition): ObjectiveLineText
         is ContainsValuesCondition -> {
             ObjectiveLineText.StringRes(
                 resId = R.string.objective_contains_values,
-                formatArgs = listOf(formatValues(condition.values))
+                formatArgs = listOf(formatValuesCompact(condition.values))
             )
         }
 
         is ContainsValuesWithMultiplicityCondition -> {
             ObjectiveLineText.StringRes(
                 resId = R.string.objective_contains_values,
-                formatArgs = listOf(formatMultiplicity(condition.values))
+                formatArgs = listOf(formatMultiplicityCompact(condition.values))
             )
         }
 
         is ForbidValuesCondition -> {
             ObjectiveLineText.StringRes(
                 resId = R.string.objective_forbid_values,
-                formatArgs = listOf(formatValues(condition.values))
+                formatArgs = listOf(formatValuesCompact(condition.values))
             )
         }
 
@@ -237,17 +237,17 @@ internal fun objectiveLineExplainText(
         )
         is ContainsValuesCondition -> ObjectiveLineText.StringRes(
             resId = R.string.objective_contains_values_explain,
-            formatArgs = listOf(formatValues(condition.values))
+            formatArgs = listOf(formatValuesExplain(condition.values))
         )
 
         is ContainsValuesWithMultiplicityCondition -> ObjectiveLineText.StringRes(
             resId = R.string.objective_contains_values_explain,
-            formatArgs = listOf(formatMultiplicity(condition.values))
+            formatArgs = listOf(formatMultiplicityExplain(condition.values))
         )
 
         is ForbidValuesCondition -> ObjectiveLineText.StringRes(
             resId = R.string.objective_forbid_values_explain,
-            formatArgs = listOf(formatValues(condition.values))
+            formatArgs = listOf(formatValuesExplain(condition.values))
         )
 
         is MinSelectedDiceCondition -> null
@@ -268,12 +268,21 @@ internal fun objectiveLineExplainText(
     }
 }
 
-internal fun formatValues(values: List<Int>): String {
+internal fun formatValuesCompact(values: List<Int>): String {
+    return values.distinct().sorted().joinToString(", ")
+}
+
+internal fun formatMultiplicityCompact(values: List<Int>): String {
+    val counts = values.groupingBy { it }.eachCount().toSortedMap()
+    return counts.entries.joinToString(", ") { (value, count) -> "${count}x$value" }
+}
+
+internal fun formatValuesExplain(values: List<Int>): String {
     val counts = values.distinct().sorted().associateWith { 1 }
     return formatDiceRequirements(counts)
 }
 
-internal fun formatMultiplicity(values: List<Int>): String {
+internal fun formatMultiplicityExplain(values: List<Int>): String {
     val counts = values.groupingBy { it }.eachCount().toSortedMap()
     return formatDiceRequirements(counts)
 }
