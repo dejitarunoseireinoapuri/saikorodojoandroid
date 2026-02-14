@@ -176,6 +176,21 @@ class BlackjackGameViewModel(
                 updateTotals = true,
                 isPlayerTurn = true
             )
+            val playerTotal = calculateBlackjackScoreUseCase.execute(playerValues)
+            if (playerTotal == BLACKJACK_LIMIT) {
+                _uiState.update {
+                    it.copy(
+                        isAwaitingDecision = false,
+                        isPlayerTurn = false
+                    )
+                }
+                resolveRoundResult(
+                    playerTotal = playerTotal,
+                    dealerTotal = _uiState.value.dealerTotal,
+                    isPlayerBust = false,
+                    isDealerBust = false
+                )
+            }
         }
     }
 

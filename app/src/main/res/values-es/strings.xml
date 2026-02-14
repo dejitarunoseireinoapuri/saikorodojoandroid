@@ -186,5 +186,5 @@ Puedes acumular hasta 99 intentos de minijuego.</string>
     <string name="rules_minigame_sequence_body">Debes formar una secuencia no decreciente de 3 dados, donde cada valor sea igual o mayor que el anterior.\nDespués de cada ronda decides si conservar o descartar el dado mostrado.\nTienes 5 rondas para completarla.</string>
 
     <string name="rules_minigame_blackjack_title">Blackjack</string>
-    <string name="rules_minigame_blackjack_body">Objetivo: acercarte a 21 sin pasarte.\nEmpiezas con una tirada inicial y luego decides si pedir (tirar un dado adicional de 10 caras) o plantarte.\nDespués juega la banca y se planta con 17 o más.\nSi hay empate, gana la banca.\nEl 1 cuenta como 1 u 11, lo que más convenga.</string>
+    <string name="rules_minigame_blackjack_body">Objetivo: acercarte a 21 sin pasarte.\nEmpiezas con una tirada inicial y luego decides si pedir (tirar un dado adicional de 10 caras) o plantarte.\nSi tu tirada inicial suma 21, ganas automáticamente.\nDespués juega la banca y se planta con 17 o más.\nSi hay empate, gana la banca.\nEl 1 cuenta como 1 u 11, lo que más convenga.</string>
 </resources>

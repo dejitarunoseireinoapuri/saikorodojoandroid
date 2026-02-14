@@ -186,5 +186,5 @@ You can store up to 99 minigame attempts.</string>
     <string name="rules_minigame_sequence_body">You must form a non-decreasing sequence of 3 dice, where each value is equal to or higher than the previous one.\nAfter each round you decide whether to keep or discard the shown die.\nYou have 5 rounds to complete it.</string>
 
     <string name="rules_minigame_blackjack_title">Blackjack</string>
-    <string name="rules_minigame_blackjack_body">Goal: get close to 21 without going over.\nYou start with an initial roll and then decide whether to hit (roll an additional 10-sided die) or stand.\nThen the dealer plays and stands on 17 or more.\nIf there is a tie, the dealer wins.\nA 1 counts as 1 or 11, whichever is best.</string>
+    <string name="rules_minigame_blackjack_body">Goal: get close to 21 without going over.\nYou start with an initial roll and then decide whether to hit (roll an additional 10-sided die) or stand.\nIf your initial roll totals 21, you win automatically.\nThen the dealer plays and stands on 17 or more.\nIf there is a tie, the dealer wins.\nA 1 counts as 1 or 11, whichever is best.</string>
 </resources>
