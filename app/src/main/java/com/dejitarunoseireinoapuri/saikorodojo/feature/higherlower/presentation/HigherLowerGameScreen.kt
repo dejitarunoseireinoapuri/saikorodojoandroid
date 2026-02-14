@@ -237,6 +237,7 @@ fun HigherLowerGameScreen(
             val titleColor = MaterialTheme.colorScheme.onBackground
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.hasLoss && uiState.isComplete
+            val showStartButton = !uiState.isStarted && !uiState.isComplete && !hasReward
             val showRules = !uiState.isStarted
             val rulesModifier = if (showRules) {
                 Modifier
@@ -355,7 +356,7 @@ fun HigherLowerGameScreen(
                         }
                     }
                 }
-            } else {
+            } else if (showStartButton) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = {

@@ -304,6 +304,7 @@ fun SequenceGameScreen(
             Spacer(modifier = Modifier.height(8.dp))
             val titleColor = MaterialTheme.colorScheme.onBackground
             val showRules = !uiState.isStarted
+            val showStartButton = !uiState.isStarted && !uiState.isComplete && !hasReward && !hasPendingReward
             val rulesModifier = if (showRules) {
                 Modifier
             } else {
@@ -555,7 +556,7 @@ fun SequenceGameScreen(
                         }
                     }
                 }
-            } else {
+            } else if (showStartButton) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = {

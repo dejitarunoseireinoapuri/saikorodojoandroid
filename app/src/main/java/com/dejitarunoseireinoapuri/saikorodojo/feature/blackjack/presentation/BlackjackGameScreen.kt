@@ -237,6 +237,7 @@ fun BlackjackGameScreen(
                 defaultColor = titleColor
             )
             val hasReward = uiState.rewardCards.isNotEmpty()
+            val showStartButton = !uiState.isStarted && !uiState.isComplete && !hasReward
             val showRules = !uiState.isStarted
             val rulesModifier = if (showRules) {
                 Modifier
@@ -314,7 +315,7 @@ fun BlackjackGameScreen(
                     )
                 }
             }
-            if (!uiState.isStarted) {
+            if (showStartButton) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = {
