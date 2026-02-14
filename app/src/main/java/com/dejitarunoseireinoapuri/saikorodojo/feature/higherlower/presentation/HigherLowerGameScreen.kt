@@ -367,7 +367,7 @@ fun HigherLowerGameScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.higher_lower_start),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
                         maxLines = 1,
                         softWrap = false,
                         overflow = TextOverflow.Ellipsis
@@ -547,7 +547,7 @@ fun HigherLowerGameScreen(
                     text = stringResource(R.string.odd_even_continue),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        fontSize = 20.sp
                     ),
                     maxLines = 1,
                     softWrap = false,
