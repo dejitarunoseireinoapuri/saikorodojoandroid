@@ -65,13 +65,13 @@ class SequenceGameScreenLogicTest {
     }
 
     @Test
-    fun `saved dice number y offset lowers bottom mat value`() {
-        assertEquals(2.dp, sequenceSavedDiceNumberYOffset())
+    fun `saved dice number y offset matches original position`() {
+        assertEquals(0.dp, sequenceSavedDiceNumberYOffset())
     }
 
     @Test
-    fun `saved dice number font size is reduced to avoid clipping`() {
-        assertEquals(19.sp, sequenceSavedDiceNumberFontSize())
+    fun `saved dice number font size is larger for readability`() {
+        assertEquals(24.sp, sequenceSavedDiceNumberFontSize())
     }
 
 

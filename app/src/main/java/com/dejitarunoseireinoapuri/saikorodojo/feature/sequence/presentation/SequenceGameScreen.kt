@@ -95,8 +95,8 @@ internal fun sequenceDecisionActionOrder(): List<SequenceDecisionAction> = listO
 )
 
 internal fun sequenceDiceNumberYOffset(): Dp = 0.dp
-internal fun sequenceSavedDiceNumberYOffset(): Dp = 2.dp
-internal fun sequenceSavedDiceNumberFontSize() = 19.sp
+internal fun sequenceSavedDiceNumberYOffset(): Dp = 0.dp
+internal fun sequenceSavedDiceNumberFontSize() = 24.sp
 internal const val SEQUENCE_SAVED_MAT_TAG = "sequence_saved_mat"
 internal const val SEQUENCE_REWARD_STACK_TAG = "sequence_reward_stack"
 private const val SEQUENCE_SAVE_ANIMATION_MS = 320
