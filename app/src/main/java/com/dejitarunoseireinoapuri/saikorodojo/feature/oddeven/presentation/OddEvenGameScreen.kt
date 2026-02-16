@@ -75,7 +75,6 @@ internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
 internal const val ODD_EVEN_CONTINUE_BUTTON_TAG = "odd_even_continue_button"
 internal const val ODD_EVEN_REWARD_STACK_TAG = "odd_even_reward_stack"
 internal val ODD_EVEN_DICE_SIZE = 150.dp
-internal val ODD_EVEN_DICE_OFFSET_Y = 120.dp
 
 @Composable
 fun OddEvenGameRoute(
@@ -338,7 +337,6 @@ fun OddEvenGameScreen(
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .offset(y = ODD_EVEN_DICE_OFFSET_Y)
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

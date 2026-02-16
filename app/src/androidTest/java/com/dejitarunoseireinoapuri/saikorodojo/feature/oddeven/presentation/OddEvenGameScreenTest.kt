@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
@@ -20,6 +21,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import kotlin.math.abs
 
 class OddEvenGameScreenTest {
     @get:Rule
@@ -75,7 +77,7 @@ class OddEvenGameScreenTest {
 
 
     @Test
-    fun lossStateKeepsDiceAtSameVerticalPositionAsActiveRound() {
+    fun diceStaysCenteredInPlayingAndLossStates() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(
@@ -93,10 +95,12 @@ class OddEvenGameScreenTest {
             }
         }
 
-        val playingTop = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
+        val rootCenterYInPlaying = composeTestRule.onRoot().fetchSemanticsNode().boundsInRoot.center.y
+        val diceCenterYInPlaying = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
             .fetchSemanticsNode()
             .boundsInRoot
-            .top
+            .center
+            .y
 
         composeTestRule.setContent {
             SaikoroDojoTheme {
@@ -115,12 +119,16 @@ class OddEvenGameScreenTest {
             }
         }
 
-        val lossTop = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
+        val rootCenterYInLoss = composeTestRule.onRoot().fetchSemanticsNode().boundsInRoot.center.y
+        val diceCenterYInLoss = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
             .fetchSemanticsNode()
             .boundsInRoot
-            .top
+            .center
+            .y
 
-        assertEquals(playingTop, lossTop)
+        val tolerance = with(composeTestRule.density) { 2.dp.toPx() }
+        assertTrue(abs(diceCenterYInPlaying - rootCenterYInPlaying) <= tolerance)
+        assertTrue(abs(diceCenterYInLoss - rootCenterYInLoss) <= tolerance)
     }
 
     @Test
