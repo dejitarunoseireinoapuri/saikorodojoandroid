@@ -3,9 +3,8 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
@@ -189,7 +188,7 @@ class GameScreenTest {
             }
         }
 
-        composeRule.onNodeWithTag(GAME_MINIGAMES_BADGE_ICON_TAG).assertExists()
-        composeRule.onNodeWithTag(GAME_MINIGAMES_BADGE_COUNT_TAG).assertExists()
+        composeRule.onAllNodesWithTag(GAME_MINIGAMES_BADGE_ICON_TAG).assertCountEquals(1)
+        composeRule.onAllNodesWithTag(GAME_MINIGAMES_BADGE_COUNT_TAG).assertCountEquals(1)
     }
 }
