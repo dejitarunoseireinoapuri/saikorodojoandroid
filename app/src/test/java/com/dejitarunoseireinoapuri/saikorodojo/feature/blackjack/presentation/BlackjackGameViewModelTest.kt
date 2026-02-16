@@ -53,10 +53,10 @@ class BlackjackGameViewModelTest {
     }
 
     @Test
-    fun `blackjack win grants reward cards`() = runTest {
+    fun `player win grants reward cards`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
-                TestDiceRoller(ArrayDeque(listOf(10, 1, 8, 9)))
+                TestDiceRoller(ArrayDeque(listOf(10, 10, 8, 9)))
             ),
             calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
             determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),
@@ -175,7 +175,7 @@ class BlackjackGameViewModelTest {
     fun `win outcome highlights player mat before revealing rewards`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
-                TestDiceRoller(ArrayDeque(listOf(10, 1, 8, 9)))
+                TestDiceRoller(ArrayDeque(listOf(10, 10, 8, 9)))
             ),
             calculateBlackjackScoreUseCase = CalculateBlackjackScoreUseCase(),
             determineBlackjackOutcomeUseCase = DetermineBlackjackOutcomeUseCase(),

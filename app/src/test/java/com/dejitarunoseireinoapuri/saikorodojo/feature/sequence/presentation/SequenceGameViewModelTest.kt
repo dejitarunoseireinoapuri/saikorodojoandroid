@@ -173,7 +173,7 @@ class SequenceGameViewModelTest {
     }
 
     @Test
-    fun `losing after discarding last die keeps last rolled die on upper mat`() = runTest {
+    fun `losing by unreachable target after discard keeps current die on upper mat disabled`() = runTest {
         val viewModel = buildViewModel(
             diceRolls = listOf(2, 6, 8, 9, 4),
             totalRolls = 5,
@@ -203,8 +203,8 @@ class SequenceGameViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.isComplete)
         assertEquals(SequenceFailureReason.ROUNDS, state.failureReason)
-        assertEquals(4, state.diceValue)
-        assertTrue(state.keepTopDieOnFailure)
+        assertEquals(9, state.diceValue)
+        assertFalse(state.keepTopDieOnFailure)
         assertNull(state.failureDieValue)
     }
 
