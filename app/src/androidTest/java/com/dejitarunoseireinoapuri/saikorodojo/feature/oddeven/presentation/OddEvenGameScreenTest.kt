@@ -1,6 +1,9 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.graphics.toPixelMap
@@ -9,6 +12,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaultCardUiModels
@@ -20,6 +24,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import kotlin.math.abs
 
 class OddEvenGameScreenTest {
     @get:Rule
@@ -50,7 +55,7 @@ class OddEvenGameScreenTest {
     }
 
     @Test
-    fun lossStateHidesDiceAndShowsContinueButton() {
+    fun lossStateShowsDiceAndContinueButton() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(
@@ -68,8 +73,98 @@ class OddEvenGameScreenTest {
             }
         }
 
-        composeTestRule.onAllNodesWithTag(ODD_EVEN_DICE_TAG).assertCountEquals(0)
+        composeTestRule.onAllNodesWithTag(ODD_EVEN_DICE_TAG).assertCountEquals(1)
         composeTestRule.onNodeWithTag(ODD_EVEN_CONTINUE_BUTTON_TAG).assertIsDisplayed()
+    }
+
+
+
+    @Test
+    fun diceStaysCenteredInPlayingAndLossStates() {
+        var uiState by mutableStateOf(
+            OddEvenGameUiState(
+                isStarted = true,
+                isComplete = false,
+                currentRound = 1,
+                totalRounds = 3
+            )
+        )
+
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = uiState,
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {},
+                    onExitToMenu = {}
+                )
+            }
+        }
+
+        val rootCenterYInPlaying = composeTestRule.onRoot().fetchSemanticsNode().boundsInRoot.center.y
+        val diceCenterYInPlaying = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+            .center
+            .y
+
+        composeTestRule.runOnIdle {
+            uiState = uiState.copy(
+                isComplete = true,
+                diceValue = 4,
+                rewardCards = emptyList()
+            )
+        }
+
+        val rootCenterYInLoss = composeTestRule.onRoot().fetchSemanticsNode().boundsInRoot.center.y
+        val diceCenterYInLoss = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+            .center
+            .y
+
+        val tolerance = with(composeTestRule.density) { 2.dp.toPx() }
+        assertTrue(abs(diceCenterYInPlaying - rootCenterYInPlaying) <= tolerance)
+        assertTrue(abs(diceCenterYInLoss - rootCenterYInLoss) <= tolerance)
+    }
+
+    @Test
+    fun choicesAndStatusRenderAboveDiceInRequestedOrder() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        currentRound = 1,
+                        totalRounds = 3,
+                        correctCount = 1,
+                        targetCorrect = 3
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {},
+                    onExitToMenu = {}
+                )
+            }
+        }
+
+        val roundBounds = composeTestRule.onNodeWithTag(ODD_EVEN_ROUND_STATUS_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val hitsBounds = composeTestRule.onNodeWithTag(ODD_EVEN_HITS_STATUS_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val choiceBounds = composeTestRule.onNodeWithTag(ODD_EVEN_CHOICE_ROW_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val diceBounds = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+
+        assertTrue(roundBounds.bottom < hitsBounds.top)
+        assertTrue(hitsBounds.bottom < choiceBounds.top)
+        assertTrue(choiceBounds.bottom < diceBounds.top)
     }
 
     @Test
@@ -148,7 +243,7 @@ class OddEvenGameScreenTest {
 
     @Test
     fun rulesTextIsHiddenAfterStart() {
-        val subtitle = composeTestRule.activity.getString(R.string.odd_even_subtitle)
+        val subtitle = composeTestRule.activity.getString(R.string.rules_minigame_odd_even_body)
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(

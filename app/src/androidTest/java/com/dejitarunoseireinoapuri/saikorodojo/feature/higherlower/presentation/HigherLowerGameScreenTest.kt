@@ -19,7 +19,7 @@ class HigherLowerGameScreenTest {
 
     @Test
     fun rulesTextIsHiddenAfterStart() {
-        val subtitle = composeTestRule.activity.getString(R.string.higher_lower_subtitle)
+        val subtitle = composeTestRule.activity.getString(R.string.rules_minigame_higher_lower_body)
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 HigherLowerGameScreen(

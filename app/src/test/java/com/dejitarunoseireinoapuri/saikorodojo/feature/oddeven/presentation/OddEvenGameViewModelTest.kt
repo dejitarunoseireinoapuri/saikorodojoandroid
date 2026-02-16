@@ -7,11 +7,26 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.runCurrent
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OddEvenGameViewModelTest {
+
+    @Test
+    fun startsWithSevenRoundsByDefault() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val viewModel = OddEvenGameViewModel(
+            dispatcher = testDispatcher,
+            rollAnimationMs = 0L,
+            resultAnimationMs = 0L,
+            tickMs = 1L
+        )
+
+        assertEquals(7, viewModel.uiState.value.totalRounds)
+    }
+
     @Test
     fun completesImmediatelyWhenWinIsImpossibleAfterALoss() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
