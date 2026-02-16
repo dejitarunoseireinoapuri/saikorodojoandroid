@@ -78,6 +78,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.ui.platform.LocalContext
@@ -788,6 +789,7 @@ private fun MinigamesAvailableBadge(
     onClick: () -> Unit
 ) {
     val badgeContentDescription = stringResource(R.string.cd_minigames_available)
+    val badgeShape = RoundedCornerShape(18.dp)
     Box(
         modifier = Modifier
             .padding(end = 4.dp)
@@ -795,28 +797,43 @@ private fun MinigamesAvailableBadge(
             .defaultMinSize(minWidth = 36.dp)
             .animateContentSize()
             .semantics { contentDescription = badgeContentDescription }
+            .background(
+                color = Color.White.copy(alpha = 0.16f),
+                shape = badgeShape
+            )
             .border(
                 width = 1.5.dp,
                 color = Color.White,
-                shape = RoundedCornerShape(percent = 50)
+                shape = badgeShape
             )
             .alpha(if (isLocked) 0.55f else 1f)
-            .clickable(
-                enabled = !isLocked,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
+            .clickable(enabled = !isLocked) {
                 onClick()
             }
-            .padding(horizontal = 14.dp),
+            .padding(horizontal = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = minigamesAvailable.toString(),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color.White
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Casino,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = minigameAvailabilityLabel(minigamesAvailable),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color.White
+            )
+        }
     }
+}
+
+internal fun minigameAvailabilityLabel(minigamesAvailable: Int): String {
+    return "x$minigamesAvailable"
 }
 
 @Composable

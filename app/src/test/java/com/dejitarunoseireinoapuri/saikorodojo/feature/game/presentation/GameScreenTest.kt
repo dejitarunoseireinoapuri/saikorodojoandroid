@@ -214,6 +214,13 @@ class GameScreenTest {
 
         assertEquals(208.dp, startX)
     }
+
+    @Test
+    fun `minigame availability label includes x prefix`() {
+        val label = minigameAvailabilityLabel(7)
+
+        assertEquals("x7", label)
+    }
 }
 
 private fun overlaps(
