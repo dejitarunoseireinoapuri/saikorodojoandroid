@@ -21,10 +21,12 @@ La experiencia principal se basa en:
   - `targetSdk = 36`
   - `compileSdk = 36`
 
-### UI y arquitectura
+### UI
 - **Jetpack Compose** para la interfaz
 - **Material 3** para componentes visuales
 - **Navigation Compose** para navegación
+
+### Arquitectura
 - **MVVM** para estado y lógica de presentación
 - **Clean Architecture** para separación de responsabilidades
 - Enfoque técnico con capas `presentation`, `domain` y `data` para mantener una base escalable y mantenible
