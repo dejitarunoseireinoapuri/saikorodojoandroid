@@ -77,7 +77,7 @@ class OddEvenGameScreenTest {
 
 
     @Test
-    fun diceStaysCenteredInPlayingAndLossStates() {
+    fun lossStateCentersDiceAndPlayingStateKeepsLowerOffset() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(
@@ -127,7 +127,9 @@ class OddEvenGameScreenTest {
             .y
 
         val tolerance = with(composeTestRule.density) { 2.dp.toPx() }
-        assertTrue(abs(diceCenterYInPlaying - rootCenterYInPlaying) <= tolerance)
+        val expectedPlayingOffset = with(composeTestRule.density) { ODD_EVEN_DICE_OFFSET_Y.toPx() }
+
+        assertTrue(abs((diceCenterYInPlaying - rootCenterYInPlaying) - expectedPlayingOffset) <= tolerance)
         assertTrue(abs(diceCenterYInLoss - rootCenterYInLoss) <= tolerance)
     }
 
