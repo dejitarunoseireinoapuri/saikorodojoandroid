@@ -71,7 +71,6 @@ class MinigameSessionClearingTest {
             rollAnimationMs = 0L,
             resultAnimationMs = 0L,
             tickMs = 1L,
-            lossMessageDelayMs = 0L,
             totalRounds = 1,
             targetCorrect = 1
         )
