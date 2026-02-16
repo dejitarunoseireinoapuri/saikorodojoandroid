@@ -214,6 +214,35 @@ class GameScreenTest {
 
         assertEquals(208.dp, startX)
     }
+
+    @Test
+    fun `minigame availability label returns plain number`() {
+        val label = minigameAvailabilityLabel(7)
+
+        assertEquals("7", label)
+    }
+
+    @Test
+    fun `centered title horizontal padding uses widest side plus gap`() {
+        val padding = calculateCenteredTitleHorizontalPadding(
+            leftWidthPx = 84,
+            rightWidthPx = 124,
+            sideGapPx = 8
+        )
+
+        assertEquals(132, padding)
+    }
+
+    @Test
+    fun `centered title horizontal padding keeps non negative value`() {
+        val padding = calculateCenteredTitleHorizontalPadding(
+            leftWidthPx = -10,
+            rightWidthPx = -20,
+            sideGapPx = -8
+        )
+
+        assertEquals(0, padding)
+    }
 }
 
 private fun overlaps(

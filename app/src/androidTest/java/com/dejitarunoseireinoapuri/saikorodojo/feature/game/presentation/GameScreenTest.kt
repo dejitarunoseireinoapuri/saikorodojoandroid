@@ -3,6 +3,7 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -11,6 +12,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.Assert.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class GameScreenTest {
@@ -146,5 +148,55 @@ class GameScreenTest {
         }
 
         composeRule.onAllNodesWithText(sumText).assertCountEquals(1)
+    }
+
+    @Test
+    fun minigamesBadgeShowsCountWithGameIconNextToIt() {
+        val uiState = GameUiState(
+            diceValues = listOf(1, 2, 3, 4, 5),
+            diceCount = 5,
+            diceType = DiceType.D6,
+            diceTypes = listOf(
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6
+            ),
+            minigamesAvailable = 7
+        )
+
+        composeRule.setContent {
+            SaikoroDojoTheme {
+                GameScreen(
+                    applySystemBarsPadding = false,
+                    uiState = uiState,
+                    onDiceClick = {},
+                    onCardSelect = {},
+                    onCardDismiss = {},
+                    onCardApply = {},
+                    onAdjustSelectedDie = {},
+                    onSetSelectedDieValue = {},
+                    onRollSelectedDice = {},
+                    onRollSingleDie = {},
+                    onFlipSelectedDie = {},
+                    onConfirmSurrender = {},
+                    onConfirmExit = {},
+                    onOpenRandomMinigame = {},
+                    onConfirmMinigamesAd = {},
+                    onDismissMinigamesAdPrompt = {}
+                )
+            }
+        }
+
+        val iconNodes = composeRule
+            .onAllNodesWithTag(GAME_MINIGAMES_BADGE_ICON_TAG, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+        val countNodes = composeRule
+            .onAllNodesWithTag(GAME_MINIGAMES_BADGE_COUNT_TAG, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+
+        assertTrue(iconNodes.isNotEmpty())
+        assertTrue(countNodes.isNotEmpty())
     }
 }

@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -59,6 +60,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -78,9 +80,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
@@ -100,6 +104,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import kotlinx.coroutines.delay
+import kotlin.math.max
+
+internal const val GAME_MINIGAMES_BADGE_ICON_TAG = "game_minigames_badge_icon"
+internal const val GAME_MINIGAMES_BADGE_COUNT_TAG = "game_minigames_badge_count"
 
 @Composable
 fun GameRoute(
@@ -502,9 +510,23 @@ fun GameScreen(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
+                val density = androidx.compose.ui.platform.LocalDensity.current
+                var leftControlWidthPx by remember { mutableStateOf(0) }
+                var rightControlsWidthPx by remember { mutableStateOf(0) }
+                val titleHorizontalGapPx = with(density) { 8.dp.roundToPx() }
                 AutoResizingLevelTitle(
                     text = stringResource(R.string.level_title, uiState.levelNumber),
-                    modifier = Modifier.width(190.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = with(density) {
+                                calculateCenteredTitleHorizontalPadding(
+                                    leftWidthPx = leftControlWidthPx,
+                                    rightWidthPx = rightControlsWidthPx,
+                                    sideGapPx = titleHorizontalGapPx
+                                ).toDp()
+                            }
+                        ),
                     color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold)
                 )
@@ -513,6 +535,7 @@ fun GameScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
+                        modifier = Modifier.onSizeChanged { leftControlWidthPx = it.width },
                         onClick = {
                             soundPlayer.play(SoundEffect.QUESTION)
                             showExitDialog = true
@@ -525,25 +548,30 @@ fun GameScreen(
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    MinigamesAvailableBadge(
-                        minigamesAvailable = uiState.minigamesAvailable,
-                        isLocked = uiState.isMinigameButtonLocked,
-                        onClick = {
-                            soundPlayer.play(SoundEffect.USE)
-                            onOpenRandomMinigame()
-                        }
-                    )
-                    IconButton(
-                        onClick = {
-                            soundPlayer.play(SoundEffect.QUESTION)
-                            showSurrenderDialog = true
-                        }
+                    Row(
+                        modifier = Modifier.onSizeChanged { rightControlsWidthPx = it.width },
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Flag,
-                            contentDescription = stringResource(R.string.cd_surrender),
-                            tint = Color.White
+                        MinigamesAvailableBadge(
+                            minigamesAvailable = uiState.minigamesAvailable,
+                            isLocked = uiState.isMinigameButtonLocked,
+                            onClick = {
+                                soundPlayer.play(SoundEffect.USE)
+                                onOpenRandomMinigame()
+                            }
                         )
+                        IconButton(
+                            onClick = {
+                                soundPlayer.play(SoundEffect.QUESTION)
+                                showSurrenderDialog = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Flag,
+                                contentDescription = stringResource(R.string.cd_surrender),
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             }
@@ -749,7 +777,7 @@ private fun AutoResizingLevelTitle(
     modifier: Modifier = Modifier,
     color: Color,
     style: TextStyle,
-    minFontSize: TextUnit = 14.sp
+    minFontSize: TextUnit = 10.sp
 ) {
     BoxWithConstraints(modifier = modifier) {
         val textMeasurer = rememberTextMeasurer()
@@ -773,6 +801,7 @@ private fun AutoResizingLevelTitle(
         Text(
             text = text,
             maxLines = 1,
+            overflow = TextOverflow.Clip,
             style = style.copy(fontSize = measuredFontSize),
             color = color,
             textAlign = TextAlign.Center,
@@ -788,6 +817,7 @@ private fun MinigamesAvailableBadge(
     onClick: () -> Unit
 ) {
     val badgeContentDescription = stringResource(R.string.cd_minigames_available)
+    val badgeShape = RoundedCornerShape(18.dp)
     Box(
         modifier = Modifier
             .padding(end = 4.dp)
@@ -795,28 +825,55 @@ private fun MinigamesAvailableBadge(
             .defaultMinSize(minWidth = 36.dp)
             .animateContentSize()
             .semantics { contentDescription = badgeContentDescription }
+            .background(
+                color = Color.White.copy(alpha = 0.16f),
+                shape = badgeShape
+            )
             .border(
                 width = 1.5.dp,
                 color = Color.White,
-                shape = RoundedCornerShape(percent = 50)
+                shape = badgeShape
             )
             .alpha(if (isLocked) 0.55f else 1f)
-            .clickable(
-                enabled = !isLocked,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
+            .clickable(enabled = !isLocked) {
                 onClick()
             }
-            .padding(horizontal = 14.dp),
+            .padding(horizontal = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = minigamesAvailable.toString(),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color.White
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = minigameAvailabilityLabel(minigamesAvailable),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color.White,
+                modifier = Modifier.testTag(GAME_MINIGAMES_BADGE_COUNT_TAG)
+            )
+            Icon(
+                imageVector = Icons.Filled.Casino,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier
+                    .size(16.dp)
+                    .testTag(GAME_MINIGAMES_BADGE_ICON_TAG)
+            )
+        }
     }
+}
+
+internal fun minigameAvailabilityLabel(minigamesAvailable: Int): String {
+    return minigamesAvailable.toString()
+}
+
+internal fun calculateCenteredTitleHorizontalPadding(
+    leftWidthPx: Int,
+    rightWidthPx: Int,
+    sideGapPx: Int
+): Int {
+    val reservedSideWidthPx = max(leftWidthPx, rightWidthPx)
+    return (reservedSideWidthPx + sideGapPx).coerceAtLeast(0)
 }
 
 @Composable
