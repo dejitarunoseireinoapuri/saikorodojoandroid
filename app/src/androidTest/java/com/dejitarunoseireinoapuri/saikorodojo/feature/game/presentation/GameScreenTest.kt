@@ -151,7 +151,7 @@ class GameScreenTest {
     }
 
     @Test
-    fun minigamesBadgeShowsCountOverBackgroundGameIcon() {
+    fun minigamesBadgeShowsCountWithGameIconNextToIt() {
         val uiState = GameUiState(
             diceValues = listOf(1, 2, 3, 4, 5),
             diceCount = 5,
@@ -189,7 +189,7 @@ class GameScreenTest {
             }
         }
 
-        composeRule.onNodeWithTag(GAME_MINIGAMES_BADGE_BACKGROUND_ICON_TAG).assertExists()
+        composeRule.onNodeWithTag(GAME_MINIGAMES_BADGE_ICON_TAG).assertExists()
         composeRule.onNodeWithTag(GAME_MINIGAMES_BADGE_COUNT_TAG).assertExists()
     }
 }

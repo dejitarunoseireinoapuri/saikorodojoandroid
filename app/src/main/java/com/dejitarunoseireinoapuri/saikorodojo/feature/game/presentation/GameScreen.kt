@@ -104,7 +104,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import kotlinx.coroutines.delay
 
-internal const val GAME_MINIGAMES_BADGE_BACKGROUND_ICON_TAG = "game_minigames_badge_background_icon"
+internal const val GAME_MINIGAMES_BADGE_ICON_TAG = "game_minigames_badge_icon"
 internal const val GAME_MINIGAMES_BADGE_COUNT_TAG = "game_minigames_badge_count"
 
 @Composable
@@ -819,20 +819,25 @@ private fun MinigamesAvailableBadge(
             .padding(horizontal = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = Icons.Filled.Casino,
-            contentDescription = null,
-            tint = Color.White.copy(alpha = 0.3f),
-            modifier = Modifier
-                .size(20.dp)
-                .testTag(GAME_MINIGAMES_BADGE_BACKGROUND_ICON_TAG)
-        )
-        Text(
-            text = minigameAvailabilityLabel(minigamesAvailable),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color.White,
-            modifier = Modifier.testTag(GAME_MINIGAMES_BADGE_COUNT_TAG)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = minigameAvailabilityLabel(minigamesAvailable),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color.White,
+                modifier = Modifier.testTag(GAME_MINIGAMES_BADGE_COUNT_TAG)
+            )
+            Icon(
+                imageVector = Icons.Filled.Casino,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier
+                    .size(16.dp)
+                    .testTag(GAME_MINIGAMES_BADGE_ICON_TAG)
+            )
+        }
     }
 }
 
