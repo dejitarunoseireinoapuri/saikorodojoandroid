@@ -3,7 +3,9 @@ package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
@@ -146,5 +148,48 @@ class GameScreenTest {
         }
 
         composeRule.onAllNodesWithText(sumText).assertCountEquals(1)
+    }
+
+    @Test
+    fun minigamesBadgeShowsCountOverBackgroundGameIcon() {
+        val uiState = GameUiState(
+            diceValues = listOf(1, 2, 3, 4, 5),
+            diceCount = 5,
+            diceType = DiceType.D6,
+            diceTypes = listOf(
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6,
+                DiceType.D6
+            ),
+            minigamesAvailable = 7
+        )
+
+        composeRule.setContent {
+            SaikoroDojoTheme {
+                GameScreen(
+                    applySystemBarsPadding = false,
+                    uiState = uiState,
+                    onDiceClick = {},
+                    onCardSelect = {},
+                    onCardDismiss = {},
+                    onCardApply = {},
+                    onAdjustSelectedDie = {},
+                    onSetSelectedDieValue = {},
+                    onRollSelectedDice = {},
+                    onRollSingleDie = {},
+                    onFlipSelectedDie = {},
+                    onConfirmSurrender = {},
+                    onConfirmExit = {},
+                    onOpenRandomMinigame = {},
+                    onConfirmMinigamesAd = {},
+                    onDismissMinigamesAdPrompt = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag(GAME_MINIGAMES_BADGE_BACKGROUND_ICON_TAG).assertExists()
+        composeRule.onNodeWithTag(GAME_MINIGAMES_BADGE_COUNT_TAG).assertExists()
     }
 }

@@ -83,6 +83,7 @@ import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.CardItem
@@ -102,6 +103,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import kotlinx.coroutines.delay
+
+internal const val GAME_MINIGAMES_BADGE_BACKGROUND_ICON_TAG = "game_minigames_badge_background_icon"
+internal const val GAME_MINIGAMES_BADGE_COUNT_TAG = "game_minigames_badge_count"
 
 @Composable
 fun GameRoute(
@@ -815,22 +819,20 @@ private fun MinigamesAvailableBadge(
             .padding(horizontal = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Casino,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(16.dp)
-            )
-            Text(
-                text = minigameAvailabilityLabel(minigamesAvailable),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color.White
-            )
-        }
+        Icon(
+            imageVector = Icons.Filled.Casino,
+            contentDescription = null,
+            tint = Color.White.copy(alpha = 0.3f),
+            modifier = Modifier
+                .size(20.dp)
+                .testTag(GAME_MINIGAMES_BADGE_BACKGROUND_ICON_TAG)
+        )
+        Text(
+            text = minigameAvailabilityLabel(minigamesAvailable),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = Color.White,
+            modifier = Modifier.testTag(GAME_MINIGAMES_BADGE_COUNT_TAG)
+        )
     }
 }
 
