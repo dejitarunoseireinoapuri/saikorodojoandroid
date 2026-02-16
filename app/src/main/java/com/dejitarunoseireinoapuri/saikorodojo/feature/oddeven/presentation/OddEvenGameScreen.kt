@@ -75,8 +75,10 @@ internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
 internal const val ODD_EVEN_CONTINUE_BUTTON_TAG = "odd_even_continue_button"
 internal const val ODD_EVEN_REWARD_STACK_TAG = "odd_even_reward_stack"
 internal const val ODD_EVEN_STATUS_COLUMN_TAG = "odd_even_status_column"
+internal const val ODD_EVEN_ROUND_STATUS_TAG = "odd_even_round_status"
+internal const val ODD_EVEN_HITS_STATUS_TAG = "odd_even_hits_status"
 internal val ODD_EVEN_DICE_SIZE = 150.dp
-internal val ODD_EVEN_STATUS_OFFSET_Y = 140.dp
+internal val ODD_EVEN_OVERLAY_OFFSET_Y = 190.dp
 
 @Composable
 fun OddEvenGameRoute(
@@ -266,31 +268,7 @@ fun OddEvenGameScreen(
                         .fillMaxWidth()
                         .padding(top = 12.dp)
                 )
-                if (uiState.isStarted) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Row(
-                        modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
-                        horizontalArrangement = Arrangement.spacedBy(36.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OddEvenChoiceButton(
-                            visible = uiState.selectedChoice != OddEvenChoice.ODD,
-                            label = stringResource(R.string.odd_even_even),
-                            isEnabled = uiState.selectedChoice == null,
-                            onClick = {
-                                onChoiceSelect(OddEvenChoice.EVEN)
-                            }
-                        )
-                        OddEvenChoiceButton(
-                            visible = uiState.selectedChoice != OddEvenChoice.EVEN,
-                            label = stringResource(R.string.odd_even_odd),
-                            isEnabled = uiState.selectedChoice == null,
-                            onClick = {
-                                onChoiceSelect(OddEvenChoice.ODD)
-                            }
-                        )
-                    }
-                } else if (showStartButton) {
+                if (!uiState.isStarted && showStartButton) {
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
                         onClick = {
@@ -336,7 +314,7 @@ fun OddEvenGameScreen(
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .offset(y = -ODD_EVEN_STATUS_OFFSET_Y)
+                    .offset(y = -ODD_EVEN_OVERLAY_OFFSET_Y)
                     .testTag(ODD_EVEN_STATUS_COLUMN_TAG),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -347,7 +325,8 @@ fun OddEvenGameScreen(
                         uiState.totalRounds
                     ),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.testTag(ODD_EVEN_ROUND_STATUS_TAG)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -357,8 +336,34 @@ fun OddEvenGameScreen(
                         uiState.targetCorrect
                     ),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.testTag(ODD_EVEN_HITS_STATUS_TAG)
                 )
+                if (!uiState.isComplete) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row(
+                        modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
+                        horizontalArrangement = Arrangement.spacedBy(36.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OddEvenChoiceButton(
+                            visible = uiState.selectedChoice != OddEvenChoice.ODD,
+                            label = stringResource(R.string.odd_even_even),
+                            isEnabled = uiState.selectedChoice == null,
+                            onClick = {
+                                onChoiceSelect(OddEvenChoice.EVEN)
+                            }
+                        )
+                        OddEvenChoiceButton(
+                            visible = uiState.selectedChoice != OddEvenChoice.EVEN,
+                            label = stringResource(R.string.odd_even_odd),
+                            isEnabled = uiState.selectedChoice == null,
+                            onClick = {
+                                onChoiceSelect(OddEvenChoice.ODD)
+                            }
+                        )
+                    }
+                }
             }
         }
 

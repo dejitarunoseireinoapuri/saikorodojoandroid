@@ -132,7 +132,7 @@ class OddEvenGameScreenTest {
     }
 
     @Test
-    fun roundAndHitsStatusRenderAboveDice() {
+    fun choicesAndStatusRenderAboveDiceInRequestedOrder() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(
@@ -151,14 +151,22 @@ class OddEvenGameScreenTest {
             }
         }
 
-        val statusBounds = composeTestRule.onNodeWithTag(ODD_EVEN_STATUS_COLUMN_TAG)
+        val roundBounds = composeTestRule.onNodeWithTag(ODD_EVEN_ROUND_STATUS_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val hitsBounds = composeTestRule.onNodeWithTag(ODD_EVEN_HITS_STATUS_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val choiceBounds = composeTestRule.onNodeWithTag(ODD_EVEN_CHOICE_ROW_TAG)
             .fetchSemanticsNode()
             .boundsInRoot
         val diceBounds = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
             .fetchSemanticsNode()
             .boundsInRoot
 
-        assertTrue(statusBounds.bottom < diceBounds.top)
+        assertTrue(roundBounds.bottom < hitsBounds.top)
+        assertTrue(hitsBounds.bottom < choiceBounds.top)
+        assertTrue(choiceBounds.bottom < diceBounds.top)
     }
 
     @Test
