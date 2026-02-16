@@ -403,7 +403,7 @@ class GameViewModelTest {
 
         assertEquals(1, effects.size)
         val effect = effects.single() as GameUiEffect.NavigateToMinigame
-        assertEquals(MinigameType.ODD_EVEN, effect.minigame)
+        assertTrue(MinigameType.entries.contains(effect.minigame))
         assertEquals(startingMinigames - 1, viewModel.uiState.value.minigamesAvailable)
         assertTrue(viewModel.uiState.value.isMinigameButtonLocked)
         collectorJob.cancel()

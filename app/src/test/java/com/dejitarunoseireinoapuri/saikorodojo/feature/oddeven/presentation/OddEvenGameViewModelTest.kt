@@ -15,7 +15,7 @@ import org.junit.Test
 class OddEvenGameViewModelTest {
 
     @Test
-    fun startsWithThreeRoundsByDefault() = runTest {
+    fun startsWithSevenRoundsByDefault() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
         val viewModel = OddEvenGameViewModel(
             dispatcher = testDispatcher,
@@ -24,7 +24,7 @@ class OddEvenGameViewModelTest {
             tickMs = 1L
         )
 
-        assertEquals(3, viewModel.uiState.value.totalRounds)
+        assertEquals(7, viewModel.uiState.value.totalRounds)
     }
 
     @Test

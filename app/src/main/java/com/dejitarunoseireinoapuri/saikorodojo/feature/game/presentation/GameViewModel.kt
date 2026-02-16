@@ -1010,7 +1010,7 @@ class GameViewModel(
     }
 
     private fun pickMinigame(): MinigameType {
-        return MinigameType.ODD_EVEN
+        return MinigameType.entries.random()
     }
 
 }
