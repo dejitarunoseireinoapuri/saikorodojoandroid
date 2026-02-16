@@ -50,7 +50,7 @@ class OddEvenGameScreenTest {
     }
 
     @Test
-    fun lossStateHidesDiceAndShowsContinueButton() {
+    fun lossStateShowsDiceAndContinueButton() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(
@@ -68,7 +68,7 @@ class OddEvenGameScreenTest {
             }
         }
 
-        composeTestRule.onAllNodesWithTag(ODD_EVEN_DICE_TAG).assertCountEquals(0)
+        composeTestRule.onAllNodesWithTag(ODD_EVEN_DICE_TAG).assertCountEquals(1)
         composeTestRule.onNodeWithTag(ODD_EVEN_CONTINUE_BUTTON_TAG).assertIsDisplayed()
     }
 
