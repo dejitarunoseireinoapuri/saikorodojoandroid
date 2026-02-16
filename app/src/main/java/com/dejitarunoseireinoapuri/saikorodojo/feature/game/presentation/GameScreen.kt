@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -103,6 +104,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import kotlinx.coroutines.delay
+import kotlin.math.max
 
 internal const val GAME_MINIGAMES_BADGE_ICON_TAG = "game_minigames_badge_icon"
 internal const val GAME_MINIGAMES_BADGE_COUNT_TAG = "game_minigames_badge_count"
@@ -508,9 +510,23 @@ fun GameScreen(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
+                val density = androidx.compose.ui.platform.LocalDensity.current
+                var leftControlWidthPx by remember { mutableStateOf(0) }
+                var rightControlsWidthPx by remember { mutableStateOf(0) }
+                val titleHorizontalGapPx = with(density) { 8.dp.roundToPx() }
                 AutoResizingLevelTitle(
                     text = stringResource(R.string.level_title, uiState.levelNumber),
-                    modifier = Modifier.width(190.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = with(density) {
+                                calculateCenteredTitleHorizontalPadding(
+                                    leftWidthPx = leftControlWidthPx,
+                                    rightWidthPx = rightControlsWidthPx,
+                                    sideGapPx = titleHorizontalGapPx
+                                ).toDp()
+                            }
+                        ),
                     color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold)
                 )
@@ -519,6 +535,7 @@ fun GameScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
+                        modifier = Modifier.onSizeChanged { leftControlWidthPx = it.width },
                         onClick = {
                             soundPlayer.play(SoundEffect.QUESTION)
                             showExitDialog = true
@@ -531,25 +548,30 @@ fun GameScreen(
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    MinigamesAvailableBadge(
-                        minigamesAvailable = uiState.minigamesAvailable,
-                        isLocked = uiState.isMinigameButtonLocked,
-                        onClick = {
-                            soundPlayer.play(SoundEffect.USE)
-                            onOpenRandomMinigame()
-                        }
-                    )
-                    IconButton(
-                        onClick = {
-                            soundPlayer.play(SoundEffect.QUESTION)
-                            showSurrenderDialog = true
-                        }
+                    Row(
+                        modifier = Modifier.onSizeChanged { rightControlsWidthPx = it.width },
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Flag,
-                            contentDescription = stringResource(R.string.cd_surrender),
-                            tint = Color.White
+                        MinigamesAvailableBadge(
+                            minigamesAvailable = uiState.minigamesAvailable,
+                            isLocked = uiState.isMinigameButtonLocked,
+                            onClick = {
+                                soundPlayer.play(SoundEffect.USE)
+                                onOpenRandomMinigame()
+                            }
                         )
+                        IconButton(
+                            onClick = {
+                                soundPlayer.play(SoundEffect.QUESTION)
+                                showSurrenderDialog = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Flag,
+                                contentDescription = stringResource(R.string.cd_surrender),
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             }
@@ -843,6 +865,15 @@ private fun MinigamesAvailableBadge(
 
 internal fun minigameAvailabilityLabel(minigamesAvailable: Int): String {
     return minigamesAvailable.toString()
+}
+
+internal fun calculateCenteredTitleHorizontalPadding(
+    leftWidthPx: Int,
+    rightWidthPx: Int,
+    sideGapPx: Int
+): Int {
+    val reservedSideWidthPx = max(leftWidthPx, rightWidthPx)
+    return (reservedSideWidthPx + sideGapPx).coerceAtLeast(0)
 }
 
 @Composable
