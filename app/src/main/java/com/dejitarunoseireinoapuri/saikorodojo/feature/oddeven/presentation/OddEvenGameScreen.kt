@@ -74,8 +74,9 @@ internal const val ODD_EVEN_DICE_TAG = "odd_even_dice"
 internal const val ODD_EVEN_CHOICE_ROW_TAG = "odd_even_choice_row"
 internal const val ODD_EVEN_CONTINUE_BUTTON_TAG = "odd_even_continue_button"
 internal const val ODD_EVEN_REWARD_STACK_TAG = "odd_even_reward_stack"
+internal const val ODD_EVEN_STATUS_COLUMN_TAG = "odd_even_status_column"
 internal val ODD_EVEN_DICE_SIZE = 150.dp
-internal val ODD_EVEN_DICE_OFFSET_Y = 120.dp
+internal val ODD_EVEN_STATUS_OFFSET_Y = 140.dp
 
 @Composable
 fun OddEvenGameRoute(
@@ -267,26 +268,6 @@ fun OddEvenGameScreen(
                 )
                 if (uiState.isStarted) {
                     Spacer(modifier = Modifier.height(24.dp))
-                    Text(
-                        text = stringResource(
-                            R.string.odd_even_round_status,
-                        uiState.currentRound,
-                        uiState.totalRounds
-                    ),
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                    color = titleColor
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(
-                        R.string.odd_even_hits_status,
-                        uiState.correctCount,
-                        uiState.targetCorrect
-                    ),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                    color = titleColor
-                )
-                    Spacer(modifier = Modifier.height(24.dp))
                     Row(
                         modifier = Modifier.testTag(ODD_EVEN_CHOICE_ROW_TAG),
                         horizontalArrangement = Arrangement.spacedBy(36.dp),
@@ -335,15 +316,9 @@ fun OddEvenGameScreen(
         if (shouldShowOddEvenDice(uiState)) {
             val hasReward = uiState.rewardCards.isNotEmpty()
             val hasLoss = uiState.isComplete && !hasReward && uiState.isStarted
-            val diceContainerModifier = if (hasLoss) {
-                Modifier.align(Alignment.Center)
-            } else {
-                Modifier
-                    .align(Alignment.Center)
-                    .offset(y = ODD_EVEN_DICE_OFFSET_Y)
-            }
             Column(
-                modifier = diceContainerModifier
+                modifier = Modifier
+                    .align(Alignment.Center)
                     .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -353,6 +328,36 @@ fun OddEvenGameScreen(
                     isSuccess = uiState.showFireworks,
                     isFailure = uiState.showFailure || hasLoss,
                     modifier = Modifier.testTag(ODD_EVEN_DICE_TAG)
+                )
+            }
+        }
+
+        if (uiState.isStarted && uiState.rewardCards.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = -ODD_EVEN_STATUS_OFFSET_Y)
+                    .testTag(ODD_EVEN_STATUS_COLUMN_TAG),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(
+                        R.string.odd_even_round_status,
+                        uiState.currentRound,
+                        uiState.totalRounds
+                    ),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(
+                        R.string.odd_even_hits_status,
+                        uiState.correctCount,
+                        uiState.targetCorrect
+                    ),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }

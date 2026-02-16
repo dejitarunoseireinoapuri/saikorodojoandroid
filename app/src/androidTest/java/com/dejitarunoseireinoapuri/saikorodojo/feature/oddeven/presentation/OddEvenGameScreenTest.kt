@@ -77,7 +77,7 @@ class OddEvenGameScreenTest {
 
 
     @Test
-    fun lossStateCentersDiceAndPlayingStateKeepsLowerOffset() {
+    fun diceStaysCenteredInPlayingAndLossStates() {
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(
@@ -127,10 +127,38 @@ class OddEvenGameScreenTest {
             .y
 
         val tolerance = with(composeTestRule.density) { 2.dp.toPx() }
-        val expectedPlayingOffset = with(composeTestRule.density) { ODD_EVEN_DICE_OFFSET_Y.toPx() }
-
-        assertTrue(abs((diceCenterYInPlaying - rootCenterYInPlaying) - expectedPlayingOffset) <= tolerance)
+        assertTrue(abs(diceCenterYInPlaying - rootCenterYInPlaying) <= tolerance)
         assertTrue(abs(diceCenterYInLoss - rootCenterYInLoss) <= tolerance)
+    }
+
+    @Test
+    fun roundAndHitsStatusRenderAboveDice() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        currentRound = 1,
+                        totalRounds = 3,
+                        correctCount = 1,
+                        targetCorrect = 3
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {},
+                    onExitToMenu = {}
+                )
+            }
+        }
+
+        val statusBounds = composeTestRule.onNodeWithTag(ODD_EVEN_STATUS_COLUMN_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val diceBounds = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+
+        assertTrue(statusBounds.bottom < diceBounds.top)
     }
 
     @Test
