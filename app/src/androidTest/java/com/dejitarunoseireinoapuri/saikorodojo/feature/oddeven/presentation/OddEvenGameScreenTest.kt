@@ -148,7 +148,7 @@ class OddEvenGameScreenTest {
 
     @Test
     fun rulesTextIsHiddenAfterStart() {
-        val subtitle = composeTestRule.activity.getString(R.string.odd_even_subtitle)
+        val subtitle = composeTestRule.activity.getString(R.string.rules_minigame_odd_even_body)
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(

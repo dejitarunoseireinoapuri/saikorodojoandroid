@@ -1,18 +1,41 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class SequenceGameScreenTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    @Test
+    fun rulesTextIsHiddenAfterStart() {
+        val rulesBody = composeRule.activity.getString(R.string.rules_minigame_sequence_body)
+
+        composeRule.setContent {
+            SaikoroDojoTheme {
+                SequenceGameScreen(
+                    uiState = SequenceGameUiState(
+                        isStarted = true
+                    ),
+                    onStartClick = {},
+                    onSaveClick = {},
+                    onDiscardClick = {},
+                    onContinueClick = {},
+                    onExitToMenu = {}
+                )
+            }
+        }
+
+        composeRule.onAllNodesWithText(rulesBody).assertCountEquals(0)
+    }
 
     @Test
     fun decisionButtonsStayBetweenRoundStatusAndMat() {

@@ -78,7 +78,7 @@ class BlackjackGameScreenTest {
 
     @Test
     fun rulesTextIsHiddenAfterStart() {
-        val subtitle = composeTestRule.activity.getString(R.string.blackjack_subtitle)
+        val subtitle = composeTestRule.activity.getString(R.string.rules_minigame_blackjack_body)
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 BlackjackGameScreen(
