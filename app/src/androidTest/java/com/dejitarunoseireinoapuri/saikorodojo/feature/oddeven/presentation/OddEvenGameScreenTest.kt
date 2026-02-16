@@ -1,6 +1,9 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.graphics.toPixelMap
@@ -78,15 +81,19 @@ class OddEvenGameScreenTest {
 
     @Test
     fun diceStaysCenteredInPlayingAndLossStates() {
+        var uiState by mutableStateOf(
+            OddEvenGameUiState(
+                isStarted = true,
+                isComplete = false,
+                currentRound = 1,
+                totalRounds = 3
+            )
+        )
+
         composeTestRule.setContent {
             SaikoroDojoTheme {
                 OddEvenGameScreen(
-                    uiState = OddEvenGameUiState(
-                        isStarted = true,
-                        isComplete = false,
-                        currentRound = 1,
-                        totalRounds = 3
-                    ),
+                    uiState = uiState,
                     onStartClick = {},
                     onChoiceSelect = {},
                     onContinueClick = {},
@@ -102,21 +109,12 @@ class OddEvenGameScreenTest {
             .center
             .y
 
-        composeTestRule.setContent {
-            SaikoroDojoTheme {
-                OddEvenGameScreen(
-                    uiState = OddEvenGameUiState(
-                        isStarted = true,
-                        isComplete = true,
-                        diceValue = 4,
-                        rewardCards = emptyList()
-                    ),
-                    onStartClick = {},
-                    onChoiceSelect = {},
-                    onContinueClick = {},
-                    onExitToMenu = {}
-                )
-            }
+        composeTestRule.runOnIdle {
+            uiState = uiState.copy(
+                isComplete = true,
+                diceValue = 4,
+                rewardCards = emptyList()
+            )
         }
 
         val rootCenterYInLoss = composeTestRule.onRoot().fetchSemanticsNode().boundsInRoot.center.y
