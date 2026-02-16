@@ -4,6 +4,8 @@
 
 **Saikoro Dojo** es un videojuego de puzles para Android centrado en la resolución de objetivos con dados, cartas y minijuegos.
 
+La app está disponible en **español, catalán e inglés**.
+
 La experiencia principal se basa en:
 
 - Un **modo principal por niveles** donde el jugador debe cumplir condiciones sobre una tirada de dados (por ejemplo combinaciones, sumas, restricciones de selección, etc.).
@@ -112,6 +114,18 @@ Para ejecutar tests/lint (flujo habitual de CI):
 ./gradlew lint
 ```
 
+Para ejecutar tests de UI/instrumentación (`androidTest`) necesitas un emulador o dispositivo conectado:
+
+```bash
+./gradlew connectedDebugAndroidTest
+```
+
+Si quieres ejecutar únicamente los tests de UI de Compose:
+
+```bash
+./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.dejitarunoseireinoapuri.saikorodojo
+```
+
 ---
 
 ## d) Estructura del proyecto
@@ -201,7 +215,7 @@ Estos minijuegos amplían la jugabilidad y actúan como mecánica de recompensa 
 - Gestión de consentimiento y opciones de anuncios.
 
 ### 7) Internacionalización
-- Recursos localizados en varios idiomas (por ejemplo, inglés, español y catalán).
+- Recursos localizados en **inglés, español y catalán**.
 
 ---
 
