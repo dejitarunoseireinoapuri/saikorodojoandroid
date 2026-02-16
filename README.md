@@ -10,8 +10,6 @@ La experiencia principal se basa en:
 - Un sistema de **cartas de apoyo** que permite alterar el estado de los dados (repetir tiradas, ajustar valores, invertir caras, fijar valores, etc.).
 - Un conjunto de **minijuegos independientes** (Odd/Even, Sequence, Higher/Lower, Blackjack) que funcionan como vía adicional para conseguir recompensas y mejorar el progreso.
 
-A nivel técnico, el proyecto está diseñado con enfoque de **Clean Architecture + MVVM**, con separación clara de capas (`presentation`, `domain`, `data`) y uso de componentes modernos de Android para mantener una base escalable y mantenible.
-
 ---
 
 ## b) Stack tecnológico utilizado
@@ -29,6 +27,7 @@ A nivel técnico, el proyecto está diseñado con enfoque de **Clean Architectur
 - **Navigation Compose** para navegación
 - **MVVM** para estado y lógica de presentación
 - **Clean Architecture** para separación de responsabilidades
+- Enfoque técnico con capas `presentation`, `domain` y `data` para mantener una base escalable y mantenible
 
 ### Concurrencia y serialización
 - **Kotlin Coroutines / Flow**
@@ -61,7 +60,7 @@ A nivel técnico, el proyecto está diseñado con enfoque de **Clean Architectur
 ### 1. Clonar el repositorio
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone git@github.com:dejitarunoseireinoapuri/saikorodojoandroid.git
 cd saikorodojoandroid
 ```
 
