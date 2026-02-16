@@ -59,6 +59,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -750,7 +751,7 @@ private fun AutoResizingLevelTitle(
     modifier: Modifier = Modifier,
     color: Color,
     style: TextStyle,
-    minFontSize: TextUnit = 14.sp
+    minFontSize: TextUnit = 10.sp
 ) {
     BoxWithConstraints(modifier = modifier) {
         val textMeasurer = rememberTextMeasurer()
@@ -774,6 +775,7 @@ private fun AutoResizingLevelTitle(
         Text(
             text = text,
             maxLines = 1,
+            overflow = TextOverflow.Clip,
             style = style.copy(fontSize = measuredFontSize),
             color = color,
             textAlign = TextAlign.Center,
@@ -833,7 +835,7 @@ private fun MinigamesAvailableBadge(
 }
 
 internal fun minigameAvailabilityLabel(minigamesAvailable: Int): String {
-    return "x$minigamesAvailable"
+    return minigamesAvailable.toString()
 }
 
 @Composable

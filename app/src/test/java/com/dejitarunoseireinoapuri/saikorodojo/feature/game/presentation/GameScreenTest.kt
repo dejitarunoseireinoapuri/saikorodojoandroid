@@ -216,10 +216,10 @@ class GameScreenTest {
     }
 
     @Test
-    fun `minigame availability label includes x prefix`() {
+    fun `minigame availability label returns plain number`() {
         val label = minigameAvailabilityLabel(7)
 
-        assertEquals("x7", label)
+        assertEquals("7", label)
     }
 }
 
