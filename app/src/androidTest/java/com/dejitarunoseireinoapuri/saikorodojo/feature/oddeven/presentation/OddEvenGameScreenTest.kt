@@ -72,6 +72,57 @@ class OddEvenGameScreenTest {
         composeTestRule.onNodeWithTag(ODD_EVEN_CONTINUE_BUTTON_TAG).assertIsDisplayed()
     }
 
+
+
+    @Test
+    fun lossStateKeepsDiceAtSameVerticalPositionAsActiveRound() {
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = false,
+                        currentRound = 1,
+                        totalRounds = 3
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {},
+                    onExitToMenu = {}
+                )
+            }
+        }
+
+        val playingTop = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+            .top
+
+        composeTestRule.setContent {
+            SaikoroDojoTheme {
+                OddEvenGameScreen(
+                    uiState = OddEvenGameUiState(
+                        isStarted = true,
+                        isComplete = true,
+                        diceValue = 4,
+                        rewardCards = emptyList()
+                    ),
+                    onStartClick = {},
+                    onChoiceSelect = {},
+                    onContinueClick = {},
+                    onExitToMenu = {}
+                )
+            }
+        }
+
+        val lossTop = composeTestRule.onNodeWithTag(ODD_EVEN_DICE_TAG)
+            .fetchSemanticsNode()
+            .boundsInRoot
+            .top
+
+        assertEquals(playingTop, lossTop)
+    }
+
     @Test
     fun diceMatUsesMainGameMatColor() {
         composeTestRule.setContent {
