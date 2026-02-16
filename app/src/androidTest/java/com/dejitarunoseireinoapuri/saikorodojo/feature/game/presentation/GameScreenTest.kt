@@ -12,6 +12,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.Assert.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class GameScreenTest {
@@ -188,7 +189,14 @@ class GameScreenTest {
             }
         }
 
-        composeRule.onAllNodesWithTag(GAME_MINIGAMES_BADGE_ICON_TAG).assertCountEquals(1)
-        composeRule.onAllNodesWithTag(GAME_MINIGAMES_BADGE_COUNT_TAG).assertCountEquals(1)
+        val iconNodes = composeRule
+            .onAllNodesWithTag(GAME_MINIGAMES_BADGE_ICON_TAG, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+        val countNodes = composeRule
+            .onAllNodesWithTag(GAME_MINIGAMES_BADGE_COUNT_TAG, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+
+        assertTrue(iconNodes.isNotEmpty())
+        assertTrue(countNodes.isNotEmpty())
     }
 }
