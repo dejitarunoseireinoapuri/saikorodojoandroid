@@ -56,6 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.runtime.mutableIntStateOf
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.RewardCardStack
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameMessageType
@@ -129,8 +130,8 @@ fun OddEvenGameScreen(
     val soundPlayer = rememberSoundPlayer()
     var wasRolling by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
-    var previousCorrectCount by remember { mutableStateOf(0) }
-    var previousWrongCount by remember { mutableStateOf(0) }
+    var previousCorrectCount by remember { mutableIntStateOf(0) }
+    var previousWrongCount by remember { mutableIntStateOf(0) }
     var previousHasLoss by remember { mutableStateOf(false) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {

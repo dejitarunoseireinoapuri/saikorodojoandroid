@@ -59,6 +59,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -137,7 +138,7 @@ fun HigherLowerGameScreen(
     var wasRolling by remember { mutableStateOf(false) }
     var wasTransitioning by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
-    var previousCorrectStreak by remember { mutableStateOf(0) }
+    var previousCorrectStreak by remember { mutableIntStateOf(0) }
     var previousHasLoss by remember { mutableStateOf(false) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {

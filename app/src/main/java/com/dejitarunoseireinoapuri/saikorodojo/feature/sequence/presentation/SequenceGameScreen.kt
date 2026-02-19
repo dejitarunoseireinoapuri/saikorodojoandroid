@@ -62,6 +62,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -170,7 +171,7 @@ fun SequenceGameScreen(
         }
         wasRolling = uiState.isRolling
     }
-    var previousSavedCount by remember { mutableStateOf(0) }
+    var previousSavedCount by remember { mutableIntStateOf(0) }
     LaunchedEffect(uiState.savedValues.size) {
         if (shouldPlaySequenceSuccess(previousSavedCount, uiState.savedValues.size)) {
             soundPlayer.play(SoundEffect.SUCCESS)

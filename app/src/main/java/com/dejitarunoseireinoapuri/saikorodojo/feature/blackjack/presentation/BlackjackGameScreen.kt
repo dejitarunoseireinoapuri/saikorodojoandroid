@@ -54,6 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.dejitarunoseireinoapuri.saikorodojo.R
@@ -125,8 +126,8 @@ fun BlackjackGameScreen(
 ) {
     val soundPlayer = rememberSoundPlayer()
     var hadRewardCards by remember { mutableStateOf(false) }
-    var previousPlayerDiceCount by remember { mutableStateOf(0) }
-    var previousDealerDiceCount by remember { mutableStateOf(0) }
+    var previousPlayerDiceCount by remember { mutableIntStateOf(0) }
+    var previousDealerDiceCount by remember { mutableIntStateOf(0) }
     var previousResult by remember { mutableStateOf<BlackjackOutcome?>(null) }
     LaunchedEffect(uiState.playerDice.size, uiState.dealerDice.size, uiState.isRolling) {
         if (shouldPlayDiceRollSound(

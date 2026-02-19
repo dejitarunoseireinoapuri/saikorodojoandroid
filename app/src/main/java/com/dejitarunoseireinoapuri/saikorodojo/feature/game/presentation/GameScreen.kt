@@ -103,6 +103,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.compose.runtime.mutableIntStateOf
 import kotlinx.coroutines.delay
 import kotlin.math.max
 
@@ -511,8 +512,8 @@ fun GameScreen(
                 contentAlignment = Alignment.Center
             ) {
                 val density = androidx.compose.ui.platform.LocalDensity.current
-                var leftControlWidthPx by remember { mutableStateOf(0) }
-                var rightControlsWidthPx by remember { mutableStateOf(0) }
+                var leftControlWidthPx by remember { mutableIntStateOf(0) }
+                var rightControlsWidthPx by remember { mutableIntStateOf(0) }
                 val titleHorizontalGapPx = with(density) { 8.dp.roundToPx() }
                 AutoResizingLevelTitle(
                     text = stringResource(R.string.level_title, uiState.levelNumber),
