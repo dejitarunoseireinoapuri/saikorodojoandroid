@@ -81,6 +81,8 @@ internal const val HIGHER_LOWER_MAT_ROW_TAG = "higher_lower_mat_row"
 internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_button"
 internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
 private const val HIGHER_LOWER_TRANSITION_MS = 750
+internal fun higherLowerDieNumberHorizontalPadding(): Dp = 1.dp
+
 private val HigherLowerButtonReserveHeight = 140.dp
 private val HigherLowerChoiceButtonHeight = 56.dp
 private val HigherLowerChoiceButtonMinWidth = 140.dp
@@ -812,8 +814,9 @@ private fun HigherLowerDieFace(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = fontSize),
-            color = MaterialTheme.colorScheme.onBackground
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = fontSize, lineHeight = fontSize),
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(horizontal = higherLowerDieNumberHorizontalPadding())
         )
     }
 }

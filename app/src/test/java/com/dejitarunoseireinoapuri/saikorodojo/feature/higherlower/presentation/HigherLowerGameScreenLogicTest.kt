@@ -12,6 +12,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HigherLowerGameScreenLogicTest {
+
+    @Test
+    fun higherLowerDieNumberHorizontalPadding_returnsOneDp() {
+        assertEquals(1.dp, higherLowerDieNumberHorizontalPadding())
+    }
     @Test
     fun `totals are hidden while rolling or transitioning`() {
         assertFalse(shouldShowHigherLowerTotals(isRolling = true, isTransitioning = false))

@@ -77,6 +77,8 @@ internal const val BLACKJACK_START_BUTTON_TAG = "blackjack_start_button"
 internal const val BLACKJACK_DEALER_MAT_TAG = "blackjack_dealer_mat"
 internal const val BLACKJACK_PLAYER_MAT_TAG = "blackjack_player_mat"
 internal const val BLACKJACK_REWARD_STACK_TAG = "blackjack_reward_stack"
+internal fun blackjackDieNumberHorizontalPadding(): Dp = 1.dp
+
 
 @Composable
 fun BlackjackGameRoute(
@@ -655,8 +657,9 @@ private fun BlackjackDieFace(
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = fontSize),
-            color = MaterialTheme.colorScheme.onBackground
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = fontSize, lineHeight = fontSize),
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(horizontal = blackjackDieNumberHorizontalPadding())
         )
     }
 }
