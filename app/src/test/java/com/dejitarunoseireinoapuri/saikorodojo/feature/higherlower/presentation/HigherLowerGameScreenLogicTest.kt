@@ -6,6 +6,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackgroun
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -17,6 +18,15 @@ class HigherLowerGameScreenLogicTest {
     fun higherLowerDieNumberHorizontalPadding_returnsOneDp() {
         assertEquals(1.dp, higherLowerDieNumberHorizontalPadding())
     }
+
+    @Test
+    fun higherLowerRoundStatusTextStyle_usesFixedLineHeight() {
+        val textStyle = higherLowerRoundStatusTextStyle()
+
+        assertEquals(22.sp, textStyle.fontSize)
+        assertEquals(22.sp, textStyle.lineHeight)
+    }
+
     @Test
     fun `totals are hidden while rolling or transitioning`() {
         assertFalse(shouldShowHigherLowerTotals(isRolling = true, isTransitioning = false))

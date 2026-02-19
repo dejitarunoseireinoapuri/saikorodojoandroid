@@ -82,6 +82,8 @@ internal const val HIGHER_LOWER_CONTINUE_BUTTON_TAG = "higher_lower_continue_but
 internal const val HIGHER_LOWER_REWARD_STACK_TAG = "higher_lower_reward_stack"
 private const val HIGHER_LOWER_TRANSITION_MS = 750
 internal fun higherLowerDieNumberHorizontalPadding(): Dp = 1.dp
+internal fun higherLowerRoundStatusTextStyle() =
+    MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp, lineHeight = 22.sp)
 
 private val HigherLowerButtonReserveHeight = 140.dp
 private val HigherLowerChoiceButtonHeight = 56.dp
@@ -306,8 +308,9 @@ fun HigherLowerGameScreen(
                             uiState.currentRound,
                             uiState.totalRounds
                         ),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
-                        color = titleColor
+                        style = higherLowerRoundStatusTextStyle(),
+                        color = titleColor,
+                        modifier = Modifier.padding(horizontal = 1.dp)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     when (higherLowerChoiceButtonsMode(uiState.isChoiceVisible, uiState.selectedChoice)) {
