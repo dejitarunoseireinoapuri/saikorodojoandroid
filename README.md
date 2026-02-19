@@ -107,6 +107,18 @@ Si no se configuran, la app compila con valores vacíos para esos campos.
 ./gradlew installDebug
 ```
 
+Si prefieres instalar el APK manualmente en tu dispositivo, puedes usar el archivo generado en:
+
+```text
+app\release\saikoro_dojo.apk
+```
+
+Primero genera el APK con:
+
+```bash
+./gradlew assembleRelease
+```
+
 Para ejecutar tests/lint (flujo habitual de CI):
 
 ```bash
