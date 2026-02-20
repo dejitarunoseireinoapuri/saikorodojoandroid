@@ -4,6 +4,8 @@
 
 **Saikoro Dojo** es un videojuego de puzles para Android centrado en la resolución de objetivos con dados, cartas y minijuegos.
 
+La presentación del proyecto está disponible en la raíz del repositorio con el nombre **`Presentación - Saikoro Dojo.pdf`**.
+
 La app está disponible en **español, catalán e inglés**.
 
 La experiencia principal se basa en:
