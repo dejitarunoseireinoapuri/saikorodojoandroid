@@ -6,12 +6,12 @@ import org.junit.Test
 
 class MinigameButtonColorsTest {
     @Test
-    fun `primary button color matches set-value dice orange`() {
-        assertEquals(Color(0xFFFFA726), MinigameButtonPrimaryColor)
+    fun `primary button uses gold`() {
+        assertEquals(Color(0xFFE6B85C), MinigameButtonPrimaryColor)
     }
 
     @Test
-    fun `disabled button base color matches set-value dice inner orange`() {
-        assertEquals(Color(0xFFE87400), MinigameButtonPrimaryDisabledColor)
+    fun `disabled button uses a muted slate surface`() {
+        assertEquals(Color(0xFF29394D), MinigameButtonPrimaryDisabledColor)
     }
 }

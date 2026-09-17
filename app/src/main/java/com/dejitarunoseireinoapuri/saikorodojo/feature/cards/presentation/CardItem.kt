@@ -20,14 +20,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dejitarunoseireinoapuri.saikorodojo.R
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.domain.CardId
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicButton
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 
 data class CardUiModel(
@@ -74,7 +73,7 @@ fun CardItem(
 ) {
     val shape = RoundedCornerShape(20.dp)
     val outerBorderWidth = 1.dp
-    val innerBorderWidth = 4.dp
+    val innerBorderWidth = 1.dp
     val bottomPadding = if (showActionButton) 40.dp else 12.dp
     val countLayout = resolveCountLayout(
         showTitle = showTitle,
@@ -83,20 +82,20 @@ fun CardItem(
     )
     val cardBrush = Brush.linearGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.tertiary,
-            Color.Black
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.background
         )
     )
     Box(
         modifier = modifier
             .size(cardSize)
-            .background(Color.Black, shape)
+            .background(MaterialTheme.colorScheme.outlineVariant, shape)
             .padding(outerBorderWidth)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White, shape)
+                .background(MaterialTheme.colorScheme.tertiary, shape)
                 .padding(innerBorderWidth)
                 .clip(shape)
                 .background(cardBrush)
@@ -119,7 +118,7 @@ fun CardItem(
                                 maxWidthDp = cardSize.width - 24.dp
                             )
                         ),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
@@ -137,7 +136,7 @@ fun CardItem(
                     Icon(
                         painter = painterResource(card.iconRes),
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier
                             .size(32.dp)
                             .align(iconAlignment)
@@ -147,19 +146,19 @@ fun CardItem(
                     Text(
                         text = description ?: AnnotatedString(stringResource(card.descriptionRes)),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.85f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = descriptionTextAlign,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
             if (showActionButton) {
-                Button(
+                MetallicButton(
                     onClick = onApplyClick,
                     enabled = isEnabled,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     shape = RoundedCornerShape(12.dp),
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
@@ -170,8 +169,7 @@ fun CardItem(
                 ) {
                     Text(
                         text = stringResource(card.actionLabelRes),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = Color.Black
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                     )
                 }
             }
@@ -201,19 +199,19 @@ private fun ColumnScope.CountWithIcon(
             Text(
                 text = count.toString(),
                 style = textStyle,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "x",
                 style = textStyle,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -228,19 +226,19 @@ private fun ColumnScope.CountWithIcon(
             Text(
                 text = count.toString(),
                 style = textStyle,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "x",
                 style = textStyle,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.size(32.dp)
             )
         }

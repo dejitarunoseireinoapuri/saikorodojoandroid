@@ -1,6 +1,9 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 
-import androidx.compose.foundation.Image
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.RealisticDie
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.rememberDiceRollMotion
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,13 +22,10 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -73,6 +72,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.min
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicIconButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicTextButton
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -163,7 +165,6 @@ fun SequenceGameScreen(
     var savedDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var failureDieCenterInRoot by remember { mutableStateOf<Offset?>(null) }
     var animatedDieSize by remember { mutableStateOf(0.dp) }
-    val animatedTextOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
     val saveAnimationProgress = remember { Animatable(0f) }
     LaunchedEffect(uiState.isRolling) {
         if (uiState.isRolling && !wasRolling) {
@@ -258,7 +259,7 @@ fun SequenceGameScreen(
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            IconButton(
+            MetallicIconButton(
                 onClick = {
                     soundPlayer.play(SoundEffect.QUESTION)
                     showExitDialog = true
@@ -404,6 +405,7 @@ fun SequenceGameScreen(
                                     SequenceDecisionAction.Discard -> SequenceChoiceButton(
                                         label = stringResource(R.string.sequence_discard),
                                         testTag = SEQUENCE_DISCARD_BUTTON_TAG,
+                                        secondary = true,
                                         modifier = Modifier.weight(1f),
                                         onClick = {
                                             onDiscardClick()
@@ -432,6 +434,8 @@ fun SequenceGameScreen(
                     ) {
                         SequenceDiceFace(
                             value = uiState.diceValue,
+                            isRolling = uiState.isRolling,
+                            rollPlaybackMs = uiState.rollPlaybackMs,
                             size = 140.dp,
                             showDie = shouldShowSequenceTopDie(
                                 isComplete = uiState.isComplete,
@@ -559,7 +563,7 @@ fun SequenceGameScreen(
                 }
             } else if (showStartButton) {
                 Spacer(modifier = Modifier.height(24.dp))
-                Button(
+                MetallicButton(
                     onClick = {
                         onStartClick()
                     },
@@ -592,7 +596,7 @@ fun SequenceGameScreen(
         }
 
         if (shouldShowSequenceContinueButton(hasReward = hasReward, hasLoss = hasLoss)) {
-            Button(
+            MetallicButton(
                 onClick = {
                     soundPlayer.play(SoundEffect.USE)
                     onContinueClick()
@@ -638,7 +642,7 @@ fun SequenceGameScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(
+                    MetallicTextButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
@@ -653,7 +657,7 @@ fun SequenceGameScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(
+                    MetallicTextButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
@@ -692,17 +696,7 @@ fun SequenceGameScreen(
                     .zIndex(5f),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ten_sides),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
-                )
-                Text(
-                    text = currentAnimationValue.toString(),
-                    style = MaterialTheme.typography.displaySmall.copy(fontSize = sequenceSavedDiceNumberFontSize()),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.graphicsLayer { translationY = animatedTextOffsetPx }
-                )
+                RealisticDie(value = currentAnimationValue, type = DiceType.D10, size = dieSize)
             }
         }
     }
@@ -804,12 +798,13 @@ private fun SequenceChoiceButton(
     label: String,
     testTag: String,
     modifier: Modifier = Modifier,
+    secondary: Boolean = false,
     onClick: () -> Unit
 ) {
-    Button(
+    MetallicButton(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
-        colors = minigameButtonColors(),
+        colors = minigameButtonColors(secondary = secondary),
         modifier = modifier
             .height(64.dp)
             .testTag(testTag)
@@ -849,13 +844,15 @@ private fun SequenceMat(
 @Composable
 private fun SequenceDiceFace(
     value: Int?,
+    isRolling: Boolean,
+    rollPlaybackMs: Long,
     size: Dp,
     showDie: Boolean,
     backgroundColor: Color,
     borderColor: Color,
     modifier: Modifier = Modifier
 ) {
-    val textOffsetPx = with(LocalDensity.current) { sequenceDiceNumberYOffset().toPx() }
+    val rollMotion = rememberDiceRollMotion(isRolling, durationMs = rollPlaybackMs)
     Box(
         modifier = modifier
             .size(size)
@@ -865,18 +862,14 @@ private fun SequenceDiceFace(
         contentAlignment = Alignment.Center
     ) {
         if (showDie && value != null) {
-            Image(
-                painter = painterResource(id = R.drawable.ten_sides),
-                contentDescription = stringResource(R.string.cd_dice_face, value),
-                modifier = Modifier.fillMaxSize()
-            )
-            Text(
-                text = value.toString(),
-                style = MaterialTheme.typography.displaySmall.copy(fontSize = 40.sp),
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .graphicsLayer { translationY = textOffsetPx }
-                    .testTag(SEQUENCE_DICE_VALUE_TAG)
+            RealisticDie(
+                value = value,
+                type = DiceType.D10,
+                size = size - 12.dp,
+                motion = rollMotion,
+                travelX = size * 0.14f,
+                travelY = size * 0.08f,
+                numberModifier = Modifier.testTag(SEQUENCE_DICE_VALUE_TAG)
             )
         }
     }
@@ -889,8 +882,6 @@ private fun SequenceSavedDie(
     isVisible: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    val diceRes = R.drawable.ten_sides
-    val textOffsetPx = with(LocalDensity.current) { sequenceSavedDiceNumberYOffset().toPx() }
     Box(
         modifier = modifier
             .size(size)
@@ -898,18 +889,11 @@ private fun SequenceSavedDie(
             .testTag("${SEQUENCE_SAVED_DIE_TAG_PREFIX}_$value"),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = diceRes),
-            contentDescription = stringResource(R.string.cd_dice_face, value),
-            modifier = Modifier.fillMaxSize()
-        )
-        Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.displaySmall.copy(fontSize = sequenceSavedDiceNumberFontSize()),
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .graphicsLayer { translationY = textOffsetPx }
-                .testTag("${SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX}_$value")
+        RealisticDie(
+            value = value,
+            type = DiceType.D10,
+            size = size,
+            numberModifier = Modifier.testTag("${SEQUENCE_SAVED_DIE_VALUE_TAG_PREFIX}_$value")
         )
     }
 }

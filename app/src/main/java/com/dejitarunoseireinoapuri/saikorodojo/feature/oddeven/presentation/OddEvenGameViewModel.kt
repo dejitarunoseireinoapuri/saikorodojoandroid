@@ -1,5 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.calculateRollPlaybackMs
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
@@ -44,6 +46,7 @@ data class OddEvenGameUiState(
     val selectedChoice: OddEvenChoice? = null,
     val diceValue: Int? = null,
     val isRolling: Boolean = false,
+    val rollPlaybackMs: Long = 1_500L,
     val showFireworks: Boolean = false,
     val showFailure: Boolean = false,
     val isComplete: Boolean = false,
@@ -79,6 +82,7 @@ class OddEvenGameViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         OddEvenGameUiState(
+            rollPlaybackMs = calculateRollPlaybackMs(rollAnimationMs, tickMs),
             totalRounds = totalRounds,
             targetCorrect = targetCorrect
         )
@@ -152,16 +156,9 @@ class OddEvenGameViewModel(
         roundJob = viewModelScope.launch(dispatcher) {
             val steps = (rollAnimationMs / tickMs).coerceAtLeast(1L).toInt()
             var finalRoll = rollOddEvenUseCase.execute()
-            repeat(steps) {
-                val roll = rollOddEvenUseCase.execute()
-                finalRoll = roll
-                _uiState.update { current ->
-                    current.copy(diceValue = roll.value)
-                }
-                if (rollAnimationMs > 0L) {
-                    delay(tickMs)
-                }
-            }
+            repeat(steps) { finalRoll = rollOddEvenUseCase.execute() }
+            _uiState.update { it.copy(diceValue = finalRoll.value) }
+            delay(_uiState.value.rollPlaybackMs)
             val isCorrect = finalRoll.isEven == (choice == OddEvenChoice.EVEN)
             val updatedCorrect = if (isCorrect) state.correctCount + 1 else state.correctCount
             val updatedWrong = if (isCorrect) state.wrongCount else state.wrongCount + 1

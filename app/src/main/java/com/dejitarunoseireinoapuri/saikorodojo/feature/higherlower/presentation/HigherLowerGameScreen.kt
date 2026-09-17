@@ -1,8 +1,12 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation
 
+import androidx.compose.runtime.State
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.RealisticDie
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.rememberDiceRollMotion
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,13 +26,10 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +41,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -71,6 +71,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.min
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicIconButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicTextButton
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -135,6 +138,7 @@ fun HigherLowerGameScreen(
     onExitToMenu: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
+    val rollMotion = rememberDiceRollMotion(uiState.isRolling, durationMs = uiState.rollPlaybackMs)
     var wasRolling by remember { mutableStateOf(false) }
     var wasTransitioning by remember { mutableStateOf(false) }
     var hadRewardCards by remember { mutableStateOf(false) }
@@ -196,7 +200,7 @@ fun HigherLowerGameScreen(
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            IconButton(
+            MetallicIconButton(
                 onClick = {
                     soundPlayer.play(SoundEffect.QUESTION)
                     showExitDialog = true
@@ -359,7 +363,7 @@ fun HigherLowerGameScreen(
                 }
             } else if (showStartButton) {
                 Spacer(modifier = Modifier.height(24.dp))
-                Button(
+                    MetallicButton(
                     onClick = {
                         onStartClick()
                     },
@@ -470,7 +474,7 @@ fun HigherLowerGameScreen(
                             ) {
                                 HigherLowerDiceRow(
                                     values = uiState.baseDiceValues,
-                                    diceRes = R.drawable.ten_sides,
+                                    motion = if (uiState.isCurrentDiceHidden) rollMotion else null,
                                     modifier = Modifier
                                         .alpha(if (uiState.isCurrentDiceAnchoredUp) 0f else 1f)
                                         .graphicsLayer {
@@ -503,7 +507,7 @@ fun HigherLowerGameScreen(
                                     } else {
                                         uiState.currentDiceValues
                                     },
-                                    diceRes = R.drawable.ten_sides,
+                                    motion = if (!uiState.isCurrentDiceHidden) rollMotion else null,
                                     modifier = Modifier
                                         .graphicsLayer {
                                             translationY = -shiftY * currentTransitionProgress
@@ -531,7 +535,7 @@ fun HigherLowerGameScreen(
         }
 
         if (uiState.isComplete && uiState.isStarted) {
-            Button(
+            MetallicButton(
                 onClick = {
                     soundPlayer.play(SoundEffect.USE)
                     onContinueClick()
@@ -577,7 +581,7 @@ fun HigherLowerGameScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(
+                    MetallicTextButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
@@ -592,7 +596,7 @@ fun HigherLowerGameScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(
+                    MetallicTextButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
@@ -634,7 +638,7 @@ private fun HigherLowerChoiceButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Button(
+    MetallicButton(
         onClick = onClick,
         enabled = isEnabled,
         shape = RoundedCornerShape(20.dp),
@@ -741,7 +745,7 @@ private fun HigherLowerMat(
 @Composable
 private fun HigherLowerDiceRow(
     values: List<Int>,
-    diceRes: Int,
+    motion: State<Float>?,
     modifier: Modifier = Modifier
 ) {
     if (values.isEmpty()) return
@@ -761,11 +765,12 @@ private fun HigherLowerDiceRow(
             horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            values.take(2).forEach { value ->
+            values.take(2).forEachIndexed { index, value ->
                 HigherLowerDieFace(
                     value = value,
                     size = diceSize,
-                    diceRes = diceRes
+                    motion = motion,
+                    index = index
                 )
             }
         }
@@ -798,22 +803,13 @@ private fun HigherLowerSumLabel(
 private fun HigherLowerDieFace(
     value: Int,
     size: Dp,
-    diceRes: Int
+    motion: State<Float>?,
+    index: Int
 ) {
-    val fontSize = (size.value * 0.32f).coerceIn(14f, 22f).sp
-    Box(
-        modifier = Modifier.size(size),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = diceRes),
-            contentDescription = stringResource(R.string.cd_dice_face, value),
-            modifier = Modifier.fillMaxSize()
-        )
-        Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = fontSize),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-    }
+    RealisticDie(
+        value = value, type = DiceType.D10, size = size,
+        motion = motion, index = index,
+        travelX = size * if (index % 2 == 0) 0.24f else -0.24f,
+        travelY = size * 0.08f
+    )
 }

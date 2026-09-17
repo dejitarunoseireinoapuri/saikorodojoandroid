@@ -1,5 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.higherlower.presentation
 
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.calculateRollPlaybackMs
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
@@ -54,6 +56,7 @@ data class HigherLowerGameUiState(
     val isCurrentDiceHidden: Boolean = false,
     val isCurrentDiceAnchoredUp: Boolean = false,
     val isRolling: Boolean = false,
+    val rollPlaybackMs: Long = 1_500L,
     val isChoiceVisible: Boolean = false,
     val isTransitioning: Boolean = false,
     val isSuccessHighlighting: Boolean = false,
@@ -95,6 +98,7 @@ class HigherLowerGameViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         HigherLowerGameUiState(
+            rollPlaybackMs = calculateRollPlaybackMs(rollAnimationMs, tickMs),
             totalRounds = totalRounds,
             targetCorrect = targetCorrect
         )
@@ -154,7 +158,7 @@ class HigherLowerGameViewModel(
             )
         }
         startRoll(
-            onTick = { roll -> updateBaseDice(roll) },
+            onPreparedResult = { roll -> updateBaseDice(roll) },
             onComplete = { roll ->
                 _uiState.update { state ->
                     state.copy(
@@ -186,7 +190,7 @@ class HigherLowerGameViewModel(
             )
         }
         startRoll(
-            onTick = { roll -> updateCurrentDice(roll) },
+            onPreparedResult = { roll -> updateCurrentDice(roll) },
             onComplete = { roll ->
                 val baseSum = DiceSum(state.baseDiceValues.sum())
                 val newSum = DiceSum(roll.sum)
@@ -401,21 +405,16 @@ class HigherLowerGameViewModel(
     }
 
     private fun startRoll(
-        onTick: (HigherLowerRoll) -> Unit,
+        onPreparedResult: (HigherLowerRoll) -> Unit,
         onComplete: (HigherLowerRoll) -> Unit
     ) {
         rollJob?.cancel()
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollAnimationMs / tickMs).coerceAtLeast(1L).toInt()
             var finalRoll = rollHigherLowerUseCase.execute()
-            repeat(steps) {
-                val roll = rollHigherLowerUseCase.execute()
-                finalRoll = roll
-                onTick(roll)
-                if (rollAnimationMs > 0L) {
-                    delay(tickMs)
-                }
-            }
+            repeat(steps) { finalRoll = rollHigherLowerUseCase.execute() }
+            onPreparedResult(finalRoll)
+            delay(_uiState.value.rollPlaybackMs)
             onComplete(finalRoll)
         }
     }

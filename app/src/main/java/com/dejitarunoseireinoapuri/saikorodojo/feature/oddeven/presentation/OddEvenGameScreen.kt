@@ -1,6 +1,9 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.presentation
 
-import androidx.compose.foundation.Image
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.RealisticDie
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.rememberDiceRollMotion
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,13 +22,10 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -35,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -66,6 +65,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.min
 import com.dejitarunoseireinoapuri.saikorodojo.feature.oddeven.domain.OddEvenChoice
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicIconButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicTextButton
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -181,7 +183,7 @@ fun OddEvenGameScreen(
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            IconButton(
+            MetallicIconButton(
                 onClick = {
                     soundPlayer.play(SoundEffect.QUESTION)
                     showExitDialog = true
@@ -271,7 +273,7 @@ fun OddEvenGameScreen(
                 )
                 if (!uiState.isStarted && showStartButton) {
                     Spacer(modifier = Modifier.height(24.dp))
-                    Button(
+                    MetallicButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             onStartClick()
@@ -303,6 +305,8 @@ fun OddEvenGameScreen(
             ) {
                 OddEvenDiceFace(
                     value = uiState.diceValue,
+                    isRolling = uiState.isRolling,
+                    rollPlaybackMs = uiState.rollPlaybackMs,
                     size = ODD_EVEN_DICE_SIZE,
                     isSuccess = uiState.showFireworks,
                     isFailure = uiState.showFailure || hasLoss,
@@ -382,7 +386,7 @@ fun OddEvenGameScreen(
         }
 
         if (uiState.isComplete && uiState.isStarted) {
-            Button(
+            MetallicButton(
                 onClick = {
                     soundPlayer.play(SoundEffect.USE)
                     onContinueClick()
@@ -428,7 +432,7 @@ fun OddEvenGameScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(
+                    MetallicTextButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
@@ -443,7 +447,7 @@ fun OddEvenGameScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(
+                    MetallicTextButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
@@ -469,7 +473,7 @@ private fun OddEvenChoiceButton(
     onClick: () -> Unit
 ) {
     if (!visible) return
-    Button(
+    MetallicButton(
         onClick = onClick,
         enabled = isEnabled,
         shape = RoundedCornerShape(20.dp),
@@ -492,11 +496,14 @@ private fun OddEvenChoiceButton(
 @Composable
 private fun OddEvenDiceFace(
     value: Int?,
+    isRolling: Boolean,
+    rollPlaybackMs: Long,
     size: Dp,
     isSuccess: Boolean,
     isFailure: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val rollMotion = rememberDiceRollMotion(isRolling, durationMs = rollPlaybackMs)
     val matBackground = when {
         isSuccess -> VictoryMatBackground
         isFailure -> FailureMatBackground
@@ -521,16 +528,13 @@ private fun OddEvenDiceFace(
         contentAlignment = Alignment.Center
     ) {
         if (value != null) {
-            Image(
-                painter = painterResource(id = R.drawable.six_sides),
-                contentDescription = stringResource(R.string.cd_dice_face, value),
-                modifier = Modifier.fillMaxSize()
-            )
-            Text(
-                text = value.toString(),
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.offset(y = 0.dp)
+            RealisticDie(
+                value = value,
+                type = DiceType.D6,
+                size = size - 12.dp,
+                motion = rollMotion,
+                travelX = size * 0.12f,
+                travelY = size * 0.08f
             )
         }
     }

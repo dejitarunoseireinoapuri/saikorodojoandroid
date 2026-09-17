@@ -1,5 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.sequence.presentation
 
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.calculateRollPlaybackMs
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
@@ -38,6 +40,7 @@ private const val DEFAULT_SAVE_ANIMATION_MS = 320L
 data class SequenceGameUiState(
     val isStarted: Boolean = false,
     val isRolling: Boolean = false,
+    val rollPlaybackMs: Long = 1_500L,
     val isAwaitingDecision: Boolean = false,
     val currentRoll: Int = 0,
     val totalRolls: Int = DEFAULT_TOTAL_ROLLS,
@@ -88,6 +91,7 @@ class SequenceGameViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         SequenceGameUiState(
+            rollPlaybackMs = calculateRollPlaybackMs(rollAnimationMs, tickMs, omitLastDelay = true),
             totalRolls = totalRolls,
             targetSequence = targetSequence,
             maxDiscards = maxDiscards
@@ -348,17 +352,9 @@ class SequenceGameViewModel(
         rollJob = viewModelScope.launch(dispatcher) {
             val steps = (rollAnimationMs / tickMs).coerceAtLeast(1L).toInt()
             var finalRoll: Int? = _uiState.value.diceValue
-            repeat(steps) { step ->
-                val roll = rollSequenceUseCase.execute().value
-                finalRoll = roll
-                _uiState.update { current ->
-                    current.copy(diceValue = roll)
-                }
-                val shouldDelay = rollAnimationMs > 0L && step < steps - 1
-                if (shouldDelay) {
-                    delay(tickMs)
-                }
-            }
+            repeat(steps) { finalRoll = rollSequenceUseCase.execute().value }
+            _uiState.update { it.copy(diceValue = finalRoll) }
+            delay(_uiState.value.rollPlaybackMs)
             _uiState.update {
                 it.copy(
                     isRolling = false,

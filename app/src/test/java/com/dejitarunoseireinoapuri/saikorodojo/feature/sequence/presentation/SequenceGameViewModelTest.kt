@@ -240,6 +240,30 @@ class SequenceGameViewModelTest {
         assertEquals(listOf(2), state.savedValues)
     }
 
+    @Test
+    fun `result stays fixed during playback and decisions wait until it ends`() = runTest {
+        val viewModel = buildViewModel(
+            diceRolls = listOf(2, 5, 8),
+            dispatcher = UnconfinedTestDispatcher(testScheduler),
+            rollAnimationMs = 300L,
+            tickMs = 100L
+        )
+        viewModel.onEvent(SequenceGameUiEvent.StartGame)
+        assertEquals(8, viewModel.uiState.value.diceValue)
+        assertTrue(viewModel.uiState.value.isRolling)
+        assertFalse(viewModel.uiState.value.isAwaitingDecision)
+
+        testScheduler.advanceTimeBy(100L)
+        testScheduler.runCurrent()
+        assertEquals(8, viewModel.uiState.value.diceValue)
+        assertFalse(viewModel.uiState.value.isAwaitingDecision)
+        testScheduler.advanceTimeBy(100L)
+        testScheduler.runCurrent()
+        assertEquals(8, viewModel.uiState.value.diceValue)
+        assertFalse(viewModel.uiState.value.isRolling)
+        assertTrue(viewModel.uiState.value.isAwaitingDecision)
+    }
+
     private fun buildViewModel(
         diceRolls: List<Int>,
         dispatcher: TestDispatcher,

@@ -9,11 +9,49 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSetValueOuterColor
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.Turquoise
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GameDiceBoardTest {
+    @Test
+    fun `resting dice stay separated and inside the mat for one to twenty dice`() {
+        for (width in listOf(220.dp, 300.dp, 600.dp)) {
+            for (count in 1..20) {
+                val height = 244.dp
+                val spec = calculateDiceGridSpec(width, height, count, 4.dp)
+                val dieSize = spec.diceSize * 0.86f
+                for (seed in 0L..9L) {
+                    val positions = calculateRestingDicePositions(
+                        count, width, height, spec.diceSize, 4.dp, spec.columns, spec.rows, seed
+                    )
+                    assertEquals(count, positions.size)
+                    positions.forEachIndexed { index, position ->
+                        assertTrue(position.x >= 0.dp && position.y >= 0.dp)
+                        assertTrue(position.x + dieSize <= width)
+                        assertTrue(position.y + dieSize <= height)
+                        positions.drop(index + 1).forEach { other ->
+                            assertTrue(
+                                position.x + dieSize <= other.x || other.x + dieSize <= position.x ||
+                                    position.y + dieSize <= other.y || other.y + dieSize <= position.y
+                            )
+                        }
+                    }
+                    assertEquals(positions, calculateRestingDicePositions(
+                        count, width, height, spec.diceSize, 4.dp, spec.columns, spec.rows, seed
+                    ))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `a single row has no duplicated corner slots`() {
+        val positions = calculatePackedDicePositions(3, 100.dp, 30.dp, 30.dp, 4.dp, 3, 1, 0L)
+        assertEquals(3, positions.distinct().size)
+    }
+
     @Test
     fun `grid spec keeps 3x3 for 7 to 9 dice`() {
         val availableWidth = 300.dp
@@ -87,12 +125,18 @@ class GameDiceBoardTest {
     }
 
     @Test
-    fun `set value number color uses highest contrast against orange background`() {
-        assertEquals(Color.White, diceSetValueNumberColor(DiceSetValueOuterColor))
+    fun `set value number color uses highest contrast against gold background`() {
+        assertEquals(Color.Black, diceSetValueNumberColor(DiceSetValueOuterColor))
     }
 
     @Test
-    fun `adjust plus minus uses orange dice faces`() {
+    fun `action selection uses gold instead of objective selection color`() {
+        assertEquals(DiceSetValueOuterColor, diceActionSelectionBorderColor())
+        assertTrue(diceActionSelectionBorderColor() != Turquoise)
+    }
+
+    @Test
+    fun `adjust plus minus uses accent dice faces`() {
         assertEquals(R.drawable.six_sides_set_value, diceTypeAdjustDrawable(DiceType.D6))
         assertEquals(R.drawable.eigth_sides_set_value, diceTypeAdjustDrawable(DiceType.D8))
         assertEquals(R.drawable.ten_sides_set_value, diceTypeAdjustDrawable(DiceType.D10))
@@ -107,14 +151,14 @@ class GameDiceBoardTest {
     }
 
     @Test
-    fun `flip preview uses orange dice style for each dice type`() {
+    fun `flip preview uses accent dice style for each dice type`() {
         assertEquals(R.drawable.six_sides_set_value, diceTypeSetValueDrawable(DiceType.D6))
         assertEquals(R.drawable.eigth_sides_set_value, diceTypeSetValueDrawable(DiceType.D8))
         assertEquals(R.drawable.ten_sides_set_value, diceTypeSetValueDrawable(DiceType.D10))
     }
 
     @Test
-    fun `dice face number color swaps when die is selected`() {
+    fun `dice face number color stays readable when die is selected`() {
         assertEquals(DiceDefaultNumberColor, diceFaceNumberColor(isSelected = false))
         assertEquals(DiceSelectedNumberColor, diceFaceNumberColor(isSelected = true))
     }
@@ -127,7 +171,7 @@ class GameDiceBoardTest {
     }
 
     @Test
-    fun `roll and flip action buttons use minigame orange color`() {
+    fun `roll and flip action buttons use minigame gold color`() {
         assertEquals(MinigameButtonPrimaryColor, DiceBoardActionButtonColor)
     }
 

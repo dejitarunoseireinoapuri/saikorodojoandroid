@@ -1,6 +1,10 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.blackjack.presentation
 
-import androidx.compose.foundation.Image
+import androidx.compose.runtime.State
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.RealisticDie
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.rememberDiceRollMotion
+import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,13 +23,10 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -34,7 +35,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -66,6 +66,9 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.min
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.minigameMessageColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicIconButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicTextButton
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
@@ -125,6 +128,9 @@ fun BlackjackGameScreen(
     onExitToMenu: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
+    val rollMotion = rememberDiceRollMotion(
+        uiState.isRolling, uiState.playerDice.size to uiState.dealerDice.size, uiState.rollPlaybackMs
+    )
     var hadRewardCards by remember { mutableStateOf(false) }
     var previousPlayerDiceCount by remember { mutableIntStateOf(0) }
     var previousDealerDiceCount by remember { mutableIntStateOf(0) }
@@ -187,7 +193,7 @@ fun BlackjackGameScreen(
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            IconButton(
+            MetallicIconButton(
                 onClick = {
                     soundPlayer.play(SoundEffect.QUESTION)
                     showExitDialog = true
@@ -318,7 +324,7 @@ fun BlackjackGameScreen(
             }
             if (showStartButton) {
                 Spacer(modifier = Modifier.height(24.dp))
-                Button(
+                    MetallicButton(
                     onClick = {
                         onStartClick()
                     },
@@ -362,7 +368,9 @@ fun BlackjackGameScreen(
                     borderColor = SequenceSaveMatBorder
                 ) {
                     DiceRow(
-                        values = uiState.dealerDice
+                        values = uiState.dealerDice,
+                        motion = rollMotion,
+                        rollingIndices = uiState.rollingDealerIndices
                     )
                 }
                 Spacer(modifier = Modifier.height(20.dp))
@@ -375,6 +383,7 @@ fun BlackjackGameScreen(
                         BlackjackActionButton(
                             label = stringResource(R.string.blackjack_stand),
                             testTag = BLACKJACK_STAND_BUTTON_TAG,
+                            secondary = true,
                             onClick = {
                                 onStandClick()
                             },
@@ -415,7 +424,9 @@ fun BlackjackGameScreen(
                     }
                 ) {
                     DiceRow(
-                        values = uiState.playerDice
+                        values = uiState.playerDice,
+                        motion = rollMotion,
+                        rollingIndices = uiState.rollingPlayerIndices
                     )
                 }
                 Spacer(modifier = Modifier.height(72.dp))
@@ -436,7 +447,7 @@ fun BlackjackGameScreen(
         }
 
         if (uiState.isComplete && uiState.isStarted) {
-            Button(
+            MetallicButton(
                 onClick = {
                     soundPlayer.play(SoundEffect.USE)
                     onContinueClick()
@@ -481,7 +492,7 @@ fun BlackjackGameScreen(
                     )
                 },
                 confirmButton = {
-                    TextButton(
+                    MetallicTextButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
@@ -496,7 +507,7 @@ fun BlackjackGameScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(
+                    MetallicTextButton(
                         onClick = {
                             soundPlayer.play(SoundEffect.USE)
                             showExitDialog = false
@@ -547,12 +558,13 @@ private fun BlackjackActionButton(
     label: String,
     testTag: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    secondary: Boolean = false
 ) {
-    Button(
+    MetallicButton(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
-        colors = minigameButtonColors(),
+        colors = minigameButtonColors(secondary = secondary),
         modifier = modifier
             .height(56.dp)
             .testTag(testTag)
@@ -591,7 +603,9 @@ private fun BlackjackMat(
 
 @Composable
 private fun DiceRow(
-    values: List<Int>
+    values: List<Int>,
+    motion: State<Float>,
+    rollingIndices: Set<Int>
 ) {
     if (values.isEmpty()) return
     BoxWithConstraints(
@@ -621,15 +635,18 @@ private fun DiceRow(
             verticalArrangement = Arrangement.spacedBy(rowSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            rows.forEach { rowValues ->
+            rows.forEachIndexed { rowIndex, rowValues ->
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(spacing),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    rowValues.forEach { value ->
+                    rowValues.forEachIndexed { columnIndex, value ->
+                        val index = rowIndex * maxPerRow + columnIndex
                         BlackjackDieFace(
                             value = value,
-                            size = diceSize.coerceAtMost(96.dp)
+                            size = diceSize.coerceAtMost(96.dp),
+                            motion = if (index in rollingIndices) motion else null,
+                            index = index
                         )
                     }
                 }
@@ -641,22 +658,14 @@ private fun DiceRow(
 @Composable
 private fun BlackjackDieFace(
     value: Int,
-    size: Dp
+    size: Dp,
+    motion: State<Float>?,
+    index: Int
 ) {
-    val fontSize = (size.value * 0.32f).coerceIn(14f, 22f).sp
-    Box(
-        modifier = Modifier.size(size),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ten_sides),
-            contentDescription = stringResource(R.string.cd_dice_face, value),
-            modifier = Modifier.fillMaxSize()
-        )
-        Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = fontSize),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-    }
+    RealisticDie(
+        value = value, type = DiceType.D10, size = size,
+        motion = motion, index = index,
+        travelX = size * if (index % 2 == 0) 0.22f else -0.22f,
+        travelY = size * 0.08f
+    )
 }

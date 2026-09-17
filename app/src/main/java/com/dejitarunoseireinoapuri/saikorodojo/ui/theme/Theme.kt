@@ -21,7 +21,29 @@ private val AppColorScheme = darkColorScheme(
     onSurface = AppOnSurface,
     surfaceVariant = AppSurfaceVariant,
     onSurfaceVariant = AppOnSurfaceVariant,
-    outline = AppOutline
+    outline = AppOutline,
+    primaryContainer = Color(0xFF554326),
+    onPrimaryContainer = Ivory,
+    secondaryContainer = FeltGreen,
+    onSecondaryContainer = Ivory,
+    tertiaryContainer = Color(0xFF554326),
+    onTertiaryContainer = Ivory,
+    error = FailureText,
+    onError = NightInk,
+    errorContainer = FailureMatBackground,
+    onErrorContainer = Ivory,
+    outlineVariant = Color(0xFF40516A),
+    inverseSurface = Ivory,
+    inverseOnSurface = NightInk,
+    inversePrimary = Color(0xFF765412),
+    surfaceTint = Turquoise,
+    surfaceDim = NightInk,
+    surfaceBright = NightSlateRaised,
+    surfaceContainerLowest = NightInk,
+    surfaceContainerLow = Color(0xFF172232),
+    surfaceContainer = NightSlate,
+    surfaceContainerHigh = NightSlateRaised,
+    surfaceContainerHighest = Color(0xFF34465C)
 )
 
 @Immutable

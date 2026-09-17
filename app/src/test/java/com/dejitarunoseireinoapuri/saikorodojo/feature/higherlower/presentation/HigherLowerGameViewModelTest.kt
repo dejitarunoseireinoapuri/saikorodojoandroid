@@ -265,13 +265,39 @@ class HigherLowerGameViewModelTest {
         assertTrue(finalState.rewardCards.isNotEmpty())
     }
 
+    @Test
+    fun `result stays fixed during playback and choices wait until it ends`() = runTest {
+        val viewModel = buildViewModel(
+            diceValues = listOf(1, 1, 2, 2, 3, 3, 4, 5),
+            rollAnimationMs = 300L,
+            tickMs = 100L
+        )
+        viewModel.onEvent(HigherLowerGameUiEvent.StartGame)
+        runCurrent()
+        assertEquals(listOf(4, 5), viewModel.uiState.value.baseDiceValues)
+        assertTrue(viewModel.uiState.value.isRolling)
+        assertFalse(viewModel.uiState.value.isChoiceVisible)
+
+        advanceTimeBy(100L)
+        runCurrent()
+        assertEquals(listOf(4, 5), viewModel.uiState.value.baseDiceValues)
+        assertFalse(viewModel.uiState.value.isChoiceVisible)
+        advanceTimeBy(200L)
+        runCurrent()
+        assertEquals(listOf(4, 5), viewModel.uiState.value.baseDiceValues)
+        assertFalse(viewModel.uiState.value.isRolling)
+        assertTrue(viewModel.uiState.value.isChoiceVisible)
+    }
+
     private fun buildViewModel(
         diceValues: List<Int>,
         targetCorrect: Int = 3,
         successHighlightMs: Long = 0L,
         transitionMs: Long = 0L,
         successResultDelayMs: Long = 0L,
-        postTransitionHoldMs: Long = 0L
+        postTransitionHoldMs: Long = 0L,
+        rollAnimationMs: Long = 0L,
+        tickMs: Long = 1L
     ): HigherLowerGameViewModel {
         val diceRoller = QueueDiceRoller(diceValues.toMutableList())
         return HigherLowerGameViewModel(
@@ -280,8 +306,8 @@ class HigherLowerGameViewModelTest {
                 FixedRewardRandomProvider()
             ),
             dispatcher = dispatcherRule.dispatcher,
-            rollAnimationMs = 0L,
-            tickMs = 1L,
+            rollAnimationMs = rollAnimationMs,
+            tickMs = tickMs,
             resultDelayMs = 0L,
             transitionMs = transitionMs,
             successHighlightMs = successHighlightMs,

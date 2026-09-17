@@ -34,6 +34,57 @@ class GameViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @Test
+    fun `single reroll animates only its target even when its value does not change`() = runTest {
+        val viewModel = buildViewModel(cardUiModels = listOf(
+            CardUiModel(CardId.REROLL_SINGLE, 0, 0, 0, count = 2)
+        ))
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(1))
+        viewModel.onEvent(GameUiEvent.RollSingleDie)
+        testDispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.uiState.value.isRolling)
+        assertEquals(setOf(1), viewModel.uiState.value.rollingDiceIndices)
+        val sequence = viewModel.uiState.value.rollSequence
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(listOf(1, 1, 1), viewModel.uiState.value.diceValues)
+        assertTrue(!viewModel.uiState.value.isRolling)
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(2))
+        viewModel.onEvent(GameUiEvent.RollSingleDie)
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(sequence + 1, viewModel.uiState.value.rollSequence)
+        assertEquals(setOf(2), viewModel.uiState.value.rollingDiceIndices)
+        testDispatcher.scheduler.advanceUntilIdle()
+    }
+
+    @Test
+    fun `selected reroll preserves stationary dice and their layout`() = runTest {
+        val viewModel = buildViewModel(rollDiceUseCase = RollDiceUseCase(FixedRandomProvider(6)))
+        val layoutSeed = viewModel.uiState.value.layoutSeed
+        viewModel.onEvent(GameUiEvent.ApplyCard(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(0))
+        viewModel.onEvent(GameUiEvent.DiceClicked(2))
+        viewModel.onEvent(GameUiEvent.RollSelectedDice)
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(setOf(0, 2), viewModel.uiState.value.rollingDiceIndices)
+        assertEquals(layoutSeed, viewModel.uiState.value.layoutSeed)
+        assertEquals(1, viewModel.uiState.value.diceValues[1])
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(listOf(6, 1, 6), viewModel.uiState.value.diceValues)
+    }
+
+    @Test
+    fun `initial roll identifies all dice for animation`() = runTest {
+        val viewModel = buildViewModel()
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        testDispatcher.scheduler.runCurrent()
+        val state = viewModel.uiState.value
+        assertEquals(state.diceValues.indices.toSet(), state.rollingDiceIndices)
+        assertTrue(state.isRolling)
+        testDispatcher.scheduler.advanceUntilIdle()
+    }
+
+    @Test
     fun `reroll some keeps objective selection and awaits selection`() = runTest {
         val viewModel = buildViewModel(
             cardUiModels = listOf(
@@ -827,6 +878,34 @@ class GameViewModelTest {
         assertEquals(2, restored.minigamesPlayedSinceInterstitial)
     }
 
+    @Test
+    fun `roll locks final faces before playback and keeps them through completion`() = runTest {
+        var calls = 0
+        val random = object : DiceRandomProvider {
+            override fun nextInt(from: Int, until: Int): Int = calls++ / 3 + 1
+        }
+        val viewModel = buildViewModel(
+            rollDiceUseCase = RollDiceUseCase(random),
+            rollDurationMs = 300L,
+            tickMs = 100L
+        )
+        viewModel.onEvent(GameUiEvent.StartRoll)
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(listOf(3, 3, 3), viewModel.uiState.value.diceValues)
+        assertTrue(viewModel.uiState.value.isRolling)
+
+        testDispatcher.scheduler.advanceTimeBy(100L)
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(listOf(3, 3, 3), viewModel.uiState.value.diceValues)
+        assertTrue(viewModel.uiState.value.isRolling)
+        testDispatcher.scheduler.advanceTimeBy(200L)
+        testDispatcher.scheduler.runCurrent()
+        assertEquals(listOf(3, 3, 3), viewModel.uiState.value.diceValues)
+        assertEquals(9, calls)
+        assertTrue(!viewModel.uiState.value.isRolling)
+        testDispatcher.scheduler.advanceUntilIdle()
+    }
+
     private fun buildViewModel(
         rollDiceUseCase: RollDiceUseCase = RollDiceUseCase(FixedRandomProvider(1)),
         cardUiModels: List<CardUiModel> = listOf(
@@ -838,7 +917,9 @@ class GameViewModelTest {
             )
         ),
         cardInventoryRepository: InMemoryCardInventoryRepository = InMemoryCardInventoryRepository(),
-        sessionRepository: GameSessionRepository = InMemoryGameSessionRepository()
+        sessionRepository: GameSessionRepository = InMemoryGameSessionRepository(),
+        rollDurationMs: Long = 1L,
+        tickMs: Long = 1L
     ): GameViewModel {
         val levelDefinition = LevelDefinition(
             levelNumber = 1,
@@ -853,8 +934,8 @@ class GameViewModelTest {
             saveGameSessionUseCase = SaveGameSessionUseCase(sessionRepository),
             clearGameSessionUseCase = ClearGameSessionUseCase(sessionRepository),
             dispatcher = testDispatcher,
-            rollDurationMs = 1L,
-            tickMs = 1L,
+            rollDurationMs = rollDurationMs,
+            tickMs = tickMs,
             layoutSeedProvider = { 0L },
             initialLevelDefinition = levelDefinition,
             cardUiModels = cardUiModels

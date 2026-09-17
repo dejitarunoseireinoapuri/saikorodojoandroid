@@ -25,6 +25,7 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundPlayerPro
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.data.SoundSettingsRepositoryProvider
 import com.dejitarunoseireinoapuri.saikorodojo.navigation.AppRoutes
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -33,14 +34,20 @@ import com.dejitarunoseireinoapuri.saikorodojo.ui.SystemBarAppearance
 import com.dejitarunoseireinoapuri.saikorodojo.ui.resolveSystemBarAppearance
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.AppBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSetValueOuterColor
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicTextButton
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.google.android.gms.ads.MobileAds
+import com.dejitarunoseireinoapuri.saikorodojo.feature.haptics.data.HapticSettingsRepositoryProvider
+import com.dejitarunoseireinoapuri.saikorodojo.feature.haptics.domain.GetHapticsEnabledUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.haptics.domain.ObserveHapticsEnabledUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.haptics.domain.ToggleHapticsEnabledUseCase
+import com.dejitarunoseireinoapuri.saikorodojo.feature.haptics.presentation.LocalHapticsEnabled
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +55,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         GameSessionRepositoryProvider.initialize(this)
         SoundSettingsRepositoryProvider.initialize(this)
+        HapticSettingsRepositoryProvider.initialize(this)
         SoundPlayerProvider.initialize(this)
+        val hapticSettingsRepository = HapticSettingsRepositoryProvider.provide()
+        val getHapticsEnabled = GetHapticsEnabledUseCase(hapticSettingsRepository)
+        val observeHapticsEnabled = ObserveHapticsEnabledUseCase(hapticSettingsRepository)
+        val toggleHapticsEnabled = ToggleHapticsEnabledUseCase(hapticSettingsRepository)
         val systemBarAppearance = resolveSystemBarAppearance(AppBackground.toArgb())
         enableEdgeToEdge(
             statusBarStyle = systemBarStyle(systemBarAppearance),
@@ -62,11 +74,15 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
+            val isHapticsEnabled by observeHapticsEnabled.execute().collectAsStateWithLifecycle(
+                initialValue = getHapticsEnabled.execute()
+            )
             SaikoroDojoTheme {
-                NavHost(
-                    navController = navController,
-                    startDestination = AppRoutes.START_DESTINATION
-                ) {
+                CompositionLocalProvider(LocalHapticsEnabled provides isHapticsEnabled) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = AppRoutes.START_DESTINATION
+                    ) {
                     composable(AppRoutes.MENU) {
                         var showInitialAdsNoticeDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -82,7 +98,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 },
                                 confirmButton = {
-                                    TextButton(
+                                    MetallicTextButton(
                                         onClick = {
                                             showInitialAdsNoticeDialog = false
                                             AdConsentManager.markInitialAdsNoticeShown(activity)
@@ -103,6 +119,8 @@ class MainActivity : ComponentActivity() {
                         }
 
                         MenuRoute(
+                            isHapticsEnabled = isHapticsEnabled,
+                            onHapticsToggleClick = { toggleHapticsEnabled.execute() },
                             onNavigateToDestination = { destination ->
                                 when (destination) {
                                     is MenuDestination.MainGame -> {
@@ -241,6 +259,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         )
+                    }
                     }
                 }
             }

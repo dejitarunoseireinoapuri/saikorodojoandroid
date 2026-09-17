@@ -1,5 +1,7 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.calculateRollPlaybackMs
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.data.InMemoryCardInventoryRepository
@@ -73,7 +75,9 @@ class GameViewModel(
     cardUiModels: List<CardUiModel> = emptyList()
 ) : ViewModel() {
     private var baseSeed = 0L
-    private val _uiState = MutableStateFlow(GameUiState())
+    private val _uiState = MutableStateFlow(GameUiState(
+        rollPlaybackMs = calculateRollPlaybackMs(rollDurationMs, tickMs)
+    ))
     val uiState: StateFlow<GameUiState> = _uiState
 
     private val _effects = MutableSharedFlow<GameUiEffect>(extraBufferCapacity = 1)
@@ -236,6 +240,8 @@ class GameViewModel(
                 it.copy(
                     isRolling = true,
                     layoutSeed = seed,
+                    rollingDiceIndices = plan.selectedIndices.toSet(),
+                    rollSequence = it.rollSequence + 1,
                     diceTypes = diceTypes,
                     interactionMode = DiceInteractionMode.Normal,
                     selectedRerollSingleDieIndex = null,
@@ -245,16 +251,15 @@ class GameViewModel(
                 )
             }
 
-            repeat(plan.steps) {
-                val values = rollDiceUseCase.execute(diceTypes)
-                _uiState.update {
-                    it.copy(
-                        diceValues = values,
-                        selectedDiceSum = calculateSelectedDiceSum(values, it.selectedDice)
-                    )
-                }
-                delay(tickMs)
+            var values = emptyList<Int>()
+            repeat(plan.steps) { values = rollDiceUseCase.execute(diceTypes) }
+            _uiState.update {
+                it.copy(
+                    diceValues = values,
+                    selectedDiceSum = calculateSelectedDiceSum(values, it.selectedDice)
+                )
             }
+            delay(_uiState.value.rollPlaybackMs)
 
             _uiState.update { it.copy(isRolling = false) }
             if (initialRollSnapshot == null) {
@@ -541,24 +546,25 @@ class GameViewModel(
                 it.copy(
                     isRolling = true,
                     interactionMode = DiceInteractionMode.Normal,
-                    selectedRerollSingleDieIndex = null
+                    selectedRerollSingleDieIndex = null,
+                    rollingDiceIndices = plan.selectedIndices.toSet(),
+                    rollSequence = it.rollSequence + 1
                 )
             }
-            repeat(plan.steps) {
-                val rolledValues = rollDiceUseCase.execute(plan.selectedDiceTypes)
-                _uiState.update { currentState ->
-                    val updatedValues = runDiceRollTurnUseCase.applyValues(
-                        currentValues = currentState.diceValues,
-                        selectedIndices = plan.selectedIndices,
-                        rolledValues = rolledValues
-                    )
-                    currentState.copy(
-                        diceValues = updatedValues,
-                        selectedDiceSum = calculateSelectedDiceSum(updatedValues, currentState.selectedDice)
-                    )
-                }
-                delay(tickMs)
+            var rolledValues = emptyList<Int>()
+            repeat(plan.steps) { rolledValues = rollDiceUseCase.execute(plan.selectedDiceTypes) }
+            _uiState.update { currentState ->
+                val updatedValues = runDiceRollTurnUseCase.applyValues(
+                    currentValues = currentState.diceValues,
+                    selectedIndices = plan.selectedIndices,
+                    rolledValues = rolledValues
+                )
+                currentState.copy(
+                    diceValues = updatedValues,
+                    selectedDiceSum = calculateSelectedDiceSum(updatedValues, currentState.selectedDice)
+                )
             }
+            delay(_uiState.value.rollPlaybackMs)
             _uiState.update { it.copy(isRolling = false) }
             refreshObjectiveProgress()
         }
@@ -737,24 +743,25 @@ class GameViewModel(
                 it.copy(
                     isRolling = true,
                     interactionMode = DiceInteractionMode.Normal,
-                    selectedRerollDice = emptySet()
+                    selectedRerollDice = emptySet(),
+                    rollingDiceIndices = plan.selectedIndices.toSet(),
+                    rollSequence = it.rollSequence + 1
                 )
             }
-            repeat(plan.steps) {
-                val rolledValues = rollDiceUseCase.execute(plan.selectedDiceTypes)
-                _uiState.update { currentState ->
-                    val updatedValues = runDiceRollTurnUseCase.applyValues(
-                        currentValues = currentState.diceValues,
-                        selectedIndices = plan.selectedIndices,
-                        rolledValues = rolledValues
-                    )
-                    currentState.copy(
-                        diceValues = updatedValues,
-                        selectedDiceSum = calculateSelectedDiceSum(updatedValues, currentState.selectedDice)
-                    )
-                }
-                delay(tickMs)
+            var rolledValues = emptyList<Int>()
+            repeat(plan.steps) { rolledValues = rollDiceUseCase.execute(plan.selectedDiceTypes) }
+            _uiState.update { currentState ->
+                val updatedValues = runDiceRollTurnUseCase.applyValues(
+                    currentValues = currentState.diceValues,
+                    selectedIndices = plan.selectedIndices,
+                    rolledValues = rolledValues
+                )
+                currentState.copy(
+                    diceValues = updatedValues,
+                    selectedDiceSum = calculateSelectedDiceSum(updatedValues, currentState.selectedDice)
+                )
             }
+            delay(_uiState.value.rollPlaybackMs)
             _uiState.update { it.copy(isRolling = false) }
             refreshObjectiveProgress()
         }
@@ -789,6 +796,7 @@ class GameViewModel(
                 diceTypes = levelDefinition.diceTypes,
                 layoutSeed = 0L,
                 isRolling = false,
+                rollingDiceIndices = emptySet(),
                 interactionMode = DiceInteractionMode.Normal,
                 selectedDice = emptySet(),
                 selectedRerollDice = emptySet(),

@@ -37,10 +37,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -93,6 +91,8 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.cards.presentation.defaul
 import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.MinigameType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicIconButton
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicTextButton
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -535,7 +535,7 @@ fun GameScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
+                            MetallicIconButton(
                         modifier = Modifier.onSizeChanged { leftControlWidthPx = it.width },
                         onClick = {
                             soundPlayer.play(SoundEffect.QUESTION)
@@ -561,7 +561,7 @@ fun GameScreen(
                                 onOpenRandomMinigame()
                             }
                         )
-                        IconButton(
+                            MetallicIconButton(
                             onClick = {
                                 soundPlayer.play(SoundEffect.QUESTION)
                                 showSurrenderDialog = true
@@ -570,7 +570,7 @@ fun GameScreen(
                             Icon(
                                 imageVector = Icons.Outlined.Flag,
                                 contentDescription = stringResource(R.string.cd_surrender),
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
@@ -615,7 +615,7 @@ fun GameScreen(
                             Box(
                                 modifier = Modifier
                                     .size(20.dp)
-                                    .border(1.dp, Color.White, CircleShape)
+                                    .border(1.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
                                     .clickable(
                                         interactionSource = remember { MutableInteractionSource() },
                                         indication = null
@@ -630,7 +630,7 @@ fun GameScreen(
                             ) {
                                 Text(
                                     text = "i",
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onBackground,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Normal
                                 )
@@ -709,7 +709,7 @@ fun GameScreen(
                     Box(
                         modifier = Modifier
                             .padding(top = 136.dp, start = 24.dp, end = 24.dp)
-                            .background(Color.White, RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                             .widthIn(max = 320.dp)
                             .clickable(
@@ -720,7 +720,7 @@ fun GameScreen(
                     ) {
                         Text(
                             text = explainTextValue,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
                             textAlign = TextAlign.Center
                         )
@@ -827,12 +827,12 @@ private fun MinigamesAvailableBadge(
             .animateContentSize()
             .semantics { contentDescription = badgeContentDescription }
             .background(
-                color = Color.White.copy(alpha = 0.16f),
+                color = MaterialTheme.colorScheme.secondaryContainer,
                 shape = badgeShape
             )
             .border(
                 width = 1.5.dp,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 shape = badgeShape
             )
             .alpha(if (isLocked) 0.55f else 1f)
@@ -849,13 +849,13 @@ private fun MinigamesAvailableBadge(
             Text(
                 text = minigameAvailabilityLabel(minigamesAvailable),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.testTag(GAME_MINIGAMES_BADGE_COUNT_TAG)
             )
             Icon(
                 imageVector = Icons.Filled.Casino,
                 contentDescription = null,
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
                     .size(16.dp)
                     .testTag(GAME_MINIGAMES_BADGE_ICON_TAG)
@@ -920,7 +920,7 @@ private fun GameAlertDialog(
             )
         },
         confirmButton = {
-            TextButton(
+                    MetallicTextButton(
                 onClick = {
                     soundPlayer.play(confirmSoundEffect)
                     onConfirm()
@@ -936,7 +936,7 @@ private fun GameAlertDialog(
             }
         },
         dismissButton = {
-            TextButton(
+                    MetallicTextButton(
                 onClick = {
                     soundPlayer.play(dismissSoundEffect)
                     onDismiss()

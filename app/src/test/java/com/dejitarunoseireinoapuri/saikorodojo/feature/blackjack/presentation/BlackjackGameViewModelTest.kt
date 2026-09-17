@@ -26,6 +26,37 @@ class BlackjackGameViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
+    fun `hit and dealer rolls animate only the newly added die`() = runTest {
+        val viewModel = BlackjackGameViewModel(
+            rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
+                TestDiceRoller(ArrayDeque(listOf(4, 5, 8, 2, 9)))
+            ),
+            selectMinigameRewardCardsUseCase = SelectMinigameRewardCardsUseCase(
+                TestRewardRandomProvider(listOf(0.4f, 0.2f, 0.3f))
+            ),
+            dispatcher = mainDispatcherRule.dispatcher,
+            rollAnimationMs = 100L,
+            tickMs = 100L
+        )
+        viewModel.onEvent(BlackjackGameUiEvent.StartGame)
+        runCurrent()
+        assertEquals(setOf(0, 1), viewModel.uiState.value.rollingPlayerIndices)
+        assertEquals(setOf(0), viewModel.uiState.value.rollingDealerIndices)
+        advanceUntilIdle()
+        viewModel.onEvent(BlackjackGameUiEvent.Hit)
+        runCurrent()
+        assertEquals(setOf(2), viewModel.uiState.value.rollingPlayerIndices)
+        assertTrue(viewModel.uiState.value.rollingDealerIndices.isEmpty())
+        assertEquals(listOf(4, 5, 2), viewModel.uiState.value.playerDice)
+        advanceUntilIdle()
+        viewModel.onEvent(BlackjackGameUiEvent.Stand)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.rollingPlayerIndices.isEmpty())
+        assertEquals(setOf(1), viewModel.uiState.value.rollingDealerIndices)
+        advanceUntilIdle()
+    }
+
+    @Test
     fun `dealer wins when reaching a higher total`() = runTest {
         val viewModel = BlackjackGameViewModel(
             rollBlackjackDiceUseCase = RollBlackjackDiceUseCase(
@@ -134,8 +165,17 @@ class BlackjackGameViewModelTest {
         val midState = viewModel.uiState.value
         assertEquals(0, midState.playerTotal)
         assertEquals(0, midState.dealerTotal)
+        assertEquals(listOf(4, 6), midState.playerDice)
+        assertEquals(listOf(8), midState.dealerDice)
 
-        advanceTimeBy(4L)
+        advanceTimeBy(2L)
+        runCurrent()
+        assertEquals(midState.playerDice, viewModel.uiState.value.playerDice)
+        assertEquals(midState.dealerDice, viewModel.uiState.value.dealerDice)
+        assertEquals(0, viewModel.uiState.value.playerTotal)
+        assertEquals(0, viewModel.uiState.value.dealerTotal)
+        assertTrue(viewModel.uiState.value.isRolling)
+        advanceTimeBy(2L)
         advanceUntilIdle()
 
         val finalState = viewModel.uiState.value

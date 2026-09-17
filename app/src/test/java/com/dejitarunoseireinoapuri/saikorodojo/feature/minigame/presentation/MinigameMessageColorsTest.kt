@@ -1,8 +1,8 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation
 
 import androidx.compose.ui.graphics.Color
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureText
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SuccessText
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -13,7 +13,7 @@ class MinigameMessageColorsTest {
 
         val result = minigameMessageColor(MinigameMessageType.Win, titleColor)
 
-        assertEquals(VictoryMatBackground, result)
+        assertEquals(SuccessText, result)
     }
 
     @Test
@@ -22,7 +22,7 @@ class MinigameMessageColorsTest {
 
         val result = minigameMessageColor(MinigameMessageType.Lose, titleColor)
 
-        assertEquals(FailureMatBackground, result)
+        assertEquals(FailureText, result)
     }
 
     @Test

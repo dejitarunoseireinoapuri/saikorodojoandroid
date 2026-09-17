@@ -1,8 +1,8 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation
 
 import androidx.compose.ui.graphics.Color
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureMatBackground
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.VictoryMatBackground
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.FailureText
+import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SuccessText
 
 internal enum class MinigameMessageType {
     Win,
@@ -16,8 +16,8 @@ internal fun minigameMessageColor(
     titleColor: Color
 ): Color {
     return when (messageType) {
-        MinigameMessageType.Win -> VictoryMatBackground
-        MinigameMessageType.Lose -> FailureMatBackground
+        MinigameMessageType.Win -> SuccessText
+        MinigameMessageType.Lose -> FailureText
         MinigameMessageType.WinCards,
         MinigameMessageType.Other -> titleColor
     }

@@ -7,12 +7,14 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SaikoroDojoTheme
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.OxaniunFontFamily
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.compose.ui.test.onNodeWithTag
@@ -50,12 +52,14 @@ class MenuScreenTest {
                     applySystemBarsPadding = false,
                     showContinueDialog = false,
                     isSoundEnabled = true,
+                    isHapticsEnabled = true,
                     onPlayClick = {},
                     onRulesClick = {},
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
                     onSoundToggleClick = {},
+                    onHapticsToggleClick = {},
                     onSettingsClick = {}
                 )
             }
@@ -75,12 +79,14 @@ class MenuScreenTest {
                     applySystemBarsPadding = false,
                     showContinueDialog = false,
                     isSoundEnabled = true,
+                    isHapticsEnabled = true,
                     onPlayClick = {},
                     onRulesClick = {},
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
                     onSoundToggleClick = {},
+                    onHapticsToggleClick = {},
                     onSettingsClick = {}
                 )
             }
@@ -100,12 +106,14 @@ class MenuScreenTest {
                     applySystemBarsPadding = false,
                     showContinueDialog = false,
                     isSoundEnabled = true,
+                    isHapticsEnabled = true,
                     onPlayClick = {},
                     onRulesClick = {},
                     onContinueGame = {},
                     onStartNewGame = {},
                     onDismissDialog = {},
                     onSoundToggleClick = {},
+                    onHapticsToggleClick = {},
                     onSettingsClick = {}
                 )
             }
@@ -113,5 +121,32 @@ class MenuScreenTest {
 
         composeRule.onNodeWithTag(MENU_DIE_IMAGE_TAG)
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun hapticsButtonTogglesVibrationSetting() {
+        var wasClicked = false
+
+        composeRule.setContent {
+            SaikoroDojoTheme {
+                MenuScreen(
+                    applySystemBarsPadding = false,
+                    showContinueDialog = false,
+                    isSoundEnabled = true,
+                    isHapticsEnabled = true,
+                    onPlayClick = {},
+                    onRulesClick = {},
+                    onContinueGame = {},
+                    onStartNewGame = {},
+                    onDismissDialog = {},
+                    onSoundToggleClick = {},
+                    onHapticsToggleClick = { wasClicked = true },
+                    onSettingsClick = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag(MENU_HAPTICS_BUTTON_TAG).performClick()
+        composeRule.runOnIdle { assertTrue(wasClicked) }
     }
 }

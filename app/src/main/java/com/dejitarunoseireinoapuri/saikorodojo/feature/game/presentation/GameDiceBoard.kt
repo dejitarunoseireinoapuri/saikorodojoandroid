@@ -1,6 +1,5 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.game.presentation
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,17 +14,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.State
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -36,13 +35,15 @@ import com.dejitarunoseireinoapuri.saikorodojo.feature.game.domain.DiceType
 import com.dejitarunoseireinoapuri.saikorodojo.feature.minigame.presentation.MinigameButtonPrimaryColor
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.domain.SoundEffect
 import com.dejitarunoseireinoapuri.saikorodojo.feature.sound.presentation.rememberSoundPlayer
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceDefaultNumberColor
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.dicePalette
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceOptionNumberColor
-import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSelectedNumberColor
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.DiceSetValueOuterColor
+import com.dejitarunoseireinoapuri.saikorodojo.ui.components.MetallicButton
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBackground
 import com.dejitarunoseireinoapuri.saikorodojo.ui.theme.SequenceSaveMatBorder
 import kotlin.random.Random
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.RealisticDie
+import com.dejitarunoseireinoapuri.saikorodojo.feature.dice.presentation.rememberDiceRollMotion
 
 internal val DiceBoardActionButtonColor = MinigameButtonPrimaryColor
 
@@ -59,6 +60,7 @@ internal fun DiceBoard(
     onFlipSelectedDie: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
+    val rollMotion = rememberDiceRollMotion(uiState.isRolling, uiState.rollSequence, uiState.rollPlaybackMs)
     val diceCount = uiState.diceValues.size
     val boardHeight = 276.dp
     val horizontalMargin = 20.dp
@@ -79,13 +81,13 @@ internal fun DiceBoard(
             spacing = diceSpacing
         )
     }
-    val diceSize = gridSpec.diceSize
-    val positions = remember(diceCount, contentSize, gridSpec) {
-        calculatePackedDicePositions(
+    val diceSize = gridSpec.diceSize * 0.86f
+    val positions = remember(diceCount, contentSize, gridSpec, uiState.layoutSeed) {
+        calculateRestingDicePositions(
             diceCount = diceCount,
             availableWidth = contentSize.width,
             availableHeight = contentSize.height,
-            diceSize = diceSize,
+            diceSize = gridSpec.diceSize,
             spacing = diceSpacing,
             columns = gridSpec.columns,
             rows = gridSpec.rows,
@@ -98,7 +100,6 @@ internal fun DiceBoard(
         }
     }
     val boardYOffset = 24.dp
-    val diceTextScale = calculateDiceTextScale(diceSize)
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         if (uiState.selectedDice.isNotEmpty() && uiState.shouldShowSelectedSum) {
             val sumOffset = -(boardHeight / 2 + 42.dp)
@@ -174,8 +175,6 @@ internal fun DiceBoard(
                                 value = (selectedValue - 1).coerceAtLeast(1),
                                 faceDrawable = diceTypeAdjustDrawable(selectedType),
                                 size = diceSize,
-                                numberTextScale = 1f,
-                                numberTextColor = diceSetValueNumberColor(),
                                 onClick = {
                                     soundPlayer.play(SoundEffect.USE)
                                     onAdjustSelectedDie(-1)
@@ -187,8 +186,6 @@ internal fun DiceBoard(
                                 value = (selectedValue + 1).coerceAtMost(selectedType.sides),
                                 faceDrawable = diceTypeAdjustDrawable(selectedType),
                                 size = diceSize,
-                                numberTextScale = 1f,
-                                numberTextColor = diceSetValueNumberColor(),
                                 onClick = {
                                     soundPlayer.play(SoundEffect.USE)
                                     onAdjustSelectedDie(1)
@@ -217,9 +214,6 @@ internal fun DiceBoard(
                     val availableWidth = (maxWidth - horizontalMargin * 2).coerceAtLeast(0.dp)
                     val rowSize = calculateRowDiceSize(availableWidth, optionsPerRow, optionSpacing)
                     val optionSize = minOf(rowSize, diceSize)
-                    val textScale = if (diceSize.value == 0f) 1f else {
-                        (optionSize.value / diceSize.value).coerceAtMost(1f)
-                    }
                     val setValueOffset = boardHeight / 2 + optionSize + 40.dp
                     Column(
                         modifier = Modifier
@@ -252,8 +246,6 @@ internal fun DiceBoard(
                                             value = value,
                                             faceDrawable = diceTypeSetValueDrawable(selectedType),
                                             size = optionSize,
-                                            numberTextScale = textScale,
-                                            numberTextColor = diceSetValueNumberColor(),
                                             onClick = {
                                                 soundPlayer.play(SoundEffect.USE)
                                                 onSetSelectedDieValue(value)
@@ -274,7 +266,7 @@ internal fun DiceBoard(
                 else -> uiState.selectedRerollSingleDieIndex != null
             }
             val onClick = if (uiState.isAwaitingRerollSelected) onRollSelectedDice else onRollSingleDie
-            Button(
+            MetallicButton(
                 onClick = {
                     onClick()
                 },
@@ -282,7 +274,7 @@ internal fun DiceBoard(
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = DiceBoardActionButtonColor,
-                    contentColor = Color.White
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -310,8 +302,6 @@ internal fun DiceBoard(
                     value = flippedValue,
                     faceDrawable = diceTypeSetValueDrawable(selectedType),
                     size = diceSize,
-                    numberTextScale = 1f,
-                    numberTextColor = diceSetValueNumberColor(),
                     onClick = {
                         if (!uiState.isRolling) {
                             soundPlayer.play(SoundEffect.USE)
@@ -331,6 +321,7 @@ internal fun DiceBoard(
                 .offset(y = boardYOffset)
                 .height(boardHeight)
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
                 .background(
                     color = SequenceSaveMatBackground,
                     shape = RoundedCornerShape(24.dp)
@@ -387,8 +378,16 @@ internal fun DiceBoard(
                         faceDrawable = faceDrawable,
                         isSelected = isSelected,
                         showSelectionBorder = showSelectionBorder,
-                        numberTextScale = diceTextScale,
-                        numberTextColor = diceFaceNumberColor(isSelected = isSelected)
+                        numberTextColor = diceFaceNumberColor(
+                            isSelected = isSelected,
+                            type = uiState.diceTypes.getOrElse(index) { DiceType.D6 }
+                        ),
+                        motion = if (index in uiState.rollingDiceIndices) rollMotion else null,
+                        index = index,
+                        travelX = (contentSize.width - diceSize) *
+                            ((index * 37 + 19) % 101 / 100f) - position.x,
+                        travelY = (contentSize.height - diceSize) *
+                            ((index * 53 + 61) % 101 / 100f) - position.y
                     )
                 }
             }
@@ -404,8 +403,12 @@ private fun DiceFace(
     isSelected: Boolean,
     showSelectionBorder: Boolean,
     showSelectedFace: Boolean = true,
-    numberTextScale: Float = 1f,
-    numberTextColor: Color = MaterialTheme.colorScheme.onBackground
+    highlightResult: Boolean = true,
+    numberTextColor: Color = MaterialTheme.colorScheme.onBackground,
+    motion: State<Float>? = null,
+    index: Int = 0,
+    travelX: Dp = 0.dp,
+    travelY: Dp = 0.dp
 ) {
     Box(
         modifier = Modifier
@@ -414,7 +417,7 @@ private fun DiceFace(
                 if (showSelectionBorder) {
                     Modifier.border(
                         width = 3.dp,
-                        color = MaterialTheme.colorScheme.tertiary,
+                        color = diceActionSelectionBorderColor(),
                         shape = RoundedCornerShape(12.dp)
                     )
                 } else {
@@ -423,17 +426,17 @@ private fun DiceFace(
             ),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = diceFaceDrawable(faceDrawable, isSelected && showSelectedFace)),
-            contentDescription = stringResource(R.string.cd_dice_face, number)
-        )
-        Text(
-            text = number.toString(),
-            modifier = Modifier.offset(y = diceNumberYOffset(faceDrawable)),
-            style = MaterialTheme.typography.displaySmall.copy(
-                fontSize = MaterialTheme.typography.displaySmall.fontSize * numberTextScale
-            ),
-            color = numberTextColor
+        RealisticDie(
+            value = number,
+            type = diceDrawableType(faceDrawable),
+            size = size,
+            selected = isSelected && showSelectedFace,
+            highlightResult = highlightResult,
+            numberColor = numberTextColor,
+            motion = motion,
+            index = index,
+            travelX = travelX,
+            travelY = travelY
         )
     }
 }
@@ -443,8 +446,6 @@ private fun DiceOption(
     value: Int,
     faceDrawable: Int,
     size: Dp,
-    numberTextScale: Float,
-    numberTextColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -460,8 +461,8 @@ private fun DiceOption(
             faceDrawable = faceDrawable,
             isSelected = false,
             showSelectionBorder = false,
-            numberTextScale = numberTextScale,
-            numberTextColor = numberTextColor
+            highlightResult = true,
+            numberTextColor = dicePalette(diceDrawableType(faceDrawable)).ink
         )
     }
 }
@@ -472,9 +473,10 @@ internal fun calculateFlippedDiceValue(currentValue: Int, diceType: DiceType): I
 
 internal fun diceOptionNumberColor(): Color = DiceOptionNumberColor
 
-@Suppress("UNUSED_PARAMETER")
+internal fun diceActionSelectionBorderColor(): Color = DiceSetValueOuterColor
+
 internal fun diceSetValueNumberColor(backgroundColor: Color = DiceSetValueOuterColor): Color =
-    Color.White
+    bestContrastTextColor(backgroundColor)
 
 internal fun bestContrastTextColor(backgroundColor: Color): Color {
     val whiteContrast = contrastRatio(Color.White, backgroundColor)
@@ -490,8 +492,9 @@ internal fun contrastRatio(foreground: Color, background: Color): Float {
     return ((lighter + 0.05f) / (darker + 0.05f))
 }
 
-internal fun diceFaceNumberColor(isSelected: Boolean): Color =
-    if (isSelected) DiceSelectedNumberColor else DiceDefaultNumberColor
+@Suppress("UNUSED_PARAMETER")
+internal fun diceFaceNumberColor(isSelected: Boolean, type: DiceType = DiceType.D6): Color =
+    dicePalette(type).ink
 
 internal fun shouldPlayMoveSound(isRolling: Boolean, isLevelComplete: Boolean): Boolean =
     !isRolling && !isLevelComplete
@@ -693,9 +696,10 @@ internal fun calculatePackedDicePositions(
     ).filter { (column, row) ->
         column in 0 until safeColumns && row in 0 until safeRows
     }
-    val remainingCells = allCells.filterNot { it in corners }
+    val uniqueCorners = corners.distinct()
+    val remainingCells = allCells.filterNot { it in uniqueCorners }
     val shuffledRemaining = remainingCells.shuffled(Random(seed))
-    val orderedCells = corners + shuffledRemaining
+    val orderedCells = uniqueCorners + shuffledRemaining
     return orderedCells.take(minOf(diceCount, totalCells)).map { (column, row) ->
         val baseX = (horizontalInset + (diceSize + spacing) * column)
             .coerceAtMost(availableWidth - diceSize)
@@ -706,6 +710,37 @@ internal fun calculatePackedDicePositions(
             y = baseY.coerceIn(0.dp, availableHeight - diceSize)
         )
     }
+}
+
+internal fun calculateRestingDicePositions(
+    diceCount: Int,
+    availableWidth: Dp,
+    availableHeight: Dp,
+    diceSize: Dp,
+    spacing: Dp,
+    columns: Int,
+    rows: Int,
+    seed: Long
+): List<DicePosition> {
+    val cells = calculatePackedDicePositions(
+        diceCount, availableWidth, availableHeight, diceSize, spacing, columns, rows, seed
+    )
+    val random = Random(seed)
+    return cells.map { position ->
+        // The die uses 86% of its reserved cell; jitter stays inside the remaining margin.
+        DicePosition(
+            position.x + diceSize * (0.03f + random.nextFloat() * 0.08f),
+            position.y + diceSize * (0.03f + random.nextFloat() * 0.08f)
+        )
+    }
+}
+
+internal fun diceDrawableType(drawable: Int): DiceType = when (drawable) {
+    R.drawable.eigth_sides, R.drawable.eigth_sides_selected,
+    R.drawable.eigth_sides_contrast, R.drawable.eigth_sides_set_value -> DiceType.D8
+    R.drawable.ten_sides, R.drawable.ten_sides_selected,
+    R.drawable.ten_sides_contrast, R.drawable.ten_sides_set_value -> DiceType.D10
+    else -> DiceType.D6
 }
 
 internal fun calculateDiceTextScale(diceSize: Dp, referenceSize: Dp = 72.dp): Float {

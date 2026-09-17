@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Saikoro Dojo</string>
-    <string name="game_title">Saikoro Dojo</string>
+    <string name="app_name">Dice Deck</string>
+    <string name="game_title">Dice Deck</string>
     <string name="play">Jugar</string>
     <string name="rules">Regles</string>
     <string name="menu_continue_title">Continuar la partida?</string>
@@ -9,6 +9,8 @@
     <string name="menu_continue_new_game">Nova partida</string>
     <string name="cd_sound_on">So activat</string>
     <string name="cd_sound_off">So desactivat</string>
+    <string name="cd_haptics_on">Vibració activada</string>
+    <string name="cd_haptics_off">Vibració desactivada</string>
     <string name="cd_settings">Ajustos</string>
 
     <string name="settings_screen_title">Ajustos</string>
