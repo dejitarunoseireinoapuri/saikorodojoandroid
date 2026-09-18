@@ -13,8 +13,8 @@ android {
         applicationId = "com.dejitarunoseireinoapuri.saikorodojo"
         minSdk = 30
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["admobAppId"] = (project.findProperty("ADMOB_APP_ID") as String?) ?: ""
         val rewardedAdUnitId = (project.findProperty("ADMOB_REWARDED_UNIT_ID") as String?) ?: ""
