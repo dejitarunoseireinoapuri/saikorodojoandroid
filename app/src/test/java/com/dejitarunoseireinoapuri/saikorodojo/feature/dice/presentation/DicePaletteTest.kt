@@ -15,7 +15,9 @@ class DicePaletteTest {
             assertTrue("$type lit face", contrast(palette.ink, palette.light) >= 4.5f)
             assertTrue("$type shaded face", contrast(palette.ink, palette.dark) >= 4.5f)
         }
-        assertEquals(3, DiceType.entries.map { dicePalette(it).light }.toSet().size)
+        val whitePalette = dicePalette(DiceType.D6)
+        assertEquals(whitePalette, dicePalette(DiceType.D8))
+        assertEquals(whitePalette, dicePalette(DiceType.D10))
     }
 
     @Test

@@ -338,6 +338,11 @@ internal fun DiceBoard(
                 val position = positions.getOrNull(index) ?: DicePosition(0.dp, 0.dp)
                 val faceDrawable = diceFaces.getOrElse(index) { diceTypeDrawable(DiceType.D6) }
                 val isSelected = uiState.selectedDice.contains(index)
+                val showObjectiveSelection = shouldShowObjectiveSelection(
+                    isSelected = isSelected,
+                    isRolling = uiState.isRolling,
+                    isDieRolling = index in uiState.rollingDiceIndices
+                )
                 val isAdjustmentSelected = uiState.selectedAdjustmentDieIndex == index
                 val isSetValueSelected = uiState.selectedSetValueDieIndex == index
                 val isRerollSingleSelected = uiState.selectedRerollSingleDieIndex == index
@@ -376,7 +381,7 @@ internal fun DiceBoard(
                         number = value,
                         size = diceSize,
                         faceDrawable = faceDrawable,
-                        isSelected = isSelected,
+                        isSelected = showObjectiveSelection,
                         showSelectionBorder = showSelectionBorder,
                         numberTextColor = diceFaceNumberColor(
                             isSelected = isSelected,
@@ -498,6 +503,12 @@ internal fun diceFaceNumberColor(isSelected: Boolean, type: DiceType = DiceType.
 
 internal fun shouldPlayMoveSound(isRolling: Boolean, isLevelComplete: Boolean): Boolean =
     !isRolling && !isLevelComplete
+
+internal fun shouldShowObjectiveSelection(
+    isSelected: Boolean,
+    isRolling: Boolean,
+    isDieRolling: Boolean
+): Boolean = isSelected && !(isRolling && isDieRolling)
 
 internal fun shouldShowDiceSelectionBorder(
     isAwaitingRerollSelected: Boolean,

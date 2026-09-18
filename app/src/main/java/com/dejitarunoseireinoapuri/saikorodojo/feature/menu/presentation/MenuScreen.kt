@@ -1,5 +1,6 @@
 package com.dejitarunoseireinoapuri.saikorodojo.feature.menu.presentation
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -24,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Vibration
@@ -39,7 +39,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
@@ -82,6 +84,7 @@ fun MenuScreen(
     onSettingsClick: () -> Unit
 ) {
     val soundPlayer = rememberSoundPlayer()
+    val view = LocalView.current
     var scaffoldModifier = modifier
     if (applySystemBarsPadding) {
         scaffoldModifier = scaffoldModifier.systemBarsPadding()
@@ -113,22 +116,29 @@ fun MenuScreen(
                             }
                         }
                     ) {
-                        Icon(
-                            imageVector = if (!isSoundEnabled) {
-                                Icons.AutoMirrored.Filled.VolumeOff
-                            } else {
-                                Icons.AutoMirrored.Filled.VolumeUp
-                            },
+                        ToggleStatusIcon(
+                            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                             contentDescription = if (!isSoundEnabled) {
                                 stringResource(R.string.cd_sound_off)
                             } else {
                                 stringResource(R.string.cd_sound_on)
                             },
-                            tint = MaterialTheme.colorScheme.primary
+                            isEnabled = isSoundEnabled
                         )
                     }
                     MetallicIconButton(
-                        onClick = onHapticsToggleClick,
+                        onClick = {
+                            val shouldPlayFeedback = shouldPlayHapticsActivationFeedback(
+                                isCurrentlyEnabled = isHapticsEnabled
+                            )
+                            onHapticsToggleClick()
+                            if (shouldPlayFeedback) {
+                                view.performHapticFeedback(
+                                    hapticsActivationFeedback,
+                                    HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                                )
+                            }
+                        },
                         modifier = Modifier.testTag(MENU_HAPTICS_BUTTON_TAG)
                     ) {
                         HapticsStatusIcon(isEnabled = isHapticsEnabled)
@@ -291,19 +301,32 @@ fun MenuScreen(
 
 @Composable
 private fun HapticsStatusIcon(isEnabled: Boolean) {
+    ToggleStatusIcon(
+        imageVector = Icons.Default.Vibration,
+        contentDescription = if (isEnabled) {
+            stringResource(R.string.cd_haptics_on)
+        } else {
+            stringResource(R.string.cd_haptics_off)
+        },
+        isEnabled = isEnabled
+    )
+}
+
+@Composable
+private fun ToggleStatusIcon(
+    imageVector: ImageVector,
+    contentDescription: String,
+    isEnabled: Boolean
+) {
     val gold = MaterialTheme.colorScheme.primary
     Box(modifier = Modifier.size(24.dp)) {
         Icon(
-            imageVector = Icons.Default.Vibration,
-            contentDescription = if (isEnabled) {
-                stringResource(R.string.cd_haptics_on)
-            } else {
-                stringResource(R.string.cd_haptics_off)
-            },
-            tint = if (isEnabled) gold else gold.copy(alpha = 0.45f),
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+            tint = gold.copy(alpha = statusIconAlpha(isEnabled)),
             modifier = Modifier.matchParentSize()
         )
-        if (!isEnabled) {
+        if (shouldShowStatusIconSlash(isEnabled)) {
             Canvas(modifier = Modifier.matchParentSize()) {
                 drawLine(
                     color = gold,
@@ -316,6 +339,15 @@ private fun HapticsStatusIcon(isEnabled: Boolean) {
         }
     }
 }
+
+internal fun statusIconAlpha(isEnabled: Boolean): Float = if (isEnabled) 1f else 0.45f
+
+internal fun shouldShowStatusIconSlash(isEnabled: Boolean): Boolean = !isEnabled
+
+internal fun shouldPlayHapticsActivationFeedback(isCurrentlyEnabled: Boolean): Boolean =
+    !isCurrentlyEnabled
+
+internal val hapticsActivationFeedback = HapticFeedbackConstants.CONTEXT_CLICK
 
 @Composable
 fun MenuRoute(

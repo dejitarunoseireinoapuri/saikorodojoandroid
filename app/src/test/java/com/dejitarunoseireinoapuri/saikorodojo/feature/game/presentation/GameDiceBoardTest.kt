@@ -171,6 +171,40 @@ class GameDiceBoardTest {
     }
 
     @Test
+    fun `objective selection is hidden only while its die is rolling`() {
+        assertEquals(
+            false,
+            shouldShowObjectiveSelection(
+                isSelected = true,
+                isRolling = true,
+                isDieRolling = true
+            )
+        )
+        assertTrue(
+            shouldShowObjectiveSelection(
+                isSelected = true,
+                isRolling = true,
+                isDieRolling = false
+            )
+        )
+        assertTrue(
+            shouldShowObjectiveSelection(
+                isSelected = true,
+                isRolling = false,
+                isDieRolling = true
+            )
+        )
+        assertEquals(
+            false,
+            shouldShowObjectiveSelection(
+                isSelected = false,
+                isRolling = false,
+                isDieRolling = false
+            )
+        )
+    }
+
+    @Test
     fun `roll and flip action buttons use minigame gold color`() {
         assertEquals(MinigameButtonPrimaryColor, DiceBoardActionButtonColor)
     }

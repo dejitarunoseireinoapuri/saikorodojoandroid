@@ -6,9 +6,9 @@
     <color name="dice_selected_outer">#45C4B0</color>
     <color name="dice_set_value_outer">#E6B85C</color>
     <color name="dice_set_value_inner">#AD8037</color>
-    <color name="dice_d8_outer">#103C39</color>
-    <color name="dice_d8_inner">#237F75</color>
-    <color name="dice_d10_outer">#622D2D</color>
-    <color name="dice_d10_inner">#AA493F</color>
+    <color name="dice_d8_outer">#B7A990</color>
+    <color name="dice_d8_inner">#FFF7E8</color>
+    <color name="dice_d10_outer">#B7A990</color>
+    <color name="dice_d10_inner">#FFF7E8</color>
     <color name="splash_screen_background">#101827</color>
 </resources>
